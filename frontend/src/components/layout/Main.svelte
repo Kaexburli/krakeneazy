@@ -4,9 +4,9 @@
   import Home from "components/pages/Home/Home.svelte";
   import Account from "components/pages/account/MainAccount.svelte";
   import Trading from "components/pages/trading/MainTrading.svelte";
-  import Statistic from "components/pages/Statistic.svelte";
-  import Settings from "components/pages/Settings.svelte";
-  import Reports from "components/pages/Reports.svelte";
+  import Statistic from "components/pages/statistics/Statistics.svelte";
+  import Settings from "components/pages/settings/Settings.svelte";
+  import Reports from "components/pages/reports/Reports.svelte";
 </script>
 
 <div class="main">
