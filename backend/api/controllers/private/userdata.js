@@ -1,7 +1,5 @@
 import { Kraken } from 'node-kraken-api'
-
 let debug = false
-
 
 /**
  *  *****************
@@ -10,8 +8,15 @@ let debug = false
  */
 
 // Instanciation du module kraken API
-const API_KEY = process.env.API_KEY
-const API_PRIV = process.env.API_PRIV
+import KRAKEN from '../../../kraken.env.js'
+
+const randomApiKey = () => {
+  return Math.floor(Math.random() * (10 - 1 + 1)) + 1;
+}
+
+let shuffle = randomApiKey();
+const API_KEY = KRAKEN['key_' + shuffle]['key']
+const API_PRIV = KRAKEN['key_' + shuffle]['secret']
 
 const NonceGenerator = (() => {
   let prev = -1;
@@ -282,7 +287,7 @@ const getWsSystemStatus = async (connection, reply, req) => {
   try {
 
     let timer = null,
-      interval = 1000;
+      interval = 10000;
 
     // Strat interval
     const startInterval = () => {
