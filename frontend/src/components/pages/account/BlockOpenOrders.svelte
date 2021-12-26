@@ -364,6 +364,6 @@
     display: block;
   }
   .red {
-    color: #8d2525;
+    color: #f92828;
   }
 </style>
