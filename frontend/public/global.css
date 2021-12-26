@@ -1,0 +1,136 @@
+/* Global CSS */
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+*{
+  list-style: none;
+  text-decoration: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Open Sans', sans-serif;
+}
+
+body {
+  background-color: #1e1e1e;
+}
+
+/* body.active .layout .header, 
+body.active .layout .main, 
+body.active .layout .footer {
+	margin-left: 60px;
+	width: 100%;
+}
+ */
+
+body.active .layout .main
+{
+  margin-left: 70px;
+  margin-right: 100px;
+  width: 94%;
+}
+body.active .layout .header .top_navbar {
+	padding:15px;
+}
+
+pre, code {
+  font-family: 'Menlo', 'Noto Mono', monospace;
+  font-size: 1em;
+  white-space: pre-wrap;
+  max-height: 300px;
+  display: block;
+  margin: 1em 0;
+  tab-size: 2;
+  overflow: auto;
+  min-width: 600px;
+}
+
+.hide { display: none; visibility: hidden; }
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #292929; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #222222; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #131313; 
+}
+
+/* Felx Table */ 
+.flex-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #2e2e2e;
+  background: #282828;
+}
+.flex-table thead {
+  color: #cdcdcd;
+  background: #1c1c1c;
+}
+.flex-table thead tr,
+.flex-table tbody tr {
+  display: flex;
+}
+.flex-table tbody tr + tr {
+  border-top: 1px solid #2e2e2e;
+}
+.flex-table thead tr th,
+.flex-table tbody tr td {
+  display: flex;
+  flex: 1;
+  padding: 0.5em;
+  font-size: 0.8em;
+}
+@media screen and (max-width: 640px) {
+  .flex-table {
+    border: 0;
+  }
+  .flex-table thead {
+    display: none;
+  }
+  .flex-table tbody tr {
+    flex-direction: column;
+    margin: 1em;
+    border: 1px solid #2e2e2e;
+  }
+  .flex-table tbody tr td {
+    flex-direction: column;
+  }
+  .flex-table tbody tr td + td {
+    border-top: 1px solid #2e2e2e;
+  }
+  .flex-table tbody tr td:before {
+    display: flex;
+    align-items: center;
+    margin: -0.5em -0.5em 0.75em -0.5em;
+    padding: 0.5em;
+    content: attr(data-label);
+    color: #cdcdcd;
+    background: #282828;
+  }
+}
+.flex-fixhead-table tbody {
+  overflow: auto;
+  max-height: 50vh;
+}
+
+
+.error {
+  color: #f1abab;
+  font-size: 0.8em;
+  display: block;
+  background-color: #4a1f1f;
+  padding: 5px;
+  border: 1px solid #1e1e1e;
+}
