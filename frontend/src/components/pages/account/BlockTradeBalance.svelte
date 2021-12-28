@@ -120,7 +120,7 @@
         Number($wstradebalancedata["v"]) / Number($wstradebalancedata["c"]) // Valorisation - coût
       );
       trading_percent = trading_percent * 100; // x 100
-      trading_percent = trading_percent - 100; // -100
+      trading_percent = 100 - trading_percent; // 100 -
 
       if (!isNaN(trading_percent)) {
         // Joue un sont en cas de cahngement de perte et profit
