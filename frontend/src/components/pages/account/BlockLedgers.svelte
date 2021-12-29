@@ -20,6 +20,7 @@
     margin: "Levier",
     rollover: "Rollover",
     trade: "Trader",
+    staking: "Financement",
   };
 
   const get__store = (store) => {
@@ -228,6 +229,16 @@
   .ledgers .trade {
     border: 1px solid #242424;
     background-color: #232630;
+    color: #a9a9a9;
+    padding: 7px 15px;
+    text-transform: capitalize;
+    min-width: 96px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  .ledgers .staking {
+    border: 1px solid #242424;
+    background-color: #233030;
     color: #a9a9a9;
     padding: 7px 15px;
     text-transform: capitalize;
