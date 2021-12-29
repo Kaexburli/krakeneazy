@@ -231,7 +231,7 @@ const getWsOwnTrades = async (connection, reply, req) => {
 const getWsTradeBalance = async (connection, reply, req) => {
 
   let timer = null;
-  let interval = 5000;
+  let interval = 6000;
 
   // Strat interval
   const startInterval = () => {

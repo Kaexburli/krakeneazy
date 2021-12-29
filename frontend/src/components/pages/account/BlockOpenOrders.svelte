@@ -212,7 +212,9 @@
   $: {
     if (!$openordersdata) {
       // console.log("OPENORDERSDATA empty on appel GetOpenOrders");
-      GetOpenOrders();
+      setTimeout(() => {
+        GetOpenOrders();
+      }, 500);
     }
   }
 </script>
