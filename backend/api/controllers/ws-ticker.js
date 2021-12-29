@@ -22,7 +22,11 @@ const GetTicker = async (connection, req) => {
 
     connection.socket.on('close', async (message) => {
       if (debug) console.log('[###########################################  CLOSE TICKER]: ', message)
-      await ticker.unsubscribe(pair)
+      try {
+        await ticker.unsubscribe(pair)
+      } catch (error) {
+        console.log('######################" [ERROR:TICKER:ONCLOSE]', error)
+      }
     })
   } catch (error) {
     console.log('[CATCH ERROR TICKER]: ', error)

@@ -22,7 +22,11 @@ const GetTrade = async (connection, req) => {
 
     connection.socket.on('close', async (message) => {
       if (debug) console.log('[###########################################  CLOSE TRADE]: ', message)
-      await trade.unsubscribe(pair)
+      try {
+        await trade.unsubscribe(pair)
+      } catch (error) {
+        console.log('######################" [ERROR:TRADE:ONCLOSE]', error)
+      }
     })
   } catch (error) {
     console.log('[CATCH ERROR TRADE]: ', error)

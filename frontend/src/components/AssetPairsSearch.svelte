@@ -20,8 +20,12 @@
   };
 
   const getAssetPairs = async () => {
-    let res = await Fetch(fetchUrl, "assetpairs");
-    assetpairs.set(res);
+    try {
+      let res = await Fetch(fetchUrl, "assetpairs");
+      assetpairs.set(res);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const changeAssetPair = (choice) => {

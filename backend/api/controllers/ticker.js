@@ -4,9 +4,13 @@ import { Kraken } from 'node-kraken-api'
 const api = new Kraken()
 
 const getTicker = async (req, reply) => {
-  const { pair } = req.params
-  let response = await api.ticker({ pair: pair })
-  reply.send(response)
+  try {
+    const { pair } = req.params
+    let response = await api.ticker({ pair: pair })
+    reply.send(response)
+  } catch (error) {
+    console.log('######################" [ERROR:getTicker]', error)
+  }
 }
 
 export {

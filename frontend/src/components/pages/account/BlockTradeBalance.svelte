@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
+
   import {
     devise,
     online,
@@ -69,24 +70,28 @@
   };
 
   const GetTradeBalance = async () => {
-    if (!$online) {
-      error = true;
-      return false;
-    }
-
-    const ud = new UserData();
-    const res = await ud.getTradeBalance(asset);
-
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      console.error("GetTradeBalance", res.error);
-      if (limit < 2) {
-        GetTradeBalance();
-        limit++;
+    try {
+      if (!$online) {
+        error = true;
+        return false;
       }
-    } else {
-      tradebalance = res;
-      wstradebalancedata.set(tradebalance);
-      error = false;
+
+      const ud = new UserData();
+      const res = await ud.getTradeBalance(asset);
+
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        console.error("GetTradeBalance", res.error);
+        if (limit < 2) {
+          GetTradeBalance();
+          limit++;
+        }
+      } else {
+        tradebalance = res;
+        wstradebalancedata.set(tradebalance);
+        error = false;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

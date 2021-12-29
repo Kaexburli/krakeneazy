@@ -21,8 +21,12 @@ const GetSpread = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      if (debug) console.log('[###########################################  CLOSE TICKER]: ', message)
-      await spread.unsubscribe(pair)
+      if (debug) console.log('[###########################################  CLOSE SPREAD]: ', message)
+      try {
+        await spread.unsubscribe(pair)
+      } catch (error) {
+        console.log('######################" [ERROR:SPREAD:ONCLOSE]', error)
+      }
     })
   } catch (error) {
     console.log('[CATCH ERROR SPREAD]: ', error)

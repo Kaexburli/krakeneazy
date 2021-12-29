@@ -160,9 +160,9 @@ const getTradesHistory = async (req, reply) => {
 // /private/OpenOrders
 const getWsOpenOrders = async (connection, reply, req) => {
 
-  const { token } = await api.getWebSocketsToken();
-
   try {
+
+    const { token } = await api.getWebSocketsToken();
 
     const openorders = await api.ws.openOrders({ token: token, ratecounter: true })
       .on("update", (update, sequence) => {
@@ -195,9 +195,9 @@ const getWsOpenOrders = async (connection, reply, req) => {
 // /private/OwnTrades
 const getWsOwnTrades = async (connection, reply, req) => {
 
-  const { token } = await api.getWebSocketsToken();
-
   try {
+
+    const { token } = await api.getWebSocketsToken();
 
     const owntrades = await api.ws.ownTrades({ token: token, ratecounter: true })
       .on("update", (update, sequence) => {
@@ -230,109 +230,106 @@ const getWsOwnTrades = async (connection, reply, req) => {
 // /private/TradeBalance WS
 const getWsTradeBalance = async (connection, reply, req) => {
 
-  try {
+  let timer = null;
+  let interval = 5000;
 
-    let timer = null,
-      interval = 15000;
+  // Strat interval
+  const startInterval = () => {
+    timer = setInterval(() => {
+      getWsTradeBalanceData()
+    }, interval);
+  }
 
-    // Strat interval
-    const startInterval = () => {
-      timer = setInterval(() => {
-        getWsSystemStatusData()
-      }, interval);
-    }
-
-    // Envoie la requête api
-    const getWsSystemStatusData = async () => {
+  // Envoie la requête api
+  const getWsTradeBalanceData = async () => {
+    try {
       let response = await getTradeBalance(reply, req)
       checkAndSendResult(response)
+    } catch (error) {
+      console.log('######################" [ERROR:getWsTradeBalanceData]', error)
     }
-
-    // Verifie la réponse si erreur
-    const checkAndSendResult = async (data) => {
-      if (
-        data.hasOwnProperty('body') &&
-        data.body.hasOwnProperty('error')
-      ) {
-        connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', data: { error: data.body.error } }))
-        stopInterval()
-
-        setTimeout(() => {
-          timer = startInterval()
-        }, (interval * 4));
-
-      }
-      else {
-        connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', error: false, data }))
-      }
-    }
-
-    // Stop l'interval
-    const stopInterval = () => {
-      clearInterval(timer)
-      timer = null
-    }
-
-    // Lancement de linterval 
-    startInterval()
-
-  } catch (error) {
-    return error
   }
+
+  // Verifie la réponse si erreur
+  const checkAndSendResult = async (data) => {
+    if (
+      data.hasOwnProperty('body') &&
+      data.body.hasOwnProperty('error')
+    ) {
+      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', data: { error: data.body.error } }))
+      stopInterval()
+
+      setTimeout(() => {
+        timer = startInterval()
+      }, (interval * 4));
+
+    }
+    else {
+      data.rate = Date.now()
+      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', error: false, data }))
+    }
+  }
+
+  // Stop l'interval
+  const stopInterval = () => {
+    clearInterval(timer)
+    timer = null
+  }
+
+  // Lancement de l'interval 
+  startInterval()
 }
 
 // /SystemStatus WS
 const getWsSystemStatus = async (connection, reply, req) => {
 
-  try {
+  let timer = null,
+    interval = 2000;
 
-    let timer = null,
-      interval = 10000;
+  // Strat interval
+  const startInterval = () => {
+    timer = setInterval(() => {
+      getWsSystemStatusData()
+    }, interval);
+  }
 
-    // Strat interval
-    const startInterval = () => {
-      timer = setInterval(() => {
-        getWsSystemStatusData()
-      }, interval);
-    }
-
-    // Envoie la requête api
-    const getWsSystemStatusData = async () => {
+  // Envoie la requête api
+  const getWsSystemStatusData = async () => {
+    try {
       let response = await getSystemStatus(reply, req)
       checkAndSendResult(response)
+    } catch (error) {
+      console.log('######################" [ERROR:getWsSystemStatusData]', error)
     }
-
-    // Verifie la réponse si erreur
-    const checkAndSendResult = async (data) => {
-      if (
-        data.hasOwnProperty('body') &&
-        data.body.hasOwnProperty('error')
-      ) {
-        connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', data: { error: data.body.error } }))
-        stopInterval()
-
-        setTimeout(() => {
-          timer = startInterval()
-        }, (interval * 300));
-
-      }
-      else {
-        connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', error: false, data }))
-      }
-    }
-
-    // Stop l'interval
-    const stopInterval = () => {
-      clearInterval(timer)
-      timer = null
-    }
-
-    // Lancement de linterval 
-    startInterval()
-
-  } catch (error) {
-    return error
   }
+
+  // Verifie la réponse si erreur
+  const checkAndSendResult = async (data) => {
+    if (
+      data.hasOwnProperty('body') &&
+      data.body.hasOwnProperty('error')
+    ) {
+      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', data: { error: data.body.error } }))
+      stopInterval()
+
+      setTimeout(() => {
+        timer = startInterval()
+      }, (interval * 300));
+
+    }
+    else {
+      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', error: false, data }))
+    }
+  }
+
+  // Stop l'interval
+  const stopInterval = () => {
+    clearInterval(timer)
+    timer = null
+  }
+
+  // Lancement de l'interval 
+  startInterval()
 }
 
 

@@ -22,7 +22,11 @@ const GetOhlc = async (connection, req) => {
 
     connection.socket.on('close', async (message) => {
       if (debug) console.log('[###########################################  CLOSE OHLC]: ', message)
-      await ohlc.unsubscribe(pair)
+      try {
+        await ohlc.unsubscribe(pair)
+      } catch (error) {
+        console.log('######################" [ERROR:OHLC:ONCLOSE]', error)
+      }
     })
   } catch (error) {
     console.log('[CATCH ERROR OHLC]: ', error)

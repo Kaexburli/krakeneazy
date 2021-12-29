@@ -23,47 +23,55 @@
   };
 
   const GetTradesHistory = async () => {
-    if (!$online) {
-      error = true;
-      return false;
-    }
-
-    tradeshistory_store = get__store(tradeshistorydata);
-
-    if (tradeshistory_store) {
-      let expired =
-        parseInt(Date.now() / 1000) - tradeshistory_store.time > life;
-      if (!expired) return (tradeshistory = tradeshistory_store.data);
-    }
-
-    //  FINIR LA PAGINATION ET VOIR LES PARAMS
-    const res = await ud.getTradesHistory({
-      start: 1,
-      end: 10,
-      ofs: 0,
-    });
-
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      error = res.error;
-      if (limit < 5) {
-        GetTradesHistory();
-        limit++;
+    try {
+      if (!$online) {
+        error = true;
+        return false;
       }
-    } else {
-      let json = {
-        data: Object.entries(res.trades),
-        time: parseInt(Date.now() / 1000),
-      };
 
-      tradeshistory = Object.entries(res.trades);
-      tradeshistorydata.set(json);
-      count = res.count;
-      error = false;
+      tradeshistory_store = get__store(tradeshistorydata);
+
+      if (tradeshistory_store) {
+        let expired =
+          parseInt(Date.now() / 1000) - tradeshistory_store.time > life;
+        if (!expired) return (tradeshistory = tradeshistory_store.data);
+      }
+
+      //  FINIR LA PAGINATION ET VOIR LES PARAMS
+      const res = await ud.getTradesHistory({
+        start: 1,
+        end: 10,
+        ofs: 0,
+      });
+
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        error = res.error;
+        if (limit < 5) {
+          GetTradesHistory();
+          limit++;
+        }
+      } else {
+        let json = {
+          data: Object.entries(res.trades),
+          time: parseInt(Date.now() / 1000),
+        };
+
+        tradeshistory = Object.entries(res.trades);
+        tradeshistorydata.set(json);
+        count = res.count;
+        error = false;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
   onMount(async () => {
-    await GetTradesHistory();
+    try {
+      await GetTradesHistory();
+    } catch (error) {
+      console.log(error);
+    }
   });
 </script>
 

@@ -12,33 +12,36 @@
   let limit = 0;
 
   const GetBalance = async () => {
-    if (!$online) {
-      error = true;
-      return false;
-    }
-
-    if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-      return false;
-    }
-
-    const res = await ud.getBalance();
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      console.log(res);
-      error = res.error;
-      if (limit < 5) {
-        GetBalance();
-        limit++;
+    try {
+      if (!$online) {
+        error = true;
+        return false;
       }
-    } else {
-      balance = res;
-      error = false;
+
+      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
+        return false;
+      }
+
+      const res = await ud.getBalance();
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        error = res.error;
+        if (limit < 5) {
+          GetBalance();
+          limit++;
+        }
+      } else {
+        balance = res;
+        error = false;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
   onMount(() => {
     setTimeout(() => {
       GetBalance();
-    }, 2000);
+    }, 500);
   });
 </script>
 

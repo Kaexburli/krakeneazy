@@ -4,8 +4,12 @@ import { Kraken } from 'node-kraken-api'
 const api = new Kraken()
 
 const getAssetPairs = async (req, reply) => {
-  let response = await api.assetPairs()
-  reply.send(response)
+  try {
+    let response = await api.assetPairs()
+    reply.send(response)
+  } catch (error) {
+    console.log('######################" [ERROR:getAssetPairs]', error)
+  }
 }
 
 export {

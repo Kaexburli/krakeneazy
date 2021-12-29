@@ -22,42 +22,46 @@
   };
 
   const GetClosedOrders = async () => {
-    if (!$online) {
-      error = true;
-      return false;
-    }
-
-    closedorders_store = get__store(closedordersdata);
-
-    if (closedorders_store) {
-      let expired =
-        parseInt(Date.now() / 1000) - closedorders_store.time > life;
-      if (!expired) return (closedorders = closedorders_store.data);
-    }
-    const ud = new UserData();
-    const res = await ud.getClosedOrders({
-      trades: true,
-      start: 1,
-      end: 10,
-      ofs: 0,
-    });
-
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      error = res.error;
-      if (limit < 5) {
-        GetClosedOrders();
-        limit++;
+    try {
+      if (!$online) {
+        error = true;
+        return false;
       }
-    } else {
-      let json = {
-        data: Object.entries(res.closed),
-        time: parseInt(Date.now() / 1000),
-      };
 
-      closedorders = Object.entries(res.closed);
-      closedordersdata.set(json);
-      count = res.count;
-      error = false;
+      closedorders_store = get__store(closedordersdata);
+
+      if (closedorders_store) {
+        let expired =
+          parseInt(Date.now() / 1000) - closedorders_store.time > life;
+        if (!expired) return (closedorders = closedorders_store.data);
+      }
+      const ud = new UserData();
+      const res = await ud.getClosedOrders({
+        trades: true,
+        start: 1,
+        end: 10,
+        ofs: 0,
+      });
+
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        error = res.error;
+        if (limit < 5) {
+          GetClosedOrders();
+          limit++;
+        }
+      } else {
+        let json = {
+          data: Object.entries(res.closed),
+          time: parseInt(Date.now() / 1000),
+        };
+
+        closedorders = Object.entries(res.closed);
+        closedordersdata.set(json);
+        count = res.count;
+        error = false;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

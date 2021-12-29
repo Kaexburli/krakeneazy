@@ -141,43 +141,47 @@
   };
 
   const GetOpenOrders = async () => {
-    if (!$online) {
-      error = true;
-      return false;
-    }
-
-    if (typeof $assetpair.altname === "undefined") {
-      error = "Veuillez choisir une paire d'asset";
-      return false;
-    }
-
-    if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-      error = true;
-      return false;
-    }
-
-    const ud = new UserData();
-    const res = await ud.getOpenOrders({ trade: true });
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      error = res.error;
-      if (limit < 5) {
-        GetOpenOrders();
-        limit++;
+    try {
+      if (!$online) {
+        error = true;
+        return false;
       }
-    } else {
-      if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
-        openorders = [];
-        Object.keys(res.open).map((key) => {
-          let o = new Object();
-          o[key] = res.open[key];
-          openorders.push(o);
-        });
-        // console.log("Fetch res:", openorders);
-        openorders = checkStatusDatas(openorders);
-        // console.log("Fetch:", openorders);
-        openordersdata.update((n) => openorders);
+
+      if (typeof $assetpair.altname === "undefined") {
+        error = "Veuillez choisir une paire d'asset";
+        return false;
       }
-      error = false;
+
+      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
+        error = true;
+        return false;
+      }
+
+      const ud = new UserData();
+      const res = await ud.getOpenOrders({ trade: true });
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        error = res.error;
+        if (limit < 5) {
+          GetOpenOrders();
+          limit++;
+        }
+      } else {
+        if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
+          openorders = [];
+          Object.keys(res.open).map((key) => {
+            let o = new Object();
+            o[key] = res.open[key];
+            openorders.push(o);
+          });
+          // console.log("Fetch res:", openorders);
+          openorders = checkStatusDatas(openorders);
+          // console.log("Fetch:", openorders);
+          openordersdata.update((n) => openorders);
+        }
+        error = false;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

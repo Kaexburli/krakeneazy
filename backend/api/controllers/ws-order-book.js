@@ -34,7 +34,11 @@ const GetOrderBook = async (connection, req) => {
 
     connection.socket.on('close', async (message) => {
       if (debug) console.log('[###########################################  CLOSE BOOK]: ', message)
-      await book.unsubscribe(pair)
+      try {
+        await book.unsubscribe(pair)
+      } catch (error) {
+        console.log('######################" [ERROR:BOOK:ONCLOSE]', error)
+      }
     })
   } catch (error) {
     console.log('[CATCH ERROR BOOK]: ', error)

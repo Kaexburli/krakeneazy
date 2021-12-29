@@ -9,7 +9,6 @@ import Autoload from 'fastify-autoload'
 const fastify = Fastify({ logger: { level: 'trace' } })
 const PORT = process.env.PORT || '9000'
 
-
 const options = {
   schema: {
     type: 'object',
@@ -52,3 +51,9 @@ const start = async () => {
   }
 }
 start()
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.log('reason is', reason);
+  console.log('promise is', promise);
+  // Application specific logging, throwing an error, or other logic here
+});

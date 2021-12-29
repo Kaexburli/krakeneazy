@@ -27,32 +27,36 @@
   let limit = 0;
 
   const GetTradeVolume = async () => {
-    if (!$online) {
-      error = true;
-      return false;
-    }
-
-    if (typeof $assetpair.altname === "undefined") {
-      error = "Veuillez choisir une paire d'asset";
-      return false;
-    }
-
-    if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-      error = true;
-      return false;
-    }
-
-    const ud = new UserData();
-    const res = await ud.getTradeVolume({ pair: $assetpair.altname });
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      error = res.error;
-      if (limit < 5) {
-        GetTradeVolume();
-        limit++;
+    try {
+      if (!$online) {
+        error = true;
+        return false;
       }
-    } else {
-      tradevolume = res;
-      error = false;
+
+      if (typeof $assetpair.altname === "undefined") {
+        error = "Veuillez choisir une paire d'asset";
+        return false;
+      }
+
+      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
+        error = true;
+        return false;
+      }
+
+      const ud = new UserData();
+      const res = await ud.getTradeVolume({ pair: $assetpair.altname });
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        error = res.error;
+        if (limit < 5) {
+          GetTradeVolume();
+          limit++;
+        }
+      } else {
+        tradevolume = res;
+        error = false;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

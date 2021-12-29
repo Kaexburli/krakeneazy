@@ -29,43 +29,47 @@
   };
 
   const GetLedgers = async () => {
-    if (!$online) {
-      error = true;
-      return false;
-    }
-
-    ledgers_store = get__store(ledgersdata);
-
-    if (ledgers_store) {
-      let expired = parseInt(Date.now() / 1000) - ledgers_store.time > life;
-      if (!expired) return (ledgers = ledgers_store.data);
-    }
-
-    //  FINIR LA PAGINATION ET VOIR LES PARAMS
-    const res = await ud.getLedgers({
-      start: 1,
-      end: 10,
-      ofs: 0,
-    });
-
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      error = res.error;
-      if (limit < 5) {
-        GetLedgers();
-        limit++;
+    try {
+      if (!$online) {
+        error = true;
+        return false;
       }
-    } else {
-      if (typeof res !== "undefined") {
-        let json = {
-          data: Object.entries(res.ledger),
-          time: parseInt(Date.now() / 1000),
-        };
 
-        ledgers = Object.entries(res.ledger);
-        ledgersdata.set(json);
-        count = res.count;
-        error = false;
+      ledgers_store = get__store(ledgersdata);
+
+      if (ledgers_store) {
+        let expired = parseInt(Date.now() / 1000) - ledgers_store.time > life;
+        if (!expired) return (ledgers = ledgers_store.data);
       }
+
+      //  FINIR LA PAGINATION ET VOIR LES PARAMS
+      const res = await ud.getLedgers({
+        start: 1,
+        end: 10,
+        ofs: 0,
+      });
+
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        error = res.error;
+        if (limit < 5) {
+          GetLedgers();
+          limit++;
+        }
+      } else {
+        if (typeof res !== "undefined") {
+          let json = {
+            data: Object.entries(res.ledger),
+            time: parseInt(Date.now() / 1000),
+          };
+
+          ledgers = Object.entries(res.ledger);
+          ledgersdata.set(json);
+          count = res.count;
+          error = false;
+        }
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -94,7 +98,7 @@
       {/if}
       {#if !ledgers && !error}
         <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-      {:else if ledgers}
+      {:else if typeof ledgers !== "undefined" && ledgers}
         {#each ledgers as ledger, i}
           <tr id={ledger[0]} transition:fade>
             <td data-label="Ref id" class="first">
@@ -120,7 +124,9 @@
               <div>
                 <span class="block">{ledger[1]["amount"]}</span>
                 <span class="currency">
-                  {$asymbole[ledger[1]["asset"]]["name"]}
+                  {#if typeof $asymbole[ledger[1]["asset"]] !== "undefined"}
+                    {$asymbole[ledger[1]["asset"]]["name"]}
+                  {/if}
                 </span>
               </div>
             </td>
@@ -128,7 +134,9 @@
               <div>
                 <span class="block">{ledger[1]["fee"]}</span>
                 <span class="currency">
-                  {$asymbole[ledger[1]["asset"]]["name"]}
+                  {#if typeof $asymbole[ledger[1]["asset"]] !== "undefined"}
+                    {$asymbole[ledger[1]["asset"]]["name"]}
+                  {/if}
                 </span>
               </div>
             </td>
@@ -136,7 +144,9 @@
               <div>
                 <span class="block">{ledger[1]["fee"]}</span>
                 <span class="currency">
-                  {$asymbole[ledger[1]["asset"]]["name"]}
+                  {#if typeof $asymbole[ledger[1]["asset"]] !== "undefined"}
+                    {$asymbole[ledger[1]["asset"]]["name"]}
+                  {/if}
                 </span>
               </div>
             </td>
