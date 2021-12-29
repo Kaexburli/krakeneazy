@@ -22,18 +22,20 @@
         $wsohlcdata
       ) {
         let lastItem = $wsohlcdata[$wsohlcdata.length - 1];
-        let newcandle = ohlcFormat(tick, true);
+        let candle = ohlcFormat(tick, true);
+        let newcandle = ohlcFormat(tick, false);
 
-        if (lastItem.time > newcandle.endtime) {
+        if (lastItem.time > candle.endtime) {
           // console.log("Historique plus a jour que tick pas de mise a jour !!!");
-        } else if (lastItem.time === newcandle.endtime) {
+        } else if (lastItem.time === candle.endtime) {
           // console.log("Nous avons affaire a la meme bougie !!!");
-          if (typeof series !== "undefined" && tick)
-            series.update(ohlcFormat(tick, false));
+          if (typeof series !== ("undefined" || null)) series.update(newcandle);
         } else {
-          // console.log("nouvelle bougie !!!");
-          if (typeof series !== "undefined" && tick)
-            series.update(ohlcFormat(tick, false));
+          // console.log("nouvelle bougie !!!", series);
+          if (typeof series !== ("undefined" || null)) {
+            console.log(typeof series);
+            series.update(newcandle);
+          }
         }
       }
     });
