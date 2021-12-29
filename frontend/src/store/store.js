@@ -114,10 +114,7 @@ pair.subscribe(value => {
 
 
 // Storage devise (OBJECT)
-const storedMaxratecountDataDefault = JSON.stringify({
-  rate_count: { count: 0, count_total: 0, timestamp: Date.now() },
-  ratecount_end: null
-});
+const storedMaxratecountDataDefault = JSON.stringify({ rate_count: { count: 0, count_total: 0, timestamp: Date.now(), ratecount_end: null } });
 const storedMaxratecountData = JSON.parse(localStorage.getItem("maxratecount_data")) || storedMaxratecountDataDefault;
 export const maxratecount_data = writable(storedMaxratecountData);
 maxratecount_data.subscribe(value => {
