@@ -1,69 +1,101 @@
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variables
 import { writable } from 'svelte/store';
-import { wssurl, pair, assetpair } from "store/store.js";
+import { wssurl, assetpair } from "store/store.js";
 
-const ticker = writable({});
-
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variables
 const debug = false;
+const ticker = writable({});
+const worker = new Worker("../service-worker.js");
 
-let wssurl_val, pair_val, assetpair_val, ticker_val;
-wssurl.subscribe((value) => wssurl_val = value);
-pair.subscribe((value) => pair_val = value);
+let wss_ticker, assetpair_val;
 assetpair.subscribe((value) => assetpair_val = value);
-ticker.subscribe((value) => ticker_val = value);
+wssurl.subscribe((value) => wss_ticker = value + "/ticker/" + assetpair_val.wsname);
 
-let wss_ticker = wssurl_val + "/ticker/";
 
-//Create a workers object
-let worker = new Worker("../service-worker.js");
-
-const createWorker = (pair) => {
-
-  if (typeof pair === "undefined") return false;
-
-  //send message to Worker.js
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction CreateWorker
+const createWorker = () => {
+  //send connect message to service-worker.js
   worker.postMessage({
     command: 'connect',
     subscribe: 'ticker',
-    message: '[' + pair + '] Call websocket connect.',
-    wssurl: wss_ticker + pair
+    message: '[TICKER] Websocket connect',
+    wssurl: wss_ticker,
   });
+}
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction listenerWorker
+const listenerWorker = () => {
   // Listen response from worker
   worker.addEventListener("message", function (oEvent) {
 
     let command = oEvent.data.command;
 
-    if ((command === "connect" || command === "onOpen") && debug)
-      console.info("%c" + oEvent.data.message, "color: lawngreen;");
-    if ((command === "disconnect" || command === "onClose" || command === "closeworker") && debug)
-      console.warn(oEvent.data.message);
-    if ((command === "onError" || command === "listener") && debug)
-      console.error(oEvent.data.message);
-    if (oEvent.data.hasOwnProperty('error') && oEvent.data.error) {
-      console.error(oEvent.data.message);
-    }
-    else {
-      if (debug) console.info("%c[MASTER] " + oEvent.data.message, "color: darkcyan;");
-      if (command === "inComing")
-        ticker.set(oEvent.data.data);
+    switch (command) {
+      case ("connect"): case ("onOpen"):
+        if (debug) console.info("[WORKER][" + command + "] %c" + oEvent.data.message, "color: lawngreen;", command);
+        break;
+
+      case ("disconnect"): case ("onClose"): case ("closeworker"):
+        if (debug) console.warn("[WORKER][" + command + "] %c" + JSON.stringify(oEvent.data.message), "color: yellow;");
+        break;
+
+      case ("onError"): case ("listener"):
+        if (debug) console.error("[WORKER][" + command + "] %c" + oEvent.data.message, "color: darkred;");
+        break;
+
+      case ("inComing"):
+        if (debug) console.info("[WORKER][" + command + "] %c" + oEvent.data.message, "color: cyan;");
+
+        if (oEvent.data.hasOwnProperty("status") && oEvent.data.status) {
+          if (oEvent.data.status.hasOwnProperty('errorMessage')) {
+            console.error(
+              oEvent.data.status.event,
+              oEvent.data.status.errorMessage,
+              oEvent.data.status.subscription.name
+            )
+            // closeWorker();
+            // createWorker();
+          } else {
+            if (debug) console.info("[WORKER][" + oEvent.data.status.channelName + "] %c" + oEvent.data.status.status, "color: lawngreen;");
+          }
+        }
+
+        let response = oEvent.data.data
+        if (response) ticker.set(response);
+        break;
+
+      default:
+        console.log('Switch default', command)
+        if (oEvent.data.hasOwnProperty('error') && oEvent.data.error) {
+          console.error("[WORKER][" + command + "]", oEvent.data.message);
+        }
+        else {
+          if (debug) console.info("[WORKER][" + command + "] %c" + JSON.stringify(oEvent.data.message), "color: darkcyan;");
+          break;
+        }
     }
   }, false);
 }
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction closeWorker
 const closeWorker = () => {
   if (debug) console.log('[MAIN] closeWorker')
-
   worker.postMessage({
+    unsubscribe: 'ticker',
     command: 'disconnect',
-    message: '[WSTICKER] Call websocket disconnect.',
+    message: '[TICKER] Websocket disconnect.',
     wssurl: wss_ticker
   });
-  if (debug) console.log('[MAIN] Disconnect', worker)
-
 }
 
-createWorker(assetpair_val.wsname);
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction runTicker
+const runTicker = () => {
+  createWorker();
+  listenerWorker();
+}
+runTicker()
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ export
 export const wsticker = {
   subscribe: ticker.subscribe,
   unsubscribe: closeWorker

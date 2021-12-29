@@ -1,69 +1,101 @@
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variables
 import { writable } from 'svelte/store';
-import { wssurl, pair, assetpair } from "store/store.js";
+import { wssurl, assetpair } from "store/store.js";
 
-const spread = writable({});
-
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variables
 const debug = false;
+const spread = writable({});
+const worker = new Worker("../service-worker.js");
 
-let wssurl_val, pair_val, assetpair_val, spread_val;
-wssurl.subscribe((value) => wssurl_val = value);
-pair.subscribe((value) => pair_val = value);
+let wss_spread, assetpair_val;
 assetpair.subscribe((value) => assetpair_val = value);
-spread.subscribe((value) => spread_val = value);
+wssurl.subscribe((value) => wss_spread = value + "/spread/" + assetpair_val.wsname);
 
-let wss_spread = wssurl_val + "/spread/";
 
-//Create a workers object
-let worker = new Worker("../service-worker.js");
-
-const createWorker = (pair) => {
-
-  if (typeof pair === "undefined") return false;
-
-  //send message to Worker.js
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction CreateWorker
+const createWorker = () => {
+  //send connect message to service-worker.js
   worker.postMessage({
     command: 'connect',
     subscribe: 'spread',
-    message: '[' + pair + '] Call websocket connect.',
-    wssurl: wss_spread + pair
+    message: '[SPREAD] Websocket connect',
+    wssurl: wss_spread,
   });
+}
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction listenerWorker
+const listenerWorker = () => {
   // Listen response from worker
   worker.addEventListener("message", function (oEvent) {
 
     let command = oEvent.data.command;
 
-    if ((command === "connect" || command === "onOpen") && debug)
-      console.info("%c" + oEvent.data.message, "color: lawngreen;");
-    if ((command === "disconnect" || command === "onClose" || command === "closeworker") && debug)
-      console.warn(oEvent.data.message);
-    if ((command === "onError" || command === "listener") && debug)
-      console.error(oEvent.data.message);
-    if (oEvent.data.hasOwnProperty('error') && oEvent.data.error) {
-      console.error(oEvent.data.message);
-    }
-    else {
-      if (debug) console.info("%c[MASTER] " + oEvent.data.message, "color: darkcyan;");
-      if (command === "inComing")
-        spread.set(oEvent.data.data);
+    switch (command) {
+      case ("connect"): case ("onOpen"):
+        if (debug) console.info("[WORKER][" + command + "] %c" + oEvent.data.message, "color: lawngreen;", command);
+        break;
+
+      case ("disconnect"): case ("onClose"): case ("closeworker"):
+        if (debug) console.warn("[WORKER][" + command + "] %c" + JSON.stringify(oEvent.data.message), "color: yellow;");
+        break;
+
+      case ("onError"): case ("listener"):
+        if (debug) console.error("[WORKER][" + command + "] %c" + oEvent.data.message, "color: darkred;");
+        break;
+
+      case ("inComing"):
+        if (debug) console.info("[WORKER][" + command + "] %c" + oEvent.data.message, "color: cyan;");
+
+        if (oEvent.data.hasOwnProperty("status") && oEvent.data.status) {
+          if (oEvent.data.status.hasOwnProperty('errorMessage')) {
+            console.error(
+              oEvent.data.status.event,
+              oEvent.data.status.errorMessage,
+              oEvent.data.status.subscription.name
+            )
+            // closeWorker();
+            // createWorker();
+          } else {
+            if (debug) console.info("[WORKER][" + oEvent.data.status.channelName + "] %c" + oEvent.data.status.status, "color: lawngreen;");
+          }
+        }
+
+        let response = oEvent.data.data
+        if (response) spread.set(response);
+        break;
+
+      default:
+        console.log('Switch default', command)
+        if (oEvent.data.hasOwnProperty('error') && oEvent.data.error) {
+          console.error("[WORKER][" + command + "]", oEvent.data.message);
+        }
+        else {
+          if (debug) console.info("[WORKER][" + command + "] %c" + JSON.stringify(oEvent.data.message), "color: darkcyan;");
+          break;
+        }
     }
   }, false);
 }
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction closeWorker
 const closeWorker = () => {
   if (debug) console.log('[MAIN] closeWorker')
-
   worker.postMessage({
+    unsubscribe: 'spread',
     command: 'disconnect',
-    message: '[WSSPREAD] Call websocket disconnect.',
-    wssurl: wss_openorders + trades
+    message: '[SPREAD] Websocket disconnect.',
+    wssurl: wss_spread
   });
-  if (debug) console.log('[MAIN] Disconnect', worker)
-
 }
 
-createWorker(assetpair_val.wsname);
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Fonction runSpread
+const runSpread = () => {
+  createWorker();
+  listenerWorker();
+}
+runSpread()
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ export
 export const wsspread = {
   subscribe: spread.subscribe,
   unsubscribe: closeWorker
