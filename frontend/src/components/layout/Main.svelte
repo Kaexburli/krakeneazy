@@ -1,12 +1,12 @@
 <script>
   import { page } from "store/store.js";
 
-  import Home from "components/pages/Home/Home.svelte";
+  import Home from "components/pages/Home/MainHome.svelte";
   import Account from "components/pages/account/MainAccount.svelte";
   import Trading from "components/pages/trading/MainTrading.svelte";
-  import Statistic from "components/pages/statistics/Statistics.svelte";
-  import Settings from "components/pages/settings/Settings.svelte";
-  import Reports from "components/pages/reports/Reports.svelte";
+  import Statistic from "components/pages/statistics/MainStatistics.svelte";
+  import Settings from "components/pages/settings/MainSettings.svelte";
+  import Reports from "components/pages/reports/MainReports.svelte";
 </script>
 
 <div class="main">
