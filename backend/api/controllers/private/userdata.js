@@ -231,7 +231,7 @@ const getWsOwnTrades = async (connection, reply, req) => {
 const getWsTradeBalance = async (connection, reply, req) => {
 
   let timer = null;
-  let interval = 6000;
+  let interval = 12000;
 
   // Strat interval
   const startInterval = () => {
@@ -256,7 +256,7 @@ const getWsTradeBalance = async (connection, reply, req) => {
       data.hasOwnProperty('body') &&
       data.body.hasOwnProperty('error')
     ) {
-      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', data: { error: data.body.error } }))
+      connection.socket.send(JSON.stringify({ service: 'WsTradeBalance', data: { error: data.body.error } }))
       stopInterval()
 
       setTimeout(() => {
@@ -266,7 +266,7 @@ const getWsTradeBalance = async (connection, reply, req) => {
     }
     else {
       data.rate = Date.now()
-      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', error: false, data }))
+      connection.socket.send(JSON.stringify({ service: 'WsTradeBalance', error: false, data }))
     }
   }
 
