@@ -26,8 +26,6 @@ export const fetchurl = writable("http://localhost:9000");
 export const ledgersdata = writable(false);
 export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
-export const openordersdata = writable(false);
-export const owntradesdata = writable(false);
 export const wstradebalancedata = writable(false);
 
 

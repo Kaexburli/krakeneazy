@@ -2,26 +2,34 @@
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
+  import websocketStore from "svelte-websocket-store";
 
   import {
+    wssurl,
     devise,
     online,
     sound,
     asymbole,
     wstradebalancedata,
   } from "store/store.js";
-  import { wstradebalance } from "store/wstradebalance.js";
   import { SyncLoader } from "svelte-loading-spinners";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
   let error = false;
-  let tradebalance = false;
   let limit = 0;
   let balance_way = "down";
   let balance_way_tmp;
   let played = false;
   let trading_percent;
   const asset = $devise;
+
+  // Appel Websocket
+  let wss_tradebalance;
+  wssurl.subscribe(
+    (server) => (wss_tradebalance = server + "/tradebalance/" + asset)
+  );
+  const wsTradeBalance = websocketStore(wss_tradebalance);
+  // Appel Websocket
 
   const playSound = (track) => {
     let audio = new Audio("../sound/" + track + ".wav");
@@ -80,14 +88,12 @@
       const res = await ud.getTradeBalance(asset);
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-        console.error("GetTradeBalance", res.error);
         if (limit < 2) {
           GetTradeBalance();
           limit++;
         }
       } else {
-        tradebalance = res;
-        wstradebalancedata.set(tradebalance);
+        wstradebalancedata.set(res);
         error = false;
       }
     } catch (error) {
@@ -100,18 +106,17 @@
       GetTradeBalance();
     }, 500);
 
-    wstradebalance.subscribe((tick) => {
-      if (typeof tick !== "undefined") {
+    wsTradeBalance.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
         if (!$online) {
           error = true;
           return false;
-        } else if (tick.hasOwnProperty("error")) {
+        } else if (tick.hasOwnProperty("error") && tick.error) {
           error = tick.error;
           console.error("ERROR", error);
         } else if (Object.keys(tick).length >= 1) {
-          if (!tick.hasOwnProperty("error")) {
-            tradebalance = tick;
-            wstradebalancedata.set(tradebalance);
+          if (tick.service === "WsTradeBalance") {
+            wstradebalancedata.set(tick.data);
           }
         }
       }

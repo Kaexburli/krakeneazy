@@ -26,6 +26,6 @@
     "svelte-favicon-badge": "^1.0.0",
     "svelte-fetch": "^0.2.0",
     "svelte-lightweight-charts": "^1.1.1",
-    "svelte-select": "^4.4.6"
+    "svelte-websocket-store": "^1.1.16"
   }
 }

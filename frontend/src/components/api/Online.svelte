@@ -1,9 +1,14 @@
 <script>
   import { onMount } from "svelte";
-  import { online } from "store/store.js";
-  import { wssystemstatus } from "store/wssystemstatus.js";
-
+  import { wssurl, online } from "store/store.js";
+  import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
+
+  // Appel Websocket
+  let wss_systemstatus;
+  wssurl.subscribe((server) => (wss_systemstatus = server + "/systemstatus"));
+  const wsSystemStatus = websocketStore(wss_systemstatus);
+  // Appel Websocket
 
   let count = 0;
   let background = "#FF0000";
@@ -16,30 +21,40 @@
   export let display;
 
   onMount(() => {
-    wssystemstatus.subscribe((tick) => {
-      if (tick.hasOwnProperty("errno")) {
+    wsSystemStatus.subscribe((tick) => {
+      if (typeof tick === "undefined") return false;
+      if (tick.service !== "WsSystemStatus") return false;
+
+      if (tick.data.hasOwnProperty("errno")) {
         count = 1;
-        error = "[" + tick.errno + "] " + tick.code + " " + tick.syscall;
+        error =
+          "[" +
+          tick.data.errno +
+          "] " +
+          tick.data.code +
+          " " +
+          tick.data.syscall;
         status = "offline";
         online.update((n) => false);
-      } else if (tick.hasOwnProperty("errorMessage")) {
+      } else if (tick.data.hasOwnProperty("errorMessage")) {
         count = 1;
-        error = "[" + tick.subscription.name + "] " + tick.errorMessage;
+        error =
+          "[" + tick.data.subscription.name + "] " + tick.data.errorMessage;
         status = "offline";
         online.update((n) => false);
-      } else if (tick.hasOwnProperty("error")) {
+      } else if (tick.data.hasOwnProperty("error")) {
         count = 1;
-        let message = tick.message;
-        error = "[" + tick.error + "] " + message;
+        let message = tick.data.message;
+        error = "[" + tick.data.error + "] " + message;
         status = "offline";
-      } else if (tick.hasOwnProperty("status")) {
-        let timestamp = new Date(tick.timestamp).getTime();
+      } else if (tick.data.hasOwnProperty("status")) {
+        let timestamp = new Date(tick.data.timestamp).getTime();
         let diff_beetween = interval - timestamp;
         diff_beetween = Math.floor(diff_beetween / 1000 / 60 / 60 / 24);
         online.update((n) => diff_beetween === -1);
-        status = tick.status;
+        status = tick.data.status;
         error = false;
-      } else if (!$online && !tick.hasOwnProperty("status")) {
+      } else if (!$online && !tick.data.hasOwnProperty("status")) {
         count = 1;
         error = "ERROR";
         return false;
@@ -83,22 +98,23 @@
     float: right;
     font-size: 0.8em;
     margin-top: 3px;
+    vertical-align: middle;
   }
-
   .dot {
     height: 10px;
     width: 10px;
     background-color: #bbb;
     border-radius: 50%;
     display: inline-block;
+    margin-left: 2px;
   }
-
   .dot-green {
     background-color: chartreuse;
+    vertical-align: inherit;
   }
-
   .dot-red {
     background-color: red;
+    vertical-align: inherit;
   }
   .error_status {
     color: red;

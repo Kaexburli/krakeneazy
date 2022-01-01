@@ -1,29 +1,20 @@
 <script>
   import { onMount } from "svelte";
-  import { fade } from "svelte/transition";
-
-  import {
-    online,
-    assetpair,
-    assetpairs,
-    openordersdata,
-  } from "store/store.js";
+  import websocketStore from "svelte-websocket-store";
+  import { openorders } from "store/wsstore.js";
+  import { wssurl, online, assetpairs } from "store/store.js";
   import formatDate from "utils/formatDate.js";
-  import UserData from "classes/UserData.js";
-  import { wsopenorders } from "store/wsopenorders.js";
+  import { fade } from "svelte/transition";
   import { SyncLoader } from "svelte-loading-spinners";
 
   let error = false;
-  let limit = 0;
-  let openorders = false;
-  let openorders_store = false;
   let openorders_tmp = [];
 
-  const get__store = (store) => {
-    let $val;
-    store.subscribe(($) => ($val = $))();
-    return $val;
-  };
+  // Appel Websocket
+  let wss_openorders;
+  wssurl.subscribe((server) => (wss_openorders = server + "/openorders"));
+  const wsOpenOrders = websocketStore(wss_openorders);
+  // Appel Websocket
 
   const checkStatusDatas = (datas) => {
     if (datas.length < 1) return;
@@ -140,83 +131,34 @@
     return openorders_tmp;
   };
 
-  const GetOpenOrders = async () => {
-    try {
-      if (!$online) {
-        error = true;
-        return false;
-      }
-
-      if (typeof $assetpair.altname === "undefined") {
-        error = "Veuillez choisir une paire d'asset";
-        return false;
-      }
-
-      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-        error = true;
-        return false;
-      }
-
-      const ud = new UserData();
-      const res = await ud.getOpenOrders({ trade: true });
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-        error = res.error;
-        if (limit < 5) {
-          GetOpenOrders();
-          limit++;
-        }
-      } else {
-        if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
-          openorders = [];
-          Object.keys(res.open).map((key) => {
-            let o = new Object();
-            o[key] = res.open[key];
-            openorders.push(o);
-          });
-          // console.log("Fetch res:", openorders);
-          openorders = checkStatusDatas(openorders);
-          // console.log("Fetch:", openorders);
-          openordersdata.update((n) => openorders);
-        }
-        error = false;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   onMount(() => {
-    openorders_store = get__store(openordersdata);
-    if (openorders_store) {
-      return (openorders = openorders_store);
-    }
-
-    wsopenorders.subscribe((tick) => {
-      if (typeof tick !== "undefined") {
-        if (!$online) {
-          error = true;
-          return false;
-        } else if (tick.hasOwnProperty("errorMessage")) {
-          error = "[" + tick.subscription.name + "] " + tick.errorMessage;
-          // console.error("ERROR", error);
-        } else if (Object.keys(tick).length >= 1) {
-          // console.log("WS tick:", tick);
-          openorders = checkStatusDatas(tick);
-          // console.log("WS openorders:", openorders);
-          openordersdata.update((n) => openorders);
+    wsOpenOrders.subscribe((tick) => {
+      console.log(tick);
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
+        console.log("1");
+        if (tick.service === "OpenOrders") {
+          console.log("2");
+          debugT.set({ tick });
+          if (!$online) {
+            console.log("3");
+            error = true;
+            return false;
+          } else if (tick.hasOwnProperty("eventMessage")) {
+            console.log("4");
+            error =
+              "[" +
+              tick.eventMessage.subscription.name +
+              "] " +
+              tick.eventMessage.errorMessage;
+            console.error("ERROR", error);
+          } else if (tick.hasOwnProperty("data") && tick.data) {
+            console.log("data");
+            openorders.set(checkStatusDatas(tick.data));
+          }
         }
       }
     });
   });
-
-  $: {
-    if (!$openordersdata) {
-      // console.log("OPENORDERSDATA empty on appel GetOpenOrders");
-      setTimeout(() => {
-        GetOpenOrders();
-      }, 500);
-    }
-  }
 </script>
 
 <div class="block open-orders">
@@ -238,10 +180,10 @@
       {#if error && typeof error !== "boolean"}
         <span class="error">{error}</span>
       {/if}
-      {#if !$openordersdata && !error}
+      {#if $openorders.length === 0 && !error}
         <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-      {:else if $openordersdata}
-        {#each $openordersdata as el, i}
+      {:else if typeof $openorders !== "undefined" && $openorders.length > 0 && $openorders}
+        {#each $openorders as el, i}
           <tr id={Object.keys(el)} transition:fade>
             <td data-label="Type" class={el[Object.keys(el)]["descr"]["type"]}>
               {#if el[Object.keys(el)]["descr"]["type"] === "buy"}

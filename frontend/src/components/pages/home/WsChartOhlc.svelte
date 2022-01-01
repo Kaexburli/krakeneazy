@@ -1,7 +1,24 @@
 <script>
   import { onMount } from "svelte";
-  import { online, interval, pair, assetpair, fetchurl } from "store/store.js";
-  import { wsohlc, wsohlcdata } from "store/wsohlc.js";
+  import { ohlc } from "store/wsstore.js";
+  import websocketStore from "svelte-websocket-store";
+  import {
+    wssurl,
+    online,
+    interval,
+    pair,
+    assetpair,
+    fetchurl,
+  } from "store/store.js";
+
+  // Appel Websocket
+  let wss_ohlc;
+  wssurl.subscribe(
+    (server) =>
+      (wss_ohlc = server + "/ohlc/" + $assetpair.wsname + "/" + $interval)
+  );
+  const wsOhlc = websocketStore(wss_ohlc);
+  // Appel Websocket
 
   import { CrosshairMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
@@ -15,31 +32,45 @@
   onMount(() => {
     getChartHistoryDatas();
 
-    wsohlc.subscribe((tick) => {
-      if (
-        typeof tick !== "undefined" &&
-        Object.keys(tick).length > 1 &&
-        $wsohlcdata
-      ) {
-        let lastItem = $wsohlcdata[$wsohlcdata.length - 1];
-        let candle = ohlcFormat(tick, true);
-        let newcandle = ohlcFormat(tick, false);
-
-        if (lastItem.time > candle.endtime) {
-          // console.log("Historique plus a jour que tick pas de mise a jour !!!");
-        } else if (lastItem.time === candle.endtime) {
-          // console.log("Nous avons affaire a la meme bougie !!!");
-          if (typeof series !== ("undefined" || null)) series.update(newcandle);
-        } else {
-          // console.log("nouvelle bougie !!!", series);
-          if (typeof series !== ("undefined" || null)) {
-            console.log(typeof series);
-            series.update(newcandle);
-          }
+    wsOhlc.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
+        if (tick.service === "Ohlc") {
+          formatCandelTick(tick.data);
         }
       }
     });
   });
+
+  const formatCandelTick = (tick) => {
+    let lastItem = $ohlc[$ohlc.length - 1];
+    let candle = ohlcFormat(tick, true);
+    let newcandle = ohlcFormat(tick, false);
+
+    if (
+      typeof lastItem === "undefined" ||
+      typeof candle === "undefined" ||
+      lastItem.length === 0 ||
+      candle.length === 0
+    )
+      return false;
+
+    if (lastItem.time > candle.endtime) {
+      // console.log("Historique plus a jour que tick pas de mise a jour !!!");
+    } else if (lastItem.time === candle.endtime) {
+      // console.log("Nous avons affaire a la meme bougie !!!");
+      if (typeof series !== ("undefined" || null)) series.update(newcandle);
+    } else {
+      console.log("nouvelle bougie !!!");
+      if (
+        typeof series === ("undefined" || null) &&
+        !series.hasOwnProperty("update")
+      ) {
+        return false;
+      }
+
+      series.update(newcandle);
+    }
+  };
 
   const ohlcFormat = (datas, endtime) => {
     const dataLength = datas.length;
@@ -74,7 +105,7 @@
       if (res.hasOwnProperty("error")) {
         console.error(`${res.message} ${res.error} (${res.statusCode})`);
       } else {
-        wsohlcdata.set(res);
+        ohlc.set(res);
       }
     } catch (error) {
       console.error("[ERROR] ################## getChartHistoryDatas", error);
@@ -129,7 +160,16 @@
       borderColor: "rgba(197, 203, 206, 0.8)",
     },
     timeScale: {
+      timeVisible: true,
+      secondsVisible: false,
       borderColor: "rgba(197, 203, 206, 0.8)",
+    },
+    priceScale: {
+      scaleMargins: {
+        top: 0.3,
+        bottom: 0.25,
+      },
+      borderVisible: false,
     },
     watermark: {
       color: "rgba(100, 100, 100, 0.1)",
@@ -153,39 +193,39 @@
   };
 
   $: {
-    if (typeof chartApi !== "undefined") {
-      // console.log(chartApi);
-    }
-    if (typeof series !== "undefined") {
-      series.setMarkers([
-        {
-          time: "2021-12-25",
-          position: "aboveBar",
-          color: "black",
-          shape: "arrowDown",
-        },
-        {
-          time: "2021-12-25",
-          position: "belowBar",
-          color: "red",
-          shape: "arrowUp",
-          id: "id3",
-        },
-        {
-          time: "2021-12-25",
-          position: "belowBar",
-          color: "orange",
-          shape: "arrowUp",
-          id: "id4",
-          text: "example",
-          size: 2,
-        },
-      ]);
-    }
+    // if (typeof chartApi !== "undefined") {
+    //   console.log(chartApi);
+    // }
+    // if (typeof series !== "undefined") {
+    //   series.setMarkers([
+    //     {
+    //       time: "2021-12-25",
+    //       position: "aboveBar",
+    //       color: "black",
+    //       shape: "arrowDown",
+    //     },
+    //     {
+    //       time: "2021-12-25",
+    //       position: "belowBar",
+    //       color: "red",
+    //       shape: "arrowUp",
+    //       id: "id3",
+    //     },
+    //     {
+    //       time: "2021-12-25",
+    //       position: "belowBar",
+    //       color: "orange",
+    //       shape: "arrowUp",
+    //       id: "id4",
+    //       text: "example",
+    //       size: 2,
+    //     },
+    //   ]);
+    // }
   }
 </script>
 
-{#if $wsohlcdata}
+{#if typeof $ohlc !== "undefined" && $ohlc.length > 0 && $ohlc}
   <div class="chart-block">
     <select
       name="interval"
@@ -210,7 +250,7 @@
       ref={(ref) => (chartApi = ref)}
     >
       <CandlestickSeries
-        data={$wsohlcdata}
+        data={$ohlc}
         ref={(ref) => (series = ref)}
         {...CandlestickSeriesOpts}
       />
