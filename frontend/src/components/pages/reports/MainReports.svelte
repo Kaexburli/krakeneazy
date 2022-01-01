@@ -1,12 +1,8 @@
 <script>
-  import { fade, scale } from "svelte/transition";
+  import { slide } from "svelte/transition";
 </script>
 
-<div
-  id="page-reports"
-  in:scale={{ delay: 200, duration: 300 }}
-  out:fade={{ delay: 1, duration: 1 }}
->
+<div id="page-reports" in:slide out:slide>
   <h1>Reports</h1>
   <p>
     Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste

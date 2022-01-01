@@ -1,6 +1,6 @@
 <script>
   import { pair, assetpair } from "store/store.js";
-  import { fade, scale } from "svelte/transition";
+  import { slide } from "svelte/transition";
 
   import ChartCtrl from "components/pages/home/ChartCtrl.svelte";
   import ChartOhlc from "components/pages/home/WsChartOhlc.svelte";
@@ -8,11 +8,7 @@
   import OrderBooksWs from "components/pages/home/WsOrderBooks.svelte";
 </script>
 
-<div
-  id="page-home"
-  in:scale={{ delay: 200, duration: 300 }}
-  out:fade={{ delay: 1, duration: 1 }}
->
+<div id="page-home" in:slide out:slide>
   {#if $pair !== "false" && $pair}
     <h1>Kraken {$assetpair.wsname}</h1>
     <div id="home-wrapper">
