@@ -46,6 +46,8 @@ pre, code {
 }
 
 .hide { display: none; visibility: hidden; }
+.left { float: left; }
+.right { float: right; }
 
 /* width */
 ::-webkit-scrollbar {
