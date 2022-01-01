@@ -4,7 +4,7 @@
 
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
-  import { online, asymbole, closedordersdata } from "store/store.js";
+  import { online, closedordersdata } from "store/store.js";
   import { SyncLoader } from "svelte-loading-spinners";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
@@ -69,7 +69,7 @@
   const handleClickCanceled = (event) => {
     event.target.parentNode.style.color = canceled_hidden
       ? "#c7c7c7"
-      : "#680000";
+      : "#222222";
 
     var canceled_elements = document.querySelectorAll(".tr-canceled");
     canceled_elements.forEach((element) => {
@@ -81,7 +81,7 @@
 
   let closed_hidden = false;
   const handleClickClosed = (event) => {
-    event.target.parentNode.style.color = closed_hidden ? "#c7c7c7" : "#680000";
+    event.target.parentNode.style.color = closed_hidden ? "#c7c7c7" : "#222222";
 
     var closed_elements = document.querySelectorAll(".tr-closed");
     closed_elements.forEach((el) => {
