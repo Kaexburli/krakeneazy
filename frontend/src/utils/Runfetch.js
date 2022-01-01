@@ -22,23 +22,20 @@ const callApiFetch = async (url, endpoint) => {
     })
 
     let promise = fetch.background.expect(JSON).get(url)
+    return promise
 
-    const response = await promise;
-
-    if (response.hasOwnProperty('error')) {
-      let errmsg = `[${response.statusCode}] ${response.error} ${response.message}`
-
-      if (response.message === '["EAPI:Invalid nonce"]')
-        throw errmsg
-      if (response.message === '["EAPI:Rate limit exceeded"]')
-        throw errmsg
-    }
-    else {
-      return promise
-    }
   }
   catch (error) {
+    // if (response.hasOwnProperty('error')) {
+    //   let errmsg = `[${response.statusCode}] ${response.error} ${response.message}`
+
+    //   if (response.message === '["EAPI:Invalid nonce"]')
+    //     throw errmsg
+    //   if (response.message === '["EAPI:Rate limit exceeded"]')
+    //     throw errmsg
+    // }
     console.error("[ERROR] callApiFetch:", (typeof error !== undefined ? error : false))
+    debugger
   }
 }
 
