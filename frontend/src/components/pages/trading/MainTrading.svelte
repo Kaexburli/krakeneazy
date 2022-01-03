@@ -1,10 +1,14 @@
 <script>
   import { slide } from "svelte/transition";
+  import { assetpair } from "store/store.js";
+  import TradingOrder from "components/pages/trading/TradingOrder.svelte";
 </script>
 
 <div id="page-trading" in:slide out:slide>
-  <h1>Trading</h1>
-  <div class="trading">qdqsdsq</div>
+  <h1>Trading {$assetpair.wsname}</h1>
+  <div class="trading">
+    <TradingOrder />
+  </div>
 </div>
 
 <style>

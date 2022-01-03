@@ -17,7 +17,7 @@
     wsTicker.subscribe((tick) => {
       // console.log("TICKER:", tick);
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker") ticker.set(tick.data);
+        if (tick.service === "Ticker" && tick.data) ticker.set(tick.data);
       }
     });
   });
@@ -115,28 +115,25 @@
 <style>
   .tick-block {
     background-color: #212121;
-    padding: 5px 10px;
     border: 1px solid #181818;
 
     display: flex;
     flex-wrap: wrap;
   }
-  .tick-block h3 {
-    background-color: darkgrey;
-    color: #222222;
-    padding: 5px;
-    margin: -10px -10px 5px -10px;
-    font-size: 1.1em;
-  }
   .tick {
-    margin: 5px;
     padding: 10px;
-    width: 158px;
-    background-color: #282828;
+    min-width: 100px;
+    /* background-color: #282828; */
     font-size: 0.8em;
   }
   .tick .label {
     color: brown;
+  }
+  .tick-block h3 {
+    /* background-color: darkgrey; */
+    /* color: #222222; */
+    /* margin: -10px -10px 5px -10px; */
+    font-size: 1.1em;
   }
   .ask-tick h3 {
     background-color: firebrick;

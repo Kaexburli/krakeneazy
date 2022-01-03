@@ -64,23 +64,25 @@
   onMount(() => {
     wsBook.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length) {
-        if (tick.service === "OrderBook") book.set(tick.data);
+        if (tick.service === "OrderBook" && tick.data) book.set(tick.data);
         getBook();
       }
     });
     wsTicker.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        updatePriceClass(tick.data);
-        if (tick.service === "Ticker") ticker.set(tick.data);
+        if (tick.service === "Ticker" && tick.data) {
+          updatePriceClass(tick.data);
+          ticker.set(tick.data);
+        }
       }
     });
     wsTrade.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        if (tick.service === "Trade") trade.set(tick.data);
+        if (tick.service === "Trade" && tick.data) trade.set(tick.data);
     });
     wsSpread.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        if (tick.service === "Spread") spread.set(tick.data);
+        if (tick.service === "Spread" && tick.data) spread.set(tick.data);
     });
   });
 
