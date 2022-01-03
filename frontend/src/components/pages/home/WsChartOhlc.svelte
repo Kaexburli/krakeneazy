@@ -20,6 +20,7 @@
   let chartApi;
   let activetooltip = false;
   let activePosition = false;
+  let crosshairMode = false;
   let markers = [];
   let newCandel = false;
   let ohlcLastItemhistory = null;
@@ -79,7 +80,6 @@
     setTimeout(() => {
       setInterval(() => {
         newCandel = true;
-        console.log("setTimerInterval");
       }, $interval * 60 * 1000);
     }, timeRemaining);
   };
@@ -284,6 +284,7 @@
       legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M  ";
     }
   };
+
   /**
    * handleCrosshairMove
    ************************/
@@ -292,6 +293,9 @@
     displayOhlcBande(param);
   };
 
+  /**
+   * getPositionMarker
+   ************************/
   const getPositionMarker = (datas) => {
     datas.forEach((element, index) => {
       // récupère les clés du tableau (ID order)
@@ -332,6 +336,19 @@
     });
   };
 
+  /**
+   * handleCrosshairMode
+   ************************/
+  const handleCrosshairMode = (event) => {
+    if (typeof chartApi !== "undefined") {
+      chartApi.applyOptions({
+        crosshair: {
+          mode: crosshairMode ? CrosshairMode.Magnet : CrosshairMode.Normal,
+        },
+      });
+    }
+  };
+
   const optionsChart = {
     // width: document.body.offsetWidth - 220,
     height: 300,
@@ -341,17 +358,18 @@
     },
     grid: {
       vertLines: {
-        color: "rgba(197, 203, 206, 0.5)",
+        color: "rgba(19, 203, 206, 0.3)",
       },
       horzLines: {
-        color: "rgba(197, 203, 206, 0.5)",
+        color: "rgba(19, 203, 206, 0.3)",
       },
     },
     crosshair: {
-      mode: CrosshairMode.Normal,
-      // vertLine: {
-      //   labelVisible: false,
-      // },
+      mode: crosshairMode ? CrosshairMode.Magnet : CrosshairMode.Normal,
+      vertLine: {
+        labelVisible: true,
+        labelBackgroundColor: "rgba(51, 51, 51, 0.2)",
+      },
     },
     rightPriceScale: {
       borderColor: "rgba(197, 203, 206, 0.8)",
@@ -408,6 +426,14 @@
         }
       }
     }
+
+    // Auto resizing chart
+    window.addEventListener("resize", () => {
+      let chartblock = document.querySelector(".chart-block");
+      let chartHeight = 300; // chartblock.clientHeight
+      let chartWidth = chartblock.clientWidth;
+      chartApi.resize(chartWidth, chartHeight);
+    });
   }
 </script>
 
@@ -427,6 +453,14 @@
       bind:checked={activePosition}
     />
     <label class="label-checkbox" for="active-position">Positions</label>
+    <input
+      type="checkbox"
+      name="crosshair-mode"
+      id="crosshair-mode"
+      bind:checked={crosshairMode}
+      on:change={handleCrosshairMode}
+    />
+    <label class="label-checkbox" for="crosshair-mode">Magnet</label>
   </div>
   <div class="chart-block">
     <select
