@@ -1,12 +1,35 @@
 <script>
+  import { onMount } from "svelte";
   import { page } from "store/store.js";
-
   import Home from "components/pages/Home/MainHome.svelte";
   import Account from "components/pages/account/MainAccount.svelte";
   import Trading from "components/pages/trading/MainTrading.svelte";
   import Statistic from "components/pages/statistics/MainStatistics.svelte";
   import Settings from "components/pages/settings/MainSettings.svelte";
   import Reports from "components/pages/reports/MainReports.svelte";
+
+  import websocketStore from "svelte-websocket-store";
+  import { wssurl, assetpair, interval } from "store/store.js";
+  import { ohlc, openorders } from "store/wsstore.js";
+
+  // Appel Websocket
+  let wss_ohlc, wss_openorders;
+  wssurl.subscribe((server) => {
+    wss_ohlc = server + "/ohlc/" + $assetpair.wsname + "/" + $interval;
+    wss_openorders = server + "/openorders";
+  });
+  const wsOhlc = websocketStore(wss_ohlc);
+  const wsOpenOrders = websocketStore(wss_openorders);
+  // Appel Websocket
+
+  onMount(() => {
+    wsOpenOrders.subscribe((tick) => {
+      openorders.set(tick);
+    });
+    wsOhlc.subscribe((tick) => {
+      ohlc.set(tick);
+    });
+  });
 </script>
 
 <div class="main">

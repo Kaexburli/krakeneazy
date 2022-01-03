@@ -1,20 +1,12 @@
 <script>
-  import { onMount } from "svelte";
-  import websocketStore from "svelte-websocket-store";
   import { openorders } from "store/wsstore.js";
-  import { wssurl, online, assetpairs } from "store/store.js";
+  import { online, assetpairs, openordersaccount } from "store/store.js";
   import formatDate from "utils/formatDate.js";
   import { fade } from "svelte/transition";
   import { SyncLoader } from "svelte-loading-spinners";
 
   let error = false;
   let openorders_tmp = [];
-
-  // Appel Websocket
-  let wss_openorders;
-  wssurl.subscribe((server) => (wss_openorders = server + "/openorders"));
-  const wsOpenOrders = websocketStore(wss_openorders);
-  // Appel Websocket
 
   const checkStatusDatas = (datas) => {
     if (datas.length < 1) return;
@@ -131,34 +123,27 @@
     return openorders_tmp;
   };
 
-  onMount(() => {
-    wsOpenOrders.subscribe((tick) => {
-      console.log(tick);
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        console.log("1");
-        if (tick.service === "OpenOrders") {
-          console.log("2");
-          debugT.set({ tick });
-          if (!$online) {
-            console.log("3");
-            error = true;
-            return false;
-          } else if (tick.hasOwnProperty("eventMessage")) {
-            console.log("4");
-            error =
-              "[" +
-              tick.eventMessage.subscription.name +
-              "] " +
-              tick.eventMessage.errorMessage;
-            console.error("ERROR", error);
-          } else if (tick.hasOwnProperty("data") && tick.data) {
-            console.log("data");
-            openorders.set(checkStatusDatas(tick.data));
-          }
+  $: {
+    if (
+      typeof $openorders !== "undefined" &&
+      Object.keys($openorders).length > 1
+    ) {
+      if ($openorders.service === "OpenOrders") {
+        if (!$online) {
+          error = true;
+        } else if ($openorders.hasOwnProperty("eventMessage")) {
+          error =
+            "[" +
+            $openorders.eventMessage.subscription.name +
+            "] " +
+            $openorders.eventMessage.errorMessage;
+          console.error("ERROR", error);
+        } else if ($openorders.hasOwnProperty("data") && $openorders.data) {
+          openordersaccount.set(checkStatusDatas($openorders.data));
         }
       }
-    });
-  });
+    }
+  }
 </script>
 
 <div class="block open-orders">
@@ -180,10 +165,10 @@
       {#if error && typeof error !== "boolean"}
         <span class="error">{error}</span>
       {/if}
-      {#if $openorders.length === 0 && !error}
+      {#if $openordersaccount.length === 0 && !error}
         <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-      {:else if typeof $openorders !== "undefined" && $openorders.length > 0 && $openorders}
-        {#each $openorders as el, i}
+      {:else if typeof $openordersaccount !== "undefined" && $openordersaccount.length > 0 && $openordersaccount}
+        {#each $openordersaccount as el, i}
           <tr id={Object.keys(el)} transition:fade>
             <td data-label="Type" class={el[Object.keys(el)]["descr"]["type"]}>
               {#if el[Object.keys(el)]["descr"]["type"] === "buy"}
