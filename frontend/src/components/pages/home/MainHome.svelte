@@ -4,6 +4,7 @@
 
   import ChartCtrl from "components/pages/home/ChartCtrl.svelte";
   import ChartOhlc from "components/pages/home/WsChartOhlc.svelte";
+  import SpreadBox from "components/pages/trading/SpreadBox.svelte";
   import TickerWs from "components/pages/home/WsTicker.svelte";
   import OrderBooksWs from "components/pages/home/WsOrderBooks.svelte";
 </script>
@@ -14,6 +15,7 @@
     <div id="home-wrapper">
       <div id="ChartCtrl"><ChartCtrl /></div>
       <div id="BlockChartOhlc"><ChartOhlc /></div>
+      <div id="SpreadBox"><SpreadBox /></div>
       <div id="BlockTicker"><TickerWs /></div>
       <div id="BlockOrderBooks"><OrderBooksWs /></div>
     </div>
@@ -39,12 +41,16 @@
     grid-column: 1 / 3;
     grid-row: 2;
   }
+  #SpreadBox {
+    grid-column: 1 / 3;
+    grid-row: 3;
+  }
   #BlockTicker {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 4;
   }
   #BlockOrderBooks {
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 4;
   }
 </style>
