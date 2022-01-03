@@ -27,6 +27,8 @@ export const ledgersdata = writable(false);
 export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
 export const wstradebalancedata = writable(false);
+export const openordersaccount = writable({});
+export const ohlcchart = writable({});
 
 
 
