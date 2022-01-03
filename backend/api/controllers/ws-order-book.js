@@ -28,8 +28,14 @@ const GetOrderBook = async (connection, req) => {
         if (debug) console.log('[MIRROR BOOK]: ', mirror)
         connection.socket.send(JSON.stringify({ service: 'OrderBook', data: { mirror } }))
       })
-      .on('status', (status) => { if (debug) console.log('[STATUS BOOK]: ', status) })
-      .on('error', (error, pair) => { if (debug) console.log('[ERROR BOOK]: ', error, pair) })
+      .on('status', (status) => {
+        if (debug) console.log('[STATUS BOOK]: ', status)
+        connection.socket.send(JSON.stringify({ service: 'OrderBook', data: false, status }))
+      })
+      .on('error', (error, pair) => {
+        if (debug) console.log('[ERROR BOOK]: ', error, pair)
+        connection.socket.send(JSON.stringify({ service: 'OrderBook', data: false, error, pair }))
+      })
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {

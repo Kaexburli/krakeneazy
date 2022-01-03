@@ -177,9 +177,9 @@ const getWsOpenOrders = async (connection, reply, req) => {
       .on('error', (error, sequence) => {
         if (debug) console.log('[ERROR OPEN-ORDERS]: ', error, sequence, openorders)
         connection.socket.send(JSON.stringify(error))
-        openorders.unsubscribe()
-        openorders.close()
-        connection.socket.open()
+        // openorders.unsubscribe()
+        // openorders.close()
+        // connection.socket.open()
       })
       .subscribe();
 
@@ -212,9 +212,9 @@ const getWsOwnTrades = async (connection, reply, req) => {
       .on('error', (error, sequence) => {
         if (debug) console.log('[ERROR OWN-TRADES]: ', error, sequence, owntrades)
         connection.socket.send(JSON.stringify(error))
-        owntrades.unsubscribe()
-        owntrades.close()
-        connection.socket.open()
+        // owntrades.unsubscribe()
+        // owntrades.close()
+        // connection.socket.open()
       })
       .subscribe();
 
@@ -284,7 +284,7 @@ const getWsTradeBalance = async (connection, reply, req) => {
 const getWsSystemStatus = async (connection, reply, req) => {
 
   let timer = null,
-    interval = 2000;
+    interval = 200;
 
   // Strat interval
   const startInterval = () => {

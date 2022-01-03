@@ -9,15 +9,21 @@ const GetOhlc = async (connection, req) => {
     const { base, quote, interval } = req.params;
     const pair = base + "/" + quote;
 
-    if (debug) console.log('########################################### GetSpread')
+    if (debug) console.log('########################################### GetOhlc', interval)
 
-    const ohlc = await api.ws.ohlc(parseInt(interval))
+    const ohlc = await api.ws.ohlc({ interval: parseInt(interval) })
       .on('update', (update, pair) => {
         if (debug) console.log('[UPDATE OHLC]: ', pair, update)
         connection.socket.send(JSON.stringify({ service: 'Ohlc', data: update }))
       })
-      .on('status', (status) => { if (debug) console.log('[STATUS OHLC]: ', status) })
-      .on('error', (error, pair) => { if (debug) console.log('[ERROR OHLC]: ', error, pair) })
+      .on('status', (status) => {
+        if (debug) console.log('[STATUS OHLC]: ', status)
+        connection.socket.send(JSON.stringify({ service: 'Ohlc', data: false, status }))
+      })
+      .on('error', (error, pair) => {
+        if (debug) console.log('[ERROR OHLC]: ', error, pair)
+        connection.socket.send(JSON.stringify({ service: 'Ohlc', data: false, error, pair }))
+      })
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {

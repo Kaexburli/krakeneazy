@@ -16,8 +16,14 @@ const GetTicker = async (connection, req) => {
         if (debug) console.log('[UPDATE TICKER]: ', pair, update)
         connection.socket.send(JSON.stringify({ service: 'Ticker', data: update }))
       })
-      .on('status', (status) => { if (debug) console.log('[STATUS TICKER]: ', status) })
-      .on('error', (error, pair) => { if (debug) console.log('[ERROR TICKER]: ', error, pair) })
+      .on('status', (status) => {
+        if (debug) console.log('[STATUS TICKER]: ', status)
+        connection.socket.send(JSON.stringify({ service: 'Ticker', data: false, status }))
+      })
+      .on('error', (error, pair) => {
+        if (debug) console.log('[ERROR TICKER]: ', error, pair)
+        connection.socket.send(JSON.stringify({ service: 'Ticker', data: false, error, pair }))
+      })
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
