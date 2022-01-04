@@ -6,6 +6,7 @@
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
   import Fetch from "utils/Runfetch.js";
+
   import {
     online,
     interval,
@@ -285,12 +286,69 @@
     }
   };
 
+  const rigthClickMenu = (param) => {
+    let chartblock = document.querySelector(".chart-block");
+    let rightclickmenu = document.getElementById("rightclickmenu").style;
+    let pricealert = document.getElementById("pricealert");
+
+    if (typeof param.point !== "undefined") {
+      let price = series.coordinateToPrice(param.point.y);
+      pricealert.innerHTML = "@" + price.toFixed($assetpair.pair_decimals);
+    }
+
+    if (chartblock.addEventListener) {
+      chartblock.addEventListener(
+        "contextmenu",
+        (e) => {
+          e.preventDefault();
+          var posX = e.clientX;
+          var posY = e.clientY;
+          setMenu(rightclickmenu, posX, posY);
+        },
+        false
+      );
+      chartblock.addEventListener(
+        "click",
+        (e) => {
+          e.preventDefault();
+          rightclickmenu.opacity = "0";
+          setTimeout(() => {
+            rightclickmenu.visibility = "hidden";
+          }, 501);
+        },
+        false
+      );
+    } else {
+      chartblock.attachEvent("oncontextmenu", (e) => {
+        e.preventDefault();
+        var posX = e.clientX;
+        var posY = e.clientY;
+        setMenu(rightclickmenu, posX, posY);
+      });
+      chartblock.attachEvent("onclick", (e) => {
+        e.preventDefault();
+        rightclickmenu.opacity = "0";
+        setTimeout(() => {
+          rightclickmenu.visibility = "hidden";
+        }, 501);
+      });
+    }
+  };
+
+  const setMenu = (el, x, y) => {
+    el.top = y + "px";
+    el.left = x + "px";
+    el.visibility = "visible";
+    el.opacity = "1";
+  };
+
   /**
    * handleCrosshairMove
    ************************/
   const handleCrosshairMove = ({ detail: param }) => {
     displayToolTipChart(param);
     displayOhlcBande(param);
+    rigthClickMenu(param);
   };
 
   /**
@@ -429,11 +487,16 @@
 
     // Auto resizing chart
     window.addEventListener("resize", () => {
+      if (!isMounted) return false;
       let chartblock = document.querySelector(".chart-block");
       let chartHeight = 300; // chartblock.clientHeight
       let chartWidth = chartblock.clientWidth;
       chartApi.resize(chartWidth, chartHeight);
     });
+
+    // if (typeof chartApi !== "undefined") {
+    //   console.log(chartApi)
+    // }
   }
 </script>
 
@@ -493,10 +556,76 @@
     </Chart>
     <div class="legend">{@html legend}</div>
     <div class="floating-tooltip {type}" />
+    <div id="rightclickmenu">
+      <a href="/">
+        <i class="fa fa-bell">&nbsp;</i> Create alert
+        <span id="pricealert">&nbsp;</span>
+      </a>
+      <a href="/">
+        <i class="fa fa-trash">&nbsp;</i> Remove all
+      </a>
+      <hr />
+      <a href="/">
+        <i class="fa fa-undo">&nbsp;</i> Undo
+        <span>Ctrl + Z</span>
+      </a>
+      <a href="/">
+        <i class="fa fa-redo">&nbsp;</i> Redo
+        <span>Ctrl + Y</span>
+      </a>
+    </div>
   </div>
 {/if}
 
 <style>
+  #rightclickmenu {
+    visibility: hidden;
+    z-index: 999;
+    opacity: 0;
+    position: fixed;
+    background: #222222;
+    color: #ffffff;
+    font-family: sans-serif;
+    font-size: 0.7em;
+    -webkit-transition: opacity 0.5s ease-in-out;
+    -moz-transition: opacity 0.5s ease-in-out;
+    -ms-transition: opacity 0.5s ease-in-out;
+    -o-transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
+    padding: 0px;
+    border: 2px solid #383838;
+  }
+
+  #rightclickmenu a {
+    display: block;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 6px 8px 6px 30px;
+    width: 200px;
+    position: relative;
+  }
+
+  #rightclickmenu a i.fa {
+    font-size: 12px;
+    position: absolute;
+    left: 9px;
+    top: 7px;
+  }
+
+  #rightclickmenu a span {
+    color: #bcb1b3;
+    float: right;
+  }
+
+  #rightclickmenu a:hover {
+    color: #fff;
+    background: #3879d9;
+  }
+
+  #rightclickmenu hr {
+    border: 1px solid #2a2a2a;
+    border-bottom: 0;
+  }
   .chartctrl-block {
     position: relative;
     background-color: #212121;
