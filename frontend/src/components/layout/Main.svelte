@@ -9,26 +9,90 @@
   import Reports from "components/pages/reports/MainReports.svelte";
 
   import websocketStore from "svelte-websocket-store";
-  import { wssurl, assetpair, interval } from "store/store.js";
-  import { ohlc, openorders } from "store/wsstore.js";
+  import { wssurl, assetpair, interval, devise } from "store/store.js";
+  import {
+    book,
+    ticker,
+    spread,
+    trade,
+    ohlc,
+    openorders,
+    owntrades,
+    tradebalance,
+  } from "store/wsstore.js";
 
   // Appel Websocket
-  let wss_ohlc, wss_openorders;
+  let wss_book,
+    wss_ticker,
+    wss_trade,
+    wss_spread,
+    wss_ohlc,
+    wss_openorders,
+    wss_owntrades,
+    wss_tradebalance,
+    depth = 10;
+
   wssurl.subscribe((server) => {
-    wss_ohlc = server + "/ohlc/" + $assetpair.wsname + "/" + $interval;
+    wss_book = $assetpair
+      ? server + "/book/" + $assetpair.wsname + "/" + depth
+      : false;
+    wss_ticker = $assetpair ? server + "/ticker/" + $assetpair.wsname : false;
+    wss_trade = $assetpair ? server + "/trade/" + $assetpair.wsname : false;
+    wss_spread = $assetpair ? server + "/spread/" + $assetpair.wsname : false;
+    wss_ohlc = $assetpair
+      ? server + "/ohlc/" + $assetpair.wsname + "/" + $interval
+      : false;
     wss_openorders = server + "/openorders";
+    wss_owntrades = server + "/owntrades";
+    wss_tradebalance = $devise ? server + "/tradebalance/" + $devise : false;
   });
-  const wsOhlc = websocketStore(wss_ohlc);
-  const wsOpenOrders = websocketStore(wss_openorders);
   // Appel Websocket
 
   onMount(() => {
+    const wsOpenOrders = websocketStore(wss_openorders);
     wsOpenOrders.subscribe((tick) => {
       openorders.set(tick);
     });
-    wsOhlc.subscribe((tick) => {
-      ohlc.set(tick);
+
+    const wsOwnTrades = websocketStore(wss_owntrades);
+    wsOwnTrades.subscribe((tick) => {
+      owntrades.set(tick);
     });
+
+    if ($devise) {
+      const wsTradeBalance = websocketStore(wss_tradebalance);
+      wsTradeBalance.subscribe((tick) => {
+        tradebalance.set(tick);
+      });
+    }
+
+    if ($assetpair && wss_ohlc) {
+      // Book websocket
+      const wsBook = websocketStore(wss_book);
+      wsBook.subscribe((tick) => {
+        book.set(tick);
+      });
+      // Ticker websocket
+      const wsTicker = websocketStore(wss_ticker);
+      wsTicker.subscribe((tick) => {
+        ticker.set(tick);
+      });
+      // Trade websocket
+      const wsTrade = websocketStore(wss_trade);
+      wsTrade.subscribe((tick) => {
+        trade.set(tick);
+      });
+      // Spread websocket
+      const wsSpread = websocketStore(wss_spread);
+      wsSpread.subscribe((tick) => {
+        spread.set(tick);
+      });
+      // OHLC websocket
+      const wsOhlc = websocketStore(wss_ohlc);
+      wsOhlc.subscribe((tick) => {
+        ohlc.set(tick);
+      });
+    }
   });
 </script>
 

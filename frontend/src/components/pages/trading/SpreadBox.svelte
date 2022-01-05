@@ -1,20 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { ticker, spread, trade } from "store/wsstore.js";
-  import { wssurl, assetpair, asymbole } from "store/store.js";
-  import websocketStore from "svelte-websocket-store";
-
-  // Appel Websocket
-  let wss_ticker, wss_spread, wss_trade;
-  wssurl.subscribe((server) => {
-    wss_ticker = server + "/ticker/" + $assetpair.wsname;
-    wss_spread = server + "/spread/" + $assetpair.wsname;
-    wss_trade = server + "/trade/" + $assetpair.wsname;
-  });
-  const wsTicker = websocketStore(wss_ticker);
-  const wsSpread = websocketStore(wss_spread);
-  const wsTrade = websocketStore(wss_trade);
-  // Appel Websocket
+  import { assetpair, asymbole } from "store/store.js";
 
   let base = $asymbole.hasOwnProperty($assetpair.base)
     ? $asymbole[$assetpair.base].name
@@ -23,6 +10,9 @@
     ? $asymbole[$assetpair.quote].name
     : $assetpair.quote;
 
+  let tickerdata = false;
+  let tradedata = false;
+  let spreaddata = false;
   let bid_spread;
   let ask_spread;
   let ask_bid_diff;
@@ -42,37 +32,39 @@
   });
 
   onMount(() => {
-    wsTicker.subscribe((tick) => {
+    ticker.subscribe((tick) => {
       // console.log("wsTicker:", tick);
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker" && tick.data) ticker.set(tick.data);
+        if (tick.service === "Ticker" && tick.data) tickerdata = tick.data;
       }
     });
-    wsSpread.subscribe((tick) => {
+    spread.subscribe((tick) => {
       // console.log("wsSpread:", tick);
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        if (tick.service === "Spread" && tick.data) spread.set(tick.data);
+        if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
     });
-    wsTrade.subscribe((tick) => {
+    trade.subscribe((tick) => {
       // console.log("wsTrade:", tick);
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (tick.service === "Trade" && tick.data) trade.set(tick.data);
+        if (tick.service === "Trade" && tick.data) tradedata = tick.data;
       }
     });
   });
 
   $: {
     if (
-      typeof $ticker !== "undefined" &&
-      $ticker.hasOwnProperty("c") &&
-      $spread !== "undefined" &&
-      $spread.length > 0
+      typeof tickerdata !== "undefined" &&
+      tickerdata.hasOwnProperty("c") &&
+      spreaddata !== "undefined" &&
+      spreaddata.length > 0
     ) {
-      spread_calcul = ($ticker["a"][0] - $ticker["b"][0]).toFixed(decimals);
-      bid_spread = Math.abs($ticker["c"][0] - $spread[1]);
-      ask_spread = Math.abs($spread[0] - $ticker["c"][0]);
+      spread_calcul = (tickerdata["a"][0] - tickerdata["b"][0]).toFixed(
+        decimals
+      );
+      bid_spread = Math.abs(tickerdata["c"][0] - spreaddata[1]);
+      ask_spread = Math.abs(spreaddata[0] - tickerdata["c"][0]);
       ask_bid_diff = Math.abs(ask_spread + bid_spread);
-      ask_bid_spread_diff = Math.abs($spread[0] - $spread[1]);
+      ask_bid_spread_diff = Math.abs(spreaddata[0] - spreaddata[1]);
 
       ask_spread = ((ask_spread / ask_bid_diff) * 100) / 2;
       bid_spread = ((bid_spread / ask_bid_diff) * 100) / 2;
@@ -106,7 +98,7 @@
       <span class="spreadbid" />
       <span class="spread">{spread_calcul}</span>
     </div>
-    {#if typeof $spread !== "undefined" && $spread.length > 0}
+    {#if typeof spreaddata !== "undefined" && spreaddata.length > 0}
       <div class="spread-box right">
         <h5>
           <span class="left"
@@ -119,25 +111,25 @@
         </h5>
         <div class="left">
           <span class="ask-spread">
-            {Number($spread[1]).toFixed(decimals)}&nbsp;{quote}
+            {Number(spreaddata[1]).toFixed(decimals)}&nbsp;{quote}
           </span>
           <span class="ask-spread-vol">
-            ({Number($spread[4]).toFixed(lot_decimals)})
+            ({Number(spreaddata[4]).toFixed(lot_decimals)})
           </span>
         </div>
         &nbsp;{Number(ask_bid_spread_diff).toFixed(2)}&nbsp;
         <div class="right">
           <span class="bid-spread">
-            {Number($spread[0]).toFixed(decimals)}&nbsp;{quote}
+            {Number(spreaddata[0]).toFixed(decimals)}&nbsp;{quote}
           </span>
           <span class="bid-spread-vol">
-            ({Number($spread[3]).toFixed(lot_decimals)})
+            ({Number(spreaddata[3]).toFixed(lot_decimals)})
           </span>
         </div>
       </div>
     {/if}
 
-    {#if typeof $ticker !== "undefined" && $ticker.hasOwnProperty("c")}
+    {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("c")}
       <div class="ticker-box">
         <h5>
           <span class="left"
@@ -150,23 +142,23 @@
         </h5>
         <div>
           <span class="ask-tick left">
-            {Number($ticker["a"][0]).toFixed(decimals)}&nbsp;{quote}
+            {Number(tickerdata["a"][0]).toFixed(decimals)}&nbsp;{quote}
           </span>
           <span class="bid-tick right">
-            {Number($ticker["b"][0]).toFixed(decimals)}&nbsp;{quote}
+            {Number(tickerdata["b"][0]).toFixed(decimals)}&nbsp;{quote}
           </span>
           <span class="current_price">
-            {Number($ticker["c"][0]).toFixed(decimals)}&nbsp;{quote}
+            {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
           </span>
         </div>
       </div>
     {/if}
 
-    {#if typeof $trade !== "undefined" && $trade.length >= 1}
+    {#if typeof tradedata !== "undefined" && tradedata.length >= 1}
       <hr />
       <div class="recent-trade">
         <h5>Dernier(s) trade(s)</h5>
-        {#each $trade as td}
+        {#each tradedata as td}
           <div class={td[3]}>
             <span class="date">{formatter.format(parseInt(td[2]) * 1000)}</span>
             <span class="badge">
@@ -200,7 +192,8 @@
     z-index: 1;
     left: 50%;
     display: inline-block;
-    width: 50%;
+    max-width: 50%;
+    width: 0;
     height: 15px;
     background-color: darkgreen;
     border-right: 1px solid #000000;
@@ -216,7 +209,8 @@
     top: 0;
     z-index: 1;
     display: inline-block;
-    width: 50%;
+    max-width: 50%;
+    width: 0;
     right: 50%;
     height: 15px;
     background-color: firebrick;

@@ -2,34 +2,20 @@
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
-  import websocketStore from "svelte-websocket-store";
+  import { tradebalance } from "store/wsstore.js";
 
-  import {
-    wssurl,
-    devise,
-    online,
-    sound,
-    asymbole,
-    wstradebalancedata,
-  } from "store/store.js";
+  import { devise, online, sound, asymbole } from "store/store.js";
   import { SyncLoader } from "svelte-loading-spinners";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
   let error = false;
+  let tradebalancedata;
   let limit = 0;
   let balance_way = "down";
   let balance_way_tmp;
   let played = false;
   let trading_percent;
   const asset = $devise;
-
-  // Appel Websocket
-  let wss_tradebalance;
-  wssurl.subscribe(
-    (server) => (wss_tradebalance = server + "/tradebalance/" + asset)
-  );
-  const wsTradeBalance = websocketStore(wss_tradebalance);
-  // Appel Websocket
 
   const playSound = (track) => {
     let audio = new Audio("../sound/" + track + ".wav");
@@ -93,7 +79,7 @@
           limit++;
         }
       } else {
-        wstradebalancedata.set(res);
+        tradebalancedata = res;
         error = false;
       }
     } catch (error) {
@@ -106,7 +92,7 @@
       GetTradeBalance();
     }, 500);
 
-    wsTradeBalance.subscribe((tick) => {
+    tradebalance.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
         if (!$online) {
           error = true;
@@ -116,30 +102,28 @@
           console.error("ERROR", error);
         } else if (Object.keys(tick).length >= 1) {
           if (tick.service === "WsTradeBalance") {
-            wstradebalancedata.set(tick.data);
+            tradebalancedata = tick.data;
           }
         }
       }
     });
   });
 
-  $: {
-    if ($wstradebalancedata) {
-      // Calcul du pourcentage de perte et profit
-      trading_percent = Number(
-        Number($wstradebalancedata["v"]) / Number($wstradebalancedata["c"]) // Valorisation - coût
-      );
-      trading_percent = trading_percent * 100; // x 100
-      trading_percent = 100 - trading_percent; // 100 -
+  $: if (tradebalancedata) {
+    // Calcul du pourcentage de perte et profit
+    trading_percent = Number(
+      Number(tradebalancedata["v"]) / Number(tradebalancedata["c"]) // Valorisation - coût
+    );
+    trading_percent = trading_percent * 100; // x 100
+    trading_percent = 100 - trading_percent; // 100 -
 
-      if (!isNaN(trading_percent)) {
-        // Joue un sont en cas de cahngement de perte et profit
+    if (!isNaN(trading_percent)) {
+      // Joue un sont en cas de cahngement de perte et profit
+      balance_way_tmp = balance_way;
+      balance_way = trading_percent >= 0 ? "up" : "down";
+      if (balance_way != balance_way_tmp) {
         balance_way_tmp = balance_way;
-        balance_way = trading_percent >= 0 ? "up" : "down";
-        if (balance_way != balance_way_tmp) {
-          balance_way_tmp = balance_way;
-          played = true;
-        }
+        played = true;
       }
     }
   }
@@ -151,10 +135,10 @@
     {#if error && limit <= 2 && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
-    {#if !$wstradebalancedata && !error}
+    {#if !tradebalancedata && !error}
       <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
     {:else}
-      {#each Object.entries($wstradebalancedata) as [index, bal]}
+      {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["eb", "tb", "m", "e", "mf"].includes(index)}
           <li>
             <TooltipIcon
@@ -171,8 +155,8 @@
                 </span>
               {:else if index == "e"}
                 <span
-                  class={parseFloat($wstradebalancedata["e"]) >=
-                  parseFloat($wstradebalancedata["tb"])
+                  class={parseFloat(tradebalancedata["e"]) >=
+                  parseFloat(tradebalancedata["tb"])
                     ? "good"
                     : "realynotgood"}
                 >
@@ -201,10 +185,10 @@
     {#if error && limit <= 5 && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
-    {#if !$wstradebalancedata && !error}
+    {#if !tradebalancedata && !error}
       <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
     {:else}
-      {#each Object.entries($wstradebalancedata) as [index, bal]}
+      {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["n", "c", "v", "ml"].includes(index)}
           <li>
             <TooltipIcon

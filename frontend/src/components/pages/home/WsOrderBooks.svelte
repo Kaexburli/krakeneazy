@@ -1,30 +1,19 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import { wssurl, assetpair } from "store/store.js";
   import { book, ticker, spread, trade } from "store/wsstore.js";
-  import websocketStore from "svelte-websocket-store";
-  const depth = 10;
 
-  // Appel Websocket
-  let wss_book, wss_ticker, wss_trade, wss_spread;
-  wssurl.subscribe((server) => {
-    wss_book = server + "/book/" + $assetpair.wsname + "/" + depth;
-    wss_ticker = server + "/ticker/" + $assetpair.wsname;
-    wss_trade = server + "/trade/" + $assetpair.wsname;
-    wss_spread = server + "/spread/" + $assetpair.wsname;
-  });
-
-  const wsBook = websocketStore(wss_book);
-  const wsTicker = websocketStore(wss_ticker);
-  const wsTrade = websocketStore(wss_trade);
-  const wsSpread = websocketStore(wss_spread);
-  // Appel Websocket
+  const dispatch = createEventDispatcher();
 
   let spread_calcul = "0.0";
   let asks = [];
   let bids = [];
   let ask = [];
   let bid = [];
+  let bookdata = false;
+  let tickerdata = false;
+  let tradedata = false;
+  let spreaddata = false;
   let totalVask = 0;
   let totalVbid = 0;
   let priceway = "";
@@ -44,45 +33,51 @@
   };
 
   // Écoute l'api websocket Order Book
-  const getBook = () => {
-    if ($book.hasOwnProperty("snapshot")) {
-      asks = $book.snapshot.as;
-      bids = $book.snapshot.bs;
+  const getBook = (data) => {
+    if (data.hasOwnProperty("snapshot")) {
+      asks = data.snapshot.as;
+      bids = data.snapshot.bs;
     }
-    if ($book.hasOwnProperty("mirror")) {
-      asks = $book.mirror.as;
-      bids = $book.mirror.bs;
+    if (data.hasOwnProperty("mirror")) {
+      asks = data.mirror.as;
+      bids = data.mirror.bs;
     }
-    if ($book.hasOwnProperty("ask")) {
-      ask = $book.ask.a[0];
+    if (data.hasOwnProperty("ask")) {
+      ask = data.ask.a[0];
     }
-    if ($book.hasOwnProperty("bid")) {
-      bid = $book.bid.b[0];
+    if (data.hasOwnProperty("bid")) {
+      bid = data.bid.b[0];
     }
   };
 
   onMount(() => {
-    wsBook.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length) {
-        if (tick.service === "OrderBook" && tick.data) book.set(tick.data);
-        getBook();
-      }
+    trade.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
+        if (tick.service === "Trade" && tick.data) tradedata = tick.data;
     });
-    wsTicker.subscribe((tick) => {
+
+    spread.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
+        if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
+    });
+
+    ticker.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
         if (tick.service === "Ticker" && tick.data) {
-          updatePriceClass(tick.data);
-          ticker.set(tick.data);
+          tickerdata = tick.data;
+          updatePriceClass(tickerdata);
         }
       }
     });
-    wsTrade.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        if (tick.service === "Trade" && tick.data) trade.set(tick.data);
-    });
-    wsSpread.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        if (tick.service === "Spread" && tick.data) spread.set(tick.data);
+
+    book.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length) {
+        if (tick.service === "OrderBook" && tick.data) {
+          bookdata = tick.data;
+          getBook(bookdata);
+          dispatch("loading", { loading: true });
+        }
+      }
     });
   });
 
@@ -112,14 +107,14 @@
 </script>
 
 <div class="order-book-block">
-  {#if typeof $ticker !== "undefined" && $ticker.hasOwnProperty("a")}
+  {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
     <div class="tick close-tick clearfix">
       <div id="current-price" class={priceway}>
-        {Number($ticker["c"][0]).toFixed(decimals)}&nbsp;{quote}
+        {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
       </div>
       <div id="current-infos">
         <div id="current-volume">
-          <span class="label">Volume total : </span>{$ticker["c"][1]}
+          <span class="label">Volume total : </span>{tickerdata["c"][1]}
         </div>
         <div id="current-spread">
           <span class="label">Spread : </span>{spread_calcul}

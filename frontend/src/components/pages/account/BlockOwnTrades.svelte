@@ -2,22 +2,17 @@
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
-  import { wssurl, online } from "store/store.js";
-  import websocketStore from "svelte-websocket-store";
+  import { online } from "store/store.js";
   import { owntrades } from "store/wsstore.js";
   import formatDate from "utils/formatDate.js";
   import { SyncLoader } from "svelte-loading-spinners";
 
   let error = false;
-
-  // Appel Websocket
-  let wss_owntrades;
-  wssurl.subscribe((server) => (wss_owntrades = server + "/owntrades"));
-  const wsOwnTrades = websocketStore(wss_owntrades);
-  // Appel Websocket
+  let owntradesdata = false;
 
   onMount(() => {
-    wsOwnTrades.subscribe((tick) => {
+    owntrades.subscribe((tick) => {
+      // console.log(tick);
       if (!$online) {
         error = true;
         return false;
@@ -27,7 +22,8 @@
       ) {
         error = "[" + tick.subscription.name + "] " + tick.errorMessage;
       } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
-        owntrades.set(tick.data);
+        if (tick.service === "OwnTrades" && tick.data)
+          owntradesdata = tick.data;
       }
     });
   });
@@ -55,10 +51,10 @@
       {#if error && typeof error !== "boolean"}
         <span class="error">{error}</span>
       {/if}
-      {#if typeof $owntrades !== "undefined" && $owntrades.length === 0 && !error}
+      {#if typeof owntradesdata !== "undefined" && owntradesdata.length === 0 && !error}
         <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-      {:else if typeof $owntrades !== "undefined" && $owntrades.length > 0 && $owntrades}
-        {#each $owntrades as el, i}
+      {:else if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
+        {#each owntradesdata as el, i}
           <tr id={Object.keys(el)} transition:fade>
             <td data-label="Type" class={el[Object.keys(el)]["type"]}>
               <div classe="type">
@@ -144,7 +140,7 @@
       {/if}
     </tbody>
   </table>
-  {#if typeof $owntrades !== "undefined" && $owntrades.length > 0 && $owntrades}
+  {#if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
     <div class="pagination">
       <span class="prev">
         <i class="fa fa-caret-square-left" />
