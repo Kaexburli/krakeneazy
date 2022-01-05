@@ -1,7 +1,9 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import { ticker } from "store/wsstore.js";
   import { assetpair } from "store/store.js";
+
+  const dispatch = createEventDispatcher();
 
   let tickerdata;
 
@@ -10,6 +12,7 @@
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
         if (tick.service === "Ticker" && tick.data) {
           tickerdata = tick.data;
+          dispatch("loading", { loading: true });
         }
       }
     });

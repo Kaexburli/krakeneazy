@@ -1,11 +1,13 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { ohlc, openorders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import { CrosshairMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
   import Fetch from "utils/Runfetch.js";
+
+  const dispatch = createEventDispatcher();
 
   import {
     online,
@@ -57,6 +59,7 @@
           // (key) => (res[key].time = res[key].time + timeZoneOffset * 3600)
         );
         ohlcchart.set(res);
+        dispatch("loading", { loading: true });
         if (
           typeof $ohlcchart !== "undefined" &&
           !isNaN($ohlcchart.length - 1)
@@ -359,7 +362,10 @@
       // récupère les clés du tableau (ID order)
       let order_id = Object.keys(element);
 
-      if (typeof datas[index][order_id] !== "undefined") {
+      if (
+        typeof datas[index][order_id] !== "undefined" &&
+        datas[index][order_id].hasOwnProperty("descr")
+      ) {
         if ($assetpair.wsname === datas[index][order_id].descr.pair) {
           let color =
             datas[index][order_id].descr.type === "sell"
@@ -470,7 +476,7 @@
       if ($openorders.service === "OpenOrders" && $openorders.data) {
         getPositionMarker($openorders.data);
 
-        if (typeof series !== "undefined") {
+        if (typeof series !== "undefined" && isMounted) {
           if (activePosition) series.setMarkers(markers);
           else series.setMarkers([]);
         }

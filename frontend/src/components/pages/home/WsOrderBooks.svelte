@@ -1,6 +1,6 @@
 <script>
   import { onMount, createEventDispatcher } from "svelte";
-  import { wssurl, assetpair } from "store/store.js";
+  import { assetpair } from "store/store.js";
   import { book, ticker, spread, trade } from "store/wsstore.js";
 
   const dispatch = createEventDispatcher();
