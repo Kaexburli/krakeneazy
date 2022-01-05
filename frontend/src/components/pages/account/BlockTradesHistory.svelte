@@ -4,7 +4,7 @@
 
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
-  import { online, asymbole, tradeshistorydata } from "store/store.js";
+  import { online, tradeshistorydata } from "store/store.js";
   import { SyncLoader } from "svelte-loading-spinners";
 
   const ud = new UserData();
