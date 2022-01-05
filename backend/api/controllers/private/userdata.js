@@ -18,6 +18,8 @@ let shuffle = randomApiKey();
 const API_KEY = KRAKEN['key_' + shuffle]['key']
 const API_PRIV = KRAKEN['key_' + shuffle]['secret']
 
+console.log('################### Chargement des clés API [N°:' + shuffle + '] ###################')
+
 const NonceGenerator = (() => {
   let prev = -1;
   let next = -1;
@@ -284,7 +286,7 @@ const getWsTradeBalance = async (connection, reply, req) => {
 const getWsSystemStatus = async (connection, reply, req) => {
 
   let timer = null,
-    interval = 200;
+    interval = 2000;
 
   // Strat interval
   const startInterval = () => {
