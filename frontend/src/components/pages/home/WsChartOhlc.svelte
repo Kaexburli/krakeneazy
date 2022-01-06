@@ -2,9 +2,13 @@
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { ohlc, openorders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
-  import { CrosshairMode } from "lightweight-charts";
+  import {
+    CrosshairMode,
+    PriceScaleMode,
+  } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
+  import HistogramSeries from "svelte-lightweight-charts/components/histogram-series.svelte";
   import Fetch from "utils/Runfetch.js";
 
   const dispatch = createEventDispatcher();
@@ -16,14 +20,18 @@
     assetpair,
     fetchurl,
     ohlcchart,
+    volumechart,
   } from "store/store.js";
 
   let type;
   let series;
+  let volSeries;
   let chartApi;
   let activetooltip = false;
   let activePosition = false;
   let crosshairMode = false;
+  let rightPriceScaleMode = false;
+  let volumeDisplaying = true;
   let markers = [];
   let newCandel = false;
   let ohlcLastItemhistory = null;
@@ -43,6 +51,28 @@
   };
 
   /**
+   * formatVolumeSeries
+   ************************/
+  const formatVolumeSeries = () => {
+    // volumechart
+    if ($ohlcchart) {
+      let volume_tmp = [];
+      Object.values($ohlcchart).map((item) => {
+        let color =
+          item.close <= item.open
+            ? "rgba(255,82,82, 0.8)"
+            : "rgba(0, 150, 136, 0.8)";
+        // Création d'un objet temporaire
+        let v = new Object();
+        v = { time: item.time, value: item.volume, color };
+        volume_tmp.push(v);
+      });
+
+      if (volume_tmp.length > 1) volumechart.set(volume_tmp);
+    }
+  };
+
+  /**
    * getChartHistoryDatas
    ************************/
   const getChartHistoryDatas = async () => {
@@ -59,6 +89,7 @@
           // (key) => (res[key].time = res[key].time + timeZoneOffset * 3600)
         );
         ohlcchart.set(res);
+        formatVolumeSeries();
         dispatch("loading", { loading: true });
         if (
           typeof $ohlcchart !== "undefined" &&
@@ -289,6 +320,9 @@
     }
   };
 
+  /**
+   * rigthClickMenu
+   ************************/
   const rigthClickMenu = (param) => {
     let chartblock = document.querySelector(".chart-block");
     let rightclickmenu = document.getElementById("rightclickmenu").style;
@@ -338,6 +372,9 @@
     }
   };
 
+  /**
+   * setMenu
+   ************************/
   const setMenu = (el, x, y) => {
     el.top = y + "px";
     el.left = x + "px";
@@ -413,9 +450,23 @@
     }
   };
 
+  /**
+   * handleRightPriceScaleMode
+   ************************/
+  const handleRightPriceScaleMode = (event) => {
+    if (typeof chartApi !== "undefined") {
+      chartApi.applyOptions({
+        rightPriceScale: {
+          mode: rightPriceScaleMode
+            ? PriceScaleMode.Logarithmic
+            : PriceScaleMode.Normal,
+        },
+      });
+    }
+  };
+
   const optionsChart = {
-    // width: document.body.offsetWidth - 220,
-    height: 300,
+    height: 350,
     layout: {
       backgroundColor: "#212121",
       textColor: "#fcfcfc",
@@ -437,12 +488,16 @@
     },
     rightPriceScale: {
       borderColor: "rgba(197, 203, 206, 0.8)",
+      mode: rightPriceScaleMode
+        ? PriceScaleMode.Logarithmic
+        : PriceScaleMode.Normal,
     },
     timeScale: {
       timeVisible: true,
       secondsVisible: true,
       borderColor: "rgba(197, 203, 206, 0.8)",
     },
+
     watermark: {
       color: "rgba(100, 100, 100, 0.1)",
       visible: true,
@@ -468,6 +523,18 @@
     },
   };
 
+  let HistogramSeriesOpts = {
+    priceFormat: {
+      type: "volume",
+    },
+    color: "#26a69a",
+    priceScaleId: "",
+    scaleMargins: {
+      top: 0.9,
+      bottom: 0,
+    },
+  };
+
   $: {
     if (
       typeof $openorders !== "undefined" &&
@@ -487,6 +554,7 @@
       if ($ohlc.service === "Ohlc" && $ohlc.data) {
         if (ohlcLastItemhistory !== null) {
           formatCandelTick($ohlc.data);
+          // console.log($ohlc.data);
         }
       }
     }
@@ -530,6 +598,22 @@
       on:change={handleCrosshairMode}
     />
     <label class="label-checkbox" for="crosshair-mode">Magnet</label>
+    <input
+      type="checkbox"
+      name="pricescale-mode"
+      id="pricescale-mode"
+      bind:checked={rightPriceScaleMode}
+      on:change={handleRightPriceScaleMode}
+    />
+    <label class="label-checkbox" for="pricescale-mode">Logarithmique</label>
+    <input
+      type="checkbox"
+      name="volume-chart"
+      id="volume-chart"
+      bind:checked={volumeDisplaying}
+      on:change={(n) => !volumeDisplaying}
+    />
+    <label class="label-checkbox" for="volume-chart">Volume</label>
   </div>
   <div class="chart-block">
     <select
@@ -559,6 +643,9 @@
         ref={(ref) => (series = ref)}
         {...CandlestickSeriesOpts}
       />
+      {#if volumeDisplaying}
+        <HistogramSeries data={$volumechart} {...HistogramSeriesOpts} />
+      {/if}
     </Chart>
     <div class="legend">{@html legend}</div>
     <div class="floating-tooltip {type}" />

@@ -28,6 +28,7 @@ export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
 export const openordersdata = writable(false);
 export const ohlcchart = writable(false);
+export const volumechart = writable(false);
 
 
 
