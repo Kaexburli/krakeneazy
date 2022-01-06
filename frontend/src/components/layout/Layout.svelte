@@ -5,12 +5,14 @@
   import Footer from "components/layout/Footer.svelte";
   import OnlineApi from "components/api/Online.svelte";
   import GetAssets from "components/api/GetAssets.svelte";
+  import PriceALert from "components/api/PriceALert.svelte";
 </script>
 
 <div class="layout">
   <!-- // No displaying -->
   <OnlineApi display="header" />
   <GetAssets />
+  <PriceALert />
   <!-- // No displaying -->
 
   <Header />

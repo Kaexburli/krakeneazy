@@ -9,7 +9,13 @@
   import Reports from "components/pages/reports/MainReports.svelte";
 
   import websocketStore from "svelte-websocket-store";
-  import { wssurl, assetpair, interval, devise } from "store/store.js";
+  import {
+    wssurl,
+    assetpair,
+    interval,
+    devise,
+    pricealertlist,
+  } from "store/store.js";
   import {
     book,
     ticker,
@@ -19,24 +25,26 @@
     openorders,
     owntrades,
     tradebalance,
+    tickeralert,
   } from "store/wsstore.js";
 
   // Appel Websocket
   let wss_book,
-    wss_ticker,
     wss_trade,
     wss_spread,
     wss_ohlc,
     wss_openorders,
     wss_owntrades,
     wss_tradebalance,
-    depth = 10;
+    wss_server,
+    depth = 10,
+    wss_ticker_alert = [];
 
   wssurl.subscribe((server) => {
+    wss_server = server;
     wss_book = $assetpair
       ? server + "/book/" + $assetpair.wsname + "/" + depth
       : false;
-    wss_ticker = $assetpair ? server + "/ticker/" + $assetpair.wsname : false;
     wss_trade = $assetpair ? server + "/trade/" + $assetpair.wsname : false;
     wss_spread = $assetpair ? server + "/spread/" + $assetpair.wsname : false;
     wss_ohlc = $assetpair
@@ -66,17 +74,43 @@
       });
     }
 
-    if ($assetpair && wss_ohlc) {
+    if ($assetpair) {
       // Book websocket
       const wsBook = websocketStore(wss_book);
       wsBook.subscribe((tick) => {
         book.set(tick);
       });
+
       // Ticker websocket
-      const wsTicker = websocketStore(wss_ticker);
-      wsTicker.subscribe((tick) => {
-        ticker.set(tick);
+      let wsTickerAlert = [];
+      // List des pairs
+      let ticker_pair = Object.keys($pricealertlist);
+      // Si la pair selectionné n'est pas dans la liste on l'ajoute
+      if (!ticker_pair.includes($assetpair.wsname))
+        ticker_pair.push($assetpair.wsname);
+      // On boucle sur la liste et on créer une connexion websocket pour chaque pair
+      ticker_pair.map((tickpair) => {
+        wss_ticker_alert[tickpair] = wss_server + "/ticker/" + tickpair;
+        wsTickerAlert[tickpair] = websocketStore(wss_ticker_alert[tickpair]);
       });
+      // On boucle chaque connexion websocket pour y souscrire
+      let obj = {};
+      for (const tickpair in wsTickerAlert) {
+        if (Object.hasOwnProperty.call(wsTickerAlert, tickpair)) {
+          const socket = wsTickerAlert[tickpair];
+          socket.subscribe((tick) => {
+            // On set toutes les données dans tickeralert
+            obj[tickpair] = tick;
+            tickeralert.set(obj);
+
+            // On set les données de la pair selectionné dans le store ticker
+            if (tickpair === $assetpair.wsname) {
+              ticker.set(tick);
+            }
+          });
+        }
+      }
+
       // Trade websocket
       const wsTrade = websocketStore(wss_trade);
       wsTrade.subscribe((tick) => {

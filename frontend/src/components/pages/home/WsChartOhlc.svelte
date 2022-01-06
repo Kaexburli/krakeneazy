@@ -1,11 +1,9 @@
 <script>
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
-  import { ohlc, openorders } from "store/wsstore.js";
+  import { ohlc, ticker, openorders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
-  import {
-    CrosshairMode,
-    PriceScaleMode,
-  } from "lightweight-charts";
+  import { toast } from "@zerodevx/svelte-toast";
+  import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
   import HistogramSeries from "svelte-lightweight-charts/components/histogram-series.svelte";
@@ -21,6 +19,7 @@
     fetchurl,
     ohlcchart,
     volumechart,
+    pricealertlist,
   } from "store/store.js";
 
   let type;
@@ -37,10 +36,11 @@
   let ohlcLastItemhistory = null;
   let lastCandelStartTime = null;
   let lastCandelEndTime = null;
-  let open, high, low, close;
   let timeZoneOffset = new Date().getTimezoneOffset() / -60;
   let intval = $interval * 60;
   let isMounted = false;
+  let pricealert = "0.00";
+  let open, high, low, close, volume;
   let legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M";
   let fetchUrl = $fetchurl + "/api/ohlc/" + $pair + "/" + $interval;
 
@@ -60,8 +60,8 @@
       Object.values($ohlcchart).map((item) => {
         let color =
           item.close <= item.open
-            ? "rgba(255,82,82, 0.8)"
-            : "rgba(0, 150, 136, 0.8)";
+            ? "rgba(223, 0, 18, 0.8)"
+            : "rgba(91, 146, 8, 0.8)";
         // Création d'un objet temporaire
         let v = new Object();
         v = { time: item.time, value: item.volume, color };
@@ -201,16 +201,21 @@
     let toolTipWidth = 80;
     let toolTipHeight = 80;
     let toolTipMargin = 15;
-    let opentooltip;
-    let closetooltip;
-    let hightooltip;
-    let lowtooltip;
+    let opentooltip, closetooltip, hightooltip, lowtooltip, volumetooltip;
 
-    for (const value of param.seriesPrices.values()) {
-      opentooltip = value["open"];
-      hightooltip = value["high"];
-      lowtooltip = value["low"];
-      closetooltip = value["close"];
+    const seriesPriceValues = param.seriesPrices.values();
+
+    for (const value of seriesPriceValues) {
+      if (typeof value === "object") {
+        opentooltip = value["open"];
+        hightooltip = value["high"];
+        lowtooltip = value["low"];
+        closetooltip = value["close"];
+      }
+
+      if (typeof value === "string") {
+        volumetooltip = value;
+      }
     }
 
     let chartblock = document.querySelector(".chart-block");
@@ -252,6 +257,8 @@
         lowtooltip +
         "<br /><strong>Close:</strong> " +
         closetooltip +
+        "<br /><strong>Volume:</strong> " +
+        volumetooltip +
         "";
       ("</div></div>");
 
@@ -288,13 +295,23 @@
   const displayOhlcBande = (param) => {
     if (param.time) {
       let type;
-      for (const value of param.seriesPrices.values()) {
-        open = value["open"];
-        high = value["high"];
-        low = value["low"];
-        close = value["close"];
-        type = open <= close ? "green" : "red";
+
+      const seriesPriceValues = param.seriesPrices.values();
+
+      for (const value of seriesPriceValues) {
+        if (typeof value === "object") {
+          open = value["open"];
+          high = value["high"];
+          low = value["low"];
+          close = value["close"];
+          type = open <= close ? "green" : "red";
+        }
+
+        if (typeof value === "string") {
+          volume = value;
+        }
       }
+
       legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M  ";
       legend +=
         ' <span class="ohlc">' +
@@ -314,6 +331,10 @@
         type +
         '">CLOSE</span>: ' +
         close +
+        ' <span class="' +
+        type +
+        '">VOL</span>: ' +
+        volume +
         "</span>";
     } else {
       legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M  ";
@@ -326,11 +347,10 @@
   const rigthClickMenu = (param) => {
     let chartblock = document.querySelector(".chart-block");
     let rightclickmenu = document.getElementById("rightclickmenu").style;
-    let pricealert = document.getElementById("pricealert");
 
     if (typeof param.point !== "undefined") {
       let price = series.coordinateToPrice(param.point.y);
-      pricealert.innerHTML = "@" + price.toFixed($assetpair.pair_decimals);
+      pricealert = price.toFixed($assetpair.pair_decimals);
     }
 
     if (chartblock.addEventListener) {
@@ -463,6 +483,33 @@
         },
       });
     }
+  };
+
+  const handleRigthClickMenu = (price, pair) => {
+    let currentPrice = false;
+    ticker.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
+        if (tick.service === "Ticker" && tick.data) {
+          currentPrice = tick.data["a"][0];
+        }
+      }
+    });
+
+    let pushway = currentPrice > price ? "down" : "up";
+    if (!$pricealertlist.hasOwnProperty(pair)) {
+      $pricealertlist[pair] = { up: [], down: [] };
+      $pricealertlist[pair][pushway] = [price];
+    } else {
+      $pricealertlist[pair][pushway] = [
+        ...$pricealertlist[pair][pushway],
+        price,
+      ];
+    }
+
+    toast.push(
+      `Une alert à été mise en place <strong>${pair}@${price}</strong>`,
+      { target: "new" }
+    );
   };
 
   const optionsChart = {
@@ -650,9 +697,12 @@
     <div class="legend">{@html legend}</div>
     <div class="floating-tooltip {type}" />
     <div id="rightclickmenu">
-      <a href="/">
+      <a
+        href="/"
+        on:click={handleRigthClickMenu(pricealert, $assetpair.wsname)}
+      >
         <i class="fa fa-bell">&nbsp;</i> Create alert
-        <span id="pricealert">&nbsp;</span>
+        <span id="pricealert">@{pricealert}</span>
       </a>
       <a href="/">
         <i class="fa fa-trash">&nbsp;</i> Remove all

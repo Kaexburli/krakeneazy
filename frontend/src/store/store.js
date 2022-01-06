@@ -153,3 +153,11 @@ series.subscribe(value => {
   value = (typeof value === 'object') ? JSON.stringify(value) : false
   localStorage.setItem("series", value ? value : Boolean(false));
 });
+
+// Storage price alert list (OBJECT)
+const storedPriceAlertList = JSON.parse(localStorage.getItem("pricealertlist")) || {};
+export const pricealertlist = writable(storedPriceAlertList);
+pricealertlist.subscribe(value => {
+  value = (typeof value === 'object') ? JSON.stringify(value) : {};
+  localStorage.setItem("pricealertlist", (value !== "false") ? value : {});
+});
