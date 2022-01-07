@@ -32,7 +32,7 @@
     transition: all 0.5s ease;
 
     position: fixed;
-    z-index: 2;
+    z-index: 99;
     top: 0;
     right: 0;
   }

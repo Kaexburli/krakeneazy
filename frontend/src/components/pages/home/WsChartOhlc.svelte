@@ -495,21 +495,36 @@
       }
     });
 
-    let pushway = currentPrice > price ? "down" : "up";
-    if (!$pricealertlist.hasOwnProperty(pair)) {
-      $pricealertlist[pair] = { up: [], down: [] };
-      $pricealertlist[pair][pushway] = [price];
+    let pushway = parseFloat(currentPrice) > parseFloat(price) ? "down" : "up";
+    if (price >= 0) {
+      if (!$pricealertlist.hasOwnProperty(pair)) {
+        $pricealertlist[pair] = { up: [], down: [] };
+        $pricealertlist[pair][pushway] = [price];
+      } else {
+        $pricealertlist[pair][pushway] = [
+          ...$pricealertlist[pair][pushway],
+          price,
+        ];
+      }
+      toast.push(
+        `Une alert à été mise en place <strong>${pair}@${price}</strong>`,
+        {
+          target: "new",
+          theme: {
+            "--toastBackground": "#48BB78",
+            "--toastBarBackground": "#2F855A",
+          },
+        }
+      );
     } else {
-      $pricealertlist[pair][pushway] = [
-        ...$pricealertlist[pair][pushway],
-        price,
-      ];
+      toast.push("Le prix doit être positif", {
+        target: "new",
+        theme: {
+          "--toastBackground": "#F56565",
+          "--toastBarBackground": "#C53030",
+        },
+      });
     }
-
-    toast.push(
-      `Une alert à été mise en place <strong>${pair}@${price}</strong>`,
-      { target: "new" }
-    );
   };
 
   const optionsChart = {
@@ -610,9 +625,11 @@
     window.addEventListener("resize", () => {
       if (!isMounted) return false;
       let chartblock = document.querySelector(".chart-block");
-      let chartHeight = 300; // chartblock.clientHeight
-      let chartWidth = chartblock.clientWidth;
-      chartApi.resize(chartWidth, chartHeight);
+      if (typeof chartblock !== ("undefined" || null)) {
+        let chartHeight = 300; // chartblock.clientHeight
+        let chartWidth = chartblock.clientWidth;
+        chartApi.resize(chartWidth, chartHeight);
+      }
     });
 
     // if (typeof chartApi !== "undefined") {
