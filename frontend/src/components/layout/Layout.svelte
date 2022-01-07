@@ -19,6 +19,7 @@
   <Sidebar />
   <Main />
   <Footer />
+  <PriceALert display="true" />
 </div>
 
 <style>
