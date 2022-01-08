@@ -3,6 +3,9 @@
   import { ohlc, ticker, openorders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import { toast } from "@zerodevx/svelte-toast";
+  import { openModal, closeModal } from "svelte-modals";
+  import ConfirmModal from "components/modal/ConfirmModal.svelte";
+
   import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
@@ -40,6 +43,7 @@
   let intval = $interval * 60;
   let isMounted = false;
   let pricealert = "0.00";
+  let hasAlertForPair;
   let open, high, low, close, volume;
   let legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M";
   let fetchUrl = $fetchurl + "/api/ohlc/" + $pair + "/" + $interval;
@@ -485,7 +489,10 @@
     }
   };
 
-  const handleRigthClickMenu = (price, pair) => {
+  /**
+   * createAlertPrice
+   ************************/
+  const createAlertPrice = (price, pair) => {
     let currentPrice = false;
     ticker.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
@@ -527,6 +534,24 @@
     }
   };
 
+  /**
+   * removeAllAlertPrice
+   ************************/
+  const removeAllAlertPrice = (pair) => {
+    openModal(ConfirmModal, {
+      title: `[${pair}] Suppression des alertes`,
+      message: `Veuillez confirmer la supression des alertes pour la paire : ${pair}`,
+      confirm: () => {
+        console.log("confirme");
+        $pricealertlist[pair] = { up: [], down: [] };
+        closeModal();
+      },
+      cancel: () => {
+        closeModal();
+      },
+    });
+  };
+
   const optionsChart = {
     height: 350,
     layout: {
@@ -553,6 +578,15 @@
       mode: rightPriceScaleMode
         ? PriceScaleMode.Logarithmic
         : PriceScaleMode.Normal,
+    },
+    leftPriceScale: {
+      scaleMargins: {
+        top: 0.2,
+        bottom: 0.2,
+      },
+      drawTicks: true,
+      visible: true,
+      borderVisible: false,
     },
     timeScale: {
       timeVisible: true,
@@ -632,13 +666,23 @@
       }
     });
 
+    if ($pricealertlist.hasOwnProperty($assetpair.wsname)) {
+      console.log();
+      hasAlertForPair =
+        $pricealertlist[$assetpair.wsname]["up"].length >= 1
+          ? true
+          : $pricealertlist[$assetpair.wsname]["down"].length
+          ? true
+          : false;
+    }
+
     // if (typeof chartApi !== "undefined") {
     //   console.log(chartApi)
     // }
   }
 </script>
 
-{#if typeof $ohlcchart !== "undefined" && $ohlcchart.length > 0 && $ohlcchart}
+{#if $ohlcchart}
   <div class="chartctrl-block">
     <input
       type="checkbox"
@@ -714,25 +758,24 @@
     <div class="legend">{@html legend}</div>
     <div class="floating-tooltip {type}" />
     <div id="rightclickmenu">
-      <a
-        href="/"
-        on:click={handleRigthClickMenu(pricealert, $assetpair.wsname)}
-      >
-        <i class="fa fa-bell">&nbsp;</i> Create alert
+      <a href="/" on:click={createAlertPrice(pricealert, $assetpair.wsname)}>
+        <i class="fa fa-bell">&nbsp;</i> Créer une alerte
         <span id="pricealert">@{pricealert}</span>
       </a>
+      {#if hasAlertForPair}
+        <a href="/" on:click={removeAllAlertPrice($assetpair.wsname)}>
+          <i class="fa fa-trash">&nbsp;</i> Supprimer toutes les alertes
+        </a>
+      {/if}
+      <!-- <hr />
       <a href="/">
-        <i class="fa fa-trash">&nbsp;</i> Remove all
-      </a>
-      <hr />
-      <a href="/">
-        <i class="fa fa-undo">&nbsp;</i> Undo
+        <i class="fa fa-undo">&nbsp;</i> Retour
         <span>Ctrl + Z</span>
       </a>
       <a href="/">
-        <i class="fa fa-redo">&nbsp;</i> Redo
+        <i class="fa fa-redo">&nbsp;</i> Rétablir
         <span>Ctrl + Y</span>
-      </a>
+      </a> -->
     </div>
   </div>
 {/if}
