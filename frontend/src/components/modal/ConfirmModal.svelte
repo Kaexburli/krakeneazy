@@ -41,11 +41,13 @@
     min-width: 240px;
     border-radius: 6px;
     padding: 16px;
-    background: white;
+    background: #1c1c1c;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     pointer-events: auto;
+    color: #a7a7a7;
+    border: 3px solid #222222;
   }
 
   h3 {
@@ -61,6 +63,17 @@
   button {
     padding: 5px;
     margin: 0 10px;
+    background-color: #333333;
+    border: 2px solid #444444;
+    cursor: pointer;
+    color: #a7a7a7;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background-color: #555555;
   }
 
   .actions {

@@ -11,6 +11,7 @@
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
   import HistogramSeries from "svelte-lightweight-charts/components/histogram-series.svelte";
   import Fetch from "utils/Runfetch.js";
+  import UserData from "classes/UserData.js";
 
   const dispatch = createEventDispatcher();
 
@@ -30,11 +31,13 @@
   let volSeries;
   let chartApi;
   let activetooltip = false;
-  let activePosition = false;
+  let activeOrders = false;
+  let activePositions = false;
   let crosshairMode = false;
   let rightPriceScaleMode = false;
   let volumeDisplaying = true;
-  let markers = [];
+  let markers_orders = [];
+  let markers_positions = [];
   let newCandel = false;
   let ohlcLastItemhistory = null;
   let lastCandelStartTime = null;
@@ -47,6 +50,35 @@
   let open, high, low, close, volume;
   let legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M";
   let fetchUrl = $fetchurl + "/api/ohlc/" + $pair + "/" + $interval;
+
+  const ud = new UserData();
+
+  let error = false;
+  let openpositions = false;
+  let limit = 0;
+
+  const GetOpenPositions = async () => {
+    try {
+      if (!$online) {
+        error = true;
+        return false;
+      }
+
+      const res = await ud.getOpenPositions();
+      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        error = res.error;
+        if (limit < 5) {
+          GetOpenPositions();
+          limit++;
+        }
+      } else {
+        openpositions = res;
+        error = false;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const cmtt = (milliseconde) => {
     return new Date(milliseconde).toLocaleTimeString(navigator.language, {
@@ -129,6 +161,9 @@
   onMount(() => {
     isMounted = true;
     getChartHistoryDatas();
+    setTimeout(() => {
+      GetOpenPositions();
+    }, 502);
   });
 
   /**
@@ -416,9 +451,9 @@
   };
 
   /**
-   * getPositionMarker
+   * getOrderMarker
    ************************/
-  const getPositionMarker = (datas) => {
+  const getOrderMarker = (datas) => {
     datas.forEach((element, index) => {
       // récupère les clés du tableau (ID order)
       let order_id = Object.keys(element);
@@ -432,20 +467,16 @@
             datas[index][order_id].descr.type === "sell"
               ? "#ff9d9d"
               : "#aeff9d";
-          let shape =
-            datas[index][order_id].descr.type === "sell"
-              ? "arrowDown"
-              : "arrowUp";
           let position =
             datas[index][order_id].descr.type === "sell"
               ? "aboveBar"
               : "belowBar";
-          markers = [];
-          markers.push({
+          markers_orders = [];
+          markers_orders.push({
             time: parseInt(datas[index][order_id].opentm),
             position: position,
             color: color,
-            shape: "circle",
+            shape: "square",
             text:
               datas[index][order_id].descr.type +
               " " +
@@ -459,6 +490,73 @@
         }
       }
     });
+
+    // Définit la couleur du label en rouge si aucune positions pour cette pair
+    let label = document.getElementById("label-active-orders");
+    if (markers_orders.length === 0) {
+      label.style.color = "#cd0000";
+      label.style["text-decoration"] = "line-through";
+    } else label.style.color = "#747474";
+  };
+
+  /**
+   * getPositionsMarker
+   ************************/
+  const getPositionsMarker = (datas) => {
+    markers_positions = [];
+    Object.values(datas).map((val) => {
+      if ($assetpair.altname === val.pair) {
+        if (markers_positions.hasOwnProperty(val.ordertxid)) {
+          let val_exist = markers_positions[val.ordertxid];
+          val_exist.time = val.time;
+          val_exist.rollovertm = val.rollovertm;
+          val_exist.cost = parseFloat(val_exist.cost) + parseFloat(val.cost);
+          val_exist.fee = parseFloat(val_exist.fee) + parseFloat(val.fee);
+          val_exist.vol = parseFloat(val_exist.vol) + parseFloat(val.vol);
+          val_exist.vol_closed =
+            parseFloat(val_exist.vol_closed) + parseFloat(val.vol_closed);
+          val_exist.margin =
+            parseFloat(val_exist.margin) + parseFloat(val.margin);
+          val_exist.value = parseFloat(val_exist.value) + parseFloat(val.value);
+          val_exist.net = parseFloat(val_exist.net) + parseFloat(val.net);
+          val_exist.net = parseFloat(val_exist.net) + parseFloat(val.net);
+        } else {
+          markers_positions[val.ordertxid] = val;
+        }
+      }
+    });
+
+    const marker_pos_values = Object.values(markers_positions);
+    marker_pos_values.forEach((pos) => {
+      if ($assetpair.altname === pos.pair) {
+        let color = pos.type === "sell" ? "#ff9d9d" : "#aeff9d";
+        let shape = pos.type === "sell" ? "arrowDown" : "arrowUp";
+        let position = pos.type === "sell" ? "aboveBar" : "belowBar";
+        markers_positions = [];
+        markers_positions.push({
+          time: parseInt(pos.time),
+          position: position,
+          color: color,
+          shape: shape,
+          text:
+            pos.type +
+            " " +
+            pos.pair +
+            "\n" +
+            pos.ordertype +
+            "@" +
+            parseFloat(pos.net).toFixed($assetpair.lot_decimals),
+          size: 1,
+        });
+      }
+    });
+
+    // Définit la couleur du label en rouge si aucune positions pour cette pair
+    let label = document.getElementById("label-active-positions");
+    if (markers_positions.length === 0) {
+      label.style.color = "#cd0000";
+      label.style["text-decoration"] = "line-through";
+    } else label.style.color = "#747474";
   };
 
   /**
@@ -579,15 +677,15 @@
         ? PriceScaleMode.Logarithmic
         : PriceScaleMode.Normal,
     },
-    leftPriceScale: {
-      scaleMargins: {
-        top: 0.2,
-        bottom: 0.2,
-      },
-      drawTicks: true,
-      visible: true,
-      borderVisible: false,
-    },
+    // leftPriceScale: {
+    //   scaleMargins: {
+    //     top: 0.2,
+    //     bottom: 0.2,
+    //   },
+    //   drawTicks: true,
+    //   visible: true,
+    //   borderVisible: false,
+    // },
     timeScale: {
       timeVisible: true,
       secondsVisible: true,
@@ -632,25 +730,10 @@
   };
 
   $: {
-    if (
-      typeof $openorders !== "undefined" &&
-      Object.keys($openorders).length > 1
-    ) {
-      if ($openorders.service === "OpenOrders" && $openorders.data) {
-        getPositionMarker($openorders.data);
-
-        if (typeof series !== "undefined" && isMounted) {
-          if (activePosition) series.setMarkers(markers);
-          else series.setMarkers([]);
-        }
-      }
-    }
-
     if (typeof $ohlc !== "undefined" && Object.keys($ohlc).length > 1) {
       if ($ohlc.service === "Ohlc" && $ohlc.data) {
         if (ohlcLastItemhistory !== null) {
           formatCandelTick($ohlc.data);
-          // console.log($ohlc.data);
         }
       }
     }
@@ -667,7 +750,6 @@
     });
 
     if ($pricealertlist.hasOwnProperty($assetpair.wsname)) {
-      console.log();
       hasAlertForPair =
         $pricealertlist[$assetpair.wsname]["up"].length >= 1
           ? true
@@ -675,10 +757,35 @@
           ? true
           : false;
     }
+  }
 
-    // if (typeof chartApi !== "undefined") {
-    //   console.log(chartApi)
-    // }
+  $: {
+    if (
+      activePositions ||
+      (activeOrders &&
+        $openorders &&
+        typeof $openorders !== "undefined" &&
+        Object.keys($openorders).length >= 1)
+    ) {
+      if (
+        $openorders &&
+        $openorders.hasOwnProperty("service") &&
+        $openorders.service === "OpenOrders" &&
+        $openorders.data
+      ) {
+        if (activeOrders) getOrderMarker($openorders.data);
+        else markers_orders = [];
+      }
+
+      if (activePositions) getPositionsMarker(openpositions);
+      else markers_positions = [];
+
+      let markers = [...markers_orders, ...markers_positions];
+      if (typeof series !== "undefined" && isMounted)
+        series.setMarkers(markers);
+    } else {
+      if (typeof series !== "undefined" && isMounted) series.setMarkers([]);
+    }
   }
 </script>
 
@@ -693,11 +800,24 @@
     <label class="label-checkbox" for="active-tooltip">Tooltip</label>
     <input
       type="checkbox"
-      name="active-position"
-      id="active-position"
-      bind:checked={activePosition}
+      name="active-positions"
+      id="active-positions"
+      bind:checked={activePositions}
     />
-    <label class="label-checkbox" for="active-position">Positions</label>
+    <label
+      class="label-checkbox"
+      for="active-positions"
+      id="label-active-positions">Positions</label
+    >
+    <input
+      type="checkbox"
+      name="active-orders"
+      id="active-orders"
+      bind:checked={activeOrders}
+    />
+    <label class="label-checkbox" for="active-orders" id="label-active-orders"
+      >Ordres</label
+    >
     <input
       type="checkbox"
       name="crosshair-mode"
@@ -825,7 +945,7 @@
     background: #3879d9;
   }
 
-  #rightclickmenu hr {
+  #rightclickmenu :global(hr) {
     border: 1px solid #2a2a2a;
     border-bottom: 0;
   }

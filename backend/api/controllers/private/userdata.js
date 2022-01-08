@@ -152,6 +152,16 @@ const getTradesHistory = async (req, reply) => {
   }
 }
 
+// /private/OpenPositions
+const getOpenPositions = async (req, reply) => {
+  const { asset } = req.params
+  try {
+    let response = await api.openPositions({ docalcs: true })
+    return response
+  } catch (error) {
+    return error
+  }
+}
 
 /**
  *  *****************
@@ -233,7 +243,7 @@ const getWsOwnTrades = async (connection, reply, req) => {
 const getWsTradeBalance = async (connection, reply, req) => {
 
   let timer = null;
-  let interval = 12000;
+  let interval = 30000;
 
   // Strat interval
   const startInterval = () => {
@@ -349,6 +359,7 @@ export {
   getTradeVolume,
   getLedgers,
   getTradesHistory,
+  getOpenPositions,
 
   // WS Mtehod
   getWsOpenOrders,

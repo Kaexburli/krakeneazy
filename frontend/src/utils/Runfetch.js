@@ -17,25 +17,26 @@ const callApiFetch = async (url, endpoint) => {
     const checkratecount = checkRateCount(endpoint);
     if (!checkratecount) return false;
 
-    hasBackground.subscribe((background) => {
-      // console.log('[Fetch Background]:', background, endpoint)
-    })
+    // hasBackground.subscribe((background) => {
+    //   console.log('[Fetch Background]:', background, endpoint)
+    // })
 
-    let promise = fetch.background.expect(JSON).get(url)
-    return promise
+    let response = await fetch.background.expect(JSON).get(url);
 
+    if (response.hasOwnProperty('error')) {
+      let errmsg = `[${response.statusCode}] ${response.error} ${response.message}`;
+      if (response.message === ('[\"EAPI:Invalid nonce\"]' || '["EAPI:Invalid nonce"]')) {
+        throw errmsg
+      }
+      if (response.message === ('[\"EAPI:Rate limit exceeded\"]' || '["EAPI:Rate limit exceeded"]')) {
+        throw errmsg
+      }
+    }
+    else
+      return response
   }
   catch (error) {
-    // if (response.hasOwnProperty('error')) {
-    //   let errmsg = `[${response.statusCode}] ${response.error} ${response.message}`
-
-    //   if (response.message === '["EAPI:Invalid nonce"]')
-    //     throw errmsg
-    //   if (response.message === '["EAPI:Rate limit exceeded"]')
-    //     throw errmsg
-    // }
-    console.error("[ERROR] callApiFetch:", (typeof error !== undefined ? error : false))
-    debugger
+    console.error("[ERROR: " + endpoint + "]", (typeof error !== undefined ? error : false))
   }
 }
 

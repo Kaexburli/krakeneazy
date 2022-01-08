@@ -116,14 +116,8 @@ class UserData {
 
   // Get kraken /private/Ledgers
   async getLedgers(params) {
-
-    // if (typeof params.pair === undefined && !params.pair) {
-    //   params.pair = "XBTUSD"
-    // }
-
     try {
       this.endpoint = "ledgers"
-      // this.params = params.pair
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint)
 
@@ -138,14 +132,28 @@ class UserData {
 
   // Get kraken /private/TradeHistory
   async getTradesHistory(params) {
-
-    // if (typeof params.pair === undefined && !params.pair) {
-    //   params.pair = "XBTUSD"
-    // }
-
     try {
       this.endpoint = "tradeshistory"
-      // this.params = params.pair
+      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
+      let res = await Fetch(this.url, this.endpoint)
+
+      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
+        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      return res
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // Get kraken /private/openPositions
+  async getOpenPositions(params) {
+
+    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+
+    try {
+      this.endpoint = "openpositions"
+      this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint)
 

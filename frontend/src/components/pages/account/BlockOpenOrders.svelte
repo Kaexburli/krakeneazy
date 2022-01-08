@@ -36,11 +36,11 @@
           if (datas[index][order_id].hasOwnProperty("opentm")) {
             // Vérifie si le status de l'élément est 'open' et si il existe une propriété 'opentm'
             // Si les 2 conditions sont remplis on push l'élément dans la variable openorders_tmp
-            console.log("# Nouvelle ouverture d'ordre ou ordre existant");
+            // console.log("# Nouvelle ouverture d'ordre ou ordre existant");
             openorders_tmp.forEach((el, i) => {
               let oid = Object.keys(el);
               if (oid[0] === order_id[0]) {
-                console.log(`Odre déjà présent => suppression ${order_id[0]}`);
+                // console.log(`Odre déjà présent => suppression ${order_id[0]}`);
                 openorders_tmp.splice(openorders_tmp.indexOf(el), 1);
               }
             });
@@ -50,7 +50,7 @@
           } else {
             // Vérifie si le status est 'open' et qu'il existe pas une propriété opentm
             // Si les conditions sont remplies on passe le status à 'open' dans le tableau openorders_tmp
-            console.log("# Changement d'état d'attente à ouvert");
+            // console.log("# Changement d'état d'attente à ouvert");
             openorders_tmp.forEach((el, i) => {
               let oid = Object.keys(el);
               if (oid[0] === order_id[0]) {
@@ -68,7 +68,7 @@
           // Ensuite on vérifie que l'ID order est le même que l'ID order de l'élément
           // On vérifie que la date de l'élément est supérieur a la date dans le tableau
           // On supprime l'élément dans le tableau openorders
-          console.log("# Ordre annulé ou fermé");
+          // console.log("# Ordre annulé ou fermé");
           openorders_tmp.forEach((el, i) => {
             let oid = Object.keys(el);
             if (
@@ -84,7 +84,7 @@
         case "pending":
           // Vérifie si le status de l'élément est 'pending'
           // Si la condition est remplis on push l'élément dans la variable openorders
-          console.log("# Commande en attente");
+          // console.log("# Commande en attente");
           openorders_tmp.push(datas[index]);
           openordersdata.update((n) => openorders_tmp);
           break;
@@ -93,7 +93,7 @@
           if (!datas[index][order_id].hasOwnProperty("status")) {
             // Cas d'ordre exécuté
             // La valeur vol_exec est mis a jour sur l'id d'ordre
-            console.log("# Mise a jour du volume exécuté");
+            // console.log("# Mise a jour du volume exécuté");
             openorders_tmp.forEach((el, i) => {
               let oid = Object.keys(el);
               if (oid[0] === order_id[0]) {
@@ -112,7 +112,7 @@
       }
     });
 
-    console.log("openorders_tmp", openorders_tmp);
+    // console.log("openorders_tmp", openorders_tmp);
     // openordersdata.update((n) => openorders_tmp);
   };
 
@@ -190,7 +190,7 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

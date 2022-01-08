@@ -59,18 +59,18 @@
   onMount(() => {
     const wsOpenOrders = websocketStore(wss_openorders);
     wsOpenOrders.subscribe((tick) => {
-      openorders.set(tick);
+      if (typeof tick !== "undefined") openorders.set(tick);
     });
 
     const wsOwnTrades = websocketStore(wss_owntrades);
     wsOwnTrades.subscribe((tick) => {
-      owntrades.set(tick);
+      if (typeof tick !== "undefined") owntrades.set(tick);
     });
 
     if ($devise) {
       const wsTradeBalance = websocketStore(wss_tradebalance);
       wsTradeBalance.subscribe((tick) => {
-        tradebalance.set(tick);
+        if (typeof tick !== "undefined") tradebalance.set(tick);
       });
     }
 
@@ -78,7 +78,7 @@
       // Book websocket
       const wsBook = websocketStore(wss_book);
       wsBook.subscribe((tick) => {
-        book.set(tick);
+        if (typeof tick !== "undefined") book.set(tick);
       });
 
       // Ticker websocket
@@ -114,17 +114,17 @@
       // Trade websocket
       const wsTrade = websocketStore(wss_trade);
       wsTrade.subscribe((tick) => {
-        trade.set(tick);
+        if (typeof tick !== "undefined") trade.set(tick);
       });
       // Spread websocket
       const wsSpread = websocketStore(wss_spread);
       wsSpread.subscribe((tick) => {
-        spread.set(tick);
+        if (typeof tick !== "undefined") spread.set(tick);
       });
       // OHLC websocket
       const wsOhlc = websocketStore(wss_ohlc);
       wsOhlc.subscribe((tick) => {
-        ohlc.set(tick);
+        if (typeof tick !== "undefined") ohlc.set(tick);
       });
     }
   });
