@@ -6,7 +6,7 @@
   export let display = false;
   let isActive = false;
   let icon = isActive ? "fa-angle-double-right" : "fa-bell";
-  let hasPriceAlert = Object.keys($pricealertlist).length > 1 ? true : false;
+  let hasPriceAlert;
 
   const playSound = (track) => {
     let audio = new Audio("../sound/" + track + ".mp3");
@@ -32,7 +32,7 @@
           "</strong>"
     } </div></div>`;
 
-    playSound(way + "-alert");
+    playSound(way + "-alert2");
 
     toast.push(phraseAlert, {
       initial: 0,
@@ -83,6 +83,8 @@
       }
     });
   }
+
+  $: hasPriceAlert = Object.keys($pricealertlist).length >= 1 ? true : false;
 
   const toogleBoxPriceAlert = () => {
     let paWrapper = document.querySelector(".pricealert-wrapper").style;
@@ -165,7 +167,6 @@
   };
 
   const handleClickDisplayList = (id) => {
-    console.log("handleClickDisplayList", id);
     const ulDiv = document.querySelector("#pricealert-slide-" + id);
     ulDiv.style.display = ulDiv.style.display === "none" ? "block" : "none";
   };
