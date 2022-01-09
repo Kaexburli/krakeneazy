@@ -21,6 +21,8 @@
     rollover: "Rollover",
     trade: "Trader",
     staking: "Financement",
+    deposit: "Dépôt",
+    withdrawal: "Retrait",
   };
 
   const get__store = (store) => {
