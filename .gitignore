@@ -30,3 +30,4 @@ _output
 /frontend/public/build/
 TODO
 backend/kraken.env.js
+/export/**
