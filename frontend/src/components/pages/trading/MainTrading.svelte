@@ -5,10 +5,18 @@
 </script>
 
 <div id="page-trading" in:slide out:slide>
-  <h1>Trading {$assetpair.wsname}</h1>
-  <div class="trading">
-    <TradingOrder />
-  </div>
+  {#if $assetpair !== "false" && $assetpair}
+    <h1>Trading {$assetpair.wsname}</h1>
+    <div class="trading">
+      <TradingOrder />
+    </div>
+  {:else}
+    <h1>Trading</h1>
+    <div class="main-info">
+      <i class="fas fa-info-circle" />
+      <span>Veuillez choisir une paire</span>
+    </div>
+  {/if}
 </div>
 
 <style>
