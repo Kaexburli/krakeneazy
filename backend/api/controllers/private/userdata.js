@@ -1,4 +1,10 @@
+import { existsSync, rmSync, renameSync, writeFileSync } from "fs";
+import * as path from 'path';
+
 import { Kraken } from 'node-kraken-api'
+import extract from 'extract-zip'
+import CSVToJSON from 'csvtojson'
+// const __base = path.resolve('../export/.');
 let debug = false
 
 /**
@@ -154,12 +160,126 @@ const getTradesHistory = async (req, reply) => {
 
 // /private/OpenPositions
 const getOpenPositions = async (req, reply) => {
-  const { asset } = req.params
   try {
     let response = await api.openPositions({ docalcs: true })
     return response
   } catch (error) {
     return error
+  }
+}
+
+// /private/AddExport
+const addExport = async (req, reply) => {
+  const { report, description, starttm } = req.params
+  try {
+    let add = await api.addExport({ report, description, starttm })
+    return add
+  } catch (error) {
+    return error
+  }
+}
+
+// /private/statusExport
+const statusExport = async (req, reply) => {
+  const { report } = req.params
+  try {
+    let status = await api.exportStatus({ report })
+    return status
+  } catch (error) {
+    return error
+  }
+}
+
+// /private/retrieveExport
+const retrieveExport = async (req, reply) => {
+  const { id, type } = req.params
+  try {
+
+    let res = true;
+    const filename = `${id}_${type}.zip`;
+    const __base = path.resolve('../export/.');
+    const fullPath = __base + '/' + filename
+    const destPath = __base + '/' + id
+
+    let data = await api.retrieveExport({ id });
+    const writeOpts = {
+      encoding: "utf8",
+      flag: "w",
+      mode: 0o666
+    };
+
+    writeFileSync(fullPath, data, writeOpts);
+
+    if (existsSync(fullPath)) {
+      await extractZip(fullPath, destPath)
+      renameSync(fullPath, destPath + '/' + filename); // Déplace le fichier zip
+    } else {
+      res = false;
+    }
+
+    return { filename, res, data }
+
+  } catch (error) {
+    return { error }
+  }
+}
+
+// /private/rmOldExport
+const rmOldExport = async (req, reply) => {
+  const { ids } = req.params
+
+  try {
+
+    const __base = path.resolve('../export/.');
+
+    for (const id of ids.split('-')) {
+      const fullPath = path.join(__base, id)
+      if (existsSync(fullPath)) {
+        rmSync(fullPath, { recursive: true })
+        await api.removeExport({ id, type: 'delete' });
+      }
+    }
+
+  } catch (error) {
+    return { error }
+  }
+}
+
+// /private/readExport
+const readExport = async (req, reply) => {
+  const { id, type } = req.params
+  try {
+    let data;
+    let fileExist = false;
+    const filename = id + '\\' + type + '.csv';
+    const __base = path.resolve('../export/.');
+    const fullPath = __base + '\\' + filename
+
+    if (existsSync(fullPath)) data = await CSVToJSON().fromFile(fullPath)
+    else data = false;
+
+    return data
+
+  } catch (error) {
+    return { error }
+  }
+}
+
+// Verifie que le dossier de destination existe
+const checkIfFolderExist = async (req, reply) => {
+  const { id } = req.params
+  const __base = path.resolve('../export/.')
+  const destPath = __base + '/' + id
+
+  return existsSync(destPath)
+}
+
+// Extrait le fichier zip passé en paramètres
+const extractZip = async (source, target) => {
+  try {
+    return await extract(source, { dir: target });
+  } catch (err) {
+    console.log("Oops: extractZip failed", err);
   }
 }
 
@@ -360,6 +480,12 @@ export {
   getLedgers,
   getTradesHistory,
   getOpenPositions,
+  addExport,
+  statusExport,
+  retrieveExport,
+  readExport,
+  rmOldExport,
+  checkIfFolderExist,
 
   // WS Mtehod
   getWsOpenOrders,

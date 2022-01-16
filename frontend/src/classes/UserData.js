@@ -166,6 +166,115 @@ class UserData {
     }
   }
 
+  // Get kraken /private/addExport
+  async addExport(params) {
+
+    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+
+    try {
+      this.endpoint = "addexport"
+      this.params = (typeof params !== "undefined") ? params : "";
+      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
+      let res = await Fetch(this.url, this.endpoint)
+
+      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
+        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      return res
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // Get kraken /private/statusExport
+  async statusExport(params) {
+
+    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+
+    try {
+      this.endpoint = "statusexport"
+      this.params = (typeof params !== "undefined") ? params : "";
+      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
+      let res = await Fetch(this.url, this.endpoint)
+
+      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
+        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      return res
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // Get kraken /private/retrieveExport
+  async retrieveExport(params) {
+
+    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+
+    try {
+      this.endpoint = "retrieveexport"
+      this.params = (typeof params !== "undefined") ? params : "";
+      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
+      let res = await Fetch(this.url, this.endpoint)
+
+      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
+        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      return res
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // Get kraken /private/removeOldFile
+  async removeOldFile(params) {
+
+    params = (typeof params !== "undefined") ? params : ''
+
+    try {
+      this.endpoint = "removeoldexport"
+      this.params = (typeof params !== "undefined") ? params : "";
+      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
+      await Fetch(this.url, this.endpoint)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // Get kraken /private/readExport
+  async readExport(params) {
+
+    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+    try {
+      this.endpoint = "readexport"
+      this.params = (typeof params !== "undefined") ? params : "";
+      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
+      let res = await Fetch(this.url, this.endpoint)
+
+      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
+        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      return res
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // Check if folder exist
+  async checkExportExist(params) {
+
+    params = (typeof params !== "undefined") ? params : ''
+
+    try {
+      this.endpoint = "checkexport"
+      this.params = (typeof params !== "undefined") ? params : "";
+      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
+      return await Fetch(this.url, this.endpoint)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 } // End class
 
 export default UserData
