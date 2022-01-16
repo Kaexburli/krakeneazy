@@ -5,7 +5,7 @@
   import Footer from "components/layout/Footer.svelte";
   import OnlineApi from "components/api/Online.svelte";
   import GetAssets from "components/api/GetAssets.svelte";
-  import PriceALert from "components/api/PriceALert.svelte";
+  import PriceAlert from "components/api/PriceAlert.svelte";
   import { Modals, closeModal } from "svelte-modals";
 </script>
 
@@ -13,7 +13,7 @@
   <!-- // No displaying -->
   <OnlineApi display="header" />
   <GetAssets />
-  <PriceALert />
+  <PriceAlert />
   <Modals>
     <div slot="backdrop" class="backdrop" on:click={closeModal} />
   </Modals>
@@ -23,7 +23,7 @@
   <Sidebar />
   <Main />
   <Footer />
-  <PriceALert display="true" />
+  <PriceAlert display="true" />
 </div>
 
 <style>
