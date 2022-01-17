@@ -1,6 +1,7 @@
 const context = {
   type: 'ledgers',
   data: [],
+  expired: [],
   count: 0
 }
 export const exportService = {
@@ -17,6 +18,10 @@ export const exportService = {
       on: {
         ADD: 'add',
         QUEUED: 'status',
+        EXPIRED: {
+          target: 'loading',
+          actions: 'assignExpired'
+        },
         PROCESSED: {
           target: 'processed',
           actions: 'assignData'
@@ -30,8 +35,7 @@ export const exportService = {
       },
       on: {
         ADDED: 'status',
-        REMOVE: 'remove',
-        RETRY: 'loading',
+        ERROR: 'failure'
       },
     },
     status: {
@@ -46,7 +50,7 @@ export const exportService = {
         QUEUED: {
           target: 'status',
           actions: 'assignProgress'
-        },
+        }
       }
     },
     retreive: {
@@ -56,16 +60,6 @@ export const exportService = {
       },
       on: {
         DONE: 'loading',
-        ERROR: 'failure'
-      }
-    },
-    remove: {
-      invoke: {
-        id: 'removeExport',
-        src: 'RemoveExport',
-      },
-      on: {
-        DONE: 'add',
         ERROR: 'failure'
       }
     },

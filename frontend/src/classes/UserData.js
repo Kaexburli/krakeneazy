@@ -235,7 +235,8 @@ class UserData {
       this.endpoint = "removeoldexport"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      await Fetch(this.url, this.endpoint)
+      const res = await Fetch(this.url, this.endpoint)
+      return res;
     } catch (error) {
       console.error(error)
     }

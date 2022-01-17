@@ -20,7 +20,7 @@ export default function PrivateAddExportRoute(fastify, options, done) {
   fastify.get('/api/private/statusexport/:report', StatusExportOpts)
   fastify.get('/api/private/retrieveexport/:id/:type', RetrieveExportOpts)
   fastify.get('/api/private/readexport/:id/:type', ReadExportOpts)
-  fastify.get('/api/private/removeoldexport/:ids', RmOldExportOpts)
+  fastify.get('/api/private/removeoldexport/:id', RmOldExportOpts)
   fastify.get('/api/private/checkexport/:id', CheckIfFolderExistOpts)
 
   done()

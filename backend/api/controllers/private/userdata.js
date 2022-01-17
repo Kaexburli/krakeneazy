@@ -226,19 +226,14 @@ const retrieveExport = async (req, reply) => {
 
 // /private/rmOldExport
 const rmOldExport = async (req, reply) => {
-  const { ids } = req.params
+  const { id } = req.params
 
   try {
-
     const __base = path.resolve('../export/.');
-
-    for (const id of ids.split('-')) {
-      const fullPath = path.join(__base, id)
-      if (existsSync(fullPath)) {
-        rmSync(fullPath, { recursive: true })
-        await api.removeExport({ id, type: 'delete' });
-      }
-    }
+    const fullPath = path.join(__base, id)
+    if (existsSync(fullPath)) rmSync(fullPath, { recursive: true })
+    const res = await api.removeExport({ id, type: 'delete' });
+    return res;
 
   } catch (error) {
     return { error }

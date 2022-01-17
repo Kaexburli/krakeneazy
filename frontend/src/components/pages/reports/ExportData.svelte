@@ -1,7 +1,7 @@
 <script>
-  import { onMount, onDestroy, getContext } from "svelte";
+  import { onMount } from "svelte";
   import { assign, createMachine } from "xstate";
-  import { useMachine } from "machin/export/useMachin.js";
+  import { useMachine } from "utils/useMachin.js";
   import { exportService } from "machin/export/exportMachin.js";
 
   import {
@@ -9,11 +9,11 @@
     RetreiveExport,
     StatusExport,
     getListExport,
+    RemoveExport,
   } from "machin/export/exportMethod.js";
 
-  import { ledgersregister, tradesregister, exportcsv } from "store/store.js";
   import formatDate from "utils/formatDate.js";
-  import { SyncLoader, Circle } from "svelte-loading-spinners";
+  import { SyncLoader } from "svelte-loading-spinners";
   import { tweened } from "svelte/motion";
   import { linear } from "svelte/easing";
 
@@ -22,37 +22,54 @@
     easing: linear,
   });
 
-  let progressBar = false;
-  let msg = false;
   let datas = false;
-  let exportExpired = false;
-
-  let addInitInProgress = false;
-  let isLoading = false;
+  let message = false;
   let isQueued = false;
+  let isLoading = false;
+  let progressBar = false;
 
+  /**
+   * wait
+   */
   const wait = (time) => {
     return new Promise((resolve) => {
       setTimeout(resolve, time);
     });
   };
 
-  const initLoadData = (_ctx, _event) => {
+  /**
+   * initLoadData
+   */
+  const initLoadData = (ctx, event) => {
     return async (callback, _onEvent) => {
-      const res = await getListExport();
+      const res = await getListExport(ctx, event);
 
       if (Array.isArray(res)) callback({ type: "PROCESSED", newData: res });
-      else callback(res.callback);
+      else if (typeof res !== "undefined" && res.hasOwnProperty("callback"))
+        callback(res.callback);
+      else return false;
     };
   };
 
+  /**
+   * addExport
+   */
   const addExport = (_ctx, event) => {
+    message = `[${new Date().toLocaleString()}] <br />Initialisation de l'export <strong>${
+      event.data.type
+    }</strong> <br />`;
+
     return async (callback, _onEvent) => {
       const res = await AddExport(event.data.type);
+      if (res.id)
+        message += `En attente de l'export <strong>${event.data.type}</strong><br />`;
       callback({ type: "ADDED", data: { type: event.data.type, id: res.id } });
     };
   };
 
+  /**
+   * statusExport
+   */
   const statusExport = (ctx, event) => {
     return async (callback, _onEvent) => {
       const res = await StatusExport(event.data.type, event.data.id);
@@ -70,62 +87,80 @@
     };
   };
 
+  /**
+   * retreiveExport
+   */
   const retreiveExport = (ctx, event) => {
-    msg += "Téléchargement terminé! <br />";
+    message += "<br />Téléchargement terminé! <br />";
     progress.set(1);
     progressBar = false;
     progress.set(0);
     return async (callback, _onEvent) => {
-      msg += "Extraction du fichier exporté <br />";
+      message += "Extraction du fichier... <br />";
       const retreive = await RetreiveExport(event.data.id, event.data.type);
       if (typeof retreive !== "undefined" && retreive.hasOwnProperty("error")) {
-        msg += retreive.error + "<br /><br />";
+        message += retreive.error;
       } else if (typeof retreive !== "undefined" && retreive.res) {
-        msg += `Extraction du fichier ${retreive.filename} terminé! <br /><br />`;
+        message += `Extraction du fichier ${retreive.filename} terminé!`;
         ctx.count = 0;
       }
       callback({ type: "DONE" });
     };
   };
 
-  const removeExport = async (ctx, event) => {
-    console.log("[removeExport]");
-  };
-
-  const checkError = async (ctx, event) => {
-    console.error(event.data);
-  };
-
-  const services = {
-    initLoadData: (ctx, event) => initLoadData(ctx, event),
-    addExport: (ctx, event) => addExport(ctx, event),
-    statusExport: (ctx, event) => statusExport(ctx, event),
-    retreiveExport: (ctx, event) => retreiveExport(ctx, event),
-    removeExport: (ctx, event) => removeExport(ctx, event),
-    checkError: (ctx, event) => checkError(ctx, event),
+  /**
+   * checkError
+   */
+  const checkError = async (_ctx, event) => {
+    console.error("[checkError]:", event.data);
   };
 
   /**
-   * Actions
+   * assignProgress
    */
   const assignProgress = (ctx, event) => {
     if (ctx.count === 0) {
-      msg = `[${new Date().toLocaleString()}] <br />Initialisation de l'export <strong>${
-        event.data.type
-      }</strong> initial [${event.data.id}] <br />`;
-      msg += `En attente de l'export <strong>${event.data.type}</strong>... <br />`;
-      msg += "Lancement du téléchargement de l'export <br />";
-    }
+      let string = `Téléchargement de l'export <strong>[${event.data.id}]</strong> en cours `;
+      if (message) message += string;
+      else message = string;
+    } else message += Array(ctx.count).join(".");
+
     progressBar = true;
     progress.set((parseInt(Date.now() / 1000) - event.data.createdtm) / 100);
     ctx.count++;
   };
 
+  /**
+   * assignExpired
+   */
+  const assignExpired = (ctx, event) => {
+    const ids = event.data.ids;
+    ids.map(async (id) => {
+      await RemoveExport(id);
+      ctx.expired.push(id);
+    });
+  };
+
+  /**
+   * services
+   */
+  const services = {
+    initLoadData: (ctx, event) => initLoadData(ctx, event),
+    addExport: (ctx, event) => addExport(ctx, event),
+    statusExport: (ctx, event) => statusExport(ctx, event),
+    retreiveExport: (ctx, event) => retreiveExport(ctx, event),
+    checkError: (ctx, event) => checkError(ctx, event),
+  };
+
+  /**
+   * actions
+   */
   const actions = {
     assignData: assign({
       data: ({ data }, { newData = [] }) => [...data, ...newData],
     }),
     assignProgress: (ctx, event) => assignProgress(ctx, event),
+    assignExpired: (ctx, event) => assignExpired(ctx, event),
   };
 
   const exportMachine = createMachine(exportService, { services, actions });
@@ -138,25 +173,22 @@
     send({ type: "LOAD_DATA" });
   });
 
-  /**
-   * Method onDestroy
-   */
-  onDestroy(() => {});
-
   $: {
-    isLoading = !$state.matches("processed") ? true : false;
-    isQueued = $state.event.type === "QUEUED" ? true : false;
+    isLoading = !$state.matches("processed");
+    isQueued =
+      ["ADD", "ADDED", "QUEUED"].includes($state.event.type) ||
+      $state.matches("retreive")
+        ? true
+        : false;
     datas = $state.context.data;
   }
 </script>
 
 {#if isQueued}
   <pre class="console">
-  {#if msg}{@html msg}{/if}
-  {#if progressBar}
-      <progress value={$progress} />
-    {/if}
-</pre>
+    {#if message}{@html message}{/if}
+    {#if progressBar}<progress value={$progress} />{/if}
+  </pre>
 {/if}
 
 {#if isLoading && !isQueued}
