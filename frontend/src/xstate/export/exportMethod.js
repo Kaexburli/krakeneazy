@@ -3,6 +3,11 @@ import { exportcsv } from "store/store.js";
 
 /**
  * Method StatusExport
+ * Envoie une demande de liste des exports
+ * @param { String } type 
+ * @param { String } id 
+ * @returns Renvoie un objet contenant la liste des export si la 
+ * commande est bien executé et false ou un objet { error: res.error } en cas d'erreur
  */
 export const StatusExport = async (type, id) => {
   try {
@@ -11,31 +16,45 @@ export const StatusExport = async (type, id) => {
       report: type,
     });
 
+    // La requête à disfonctionné
     if (typeof res === "undefined") {
-      console.error('Le tableau est vide!')
+      return { error: "L'api Kraken ne répond pas correctement" };
     }
-
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      console.error(res.error)
+    // Affiche les erreurs
+    else if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      return { error: res.error };
     }
-
-    if (typeof id !== 'undefined') {
+    // Retourne 1 élément du tableau
+    else if (typeof res !== "undefined" && typeof id !== "undefined") {
       return res.filter((v) => v.id === id)
     }
+    // Le tableau est vide
+    else if (res.length === 0) {
+      return res;
+    }
 
-    return res;
+    // Retourne le résultat
+    return res.filter((val) => (
+      val.report === type &&
+      val.descr === 'walltrade'
+    ));
   } catch (error) {
-    console.error(error);
+    return { error: error };
   }
 };
 
 /**
  * Method AddExport
+ * Envoie une demande d'ajout d'export
+ * @param { String } type 
+ * @param { String } starttm 
+ * @returns Renvoie un objet { id: res.id } si la 
+ * commande est bien executé et false en cas d'erreur
  */
 export const AddExport = async (type, starttm) => {
   try {
-    let report = typeof type !== undefined && ["ledgers", "trades"].includes(type) ? type : "ledgers";
-    starttm = starttm === undefined ? "1325376000" /** 1er Janvier 2012 */ : starttm;
+    let report = typeof type !== "undefined" && ["ledgers", "trades"].includes(type) ? type : "ledgers";
+    starttm = (typeof starttm === "undefined") ? "1325376000" /** 1er Janvier 2012 */ : starttm;
 
     const ud = new UserData();
     const res = await ud.addExport({
@@ -44,27 +63,34 @@ export const AddExport = async (type, starttm) => {
       starttm: starttm,
     });
 
+    if (typeof res === "undefined" || !res.hasOwnProperty('id')) {
+      return { callback: { type: "ERROR", error: "La demande d'export n'a pas été effectué correctement!" } }
+    }
+
     if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      console.error(res.error);
-      return false;
+      return { callback: { type: "ERROR", error: res.error } }
     }
 
     return { id: res.id };
   } catch (error) {
-    console.error(error);
+    return { callback: { type: "ERROR", error } }
   }
 };
 
 /**
  * Method RetreiveExport
+ * Envoie une demande de telechargement de l'export
+ * et met à jour le store avec l'id et le type
+ * @param { String } id 
+ * @param { String } type 
+ * @returns Renvoie un true si la commande est bien executé
  */
 export const RetreiveExport = async (id, type) => {
   try {
     const ud = new UserData();
     const res = await ud.retrieveExport({ id, type });
     if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-      console.error(res.error);
-      return false;
+      return { callback: { type: "ERROR", error: res.error } }
     }
     exportcsv.update((v) => {
       v[type] = id;
@@ -72,12 +98,16 @@ export const RetreiveExport = async (id, type) => {
     })
     return res;
   } catch (error) {
-    console.error(error);
+    console.error('[RetreiveExport]', error);
   }
 };
 
 /**
  * Method RemoveExport
+ * Envoie une demande de suppression de l'export 
+ * et supprime le dossier associé
+ * @param { Array } ids 
+ * @returns Renvoie un objet { delete: true } si la commande est bien executé
  */
 export const RemoveExport = async (ids) => {
   try {
@@ -91,6 +121,9 @@ export const RemoveExport = async (ids) => {
 
 /**
  * Method CheckExportExistFolder
+ * Vérifie si le dossier de l'id existe coté serveur
+ * @param { String } id 
+ * @returns Renvoie true si le dossier existe
  */
 const CheckExportExistFolder = async (id) => {
   try {
@@ -102,67 +135,84 @@ const CheckExportExistFolder = async (id) => {
 };
 
 /**
-   * Method checkTimeExpired
-   * Renvoie true si l'export est expiré
-   */
+ * Method checkTimeExpired
+ * Vérifie si l'export est expiré (inférieur à expire_time)
+ * @param { String } completedtm 
+ * @param { String } id 
+ * @returns Renvoie true si l'export est expiré
+ */
 const checkTimeExpired = (completedtm, id) => {
-  const expire_time = 3600000; // 3600000 // A changer selon le compte
+  const expire_time = 15 * 60000; // 3600000 // A changer selon le compte
   const time_remaining = parseInt(Date.now() - parseInt(completedtm * 1000));
   const remaining = expire_time - time_remaining
   const check = (remaining <= 0)
   return check;
 };
 
+
 /**
  * Method getListExport
+ * Récupère la liste des export et traitement des données
+ * @param { Object } ctx 
+ * @param { Object } _event 
+ * @returns Un tableau contenant les export ou un objet contenant la transition a effectuer
  */
-export const getListExport = async (ctx, event) => {
+export const getListExport = async (ctx, _event) => {
+
+  let expiredIds = []
 
   const ledgers = await StatusExport('ledgers')
   const trades = await StatusExport('trades')
 
-  if (
-    typeof ledgers === 'undefined' &&
-    !ledgers.length &&
-    typeof trades === 'undefined' &&
-    !trades.length
-  )
-    return false
+  // Affichage en cas d'erreur
+  if (ledgers.hasOwnProperty('error')) {
+    return { callback: { type: "ERROR", error: ledgers.error } }
+  }
+  if (trades.hasOwnProperty('error')) {
+    return { callback: { type: "ERROR", error: trades.error } }
+  }
 
-  // /** LEDGERS */
-  const datasLedgers = ledgers.filter((ledg_v) => (
-    ledg_v.report === 'ledgers' &&
-    ledg_v.descr === 'walltrade'
+  /**
+   * GESTION DES EXPORT EXPIRÉS
+   * Gestion des export expiré|supprimé|annulé|en erreur| flags != 0 */
+
+  /** LEDGERS */
+  const datasTradesNoDeletedNoQueued = trades.filter((trad_v) => (
+    !trad_v.hasOwnProperty('delete') &&
+    trad_v.status !== "Queued"
   ));
-
-  /** Gestion des export expiré|supprimé|annulé|en erreur| flags != 0 */
-  let expiredLedgerIds = []
+  /** TRADES */
   const datasLedgersNoDeletedNoQueued = ledgers.filter((ledg_v) => (
     !ledg_v.hasOwnProperty('delete') &&
     ledg_v.status !== "Queued"
   ));
-  for (const ledg_v of datasLedgersNoDeletedNoQueued) {
-    const checkFolder = await CheckExportExistFolder(ledg_v.id);
+
+  for (const ex of [...datasTradesNoDeletedNoQueued, ...datasLedgersNoDeletedNoQueued]) {
+    const checkFolder = await CheckExportExistFolder(ex.id);
     if (
       !checkFolder ||
-      checkTimeExpired(ledg_v.completedtm, ledg_v.id) ||
-      ledg_v.hasOwnProperty('cancel') ||
-      ledg_v.flags !== '0'
+      checkTimeExpired(ex.completedtm, ex.id) ||
+      ex.hasOwnProperty('cancel') ||
+      ex.flags !== '0'
     ) {
-      if (!ctx.expired.includes(ledg_v.id))
-        expiredLedgerIds.push(ledg_v.id)
+      if (!ctx.expired.includes(ex.id))
+        expiredIds.push(ex.id)
     }
   }
-  if (expiredLedgerIds.length !== 0) {
+
+  if (expiredIds.length !== 0) {
     return {
       callback: {
         type: "EXPIRED",
-        data: { ids: expiredLedgerIds }
+        data: { ids: expiredIds }
       }
     }
   }
 
-  const datasLedgersQueued = datasLedgers.filter(ledg_v => (
+
+  /** LEDGERS ******************************************************************************  */
+  /*****************************************************************************************  */
+  const datasLedgersQueued = ledgers.filter(ledg_v => (
     ledg_v.flags === '0' &&
     !ledg_v.hasOwnProperty('error') &&
     !ledg_v.hasOwnProperty('cancel') &&
@@ -170,7 +220,7 @@ export const getListExport = async (ctx, event) => {
     ledg_v.status === "Queued"
   ))
 
-  const datasLedgersProcessed = datasLedgers.filter(ledg_v => (
+  const datasLedgersProcessed = ledgers.filter(ledg_v => (
     ledg_v.flags === '0' &&
     ledg_v.status === "Processed" &&
     !ledg_v.hasOwnProperty('error') &&
@@ -193,13 +243,7 @@ export const getListExport = async (ctx, event) => {
   }
   else {
     // Si un export valide existe update dans exportcsv ledgers
-    if (datasLedgersProcessed.length === 1) {
-      exportcsv.update((val) => {
-        val.ledgers = datasLedgersProcessed[0]['id']
-        return val
-      })
-    }
-    else {
+    if (datasLedgersProcessed.length === 0 || !ledgers) {
       // Update exportcsv ledgers à false
       exportcsv.update((val) => {
         val.ledgers = false;
@@ -213,42 +257,20 @@ export const getListExport = async (ctx, event) => {
         }
       }
     }
-  }
-
-  // /** TRADES */
-  const datasTrades = trades.filter((trad_v) => (
-    trad_v.report === 'trades' &&
-    trad_v.descr === 'walltrade'
-  ));
-
-  /** Gestion des export expiré|supprimé|annulé|en erreur| flags != 0 */
-  let expiredTradeIds = []
-  const datasTradesNoDeletedNoQueued = ledgers.filter((trad_v) => (
-    !trad_v.hasOwnProperty('delete') &&
-    trad_v.status !== "Queued"
-  ));
-  for (const trad_v of datasTradesNoDeletedNoQueued) {
-    const checkFolder = await CheckExportExistFolder(trad_v.id);
-    if (
-      !checkFolder ||
-      checkTimeExpired(trad_v.completedtm, trad_v.id) ||
-      trad_v.hasOwnProperty('cancel') ||
-      trad_v.flags !== '0'
-    ) {
-      if (!ctx.expired.includes(trad_v.id))
-        expiredTradeIds.push(trad_v.id)
+    else if (datasLedgersProcessed.length === 1) {
+      exportcsv.update((val) => {
+        val.ledgers = datasLedgersProcessed[0]['id']
+        return val
+      })
     }
-  }
-  if (expiredTradeIds.length !== 0) {
-    return {
-      callback: {
-        type: "EXPIRED",
-        data: { ids: expiredTradeIds }
-      }
+    else {
+      console.log("[LEDGERS] une erreur inatendu c'est produite!")
     }
   }
 
-  const datasTradesQueued = datasTrades.filter(trad_v => (
+  /** TRADES  ******************************************************************************  */
+  /*****************************************************************************************  */
+  const datasTradesQueued = trades.filter(trad_v => (
     trad_v.flags === '0' &&
     !trad_v.hasOwnProperty('error') &&
     !trad_v.hasOwnProperty('cancel') &&
@@ -256,7 +278,7 @@ export const getListExport = async (ctx, event) => {
     trad_v.status === "Queued"
   ))
 
-  const datasTradesProcessed = datasTrades.filter(trad_v => (
+  const datasTradesProcessed = trades.filter(trad_v => (
     trad_v.flags === '0' &&
     trad_v.status === "Processed" &&
     !trad_v.hasOwnProperty('error') &&
@@ -279,13 +301,7 @@ export const getListExport = async (ctx, event) => {
   }
   else {
     // Si un export valide existe update dans exportcsv trades
-    if (datasTradesProcessed.length === 1) {
-      exportcsv.update((val) => {
-        val.trades = datasTradesProcessed[0]['id']
-        return val
-      })
-    }
-    else {
+    if (datasTradesProcessed.length === 0 || !trades) {
       // Update exportcsv trades à false
       exportcsv.update((val) => {
         val.trades = false;
@@ -298,6 +314,15 @@ export const getListExport = async (ctx, event) => {
           data: { type: 'trades' }
         }
       }
+    }
+    else if (datasTradesProcessed.length === 1) {
+      exportcsv.update((val) => {
+        val.trades = datasTradesProcessed[0]['id']
+        return val
+      })
+    }
+    else {
+      console.log("[TRADES] une erreur inatendu c'est produite!")
     }
   }
 

@@ -36,7 +36,8 @@ const callApiFetch = async (url, endpoint) => {
       return response
   }
   catch (error) {
-    console.error("[ERROR: " + endpoint + "]", (typeof error !== undefined ? error : false))
+    const err = "[" + endpoint + "]" + (typeof error !== 'undefined' ? error : 'unknown error')
+    return { error: err };
   }
 }
 

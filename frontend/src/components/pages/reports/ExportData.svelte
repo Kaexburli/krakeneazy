@@ -25,8 +25,10 @@
   let datas = false;
   let message = false;
   let isQueued = false;
+  let isError = false;
   let isLoading = false;
   let progressBar = false;
+  let errorMsg;
 
   /**
    * wait
@@ -45,9 +47,8 @@
       const res = await getListExport(ctx, event);
 
       if (Array.isArray(res)) callback({ type: "PROCESSED", newData: res });
-      else if (typeof res !== "undefined" && res.hasOwnProperty("callback"))
-        callback(res.callback);
-      else return false;
+      else if (res.hasOwnProperty("callback")) callback(res.callback);
+      else if (!res) callback("ERROR");
     };
   };
 
@@ -61,9 +62,17 @@
 
     return async (callback, _onEvent) => {
       const res = await AddExport(event.data.type);
-      if (res.id)
+
+      if (res.hasOwnProperty("callback")) callback(res.callback);
+
+      if (res.id) {
         message += `En attente de l'export <strong>${event.data.type}</strong><br />`;
-      callback({ type: "ADDED", data: { type: event.data.type, id: res.id } });
+
+        callback({
+          type: "ADDED",
+          data: { type: event.data.type, id: res.id },
+        });
+      }
     };
   };
 
@@ -74,16 +83,23 @@
     return async (callback, _onEvent) => {
       const res = await StatusExport(event.data.type, event.data.id);
 
-      if (ctx.count >= 2) await wait(5000);
+      if (res) {
+        if (res.hasOwnProperty("error"))
+          callback({ type: "ERROR", error: res.error });
 
-      callback({
-        type: res[0].status.toUpperCase(), // QUEUED
-        data: {
-          type: event.data.type,
-          id: event.data.id,
-          createdtm: res[0].createdtm,
-        },
-      });
+        if (ctx.count >= 1) await wait(5000);
+
+        callback({
+          type: res[0].status.toUpperCase(), // QUEUED
+          data: {
+            type: event.data.type,
+            id: event.data.id,
+            createdtm: res[0].createdtm,
+          },
+        });
+      } else {
+        console.error("statusExport error");
+      }
     };
   };
 
@@ -112,7 +128,14 @@
    * checkError
    */
   const checkError = async (_ctx, event) => {
-    console.error("[checkError]:", event.data);
+    errorMsg = event.hasOwnProperty("data")
+      ? event.data
+      : event.hasOwnProperty("error")
+      ? event.error
+      : event;
+
+    console.error("[checkError]:" + errorMsg, event);
+    await wait(30000);
   };
 
   /**
@@ -175,6 +198,7 @@
 
   $: {
     isLoading = !$state.matches("processed");
+    isError = $state.matches("failure");
     isQueued =
       ["ADD", "ADDED", "QUEUED"].includes($state.event.type) ||
       $state.matches("retreive")
@@ -183,6 +207,10 @@
     datas = $state.context.data;
   }
 </script>
+
+{#if isError}
+  <span class="error">[ERREUR]: {errorMsg}</span>
+{/if}
 
 {#if isQueued}
   <pre class="console">

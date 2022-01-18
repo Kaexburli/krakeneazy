@@ -26,12 +26,14 @@ export const exportService = {
           target: 'processed',
           actions: 'assignData'
         },
+        ERROR: 'failure'
       },
     },
     add: {
       invoke: {
         id: 'addExport',
         src: 'addExport',
+        onError: 'error'
       },
       on: {
         ADDED: 'status',
@@ -57,6 +59,7 @@ export const exportService = {
       invoke: {
         id: 'retreiveExport',
         src: 'retreiveExport',
+        onError: 'error'
       },
       on: {
         DONE: 'loading',
@@ -69,7 +72,13 @@ export const exportService = {
         src: 'checkError',
       }
     },
+    failure: {
+      invoke: {
+        id: 'error',
+        src: 'checkError',
+      },
+      type: 'final'
+    },
     processed: { type: 'final' },
-    failure: { type: 'final' },
   }
 }
