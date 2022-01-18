@@ -1,4 +1,4 @@
-import { existsSync, rmSync, renameSync, writeFileSync } from "fs";
+import { existsSync, rmSync, writeFileSync } from "fs";
 import * as path from 'path';
 
 import { Kraken } from 'node-kraken-api'
@@ -212,7 +212,7 @@ const retrieveExport = async (req, reply) => {
 
     if (existsSync(fullPath)) {
       await extractZip(fullPath, destPath)
-      renameSync(fullPath, destPath + '/' + filename); // Déplace le fichier zip
+      rmSync(fullPath, destPath + '/' + filename); // Supprime le fichier zip
     } else {
       res = false;
     }
