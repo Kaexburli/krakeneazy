@@ -1,6 +1,6 @@
 <script>
   import { slide } from "svelte/transition";
-  import ExportData from "components/pages/reports/ExportData.svelte";
+  import ExportData from "components/pages/reports/Export.svelte";
 </script>
 
 <div id="page-reports" in:slide out:slide>
