@@ -266,8 +266,7 @@ class UserData {
 
   // Check if folder exist
   async checkExportExist(params) {
-
-    params = (typeof params !== "undefined") ? params : ''
+    params = (typeof params === "object") ? Object.values(params).join('/') : params
 
     try {
       this.endpoint = "checkexport"

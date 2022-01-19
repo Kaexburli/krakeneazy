@@ -123,12 +123,13 @@ export const RemoveExport = async (ids) => {
  * Method CheckExportExistFolder
  * Vérifie si le dossier de l'id existe coté serveur
  * @param { String } id 
+ * @param { String } type 
  * @returns Renvoie true si le dossier existe
  */
-const CheckExportExistFolder = async (id) => {
+const CheckExportExistFolder = async (id, type) => {
   try {
     const ud = new UserData();
-    return await ud.checkExportExist(id);
+    return await ud.checkExportExist({ id, type });
   } catch (error) {
     console.error(error);
   }
@@ -188,7 +189,7 @@ export const getListExport = async (ctx, _event) => {
   ));
 
   for (const ex of [...datasTradesNoDeletedNoQueued, ...datasLedgersNoDeletedNoQueued]) {
-    const checkFolder = await CheckExportExistFolder(ex.id);
+    const checkFolder = await CheckExportExistFolder(ex.id, ex.report);
     if (
       !checkFolder ||
       checkTimeExpired(ex.completedtm, ex.id) ||

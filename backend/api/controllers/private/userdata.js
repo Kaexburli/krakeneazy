@@ -262,10 +262,9 @@ const readExport = async (req, reply) => {
 
 // Verifie que le dossier de destination existe
 const checkIfFolderExist = async (req, reply) => {
-  const { id } = req.params
+  const { id, type } = req.params
   const __base = path.resolve('../export/.')
-  const destPath = __base + '/' + id
-
+  const destPath = __base + '/' + id + '/' + type + '.csv'
   return existsSync(destPath)
 }
 
