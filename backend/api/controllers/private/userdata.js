@@ -212,7 +212,7 @@ const retrieveExport = async (req, reply) => {
 
     if (existsSync(fullPath)) {
       await extractZip(fullPath, destPath)
-      rmSync(fullPath, destPath + '/' + filename); // Supprime le fichier zip
+      rmSync(fullPath); // Supprime le fichier zip
     } else {
       res = false;
     }
