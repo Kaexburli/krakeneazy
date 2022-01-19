@@ -142,7 +142,7 @@ const CheckExportExistFolder = async (id) => {
  * @returns Renvoie true si l'export est expiré
  */
 const checkTimeExpired = (completedtm, id) => {
-  const expire_time = 15 * 60000; // 3600000 // A changer selon le compte
+  const expire_time = 3600000; // 3600000 // A changer selon le compte
   const time_remaining = parseInt(Date.now() - parseInt(completedtm * 1000));
   const remaining = expire_time - time_remaining
   const check = (remaining <= 0)
@@ -154,7 +154,7 @@ const checkTimeExpired = (completedtm, id) => {
  * Method getListExport
  * Récupère la liste des export et traitement des données
  * @param { Object } ctx 
- * @param { Object } _event 
+ * @param { Object } event 
  * @returns Un tableau contenant les export ou un objet contenant la transition a effectuer
  */
 export const getListExport = async (ctx, _event) => {
