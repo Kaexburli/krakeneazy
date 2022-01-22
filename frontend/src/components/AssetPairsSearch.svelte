@@ -22,7 +22,11 @@
   const getAssetPairs = async () => {
     try {
       let res = await Fetch(fetchUrl, "assetpairs");
-      assetpairs.set(res);
+      if (typeof res !== "undefined") {
+        assetpairs.set(res);
+      } else {
+        console.error("getAssetPairs", res);
+      }
     } catch (error) {
       console.log(error);
     }
