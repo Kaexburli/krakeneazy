@@ -87,7 +87,7 @@
         if (res.hasOwnProperty("error"))
           callback({ type: "ERROR", error: res.error });
 
-        if (ctx.count >= 1) await wait(5000);
+        if (ctx.count >= 1) await wait(10000);
 
         callback({
           type: res[0].status.toUpperCase(), // QUEUED
