@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>Walltrade</title>
+
+  <meta name="description" content="Walltrade App for Kraken.com">
+  <meta name="theme-color" content="#1b1b1b">
+
+  <style>
+    .offline {
+      width: 800px;
+      margin: 0 auto;
+    }
+
+    .offline img {
+      width: 300px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .message-offline {
+      font-size: 1.2em;
+      color: black;
+      width: 300px;
+      padding: 50px;
+    }
+
+    .message-offline button {
+      background-color: #000000;
+      /* Green */
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .message-offline button:hover {
+      background-color: #525252;
+    }
+
+    .left {
+      float: left;
+    }
+
+    .big {
+      font-size: 2em;
+      ;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="offline">
+    <div class="left"><img src="assets/no-wifi.png" alt="offline"></div>
+    <div class="message-offline left">
+      <span class="big">Oops!!!</span><br /><br />
+      You appear to be offline, this app requires an internet connection. <br /><br />
+      <button onClick="window.location.reload()">Retry</button>
+    </div>
+  </div>
+</body>
+
+</html>
