@@ -1,5 +1,5 @@
 // Cache Name
-const CACHE_NAME = "WALLTRADE-V1";
+const CACHE_NAME = "WALLTRADE-V2";
 // Cache Files
 const FILES_TO_CACHE = [
   "/offline.html",
@@ -11,7 +11,6 @@ const FILES_TO_CACHE = [
   "/assets/apple-touch-icon.png",
   "/assets/safari-pinned-tab.svg",
   "/assets/mstile-150x150.png",
-  "/assets/favicon.ico",
   "/assets/no-wifi.svg"
 ];
 
