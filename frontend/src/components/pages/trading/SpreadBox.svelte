@@ -155,7 +155,6 @@
     {/if}
 
     {#if typeof tradedata !== "undefined" && tradedata.length >= 1}
-      <hr />
       <div class="recent-trade">
         <h5>Dernier(s) trade(s)</h5>
         {#each tradedata as td}
@@ -260,14 +259,14 @@
     padding-bottom: 4px;
     padding-top: 4px;
     padding-left: 5px;
-    background-color: #141414;
+    background-color: #1b1b1b;
     border-bottom: 1px dashed #444;
     border-top: 1px solid #000;
     font-size: 0.8em;
   }
   .container-box {
     font-size: 0.9em;
-    background-color: #101010;
+    background-color: #1b1b1b;
     border: 1px solid #000000;
   }
   .ticker-box,
