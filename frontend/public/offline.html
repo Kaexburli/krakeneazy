@@ -8,10 +8,66 @@
 
   <title>Walltrade</title>
 
+  <link rel='icon' type='image/png' href='/favicon.png'>
   <meta name="description" content="Walltrade App for Kraken.com">
   <meta name="theme-color" content="#1b1b1b">
 
+  <!-- ------- -->
+  <!-- VISUALS -->
+  <!-- ------- -->
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+  <link rel="shortcut icon" href="/assets/favicon.ico" />
+
+  <!--Set browser chrome theme color here-->
+  <meta name="description" content="Walltrade App for Kraken.com">
+  <meta name="theme-color" content="#1b1b1b">
+
+  <!-- microsoft -->
+  <meta name="msapplication-TileColor" content="#b91d47" />
+  <meta name="msapplication-config" content="/assets/browserconfig.xml" />
+
+  <!-- apple -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+  <link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#5bbad5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="walltrade" />
+
+
+  <!-- --------- -->
+  <!-- META TAGS -->
+  <!-- --------- -->
+
+  <!-- Google / SEO -->
+  <meta itemprop="name" content="walltrade" />
+  <meta itemprop="description" content="Walltrade App for Kraken.com" />
+  <!--Insert url for image to be used in search results-->
+  <meta itemprop="image" content="" />
+
+  <!-- facebook -->
+  <!-- url of site-->
+  <meta property="og:url" content="" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="walltrade" />
+  <meta property="og:description" content="Walltrade App for Kraken.com" />
+  <!-- url for image in facebook share post-->
+  <meta property="og:image" content="" />
+
+  <!-- twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="walltrade" />
+  <meta name="twitter:description" content="Walltrade App for Kraken.com" />
+  <!-- url for image in twitter share post-->
+  <meta name="twitter:image" content="walltrade" />
+
   <style>
+    body {
+      background-color: #1b1b1b;
+      color: #ededed;
+    }
+
     .offline {
       width: 800px;
       margin: 0 auto;
@@ -25,17 +81,15 @@
 
     .message-offline {
       font-size: 1.2em;
-      color: black;
       width: 300px;
       padding: 50px;
     }
 
     .message-offline button {
-      background-color: #000000;
-      /* Green */
+      background-color: #ffffff;
       border: none;
-      color: white;
-      padding: 15px 32px;
+      color: black;
+      padding: 8px 30px;
       text-align: center;
       text-decoration: none;
       display: inline-block;
@@ -44,7 +98,10 @@
     }
 
     .message-offline button:hover {
-      background-color: #525252;
+      background-color: #222222;
+      color: white;
+
+      border: 1px solid #ededed;
     }
 
     .left {
@@ -60,9 +117,9 @@
 
 <body>
   <div class="offline">
-    <div class="left"><img src="/assets/no-wifi.png" alt="offline"></div>
+    <div class="left"><img src="/assets/no-wifi.svg" alt="offline"></div>
     <div class="message-offline left">
-      <span class="big">Oops!!!</span><br /><br />
+      <span class="big">You are offline!</span><br /><br />
       You appear to be offline, this app requires an internet connection. <br /><br />
       <button onClick="window.location.reload()">Retry</button>
     </div>
