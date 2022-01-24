@@ -1,4 +1,10 @@
+import { existsSync, rmSync, writeFileSync } from "fs";
+import * as path from 'path';
+
 import { Kraken } from 'node-kraken-api'
+import extract from 'extract-zip'
+import CSVToJSON from 'csvtojson'
+// const __base = path.resolve('../export/.');
 let debug = false
 
 /**
@@ -17,6 +23,8 @@ const randomApiKey = () => {
 let shuffle = randomApiKey();
 const API_KEY = KRAKEN['key_' + shuffle]['key']
 const API_PRIV = KRAKEN['key_' + shuffle]['secret']
+
+console.log('################### Chargement des clés API [N°:' + shuffle + '] ###################')
 
 const NonceGenerator = (() => {
   let prev = -1;
@@ -150,6 +158,124 @@ const getTradesHistory = async (req, reply) => {
   }
 }
 
+// /private/OpenPositions
+const getOpenPositions = async (req, reply) => {
+  try {
+    let response = await api.openPositions({ docalcs: true })
+    return response
+  } catch (error) {
+    return error
+  }
+}
+
+// /private/AddExport
+const addExport = async (req, reply) => {
+  const { report, description, starttm } = req.params
+  try {
+    let add = await api.addExport({ report, description, starttm })
+    return add
+  } catch (error) {
+    return error
+  }
+}
+
+// /private/statusExport
+const statusExport = async (req, reply) => {
+  const { report } = req.params
+  try {
+    let status = await api.exportStatus({ report })
+    return status
+  } catch (error) {
+    return error
+  }
+}
+
+// /private/retrieveExport
+const retrieveExport = async (req, reply) => {
+  const { id, type } = req.params
+  try {
+
+    let res = true;
+    const filename = `${id}_${type}.zip`;
+    const __base = path.resolve('../export/.');
+    const fullPath = __base + '/' + filename
+    const destPath = __base + '/' + id
+
+    let data = await api.retrieveExport({ id });
+    const writeOpts = {
+      encoding: "utf8",
+      flag: "w",
+      mode: 0o666
+    };
+
+    writeFileSync(fullPath, data, writeOpts);
+
+    if (existsSync(fullPath)) {
+      await extractZip(fullPath, destPath)
+      rmSync(fullPath); // Supprime le fichier zip
+    } else {
+      res = false;
+    }
+
+    return { filename, res, data }
+
+  } catch (error) {
+    return { error }
+  }
+}
+
+// /private/rmOldExport
+const rmOldExport = async (req, reply) => {
+  const { id } = req.params
+
+  try {
+    const __base = path.resolve('../export/.');
+    const fullPath = path.join(__base, id)
+    if (existsSync(fullPath)) rmSync(fullPath, { recursive: true })
+    const res = await api.removeExport({ id, type: 'delete' });
+    return res;
+
+  } catch (error) {
+    return { error }
+  }
+}
+
+// /private/readExport
+const readExport = async (req, reply) => {
+  const { id, type } = req.params
+  try {
+    let data;
+    let fileExist = false;
+    const filename = id + '\\' + type + '.csv';
+    const __base = path.resolve('../export/.');
+    const fullPath = __base + '\\' + filename
+
+    if (existsSync(fullPath)) data = await CSVToJSON().fromFile(fullPath)
+    else data = false;
+
+    return data
+
+  } catch (error) {
+    return { error }
+  }
+}
+
+// Verifie que le dossier de destination existe
+const checkIfFolderExist = async (req, reply) => {
+  const { id, type } = req.params
+  const __base = path.resolve('../export/.')
+  const destPath = __base + '/' + id + '/' + type + '.csv'
+  return existsSync(destPath)
+}
+
+// Extrait le fichier zip passé en paramètres
+const extractZip = async (source, target) => {
+  try {
+    return await extract(source, { dir: target });
+  } catch (err) {
+    console.log("Oops: extractZip failed", err);
+  }
+}
 
 /**
  *  *****************
@@ -177,9 +303,9 @@ const getWsOpenOrders = async (connection, reply, req) => {
       .on('error', (error, sequence) => {
         if (debug) console.log('[ERROR OPEN-ORDERS]: ', error, sequence, openorders)
         connection.socket.send(JSON.stringify(error))
-        openorders.unsubscribe()
-        openorders.close()
-        connection.socket.open()
+        // openorders.unsubscribe()
+        // openorders.close()
+        // connection.socket.open()
       })
       .subscribe();
 
@@ -212,9 +338,9 @@ const getWsOwnTrades = async (connection, reply, req) => {
       .on('error', (error, sequence) => {
         if (debug) console.log('[ERROR OWN-TRADES]: ', error, sequence, owntrades)
         connection.socket.send(JSON.stringify(error))
-        owntrades.unsubscribe()
-        owntrades.close()
-        connection.socket.open()
+        // owntrades.unsubscribe()
+        // owntrades.close()
+        // connection.socket.open()
       })
       .subscribe();
 
@@ -231,7 +357,7 @@ const getWsOwnTrades = async (connection, reply, req) => {
 const getWsTradeBalance = async (connection, reply, req) => {
 
   let timer = null;
-  let interval = 6000;
+  let interval = 30000;
 
   // Strat interval
   const startInterval = () => {
@@ -256,7 +382,7 @@ const getWsTradeBalance = async (connection, reply, req) => {
       data.hasOwnProperty('body') &&
       data.body.hasOwnProperty('error')
     ) {
-      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', data: { error: data.body.error } }))
+      connection.socket.send(JSON.stringify({ service: 'WsTradeBalance', data: { error: data.body.error } }))
       stopInterval()
 
       setTimeout(() => {
@@ -266,7 +392,7 @@ const getWsTradeBalance = async (connection, reply, req) => {
     }
     else {
       data.rate = Date.now()
-      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', error: false, data }))
+      connection.socket.send(JSON.stringify({ service: 'WsTradeBalance', error: false, data }))
     }
   }
 
@@ -347,6 +473,13 @@ export {
   getTradeVolume,
   getLedgers,
   getTradesHistory,
+  getOpenPositions,
+  addExport,
+  statusExport,
+  retrieveExport,
+  readExport,
+  rmOldExport,
+  checkIfFolderExist,
 
   // WS Mtehod
   getWsOpenOrders,

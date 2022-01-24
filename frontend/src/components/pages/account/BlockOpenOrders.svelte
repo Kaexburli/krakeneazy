@@ -1,83 +1,74 @@
 <script>
   import { onMount } from "svelte";
-  import { fade } from "svelte/transition";
-
+  import { openorders } from "store/wsstore.js";
   import {
     online,
     assetpair,
     assetpairs,
     openordersdata,
   } from "store/store.js";
-  import formatDate from "utils/formatDate.js";
   import UserData from "classes/UserData.js";
-  import { wsopenorders } from "store/wsopenorders.js";
+  import formatDate from "utils/formatDate.js";
+  import { fade } from "svelte/transition";
   import { SyncLoader } from "svelte-loading-spinners";
 
-  let error = false;
   let limit = 0;
-  let openorders = false;
-  let openorders_store = false;
-  let openorders_tmp = [];
+  let error = false;
 
-  const get__store = (store) => {
-    let $val;
-    store.subscribe(($) => ($val = $))();
-    return $val;
-  };
-
+  /**
+   * checkStatusDatas
+   *********************/
   const checkStatusDatas = (datas) => {
-    if (datas.length < 1) return;
+    let openorders_tmp = $openordersdata;
+    if (datas.length < 1 || typeof openorders_tmp.length === "undefined")
+      return false;
 
     // parse le tableau datas
     datas.forEach((element, index) => {
       // récupère les clés du tableau (ID order)
       let order_id = Object.keys(element);
 
-      if (typeof datas[index][order_id] !== "undefined") {
-        // Correction d'affichage pour le retour de l'api REST
-        if (
-          typeof datas[index][order_id]["descr"] !== "undefined" &&
-          typeof $assetpairs[datas[index][order_id]["descr"]["pair"]] !==
-            "undefined"
-        ) {
-          // console.log("Remaniment des datas fetch");
-          let as = $assetpairs[datas[index][order_id]["descr"]["pair"]];
-          datas[index][order_id]["descr"]["pair"] = as["wsname"];
-          datas[index][order_id]["descr"]["price"] = parseFloat(
-            datas[index][order_id]["descr"]["price"]
-          ).toFixed(as["pair_decimals"]);
-          datas[index][order_id]["cost"] = parseFloat(
-            datas[index][order_id]["cost"]
-          ).toFixed(as["pair_decimals"]);
-        }
+      if (typeof datas[index][order_id] === "undefined") return false;
 
-        // Vérifie si le status de l'élément est 'open' et si il existe une propriété 'opentm'
-        // Si les 2 conditions sont remplis on push l'élément dans la variable openorders
-        if (
-          datas[index][order_id]["status"] === "open" &&
-          datas[index][order_id].hasOwnProperty("opentm")
-        ) {
-          // console.log("Nouvelle ouverture d'ordre");
-          openorders_tmp.forEach((el, i) => {
-            let oid = Object.keys(el);
-            if (oid[0] === order_id[0]) {
-              // console.log(`Odre déjà présent => suppression ${order_id[0]}`);
-              openorders_tmp.splice(openorders_tmp.indexOf(el), 1);
-            }
-          });
-          // Add data
-          openorders_tmp.push(datas[index]);
-        }
-        // Vérifie si le status de l'élément est 'canceled' ou 'closed'
-        // Si la condition est remplie on parse le tableau openorders pour récupérer l'ID order
-        // Ensuite on vérifie que l'ID order est le même que l'ID order de l'élément
-        // On vérifie que la date de l'élément est supérieur a la date dans le tableau
-        // On supprime l'élément dans le tableau openorders
-        else if (
-          datas[index][order_id]["status"] === "canceled" ||
-          datas[index][order_id]["status"] === "closed"
-        ) {
-          // console.log("Ordre annulé ou fermé");
+      let status = datas[index][order_id]["status"];
+      switch (status) {
+        case "open":
+          if (datas[index][order_id].hasOwnProperty("opentm")) {
+            // Vérifie si le status de l'élément est 'open' et si il existe une propriété 'opentm'
+            // Si les 2 conditions sont remplis on push l'élément dans la variable openorders_tmp
+            // console.log("# Nouvelle ouverture d'ordre ou ordre existant");
+            openorders_tmp.forEach((el, i) => {
+              let oid = Object.keys(el);
+              if (oid[0] === order_id[0]) {
+                // console.log(`Odre déjà présent => suppression ${order_id[0]}`);
+                openorders_tmp.splice(openorders_tmp.indexOf(el), 1);
+              }
+            });
+            // Add data
+            openorders_tmp.push(datas[index]);
+            openordersdata.update((n) => openorders_tmp);
+          } else {
+            // Vérifie si le status est 'open' et qu'il existe pas une propriété opentm
+            // Si les conditions sont remplies on passe le status à 'open' dans le tableau openorders_tmp
+            // console.log("# Changement d'état d'attente à ouvert");
+            openorders_tmp.forEach((el, i) => {
+              let oid = Object.keys(el);
+              if (oid[0] === order_id[0]) {
+                openorders_tmp[i][oid].status = datas[index][order_id].status;
+              }
+            });
+            openordersdata.update((n) => openorders_tmp);
+          }
+          break;
+
+        case "canceled":
+        case "closed":
+          // Vérifie si le status de l'élément est 'canceled' ou 'closed'
+          // Si la condition est remplie on parse le tableau openorders pour récupérer l'ID order
+          // Ensuite on vérifie que l'ID order est le même que l'ID order de l'élément
+          // On vérifie que la date de l'élément est supérieur a la date dans le tableau
+          // On supprime l'élément dans le tableau openorders
+          // console.log("# Ordre annulé ou fermé");
           openorders_tmp.forEach((el, i) => {
             let oid = Object.keys(el);
             if (
@@ -87,34 +78,22 @@
               openorders_tmp.splice(i, 1);
             }
           });
-        }
-        // Vérifie si le status de l'élément est 'pending'
-        // Si la condition est remplis on push l'élément dans la variable openorders
-        else if (datas[index][order_id]["status"] === "pending") {
-          // console.log("Commande en attente");
+          openordersdata.update((n) => openorders_tmp);
+          break;
+
+        case "pending":
+          // Vérifie si le status de l'élément est 'pending'
+          // Si la condition est remplis on push l'élément dans la variable openorders
+          // console.log("# Commande en attente");
           openorders_tmp.push(datas[index]);
-        }
-        // Vérifie si le status est 'open' et qu'il existe pas une propriété opentm
-        // Si les conditions sont remplies on passe le status à 'open' dans le tableau openorders
-        else if (
-          datas[index][order_id]["status"] === "open" &&
-          !datas[index][order_id].hasOwnProperty("opentm")
-        ) {
-          // console.log("Changement d'état d'attente à ouvert");
-          if (openorders_tmp) {
-            openorders_tmp.forEach((el, i) => {
-              let oid = Object.keys(el);
-              if (oid[0] === order_id[0]) {
-                openorders_tmp[i][oid].status = datas[index][order_id].status;
-              }
-            });
-          }
-        }
-        // Cas d'ordre exécuté
-        // La valeur vol_exec est mis a jour sur l'id d'ordre
-        else if (!datas[index][order_id].hasOwnProperty("status")) {
-          // console.log("Mise a jour du volume exécuté");
-          if (openorders_tmp) {
+          openordersdata.update((n) => openorders_tmp);
+          break;
+
+        default:
+          if (!datas[index][order_id].hasOwnProperty("status")) {
+            // Cas d'ordre exécuté
+            // La valeur vol_exec est mis a jour sur l'id d'ordre
+            // console.log("# Mise a jour du volume exécuté");
             openorders_tmp.forEach((el, i) => {
               let oid = Object.keys(el);
               if (oid[0] === order_id[0]) {
@@ -127,19 +106,40 @@
                 openorders_tmp[i][oid].userref = datas[index][order_id].userref;
               }
             });
+            openordersdata.update((n) => openorders_tmp);
           }
-        } else {
-          console.log(
-            "Cas non géré pour le moment merci de faire le necéssaire =>",
-            datas
-          );
-        }
+          break;
       }
     });
 
-    return openorders_tmp;
+    // console.log("openorders_tmp", openorders_tmp);
+    // openordersdata.update((n) => openorders_tmp);
   };
 
+  /**
+   * onMount
+   *********************/
+  onMount(() => {
+    openorders.subscribe((tick) => {
+      if (!$online) {
+        error = true;
+        return false;
+      } else if (
+        typeof tick !== "undefined" &&
+        tick.hasOwnProperty("errorMessage")
+      ) {
+        error = "[" + tick.subscription.name + "] " + tick.errorMessage;
+      } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
+        if (tick.service === "OpenOrders" && tick.data) {
+          checkStatusDatas(tick.data);
+        }
+      }
+    });
+  });
+
+  /**
+   * GetOpenOrders
+   *********************/
   const GetOpenOrders = async () => {
     try {
       if (!$online) {
@@ -149,11 +149,6 @@
 
       if (typeof $assetpair.altname === "undefined") {
         error = "Veuillez choisir une paire d'asset";
-        return false;
-      }
-
-      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-        error = true;
         return false;
       }
 
@@ -167,56 +162,47 @@
         }
       } else {
         if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
-          openorders = [];
+          let openorders_tmp = [];
           Object.keys(res.open).map((key) => {
+            // Création d'un objet temporaire
             let o = new Object();
             o[key] = res.open[key];
-            openorders.push(o);
+            // Correction des décimales prix et coût
+            if (
+              typeof o[key]["descr"] !== "undefined" &&
+              typeof $assetpairs[o[key]["descr"]["pair"]] !== "undefined"
+            ) {
+              let as = $assetpairs[o[key]["descr"]["pair"]];
+              o[key]["descr"]["pair"] = as["wsname"];
+              o[key]["descr"]["price"] = parseFloat(
+                o[key]["descr"]["price"]
+              ).toFixed(as["pair_decimals"]);
+              o[key]["cost"] = parseFloat(o[key]["cost"]).toFixed(
+                as["pair_decimals"]
+              );
+            }
+            // Push dans un tableau
+            openorders_tmp.push(o);
           });
-          // console.log("Fetch res:", openorders);
-          openorders = checkStatusDatas(openorders);
-          // console.log("Fetch:", openorders);
-          openordersdata.update((n) => openorders);
+          // Initialisation du store openordersdata
+          openordersdata.set(openorders_tmp);
         }
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
-  onMount(() => {
-    openorders_store = get__store(openordersdata);
-    if (openorders_store) {
-      return (openorders = openorders_store);
-    }
-
-    wsopenorders.subscribe((tick) => {
-      if (typeof tick !== "undefined") {
-        if (!$online) {
-          error = true;
-          return false;
-        } else if (tick.hasOwnProperty("errorMessage")) {
-          error = "[" + tick.subscription.name + "] " + tick.errorMessage;
-          // console.error("ERROR", error);
-        } else if (Object.keys(tick).length >= 1) {
-          // console.log("WS tick:", tick);
-          openorders = checkStatusDatas(tick);
-          // console.log("WS openorders:", openorders);
-          openordersdata.update((n) => openorders);
-        }
-      }
-    });
-  });
-
-  $: {
-    if (!$openordersdata) {
-      // console.log("OPENORDERSDATA empty on appel GetOpenOrders");
-      setTimeout(() => {
-        GetOpenOrders();
-      }, 500);
-    }
+  // Si aucune données n'existe on appel
+  // l'api REST pour récupérer les datas
+  $: if (!$openordersdata) {
+    GetOpenOrders();
   }
+
+  // $: if ($openordersdata) {
+  //   console.log("openordersdata", $openordersdata);
+  // }
 </script>
 
 <div class="block open-orders">
@@ -238,9 +224,9 @@
       {#if error && typeof error !== "boolean"}
         <span class="error">{error}</span>
       {/if}
-      {#if !$openordersdata && !error}
+      {#if $openordersdata.length === 0 && !error}
         <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-      {:else if $openordersdata}
+      {:else if typeof $openordersdata !== "undefined" && $openordersdata.length > 0 && $openordersdata}
         {#each $openordersdata as el, i}
           <tr id={Object.keys(el)} transition:fade>
             <td data-label="Type" class={el[Object.keys(el)]["descr"]["type"]}>

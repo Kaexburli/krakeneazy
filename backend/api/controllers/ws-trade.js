@@ -16,8 +16,14 @@ const GetTrade = async (connection, req) => {
         if (debug) console.log('[UPDATE TRADE]: ', pair, update)
         connection.socket.send(JSON.stringify({ service: 'Trade', data: update }))
       })
-      .on('status', (status) => { if (debug) console.log('[STATUS TRADE]: ', status) })
-      .on('error', (error, pair) => { if (debug) console.log('[ERROR TRADE]: ', error, errinfo) })
+      .on('status', (status) => {
+        if (debug) console.log('[STATUS TRADE]: ', status)
+        connection.socket.send(JSON.stringify({ service: 'Trade', data: false, status }))
+      })
+      .on('error', (error, pair) => {
+        if (debug) console.log('[ERROR TRADE]: ', error, pair)
+        connection.socket.send(JSON.stringify({ service: 'Trade', data: false, error, pair }))
+      })
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {

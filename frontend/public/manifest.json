@@ -1,0 +1,25 @@
+{
+  "name": "walltrade",
+  "short_name": "walltrade",
+  "description": "Walltrade App for Kraken.com",
+  "theme_color": "#1b1b1b",
+  "background_color": "#101010",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "id": "/index.html?source=pwa",
+  "start_url": "/index.html?source=pwa",
+  "icons": [
+    {
+      "src": "/assets/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "splash_pages": null
+}

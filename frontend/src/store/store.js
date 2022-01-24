@@ -27,8 +27,10 @@ export const ledgersdata = writable(false);
 export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
 export const openordersdata = writable(false);
-export const owntradesdata = writable(false);
-export const wstradebalancedata = writable(false);
+export const ohlcchart = writable(false);
+export const volumechart = writable(false);
+export const ledgersregister = writable([]);
+export const tradesregister = writable(false);
 
 
 
@@ -152,4 +154,21 @@ export const series = writable(storedSeries);
 series.subscribe(value => {
   value = (typeof value === 'object') ? JSON.stringify(value) : false
   localStorage.setItem("series", value ? value : Boolean(false));
+});
+
+// Storage price alert list (OBJECT)
+const storedPriceAlertList = JSON.parse(localStorage.getItem("pricealertlist")) || {};
+export const pricealertlist = writable(storedPriceAlertList);
+pricealertlist.subscribe(value => {
+  value = (typeof value === 'object') ? JSON.stringify(value) : {};
+  localStorage.setItem("pricealertlist", (value !== "false") ? value : {});
+});
+
+// Storage exportcsv all (OBJECT)
+const defaultStoredExportCSV = JSON.stringify({ ledgers: false, trades: false })
+const storedExportCSV = JSON.parse(localStorage.getItem("exportcsv")) || defaultStoredExportCSV;
+export const exportcsv = writable(storedExportCSV);
+exportcsv.subscribe(value => {
+  value = (typeof value === 'object') ? JSON.stringify(value) : defaultStoredExportCSV
+  localStorage.setItem("exportcsv", (value !== "false") ? value : defaultStoredExportCSV);
 });

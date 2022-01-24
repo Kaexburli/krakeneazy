@@ -1,6 +1,6 @@
 <script>
   import { sound, pair } from "store/store.js";
-  import { fade, scale } from "svelte/transition";
+  import { slide } from "svelte/transition";
 
   import BlockBalance from "components/pages/account/BlockBalance.svelte";
   import BlockTradeBalance from "components/pages/account/BlockTradeBalance.svelte";
@@ -18,11 +18,7 @@
   };
 </script>
 
-<div
-  id="page-account"
-  in:scale={{ delay: 200, duration: 300 }}
-  out:fade={{ delay: 1, duration: 1 }}
->
+<div id="page-account" in:slide out:slide>
   <h1>
     Mon compte kraken
     <i

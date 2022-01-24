@@ -1,157 +1,54 @@
-//Define WebSocket and protocol variables
-let ws = null;
-let debug = false;
-let debug_service = 'openOrders';
-const clients = new Set();
+// Cache Name
+const CACHE_NAME = "WALLTRADE-V1";
+// Cache Files
+const FILES_TO_CACHE = [
+  "/offline.html",
+  "/favicon.png",
+  "/assets/favicon-32x32.png",
+  "/assets/favicon-16x16.png",
+  "/assets/favicon.ico",
+  "/assets/browserconfig.xml",
+  "/assets/apple-touch-icon.png",
+  "/assets/safari-pinned-tab.svg",
+  "/assets/mstile-150x150.png",
+  "/assets/favicon.ico",
+  "/assets/no-wifi.svg"
+];
 
-// Message receive from Master
-self.addEventListener('message', function (oEvent) {
+// install
+self.addEventListener("install", (evt) => {
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(FILES_TO_CACHE);
+    })
+  );
+  self.skipWaiting();
+});
 
-  if (debug) console.info("%c[WORKER] ", "color: chocolate;", oEvent.data.message);
+// Active PWA Cache and clear out anything older
+self.addEventListener("activate", (evt) => {
+  evt.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(
+        keyList.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
 
-  let data = oEvent.data;
-  let command = data.command;
-
-  if (!data.hasOwnProperty('wssurl')) {
-    self.postMessage({
-      command: 'listener',
-      error: true,
-      message: '[WORKER] ERROR: No websocket url found',
-    });
-    return false
-  }
-
-  if (command === 'connect') {
-    connect(data); //Establish WebSocket connection
-  }
-  else if (command === 'disconnect') {
-    disconnect(oEvent); //Disconnect WebSocket connection
-  }
-  else if (command === 'closeworker') {
-    console.log('close')
-    self.close(1000); // Close worker connection
-  }
-}, false);
-
-/* -----------------  Application events functions */
-
-const connect = (data) => {
-
-  if (debug) console.info("%c[WORKER] connect", "color: chocolate;")
-
-  if (clients.size === 0) {
-    ws = new WebSocket(data.wssurl);
-    let addClient = []
-    addClient[data.subscribe] = ws
-    clients.add(addClient);
-  }
-  else {
-    for (let client of clients) {
-      if (client.hasOwnProperty(data.subscribe)) {
-
-        if (client[data.subscribe].readyState === 1) {
-          ws = client[data.subscribe]
-        } else {
-          ws = new WebSocket(data.wssurl);
-        }
-      }
-      else {
-        ws = new WebSocket(data.wssurl);
-      }
-    }
-  }
-
-
-  if (debug) console.info("%c[WORKER] WEBSOCKET: ", "color: chocolate;", ws.url)
-
-  ws.onopen = onOpen(data.subscribe);
-  ws.onmessage = onMessage;
-  ws.onerror = onError;
-  ws.onclose = onClose;
-
-  self.postMessage({
-    command: 'connect',
-    error: false,
-    message: 'Connecting....' + JSON.stringify(data.subscribe),
-  });
-
-}
-
-const disconnect = (data) => {
-  console.info("%c[WORKER] Disconnect", "color: red;", data.data.unsubscribe, data.data.command, data.data.message)
-
-  self.postMessage({
-    service: data.data.unsubscribe,
-    command: 'disconnect',
-    error: false,
-    message: 'Disconnect',
-  });
-
-  clients.forEach((client) => {
-    client[data.data.unsubscribe].close(1000)
-    clients.delete(client[data.data.unsubscribe])
-  });
-
-  console.log('clients', clients)
-}
-
-/* -----------------  WS events */
-
-const onOpen = (event) => {
-  if (debug) console.info("%c[WORKER] onOpen:", "color: chocolate;", JSON.stringify(event))
-  self.postMessage({
-    command: 'onOpen',
-    error: false,
-    message: `[${event}] Connected !!`,
-  });
-}
-
-const onMessage = (event) => {
-  let service = "NO SERVICE"
-  let data = JSON.parse(event.data.toString())
-
-  let response = {
-    command: 'nothing',
-    error: true,
-    message: '[' + service + '] response from worker',
-    data: data
-  }
-
-  if (typeof data !== 'undefined') {
-
-    service = (data.hasOwnProperty('service')) ? data.service : service;
-    status = (data.hasOwnProperty('status')) ? data.status : false;
-    data = (data.hasOwnProperty('data')) ? data.data : data.eventMessage;
-
-    response = {
-      command: 'inComing',
-      error: false,
-      message: '[' + service + '] response from worker',
-      data: data,
-      status
-    }
-
-    // if (service === 'OpenOrders') console.log(event)
-  }
-  if (debug || (service === debug_service)) console.log(response)
-
-  self.postMessage(response);
-};
-
-const onError = (event) => {
-  if (debug) console.info("%c[WORKER] onError:", "color: chocolate;", JSON.stringify(event))
-  self.postMessage({
-    command: 'onError',
-    error: true,
-    message: 'ERROR' + event,
-  });
-};
-
-const onClose = (event) => {
-  if (debug) console.info("%c[WORKER] onClose:", "color: chocolate;", JSON.stringify(event))
-  self.postMessage({
-    command: 'onClose',
-    error: false,
-    message: 'Close (' + event.code + ") " + event.reason,
-  });
-};
+// listen for fetch events in page navigation and return anything that has been cached
+self.addEventListener("fetch", (evt) => {
+  evt.respondWith(
+    caches.match(evt.request).then(function (response) {
+      return response || fetch(evt.request).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return await cache.match('offline.html');
+      });
+    })
+  );
+});

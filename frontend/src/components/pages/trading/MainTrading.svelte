@@ -1,14 +1,22 @@
 <script>
-  import { fade, scale } from "svelte/transition";
+  import { slide } from "svelte/transition";
+  import { assetpair } from "store/store.js";
+  import TradingOrder from "components/pages/trading/TradingOrder.svelte";
 </script>
 
-<div
-  id="page-trading"
-  in:scale={{ delay: 200, duration: 300 }}
-  out:fade={{ delay: 1, duration: 1 }}
->
-  <h1>Trading</h1>
-  <div class="trading">qdqsdsq</div>
+<div id="page-trading" in:slide out:slide>
+  {#if $assetpair !== "false" && $assetpair}
+    <h1>Trading {$assetpair.wsname}</h1>
+    <div class="trading">
+      <TradingOrder />
+    </div>
+  {:else}
+    <h1>Trading</h1>
+    <div class="main-info">
+      <i class="fas fa-info-circle" />
+      <span>Veuillez choisir une paire</span>
+    </div>
+  {/if}
 </div>
 
 <style>

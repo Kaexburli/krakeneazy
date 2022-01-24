@@ -1,81 +1,83 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import { assetpair } from "store/store.js";
-  import { wsbook } from "store/wsbook.js";
-  import { wsticker } from "store/wsticker.js";
-  import { wstrade } from "store/wstrade.js";
-  import { wsspread } from "store/wsspread.js";
+  import { book, ticker, spread, trade } from "store/wsstore.js";
 
-  let book;
-  let spread;
-  let spread_calcul;
-  let trade;
-  let ticker;
+  const dispatch = createEventDispatcher();
+
+  let spread_calcul = "0.0";
   let asks = [];
   let bids = [];
   let ask = [];
   let bid = [];
+  let bookdata = false;
+  let tickerdata = false;
+  let tradedata = false;
+  let spreaddata = false;
   let totalVask = 0;
   let totalVbid = 0;
   let priceway = "";
-  let pricetmp;
+  let pricetmp = 0;
   let quote = $assetpair.quote;
   let decimals = $assetpair.pair_decimals;
 
-  const getObTicker = (tick) => {
-    ticker = tick;
-  };
-  // Écoute l'api websocket Spread
-  const getSpread = (tick) => {
-    spread = tick;
-  };
-  // Écoute l'api websocket Trade
-  const getTrade = (tick) => {
-    // console.log(tick);
-    trade = tick;
+  const updatePriceClass = (tick) => {
+    if (typeof tick !== "undefined" && tick.hasOwnProperty("a")) {
+      spread_calcul = (tick["a"][0] - tick["b"][0]).toFixed(decimals);
+
+      if (tick["c"][0] > pricetmp) priceway = "price-up";
+      else if (tick["c"][0] < pricetmp) priceway = "price-down";
+      else if (tick["c"][0] == pricetmp) priceway = "";
+      pricetmp = tick["c"][0];
+    }
   };
 
   // Écoute l'api websocket Order Book
-  const getBook = (tick) => {
-    book = tick;
-    if (book.hasOwnProperty("snapshot")) {
-      asks = book.snapshot.as;
-      bids = book.snapshot.bs;
-      // console.log("snapshot", book.snapshot);
+  const getBook = (data) => {
+    if (data.hasOwnProperty("snapshot")) {
+      asks = data.snapshot.as;
+      bids = data.snapshot.bs;
     }
-    if (book.hasOwnProperty("mirror")) {
-      asks = book.mirror.as;
-      bids = book.mirror.bs;
+    if (data.hasOwnProperty("mirror")) {
+      asks = data.mirror.as;
+      bids = data.mirror.bs;
     }
-    if (book.hasOwnProperty("ask")) {
-      ask = book.ask.a[0];
-      // asks.unshift(ask[0]);
+    if (data.hasOwnProperty("ask")) {
+      ask = data.ask.a[0];
     }
-    if (book.hasOwnProperty("bid")) {
-      bid = book.bid.b[0];
-      // bids.unshift(bid[0]);
+    if (data.hasOwnProperty("bid")) {
+      bid = data.bid.b[0];
     }
   };
 
-  // Écoute le changement de paire d'asset
-  // $: onStoreChangeBook($assetpair);
-
   onMount(() => {
-    wsbook.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length)
-        getBook(tick);
-    });
-    wsticker.subscribe((tick) => {
+    trade.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        getObTicker(tick);
+        if (tick.service === "Trade" && tick.data) tradedata = tick.data;
     });
-    wstrade.subscribe((tick) => {
+
+    spread.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        getTrade(tick);
+        if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
     });
-    wsspread.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        getSpread(tick);
+
+    ticker.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
+        if (tick.service === "Ticker" && tick.data) {
+          tickerdata = tick.data;
+          updatePriceClass(tickerdata);
+        }
+      }
+    });
+
+    book.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length) {
+        if (tick.service === "OrderBook" && tick.data) {
+          bookdata = tick.data;
+          getBook(bookdata);
+          dispatch("loading", { loading: true });
+        }
+      }
     });
   });
 
@@ -102,28 +104,17 @@
     totalVbid = Number(Number(volume) + Number(totalVbid));
     return totalVbid.toFixed(8);
   };
-
-  $: {
-    if (typeof ticker !== "undefined") {
-      spread_calcul = (ticker["a"][0] - ticker["b"][0]).toFixed(decimals);
-
-      if (ticker["c"][0] > pricetmp) priceway = "price-up";
-      if (ticker["c"][0] < pricetmp) priceway = "price-down";
-      if (ticker["c"][0] == pricetmp) priceway = "";
-      pricetmp = ticker["c"][0];
-    }
-  }
 </script>
 
 <div class="order-book-block">
-  {#if typeof ticker !== "undefined"}
+  {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
     <div class="tick close-tick clearfix">
       <div id="current-price" class={priceway}>
-        {Number(ticker["c"][0]).toFixed(decimals)}&nbsp;{quote}
+        {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
       </div>
       <div id="current-infos">
         <div id="current-volume">
-          <span class="label">Volume total : </span>{ticker["c"][1]}
+          <span class="label">Volume total : </span>{tickerdata["c"][1]}
         </div>
         <div id="current-spread">
           <span class="label">Spread : </span>{spread_calcul}
@@ -331,6 +322,7 @@
   .order-book-block .tick #current-volume span.label,
   .order-book-block .tick #current-spread span.label {
     color: #cecece;
+    font-weight: normal;
   }
 
   :global(.price-down) {

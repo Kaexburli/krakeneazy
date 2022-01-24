@@ -16,8 +16,14 @@ const GetSpread = async (connection, req) => {
         if (debug) console.log('[UPDATE SPREAD]: ', pair, update)
         connection.socket.send(JSON.stringify({ service: 'Spread', data: update }))
       })
-      .on('status', (status) => { if (debug) console.log('[STATUS SPREAD]: ', status) })
-      .on('error', (error, pair) => { if (debug) console.log('[ERROR SPREAD]: ', error, pair) })
+      .on('status', (status) => {
+        if (debug) console.log('[STATUS SPREAD]: ', status)
+        connection.socket.send(JSON.stringify({ service: 'Spread', data: false, status }))
+      })
+      .on('error', (error, pair) => {
+        if (debug) console.log('[ERROR SPREAD]: ', error, pair)
+        connection.socket.send(JSON.stringify({ service: 'Spread', data: false, error, pair }))
+      })
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {

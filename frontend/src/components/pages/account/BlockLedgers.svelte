@@ -21,6 +21,8 @@
     rollover: "Rollover",
     trade: "Trader",
     staking: "Financement",
+    deposit: "Dépôt",
+    withdrawal: "Retrait",
   };
 
   const get__store = (store) => {
@@ -57,7 +59,7 @@
           limit++;
         }
       } else {
-        if (typeof res !== "undefined") {
+        if (res && typeof res !== "undefined") {
           let json = {
             data: Object.entries(res.ledger),
             time: parseInt(Date.now() / 1000),
@@ -70,7 +72,7 @@
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

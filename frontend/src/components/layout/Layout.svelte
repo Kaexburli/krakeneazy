@@ -5,18 +5,25 @@
   import Footer from "components/layout/Footer.svelte";
   import OnlineApi from "components/api/Online.svelte";
   import GetAssets from "components/api/GetAssets.svelte";
+  import PriceAlert from "components/api/PriceAlert.svelte";
+  import { Modals, closeModal } from "svelte-modals";
 </script>
 
 <div class="layout">
   <!-- // No displaying -->
   <OnlineApi display="header" />
   <GetAssets />
+  <PriceAlert />
+  <Modals>
+    <div slot="backdrop" class="backdrop" on:click={closeModal} />
+  </Modals>
   <!-- // No displaying -->
 
   <Header />
   <Sidebar />
   <Main />
   <Footer />
+  <PriceAlert display="true" />
 </div>
 
 <style>
@@ -25,5 +32,14 @@
     min-height: 100%;
     margin-bottom: -50px;
     display: inline-block;
+  }
+  .backdrop {
+    position: fixed;
+    z-index: 888;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
   }
 </style>

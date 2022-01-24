@@ -2,26 +2,17 @@
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
-  import { online, owntradesdata } from "store/store.js";
+  import { online } from "store/store.js";
+  import { owntrades } from "store/wsstore.js";
   import formatDate from "utils/formatDate.js";
-  import { wsowntrades } from "store/wsowntrades.js";
   import { SyncLoader } from "svelte-loading-spinners";
 
   let error = false;
-  let owntrades = false;
-  let owntrades_store = false;
-
-  const get__store = (store) => {
-    let $val;
-    store.subscribe(($) => ($val = $))();
-    return $val;
-  };
+  let owntradesdata = false;
 
   onMount(() => {
-    owntrades_store = get__store(owntradesdata);
-    if (owntrades_store) owntrades = owntrades_store;
-
-    wsowntrades.subscribe((tick) => {
+    owntrades.subscribe((tick) => {
+      // console.log(tick);
       if (!$online) {
         error = true;
         return false;
@@ -31,16 +22,11 @@
       ) {
         error = "[" + tick.subscription.name + "] " + tick.errorMessage;
       } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
-        // console.log(tick);
-        owntrades = tick;
-        owntradesdata.set(owntrades);
+        if (tick.service === "OwnTrades" && tick.data)
+          owntradesdata = tick.data;
       }
     });
   });
-
-  $: {
-    owntrades;
-  }
 </script>
 
 <div class="block owntrades">
@@ -65,10 +51,10 @@
       {#if error && typeof error !== "boolean"}
         <span class="error">{error}</span>
       {/if}
-      {#if !owntrades && !error}
+      {#if typeof owntradesdata !== "undefined" && owntradesdata.length === 0 && !error}
         <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-      {:else if $owntradesdata}
-        {#each $owntradesdata as el, i}
+      {:else if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
+        {#each owntradesdata as el, i}
           <tr id={Object.keys(el)} transition:fade>
             <td data-label="Type" class={el[Object.keys(el)]["type"]}>
               <div classe="type">
@@ -154,7 +140,7 @@
       {/if}
     </tbody>
   </table>
-  {#if owntrades}
+  {#if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
     <div class="pagination">
       <span class="prev">
         <i class="fa fa-caret-square-left" />

@@ -2,20 +2,14 @@
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
+  import { tradebalance } from "store/wsstore.js";
 
-  import {
-    devise,
-    online,
-    sound,
-    asymbole,
-    wstradebalancedata,
-  } from "store/store.js";
-  import { wstradebalance } from "store/wstradebalance.js";
+  import { devise, online, sound, asymbole } from "store/store.js";
   import { SyncLoader } from "svelte-loading-spinners";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
   let error = false;
-  let tradebalance = false;
+  let tradebalancedata;
   let limit = 0;
   let balance_way = "down";
   let balance_way_tmp;
@@ -80,14 +74,12 @@
       const res = await ud.getTradeBalance(asset);
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-        console.error("GetTradeBalance", res.error);
         if (limit < 2) {
           GetTradeBalance();
           limit++;
         }
       } else {
-        tradebalance = res;
-        wstradebalancedata.set(tradebalance);
+        tradebalancedata = res;
         error = false;
       }
     } catch (error) {
@@ -100,41 +92,38 @@
       GetTradeBalance();
     }, 500);
 
-    wstradebalance.subscribe((tick) => {
-      if (typeof tick !== "undefined") {
+    tradebalance.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
         if (!$online) {
           error = true;
           return false;
-        } else if (tick.hasOwnProperty("error")) {
+        } else if (tick.hasOwnProperty("error") && tick.error) {
           error = tick.error;
           console.error("ERROR", error);
         } else if (Object.keys(tick).length >= 1) {
-          if (!tick.hasOwnProperty("error")) {
-            tradebalance = tick;
-            wstradebalancedata.set(tradebalance);
+          if (tick.service === "WsTradeBalance") {
+            tradebalancedata = tick.data;
           }
         }
       }
     });
   });
 
-  $: {
-    if ($wstradebalancedata) {
-      // Calcul du pourcentage de perte et profit
-      trading_percent = Number(
-        Number($wstradebalancedata["v"]) / Number($wstradebalancedata["c"]) // Valorisation - coût
-      );
-      trading_percent = trading_percent * 100; // x 100
-      trading_percent = 100 - trading_percent; // 100 -
+  $: if (tradebalancedata) {
+    // Calcul du pourcentage de perte et profit
+    trading_percent = Number(
+      Number(tradebalancedata["v"]) / Number(tradebalancedata["c"]) // Valorisation - coût
+    );
+    trading_percent = trading_percent * 100; // x 100
+    trading_percent = 100 - trading_percent; // 100 -
 
-      if (!isNaN(trading_percent)) {
-        // Joue un sont en cas de cahngement de perte et profit
+    if (!isNaN(trading_percent)) {
+      // Joue un sont en cas de cahngement de perte et profit
+      balance_way_tmp = balance_way;
+      balance_way = trading_percent >= 0 ? "up" : "down";
+      if (balance_way != balance_way_tmp) {
         balance_way_tmp = balance_way;
-        balance_way = trading_percent >= 0 ? "up" : "down";
-        if (balance_way != balance_way_tmp) {
-          balance_way_tmp = balance_way;
-          played = true;
-        }
+        played = true;
       }
     }
   }
@@ -146,10 +135,10 @@
     {#if error && limit <= 2 && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
-    {#if !$wstradebalancedata && !error}
+    {#if !tradebalancedata && !error}
       <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
     {:else}
-      {#each Object.entries($wstradebalancedata) as [index, bal]}
+      {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["eb", "tb", "m", "e", "mf"].includes(index)}
           <li>
             <TooltipIcon
@@ -166,8 +155,8 @@
                 </span>
               {:else if index == "e"}
                 <span
-                  class={parseFloat($wstradebalancedata["e"]) >=
-                  parseFloat($wstradebalancedata["tb"])
+                  class={parseFloat(tradebalancedata["e"]) >=
+                  parseFloat(tradebalancedata["tb"])
                     ? "good"
                     : "realynotgood"}
                 >
@@ -196,10 +185,10 @@
     {#if error && limit <= 5 && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
-    {#if !$wstradebalancedata && !error}
+    {#if !tradebalancedata && !error}
       <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
     {:else}
-      {#each Object.entries($wstradebalancedata) as [index, bal]}
+      {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["n", "c", "v", "ml"].includes(index)}
           <li>
             <TooltipIcon

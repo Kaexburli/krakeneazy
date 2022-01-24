@@ -5,6 +5,7 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import alias from '@rollup/plugin-alias';
+import replace from '@rollup/plugin-replace';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -15,6 +16,7 @@ const aliases = alias({
     { find: 'classes', replacement: 'src/classes' },
     { find: 'store', replacement: 'src/store' },
     { find: 'utils', replacement: 'src/utils' },
+    { find: 'machin', replacement: 'src/xstate' },
   ]
 });
 
@@ -68,6 +70,11 @@ export default {
       dedupe: ['svelte']
     }),
     commonjs(),
+
+    replace({
+      preventAssignment: true,
+      'process.env.NODE_ENV': process.env.NODE_ENV
+    }),
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
