@@ -9,7 +9,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "concurrently --names 'SERVER,CLIENT' --prefix-colors 'bgBlue.bold,bgMagenta.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
+    "start": "concurrently --names 'SERVER,CLIENT,STRAPI' --prefix-colors 'bgBlue.bold,bgMagenta.bold,bgGreen.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\" \"cd api && npm run develop\""
   },
   "keywords": [],
   "author": "",
