@@ -21,8 +21,8 @@ const asset_replace = {
 
 
 export const asymbole = writable(asset_replace);
-export const wssurl = writable("ws://localhost:9000/api/ws");
-export const fetchurl = writable("http://localhost:9000");
+export const wssurl = writable(__env["BACKEND_WS_URI"] || "ERROR URI STORE FILE");
+export const fetchurl = writable(__env["BACKEND_URI"] || "ERROR URI STORE FILE");
 export const ledgersdata = writable(false);
 export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
