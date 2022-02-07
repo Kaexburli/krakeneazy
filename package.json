@@ -1,5 +1,5 @@
 {
-  "name": "walltrade",
+  "name": "kurlitrade",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "concurrently --names 'SERVER,CLIENT,STRAPI' --prefix-colors 'bgBlue.bold,bgMagenta.bold,bgGreen.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\" \"cd api && npm run develop\""
+    "start": "concurrently --names 'SERVER,CLIENT' --prefix-colors 'bgBlue.bold,bgMagenta.bold,bgGreen.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
   },
   "keywords": [],
   "author": "",
