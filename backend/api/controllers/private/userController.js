@@ -61,7 +61,13 @@ export const registerCtrl = async (req, reply) => {
       });
     }
   } catch (error) {
-    reply.status(400).send(error);
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0] || " account ";
+      reply.status(400).send({ message: `Your ${field} is already exist!` })
+    }
+    else {
+      reply.status(400).send(error);
+    }
   }
 
 }
