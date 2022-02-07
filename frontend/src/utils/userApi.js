@@ -51,15 +51,17 @@ export const userLogin = async (data) => {
   }
 }
 
-export const userLogout = async (data) => {
+export const userLogout = async (token) => {
   try {
     return await fetch(__env["BACKEND_URI"] + "/logout", {
       method: 'POST',
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify({
-        identifier: data.log_email,
-        password: data.log_password,
-      }),
+        token
+      })
     })
       .then(checkStatus)
       .then(parseJSON);

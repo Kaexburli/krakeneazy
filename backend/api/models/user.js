@@ -89,7 +89,7 @@ userSchema.methods.generateToken = async function (remember) {
     },
     process.env.JWT_STANDARD_SECRET,
     {
-      expiresIn: remember ? '12h' : '2m'
+      expiresIn: remember ? '1h' : '5m'
     }
   );
 
@@ -111,7 +111,7 @@ userSchema.statics.findByToken = async function (token) {
     return error;
   }
   return await User.findOne({
-    _id: decoded._id,
+    _id: decoded.id,
     token
   });
 };
