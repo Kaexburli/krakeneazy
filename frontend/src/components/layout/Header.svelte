@@ -1,6 +1,7 @@
 <script>
   import SelectDevises from "components/SelectDevises.svelte";
   import AssetPairsSearch from "components/AssetPairsSearch.svelte";
+  import Logout from "components/Logout.svelte";
 
   const handleClickMenu = (e) => {
     document.body.classList.toggle("active");
@@ -22,6 +23,7 @@
     </div>
     <AssetPairsSearch />
     <SelectDevises />
+    <Logout />
   </div>
 </div>
 
