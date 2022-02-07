@@ -44,11 +44,8 @@
     isLoggedIn = !user ? false : true;
   });
 
-  $: {
-    if (isLoggedIn) {
-      const jwtTokenDetails = parseJwt(current_user.token);
-      console.log("JWT Token Details: ", jwtTokenDetails);
-    }
+  $: if (isLoggedIn) {
+    const jwtTokenDetails = parseJwt(current_user.token);
   }
   onDestroy(unUser);
 </script>
