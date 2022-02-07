@@ -6,8 +6,15 @@ import FastifyCors from 'fastify-cors'
 import FastifyWs from 'fastify-websocket'
 import Autoload from 'fastify-autoload'
 
-const fastify = Fastify({ logger: { level: 'trace' } })
+import db from './api/config/index';
+
+import env from 'dotenv';
+env.config();
+
 const PORT = process.env.PORT || '9000'
+const uri = process.env.MONGODB_URI;
+
+const fastify = Fastify({ logger: { level: 'trace' } })
 
 const options = {
   schema: {
@@ -28,6 +35,7 @@ fastify.register(FastifySwagger, {
   },
 })
 
+fastify.register(db, { uri });
 fastify.register(FastifyEnv, options)
 fastify.register(FastifyCors)
 fastify.register(FastifyWs)
@@ -35,7 +43,7 @@ fastify.register(FastifyWs)
 
 // Declare a route
 fastify.get('/', async (request, reply) => {
-  return { hello: 'world' }
+  return { hello: 'KURLITRADE' }
 })
 fastify.register(Autoload, {
   dir: './api/routes/'
