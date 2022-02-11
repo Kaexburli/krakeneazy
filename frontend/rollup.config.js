@@ -77,7 +77,7 @@ export default {
 
     replace({
       preventAssignment: true,
-      __env: JSON.stringify({ ...config().parsed }),
+      __env: JSON.stringify({ ...config({ path: __dirname + "/../.env" }).parsed }),
       'process.env.NODE_ENV': process.env.NODE_ENV,
     }),
 
