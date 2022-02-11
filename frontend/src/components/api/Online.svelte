@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { wssurl, online } from "store/store.js";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
@@ -60,6 +60,10 @@
         return false;
       }
     });
+  });
+
+  onDestroy(() => {
+    display = false;
   });
 </script>
 
