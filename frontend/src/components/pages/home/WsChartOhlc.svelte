@@ -640,7 +640,6 @@
       title: `[${pair}] Suppression des alertes`,
       message: `Veuillez confirmer la supression des alertes pour la paire : ${pair}`,
       confirm: () => {
-        console.log("confirme");
         $pricealertlist[pair] = { up: [], down: [] };
         closeModal();
       },

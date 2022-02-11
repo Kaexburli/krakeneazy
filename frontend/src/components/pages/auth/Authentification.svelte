@@ -311,10 +311,9 @@
       resetForm();
     } else {
       isLoading = false;
-      isSuccess = `Bienvenue ${login.user.firstname}! encore un petit instant...`;
+      isSuccess = `Bienvenue ${login.user.firstname}!`;
       Notification(isSuccess, "success", true);
       resetForm();
-
       User.signin({ token: login.token });
     }
   };

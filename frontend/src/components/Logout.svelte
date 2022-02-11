@@ -1,5 +1,4 @@
 <script>
-  import { onDestroy } from "svelte";
   import { User } from "store/userStore.js";
   import { userLogout } from "utils/userApi.js";
   import { toast } from "@zerodevx/svelte-toast";
@@ -33,33 +32,22 @@
       dismissable: true,
       target: "new",
       theme,
-      duration: reload ? 300 : 5000,
+      duration: reload ? 0 : 5000,
       onpop: () => {
         reload ? location.reload() : false;
       },
     });
   };
 
-  let current_user = false;
-  let isLoggedIn;
-  const unUser = User.subscribe((user) => {
-    current_user = user;
-    isLoggedIn = !user ? false : true;
-  });
-
   const SingOut = async () => {
-    if (isLoggedIn && current_user) {
-      const logout = await userLogout(current_user.token);
-      if (logout.hasOwnProperty("error")) {
-        Notification(logout.message, "error");
-      } else {
-        User.signout();
-        Notification(logout.status, "success", true);
-      }
+    if (User.isLogged) {
+      const logout = await userLogout($User.token);
+      if (logout.hasOwnProperty("error")) Notification(logout.message, "error");
+      else Notification(logout.status, "success", true);
+
+      User.signout();
     }
   };
-
-  onDestroy(unUser);
 </script>
 
 <span class="logout-btn" on:click={SingOut}>
