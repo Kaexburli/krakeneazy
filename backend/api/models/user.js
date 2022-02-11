@@ -60,7 +60,7 @@ const userSchema = mongoose.Schema({
     type: String,
     default: false
   },
-  refresh_token: {
+  tokenVerion: {
     type: String,
     default: false
   }
@@ -76,7 +76,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.methods.generateToken = async function (remember) {
+userSchema.methods.generateToken = async function (remember, tokenVerion) {
   let user = this;
 
   const token = jwt.sign(
@@ -89,11 +89,12 @@ userSchema.methods.generateToken = async function (remember) {
     },
     process.env.JWT_STANDARD_SECRET,
     {
-      expiresIn: remember ? '1h' : '5m'
+      expiresIn: remember ? '1h' : '15m'
     }
   );
 
   user.token = token;
+  user.tokenVerion = tokenVerion;
   await user.save();
   return token;
 };
@@ -108,7 +109,7 @@ userSchema.statics.findByToken = async function (token) {
     }
     decoded = jwt.verify(token, process.env.JWT_STANDARD_SECRET);
   } catch (error) {
-    return error;
+    return { error: true, message: error };
   }
   return await User.findOne({
     _id: decoded.id,

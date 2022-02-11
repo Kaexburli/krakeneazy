@@ -1,5 +1,11 @@
+/**
+ * parseJSON
+************************************************************************************************/
 const parseJSON = (resp) => (resp.json ? resp.json() : resp);
 
+/**
+ * checkStatus
+************************************************************************************************/
 const checkStatus = async (resp) => {
   if (resp.status >= 200 && resp.status < 300) {
     return resp;
@@ -9,10 +15,16 @@ const checkStatus = async (resp) => {
   });
 };
 
+/**
+ * headers
+************************************************************************************************/
 const headers = {
   'Content-Type': 'application/json',
 };
 
+/**
+ * userRegister
+************************************************************************************************/
 export const userRegister = async (data) => {
   try {
     return await fetch(__env["BACKEND_URI"] + "/register", {
@@ -33,6 +45,9 @@ export const userRegister = async (data) => {
   }
 }
 
+/**
+ * userLogin
+************************************************************************************************/
 export const userLogin = async (data) => {
   try {
     return await fetch(__env["BACKEND_URI"] + "/login", {
@@ -51,6 +66,9 @@ export const userLogin = async (data) => {
   }
 }
 
+/**
+ * userLogout
+************************************************************************************************/
 export const userLogout = async (token) => {
   try {
     return await fetch(__env["BACKEND_URI"] + "/logout", {
@@ -70,6 +88,32 @@ export const userLogout = async (token) => {
   }
 }
 
+/**
+ * userRefreshToken
+************************************************************************************************/
+export const userRefreshToken = async (token, tokenVersion) => {
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/refresh-token", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        token,
+        tokenVersion
+      })
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return { error: true, message: error.message }
+  }
+}
+
+/**
+ * userForgotPassword
+************************************************************************************************/
 export const userForgotPassword = async (data) => {
   try {
     return await fetch(__env["BACKEND_URI"] + "/forgot-password", {

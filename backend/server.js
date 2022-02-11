@@ -1,4 +1,7 @@
 // Require the framework and instantiate it
+import path from 'path';
+const __dirname = path.resolve(path.dirname(''));
+
 import Fastify from 'fastify'
 import FastifySwagger from 'fastify-swagger'
 import FastifyEnv from 'fastify-env'
@@ -9,9 +12,9 @@ import Autoload from 'fastify-autoload'
 import db from './api/config/index';
 
 import env from 'dotenv';
-env.config();
+env.config({ path: __dirname + "/../.env" });
 
-const PORT = process.env.PORT || '9000'
+const PORT = process.env.BACK_PORT || '9000'
 const uri = process.env.MONGODB_URI;
 
 const fastify = Fastify({ logger: { level: 'trace' } })

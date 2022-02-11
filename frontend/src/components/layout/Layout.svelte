@@ -1,5 +1,4 @@
 <script>
-  import { onDestroy } from "svelte";
   import Sidebar from "components/layout/Sidebar.svelte";
   import Header from "components/layout/Header.svelte";
   import Main from "components/layout/Main.svelte";
@@ -10,44 +9,12 @@
   import Authentification from "components/pages/auth/Authentification.svelte";
   import { Modals, closeModal } from "svelte-modals";
   import { User } from "store/userStore.js";
-  import jwt_decode from "jwt-decode";
 
-  const parseJwt = (token) => {
-    try {
-      const jwtTokenDetails = jwt_decode(token);
-      const currentTimestamp = new Date().getTime() / 1000;
-      const tokenIsNotExpired =
-        jwtTokenDetails.exp > parseInt(currentTimestamp);
-      const timerJWTRefresh = Number(
-        parseInt(jwtTokenDetails.exp - parseInt(currentTimestamp)) * 1000
-      );
+  let isLoggedIn;
+  User.init();
 
-      setTimeout(() => {
-        parseJwt(token);
-      }, timerJWTRefresh);
-
-      if (!tokenIsNotExpired) {
-        User.signout();
-        location.reload();
-      }
-
-      return jwtTokenDetails;
-    } catch (e) {
-      return null;
-    }
-  };
-
-  let current_user = false;
-  let isLoggedIn = false;
-  const unUser = User.subscribe((user) => {
-    current_user = user;
-    isLoggedIn = !user ? false : true;
-  });
-
-  $: if (isLoggedIn) {
-    const jwtTokenDetails = parseJwt(current_user.token);
-  }
-  onDestroy(unUser);
+  /**** store */
+  $: isLoggedIn = User.isLogged();
 </script>
 
 {#if !isLoggedIn}

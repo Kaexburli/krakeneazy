@@ -10,7 +10,7 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
     }
     const token = req.headers.authorization.replace('Bearer ', '');
     const user = await User.findByToken(token);
-    if (!user) {
+    if (!user || user.hasOwnProperty('error')) {
       // handles logged out user with valid token
       throw new Error('Authentication failed!');
     }
@@ -73,8 +73,8 @@ export const registerCtrl = async (req, reply) => {
 }
 
 /**
- * registerCtrl
- * @description Traitement de l'inscription utilisateur
+ * loginCtrl
+ * @description Traitement de la connexion utilisateur
  * @param { Object } req Object request
  * @param { Object } reply Object replying
  * @returns { Object } HTTP response
@@ -83,7 +83,7 @@ export const loginCtrl = async (req, reply) => {
 
   if (req.user) {
     const remember = req.body.remember || false;
-    await req.user.generateToken(remember);
+    await req.user.generateToken(remember, 1);
   }
 
   reply.send({
@@ -103,10 +103,38 @@ export const logoutCtrl = async (req, reply) => {
   try {
     req.user.token = false
     const loggedOutUser = await req.user.save();
-    reply.send({ status: 'You are logged out!', user: loggedOutUser });
+    reply.send({ ok: true, status: 'You are logged out!', user: loggedOutUser });
   } catch (e) {
-    res.status(500).send();
+    reply.status(500).send(e);
   }
+}
+
+/**
+ * refreshTokenCtrl
+ * @description Traitement du rafraichissement du token utilisateur
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const refreshTokenCtrl = async (req, reply) => {
+
+  if (req.user) {
+    const remember = false;
+    const tokenVersion = req.body.tokenVersion || 0;
+    await req.user.generateToken(remember, tokenVersion);
+  }
+
+  reply.send({
+    status: 'You are refresh token',
+    token: req.user.token,
+    user: {
+      id: req.user._id.toString(),
+      firstname: req.user.firstname,
+      lastname: req.user.lastname,
+      username: req.user.username,
+      email: req.user.email
+    }
+  });
 }
 
 export const profileCtrl = async (req, reply) => {

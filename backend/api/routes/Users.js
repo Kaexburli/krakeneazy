@@ -6,7 +6,8 @@ import {
   loginCtrl,
   logoutCtrl,
   profileCtrl,
-  confirmEmailCtrl
+  confirmEmailCtrl,
+  refreshTokenCtrl
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
@@ -49,6 +50,15 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: logoutCtrl
+      });
+
+      // refreshToken route
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/refresh-token',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: refreshTokenCtrl
       });
 
       // proifle route
