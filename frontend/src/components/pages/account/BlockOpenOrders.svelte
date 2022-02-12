@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { openorders } from "store/wsstore.js";
   import {
@@ -148,7 +149,7 @@
       }
 
       if (typeof $assetpair.altname === "undefined") {
-        error = "Veuillez choisir une paire d'asset";
+        error = $_("account.openOrders.getOpenOrders.error");
         return false;
       }
 
@@ -206,18 +207,18 @@
 </script>
 
 <div class="block open-orders">
-  <h4>Ouverts</h4>
+  <h4>{$_("account.openOrders.title")}</h4>
   <table class="flex-table flex-fixhead-table">
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Date</th>
-        <th>Paire</th>
-        <th>Prix</th>
-        <th>Volume</th>
-        <th>Coût</th>
-        <th>Status</th>
-        <th>Actions</th>
+        <th>{$_("account.openOrders.type")}</th>
+        <th>{$_("account.openOrders.date")}</th>
+        <th>{$_("account.openOrders.pair")}</th>
+        <th>{$_("account.openOrders.price")}</th>
+        <th>{$_("account.openOrders.volume")}</th>
+        <th>{$_("account.openOrders.cost")}</th>
+        <th>{$_("account.openOrders.statut")}</th>
+        <th>{$_("account.openOrders.action")}</th>
       </tr>
     </thead>
     <tbody>
@@ -229,14 +230,17 @@
       {:else if typeof $openordersdata !== "undefined" && $openordersdata.length > 0 && $openordersdata}
         {#each $openordersdata as el, i}
           <tr id={Object.keys(el)} transition:fade>
-            <td data-label="Type" class={el[Object.keys(el)]["descr"]["type"]}>
+            <td
+              data-label={$_("account.openOrders.type")}
+              class={el[Object.keys(el)]["descr"]["type"]}
+            >
               {#if el[Object.keys(el)]["descr"]["type"] === "buy"}
-                <span class="buy">Acheter</span>
+                <span class="buy">{$_("account.openOrders.buy")}</span>
               {:else}
-                <span class="sell">Vendre</span>
+                <span class="sell">{$_("account.openOrders.sell")}</span>
               {/if}
             </td>
-            <td data-label="open-time">
+            <td data-label={$_("account.openOrders.date")}>
               <div class="Date">
                 <div>{formatDate(el[Object.keys(el)]["opentm"], "D")}</div>
                 <span class="hour">
@@ -244,12 +248,12 @@
                 </span>
               </div>
             </td>
-            <td data-label="Asset">
+            <td data-label={$_("account.openOrders.pair")}>
               <span class="currency"
                 >{el[Object.keys(el)]["descr"]["pair"]}</span
               >
             </td>
-            <td data-label="Prix">
+            <td data-label={$_("account.openOrders.price")}>
               <span>
                 {el[Object.keys(el)]["descr"]["price"]}
                 <span class="currency"
@@ -257,7 +261,7 @@
                 >
               </span>
             </td>
-            <td data-label="Volume">
+            <td data-label={$_("account.openOrders.volume")}>
               <div class="volume">
                 <div>
                   <span class="price-little">
@@ -283,15 +287,15 @@
                 </div>
               </div>
             </td>
-            <td data-label="Coût">
+            <td data-label={$_("account.openOrders.cost")}>
               {el[Object.keys(el)]["cost"]}
             </td>
-            <td data-label="Status">
+            <td data-label={$_("account.openOrders.statut")}>
               <span class="badge">
                 {el[Object.keys(el)]["status"]}
               </span>
             </td>
-            <td data-label="Actions">
+            <td data-label={$_("account.openOrders.action")}>
               <span class="icon actions"><i class="fas fa-cog" /></span>
             </td>
           </tr>

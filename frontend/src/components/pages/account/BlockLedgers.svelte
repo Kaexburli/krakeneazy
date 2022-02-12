@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
@@ -16,13 +17,13 @@
   let count = false;
   let life = 300; // Secondes
 
-  const type_label = {
-    margin: "Levier",
-    rollover: "Rollover",
-    trade: "Trader",
-    staking: "Financement",
-    deposit: "Dépôt",
-    withdrawal: "Retrait",
+  const typeLabel = {
+    margin: $_("account.ledgers.typeLabel.margin"),
+    rollover: $_("account.ledgers.typeLabel.rollover"),
+    trade: $_("account.ledgers.typeLabel.trade"),
+    staking: $_("account.ledgers.typeLabel.staking"),
+    deposit: $_("account.ledgers.typeLabel.deposit"),
+    withdrawal: $_("account.ledgers.typeLabel.withdrawal"),
   };
 
   const get__store = (store) => {
@@ -82,17 +83,17 @@
 </script>
 
 <div class="block ledgers">
-  <h4>Registre</h4>
+  <h4>{$_("account.ledgers.title")}</h4>
   <table class="flex-table flex-fixhead-table">
     <thead>
       <tr>
-        <th>Ref id</th>
-        <th>Date</th>
-        <th>Type</th>
-        <th>Paire</th>
-        <th>Montant</th>
-        <th>Frais</th>
-        <th>Solde</th>
+        <th>{$_("account.ledgers.reference")}</th>
+        <th>{$_("account.ledgers.date")}</th>
+        <th>{$_("account.ledgers.type")}</th>
+        <th>{$_("account.ledgers.pair")}</th>
+        <th>{$_("account.ledgers.amount")}</th>
+        <th>{$_("account.ledgers.fees")}</th>
+        <th>{$_("account.ledgers.solde")}</th>
       </tr>
     </thead>
     <tbody>
@@ -104,10 +105,10 @@
       {:else if typeof ledgers !== "undefined" && ledgers}
         {#each ledgers as ledger, i}
           <tr id={ledger[0]} transition:fade>
-            <td data-label="Ref id" class="first">
+            <td data-label={$_("account.ledgers.reference")} class="first">
               {String(ledger[1]["refid"]).substr(0, 12)}
             </td>
-            <td data-label="Date/Heure d'ouverture">
+            <td data-label={$_("account.ledgers.date")}>
               <div class="Date">
                 <span class="block">{formatDate(ledger[1]["time"], "D")}</span>
                 <span class="hour">
@@ -115,15 +116,15 @@
                 </span>
               </div>
             </td>
-            <td data-label="Type">
+            <td data-label={$_("account.ledgers.type")}>
               <span class={ledger[1]["type"]}>
-                {type_label[ledger[1]["type"]]}
+                {typeLabel[ledger[1]["type"]]}
               </span>
             </td>
-            <td data-label="Paire">
+            <td data-label={$_("account.ledgers.pair")}>
               <span class="currency">{ledger[1]["asset"]}</span>
             </td>
-            <td data-label="Montant">
+            <td data-label={$_("account.ledgers.amount")}>
               <div>
                 <span class="block">{ledger[1]["amount"]}</span>
                 <span class="currency">
@@ -133,7 +134,7 @@
                 </span>
               </div>
             </td>
-            <td data-label="Frais">
+            <td data-label={$_("account.ledgers.fees")}>
               <div>
                 <span class="block">{ledger[1]["fee"]}</span>
                 <span class="currency">
@@ -143,7 +144,7 @@
                 </span>
               </div>
             </td>
-            <td data-label="Solde">
+            <td data-label={$_("account.ledgers.solde")}>
               <div>
                 <span class="block">{ledger[1]["fee"]}</span>
                 <span class="currency">

@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
@@ -46,7 +47,7 @@
 </script>
 
 <div class="block">
-  <h3>Solde du compte</h3>
+  <h3>{$_("account.balance.title")}</h3>
   <ul class="balance">
     {#if error && limit <= 5 && typeof error !== "boolean"}
       <span class="error">{error}</span>

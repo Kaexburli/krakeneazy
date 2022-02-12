@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
@@ -34,7 +35,7 @@
       }
 
       if (typeof $assetpair.altname === "undefined") {
-        error = "Veuillez choisir une paire d'asset";
+        error = $_("account.tradeVolume.getTradeVolume.type");
         return false;
       }
 
@@ -96,7 +97,7 @@
 </script>
 
 <div class="block">
-  <h3>Grille Tarifaire</h3>
+  <h3>{$_("account.tradeVolume.title")}</h3>
   {#if error && typeof error !== "boolean"}
     <span class="error">{error}</span>
   {/if}
@@ -104,27 +105,27 @@
     <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
   {:else if tradevolume}
     <div class="trade_volume">
-      <h5>Volume</h5>
+      <h5>{$_("account.tradeVolume.volume")}</h5>
       <div>
         <span class="label">{tradevol} {currency}</span> /
         <span class="label">{next_vol} {currency}</span>
       </div>
       <span class="label">
-        Volume sur 30 jours
+        {$_("account.tradeVolume.volume30days")}
         <span class="percent">({progress_percent.toFixed(2)}%)</span>
       </span>
       <progress value={$progress} />
     </div>
     <div class="trade_volume_fees">
-      <h5>Frais</h5>
+      <h5>{$_("account.tradeVolume.fees")}</h5>
       <div>
-        <span class="label"> Actuel </span>
+        <span class="label"> {$_("account.tradeVolume.current")} </span>
         <span class="currency">({$assetpair.wsname})</span>
         <span class="right">{actual_fees_maker}% / {actual_fees_taker}%</span>
       </div>
       <hr />
       <div>
-        <span class="label"> Suivant </span>
+        <span class="label"> {$_("account.tradeVolume.next")} </span>
         <span class="currency">({$assetpair.wsname})</span>
         <span class="right">{next_fees_maker}% / {next_fees_taker}%</span>
       </div>

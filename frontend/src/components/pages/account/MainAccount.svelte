@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { sound, pair } from "store/store.js";
   import { slide } from "svelte/transition";
 
@@ -20,7 +21,7 @@
 
 <div id="page-account" in:slide out:slide>
   <h1>
-    Mon compte kraken
+    {$_("account.title")}
     <i
       class="btn-sound fa fa-volume-{$sound}"
       on:click={handleClickSound}
@@ -35,11 +36,11 @@
     </div>
     <Tabs>
       <TabList>
-        <Tab>Ordres ouverts</Tab>
-        <Tab>Ordres fermés</Tab>
-        <Tab>Transactions</Tab>
-        <Tab>Trades</Tab>
-        <Tab>Registre</Tab>
+        <Tab>{$_("account.tabs.openOrders")}</Tab>
+        <Tab>{$_("account.tabs.closedOrders")}</Tab>
+        <Tab>{$_("account.tabs.transaction")}</Tab>
+        <Tab>{$_("account.tabs.trades")}</Tab>
+        <Tab>{$_("account.tabs.register")}</Tab>
       </TabList>
 
       <TabPanel>
@@ -65,7 +66,7 @@
   {:else}
     <div class="main-info">
       <i class="fas fa-info-circle" />
-      <span>Veuillez choisir une paire</span>
+      <span>{$_("account.choosePair")}</span>
     </div>
   {/if}
 </div>

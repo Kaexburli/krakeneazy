@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
@@ -24,42 +25,42 @@
     played = false;
   };
 
-  let tb_label = {
+  let tbLabel = {
     eb: {
-      label: "Solde du compte",
-      info: "Total des devises et crypto combiné",
+      label: $_("account.tradeBalance.eb.label"),
+      info: $_("account.tradeBalance.eb.info"),
     },
     tb: {
-      label: "Solde de transactions",
-      info: "Soldes total des devises de marge",
+      label: $_("account.tradeBalance.tb.label"),
+      info: $_("account.tradeBalance.tb.info"),
     },
     m: {
-      label: "Marge utilisée",
-      info: "Montant total de la marge utilisée sur les positions ouvertes",
+      label: $_("account.tradeBalance.m.label"),
+      info: $_("account.tradeBalance.m.info"),
     },
     n: {
-      label: "Perte/Profit",
-      info: "Perte/Profit sur papier de toutes les positions ouvertes",
+      label: $_("account.tradeBalance.n.label"),
+      info: $_("account.tradeBalance.n.info"),
     },
     c: {
-      label: "Coût d'ouverture",
-      info: "Coût initale de toutes les positions ouvertes",
+      label: $_("account.tradeBalance.c.label"),
+      info: $_("account.tradeBalance.c.info"),
     },
     v: {
-      label: "Valorisation actuelle",
-      info: "Valeur théorique de toutes les positions ouverte",
+      label: $_("account.tradeBalance.v.label"),
+      info: $_("account.tradeBalance.v.info"),
     },
     e: {
-      label: "Équité",
-      info: "Soldes de transactions combiné aux pertes/profits non réalisés",
+      label: $_("account.tradeBalance.e.label"),
+      info: $_("account.tradeBalance.e.info"),
     },
     mf: {
-      label: "Marge disponible",
-      info: "Soldes de marge utilisable. Égal à l'équité moins la marge utilisée",
+      label: $_("account.tradeBalance.mf.label"),
+      info: $_("account.tradeBalance.mf.info"),
     },
     ml: {
-      label: "Niveau de marge",
-      info: "Pourcentage d'équité par rapport à la marge utilisée",
+      label: $_("account.tradeBalance.ml.label"),
+      info: $_("account.tradeBalance.ml.info"),
     },
   };
 
@@ -118,7 +119,7 @@
     trading_percent = 100 - trading_percent; // 100 -
 
     if (!isNaN(trading_percent)) {
-      // Joue un sont en cas de cahngement de perte et profit
+      // Joue un sont en cas de changement de perte et profit
       balance_way_tmp = balance_way;
       balance_way = trading_percent >= 0 ? "up" : "down";
       if (balance_way != balance_way_tmp) {
@@ -130,7 +131,7 @@
 </script>
 
 <div class="block">
-  <h3>Solde de trading</h3>
+  <h3>{$_("account.tradeBalance.title")}</h3>
   <ul class="trade-balance">
     {#if error && limit <= 2 && typeof error !== "boolean"}
       <span class="error">{error}</span>
@@ -142,8 +143,8 @@
         {#if ["eb", "tb", "m", "e", "mf"].includes(index)}
           <li>
             <TooltipIcon
-              tooltip={tb_label[index].info}
-              text={tb_label[index].label}
+              tooltip={tbLabel[index].info}
+              text={tbLabel[index].label}
             />
             <span class="solde">
               {#if index == "eb"}
@@ -180,7 +181,7 @@
 </div>
 
 <div class="block">
-  <h3>Valorisation de la position</h3>
+  <h3>{$_("account.tradeBalance.title2")}</h3>
   <ul class="trade-balance">
     {#if error && limit <= 5 && typeof error !== "boolean"}
       <span class="error">{error}</span>
@@ -192,8 +193,8 @@
         {#if ["n", "c", "v", "ml"].includes(index)}
           <li>
             <TooltipIcon
-              tooltip={tb_label[index].info}
-              text={tb_label[index].label}
+              tooltip={tbLabel[index].info}
+              text={tbLabel[index].label}
             />
             <span class="solde">
               {#if index == "n"}

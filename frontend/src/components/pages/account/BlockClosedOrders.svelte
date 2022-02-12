@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
@@ -98,14 +99,17 @@
 
 <div class="block closed-orders">
   <h4>
-    Fermés
+    {$_("account.closedOrders.title")}
     <span class="actions-table">
       <span class="canceled-choice-btn" on:click={handleClickCanceled}>
-        <TooltipIcon tooltip="Cacher/Afficher les ordres annulées" icon="ban" />
+        <TooltipIcon
+          tooltip={$_("account.closedOrders.hideDisplayCanceled")}
+          icon="ban"
+        />
       </span>
       <span class="closed-choice-btn" on:click={handleClickClosed}>
         <TooltipIcon
-          tooltip="Cacher/Afficher les ordres fermés"
+          tooltip={$_("account.closedOrders.hideDisplayClosed")}
           icon="door-closed"
         />
       </span>
@@ -114,14 +118,14 @@
   <table class="flex-table flex-fixhead-table">
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Date</th>
-        <th>Paire</th>
-        <th>Prix</th>
-        <th>Volume</th>
-        <th>Coût</th>
-        <th>Status</th>
-        <th>Actions</th>
+        <th>{$_("account.closedOrders.type")}</th>
+        <th>{$_("account.closedOrders.date")}</th>
+        <th>{$_("account.closedOrders.pair")}</th>
+        <th>{$_("account.closedOrders.price")}</th>
+        <th>{$_("account.closedOrders.volume")}</th>
+        <th>{$_("account.closedOrders.cost")}</th>
+        <th>{$_("account.closedOrders.statut")}</th>
+        <th>{$_("account.closedOrders.action")}</th>
       </tr>
     </thead>
     <tbody>
@@ -133,14 +137,17 @@
       {:else if closedorders}
         {#each closedorders as el, i}
           <tr id={el[0]} transition:fade class="tr-{el[1]['status']}">
-            <td data-label="Type" class={el[1]["descr"]["type"]}>
+            <td
+              data-label={$_("account.closedOrders.type")}
+              class={el[1]["descr"]["type"]}
+            >
               {#if el[1]["descr"]["type"] === "buy"}
-                <span class="buy">Acheter</span>
+                <span class="buy">{$_("account.closedOrders.buy")}</span>
               {:else}
-                <span class="sell">Vendre</span>
+                <span class="sell">{$_("account.closedOrders.sell")}</span>
               {/if}
             </td>
-            <td data-label="Heure d'ouverture">
+            <td data-label={$_("account.closedOrders.date")}>
               <div class="Date">
                 {formatDate(el[1]["opentm"], "D")}
                 <span class="hour">
@@ -148,13 +155,13 @@
                 </span>
               </div>
             </td>
-            <td data-label="Asset">
+            <td data-label={$_("account.closedOrders.pair")}>
               <span class="currency">{el[1]["descr"]["pair"]}</span>
             </td>
-            <td data-label="Prix">
+            <td data-label={$_("account.closedOrders.price")}>
               {el[1]["descr"]["price"]}
             </td>
-            <td data-label="Volume">
+            <td data-label={$_("account.closedOrders.volume")}>
               <div class="volume">
                 <div>
                   <span class="price-little">
@@ -168,19 +175,19 @@
                 </div>
               </div>
             </td>
-            <td data-label="Coût">
+            <td data-label={$_("account.closedOrders.cost")}>
               {#if Number(el[1]["cost"]) <= 0}
                 {parseFloat(el[1]["cost"]).toFixed(4)}
               {:else}
                 {el[1]["cost"]}
               {/if}
             </td>
-            <td data-label="Status">
+            <td data-label={$_("account.closedOrders.statut")}>
               <span class="badge-{el[1]['status']}">
                 {el[1]["status"]}
               </span>
             </td>
-            <td data-label="Actions">
+            <td data-label={$_("account.closedOrders.action")}>
               <span class="icon actions"><i class="fas fa-cog" /></span>
             </td>
           </tr>

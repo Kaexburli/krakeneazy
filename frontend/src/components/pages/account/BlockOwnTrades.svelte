@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
@@ -8,6 +9,7 @@
   import { SyncLoader } from "svelte-loading-spinners";
 
   let error = false;
+  let count = 0;
   let owntradesdata = false;
 
   onMount(() => {
@@ -30,21 +32,17 @@
 </script>
 
 <div class="block owntrades">
-  <h4>Transactions</h4>
+  <h4>{$_("account.ownTrades.title")}</h4>
   <table class="flex-table flex-fixhead-table">
     <thead>
       <tr>
-        <!-- <th>TXID</th> -->
-        <th>Type</th>
-        <th>Date</th>
-        <th>Paire</th>
-        <th>Coût</th>
-        <!-- <th>Order ID</th> -->
-        <!-- <th>Status</th> -->
-        <!-- <th>Pos ID</th> -->
-        <th>Prix</th>
-        <th>Volume</th>
-        <th>Frais</th>
+        <th>{$_("account.ownTrades.type")}</th>
+        <th>{$_("account.ownTrades.date")}</th>
+        <th>{$_("account.ownTrades.pair")}</th>
+        <th>{$_("account.ownTrades.cost")}</th>
+        <th>{$_("account.ownTrades.price")}</th>
+        <th>{$_("account.ownTrades.volume")}</th>
+        <th>{$_("account.ownTrades.fees")}</th>
       </tr>
     </thead>
     <tbody>
@@ -56,22 +54,25 @@
       {:else if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
         {#each owntradesdata as el, i}
           <tr id={Object.keys(el)} transition:fade>
-            <td data-label="Type" class={el[Object.keys(el)]["type"]}>
+            <td
+              data-label={$_("account.ownTrades.type")}
+              class={el[Object.keys(el)]["type"]}
+            >
               <div classe="type">
                 {#if el[Object.keys(el)]["type"] === "buy"}
-                  <span class="buy">Acheter</span>
+                  <span class="buy">{$_("account.ownTrades.buy")}</span>
                   <span class="ordertype">
                     {el[Object.keys(el)]["ordertype"]}
                   </span>
                 {:else}
-                  <span class="sell">Vendre</span>
+                  <span class="sell">{$_("account.ownTrades.sell")}</span>
                   <span class="ordertype">
                     {el[Object.keys(el)]["ordertype"]}
                   </span>
                 {/if}
               </div>
             </td>
-            <td data-label="Date/Heure d'ouverture">
+            <td data-label={$_("account.ownTrades.date")}>
               <div class="Date">
                 <span class="block">
                   {formatDate(el[Object.keys(el)]["time"], "D")}
@@ -81,7 +82,7 @@
                 </span>
               </div>
             </td>
-            <td data-label="Paire">
+            <td data-label={$_("account.ownTrades.pair")}>
               <span class="currency">{el[Object.keys(el)]["pair"]}</span>
             </td>
             <td data-label="Coût">
@@ -92,20 +93,7 @@
                 >
               </div>
             </td>
-            <!-- <td data-label="Order ID"
-              >{String(
-                el[Object.keys(el)]["ordertxid"]
-              ).substr(0, 6)}</td
-            > -->
-            <!-- <td data-label="Poss Status"
-              >{el[Object.keys(el)]["posstatus"]}</td
-            > -->
-            <!-- <td data-label="Pos TXID"
-              >{String(
-                el[Object.keys(el)]["postxid"]
-              ).substr(0, 6)}</td
-            > -->
-            <td data-label="Prix">
+            <td data-label={$_("account.ownTrades.price")}>
               <div class="price">
                 <span class="block">{el[Object.keys(el)]["price"]}</span>
                 <span class="currency"
@@ -113,7 +101,7 @@
                 >
               </div>
             </td>
-            <td data-label="Volume">
+            <td data-label={$_("account.ownTrades.volume")}>
               <div class="volume">
                 <span class="block">{el[Object.keys(el)]["vol"]}</span>
                 <span class="currency"
@@ -121,17 +109,17 @@
                 >
               </div>
             </td>
-            <td data-label="Frais">
+            <td data-label={$_("account.ownTrades.fees")}>
               <div class="total-fee">
                 <span class="fee">
-                  <span class="label">Fee:</span>{el[Object.keys(el)][
-                    "fee"
-                  ]}</span
+                  <span class="label"
+                    >{$_("account.ownTrades.fees")} :
+                  </span>{el[Object.keys(el)]["fee"]}</span
                 >
-                <span class="margin_fee">
-                  <span class="label">Margin:</span>{el[Object.keys(el)][
-                    "margin"
-                  ]}</span
+                <span class={$_("account.ownTrades.fees")}>
+                  <span class="label"
+                    >{$_("account.ownTrades.marginFee")} :
+                  </span>{el[Object.keys(el)]["margin"]}</span
                 >
               </div>
             </td>
@@ -145,7 +133,8 @@
       <span class="prev">
         <i class="fa fa-caret-square-left" />
       </span>
-      <span class="total">compteur</span>
+      <span class="total">1 - 50 sur {count}</span>
+      {count / 50}
       <span class="next">
         <i class="fa fa-caret-square-right" />
       </span>

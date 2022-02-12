@@ -37,7 +37,7 @@
   },
   "home": {
     "title": "Accueil",
-    "choose_pair": "Veuillez choisir une paire",
+    "choosePair": "Veuillez choisir une paire",
     "chart": {
       "alert": {
         "succcess": "Une alert à été mise en place",
@@ -106,6 +106,146 @@
       "emailNotValid": "L'email indiqué n'est pas valide!",
       "passwordNotValid": "Votre mot de passe n'est pas valide ! <br />Minimum 8 caractères contenant une majuscule et un caractère spécial",
       "confirmPasswordNotValid": "Votre mot de passe ne correspond pas à votre confirmation de mot de passe"
+    }
+  },
+  "account": {
+    "title": "Mon compte kraken",
+    "choosePair": "Veuillez choisir une paire",
+    "tabs": {
+      "openOrders": "Ordres ouverts",
+      "closedOrders": "Ordres fermés",
+      "transaction": "Transactions",
+      "trades": "Trades",
+      "register": "Registre"
+    },
+    "balance": {
+      "title": "Solde du compte"
+    },
+    "tradeBalance": {
+      "title": "Solde de trading",
+      "title2": "Valorisation de la position",
+      "eb": {
+        "label": "Solde du compte",
+        "info": "Total des devises et crypto combiné"
+      },
+      "tb": {
+        "label": "Solde de transactions",
+        "info": "Soldes total des devises de marge"
+      },
+      "m": {
+        "label": "Marge utilisée",
+        "info": "Montant total de la marge utilisée sur les positions ouvertes"
+      },
+      "n": {
+        "label": "Perte/Profit",
+        "info": "Perte/Profit sur papier de toutes les positions ouvertes"
+      },
+      "c": {
+        "label": "Coût d'ouverture",
+        "info": "Coût initale de toutes les positions ouvertes"
+      },
+      "v": {
+        "label": "Valorisation actuelle",
+        "info": "Valeur théorique de toutes les positions ouverte"
+      },
+      "e": {
+        "label": "Équité",
+        "info": "Soldes de transactions combiné aux pertes/profits non réalisés"
+      },
+      "mf": {
+        "label": "Marge disponible",
+        "info": "Soldes de marge utilisable. Égal à l'équité moins la marge utilisée"
+      },
+      "ml": {
+        "label": "Niveau de marge",
+        "info": "Pourcentage d'équité par rapport à la marge utilisée"
+      }
+    },
+    "closedOrders": {
+      "title": "Ordres fermés",
+      "hideDisplayCanceled": "Cacher/Afficher les ordres annulées",
+      "hideDisplayClosed": "Cacher/Afficher les ordres fermés",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "statut": "Status",
+      "action": "Action",
+      "buy": "Acheter",
+      "sell": "Vendre"
+    },
+    "openOrders": {
+      "title": "Ordres ouverts",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "statut": "Status",
+      "action": "Action",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "getOpenOrders": {
+        "error": "Veuillez choisir une paire d'asset"
+      }
+    },
+    "ownTrades": {
+      "title": "Transactions",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "fees": "Frais",
+      "marginFee": "Frais de marge",
+      "buy": "Acheter",
+      "sell": "Vendre"
+    },
+    "ledgers": {
+      "title": "Registre",
+      "typeLabel": {
+        "margin": "Levier",
+        "rollover": "Roulement",
+        "trade": "Trader",
+        "staking": "Financement",
+        "deposit": "Dépôt",
+        "withdrawal": "Retrait"
+      },
+      "reference": "#id",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "amount": "Montant",
+      "fees": "Frais",
+      "solde": "Solde"
+    },
+    "tradesHistory": {
+      "title": "Historique des trades",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "fees": "Frais",
+      "marginFee": "Frais de marge",
+      "buy": "Acheter",
+      "sell": "Vendre"
+    },
+    "tradeVolume": {
+      "title": "Grille Tarifaire",
+      "volume": "Volume",
+      "volume30days": "Volume sur 30 jours",
+      "fees": "Frais",
+      "current": "Actuel",
+      "next": "Suivant",
+      "getTradeVolume": {
+        "error": "Veuillez choisir une paire d'asset"
+      }
     }
   }
 }

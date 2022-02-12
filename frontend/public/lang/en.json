@@ -37,7 +37,7 @@
   },
   "home": {
     "title": "Home",
-    "choose_pair": "Please choose a pair",
+    "choosePair": "Please choose a pair",
     "chart": {
       "alert": {
         "succcess": "An alert has been set up",
@@ -106,6 +106,146 @@
       "emailNotValid": "Your email is not valid!",
       "passwordNotValid": "Your password is invalid! <br />Minimum 8 characters containing a capital letter and a special character!",
       "confirmPasswordNotValid": "Your password is not corresponding with your password confirmation!"
+    }
+  },
+  "account": {
+    "title": "My kraken account",
+    "choosePair": "Please choose a pair",
+    "tabs": {
+      "openOrders": "Open orders",
+      "closedOrders": "Closed orders",
+      "transaction": "Transactions",
+      "trades": "Trades",
+      "register": "Register"
+    },
+    "balance": {
+      "title": "Account Balance"
+    },
+    "tradeBalance": {
+      "title": "Trading Balance",
+      "title2": "Position Valuation",
+      "eb": {
+        "label": "Account Balance",
+        "info": "Total of currencies and crypto combined"
+      },
+      "tb": {
+        "label": "Transaction Balance",
+        "info": "Total Margin Currency Balances"
+      },
+      "m": {
+        "label": "Margin used",
+        "info": "Total amount of margin used on open positions"
+      },
+      "n": {
+        "label": "Loss/Profit",
+        "info": "Loss/Profit on paper of all open positions"
+      },
+      "c": {
+        "label": "Opening cost",
+        "info": "Initial cost of all open positions"
+      },
+      "v": {
+        "label": "Current Valuation",
+        "info": "Theoretical value of all open positions"
+      },
+      "e": {
+        "label": "Enquity",
+        "info": "Trade balances combined with unrealized profit/loss"
+      },
+      "mf": {
+        "label": "Available Margin",
+        "info": "Usable margin balances. Equals equity minus used margin"
+      },
+      "ml": {
+        "label": "Margin level",
+        "info": "Equity percentage vs used margin"
+      }
+    },
+    "closedOrders": {
+      "title": "Closed orders",
+      "hideDisplayCanceled": "Hide/Show canceled orders",
+      "hideDisplayClosed": "Hide/Show closed orders",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Pair",
+      "price": "Price",
+      "volume": "Volume",
+      "cost": "Cost",
+      "statut": "Statut",
+      "action": "Action",
+      "buy": "Buy",
+      "sell": "Sell"
+    },
+    "openOrders": {
+      "title": "Open orders",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Pair",
+      "price": "Price",
+      "volume": "Volume",
+      "cost": "Cost",
+      "statut": "Statut",
+      "action": "Action",
+      "buy": "Buy",
+      "sell": "Sell",
+      "getOpenOrders": {
+        "error": "Please choose an asset pair"
+      }
+    },
+    "ownTrades": {
+      "title": "Transactions",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Pair",
+      "price": "Price",
+      "volume": "Volume",
+      "cost": "Cost",
+      "fees": "Fees",
+      "marginFee": "Margin fee",
+      "buy": "Buy",
+      "sell": "Sell"
+    },
+    "ledgers": {
+      "title": "Register",
+      "typeLabel": {
+        "margin": "Margin",
+        "rollover": "Rollover",
+        "trade": "Trade",
+        "staking": "Staking",
+        "deposit": "Deposit",
+        "withdrawal": "Withdrawal"
+      },
+      "reference": "#id",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Pair",
+      "amount": "Amount",
+      "fees": "Fees",
+      "solde": "Solde"
+    },
+    "tradesHistory": {
+      "title": "Trades History",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Pair",
+      "price": "Price",
+      "volume": "Volume",
+      "cost": "Cost",
+      "fees": "Fees",
+      "marginFee": "Margin fee",
+      "buy": "Buy",
+      "sell": "Sell"
+    },
+    "tradeVolume": {
+      "title": "Fee Schedule",
+      "volume": "Volume",
+      "volume30days": "Volume 30 days",
+      "fees": "Fees",
+      "current": "Current",
+      "next": "Next",
+      "getTradeVolume": {
+        "error": "Please choose an asset pair"
+      }
     }
   }
 }

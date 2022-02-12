@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
@@ -76,17 +77,17 @@
 </script>
 
 <div class="block tradeshistory">
-  <h4>Historique des trades</h4>
+  <h4>{$_("account.tradesHistory.title")}</h4>
   <table class="flex-table flex-fixhead-table">
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Date</th>
-        <th>Paire</th>
-        <th>Coût</th>
-        <th>Prix</th>
-        <th>Volume</th>
-        <th>Frais</th>
+        <th>{$_("account.tradesHistory.type")}</th>
+        <th>{$_("account.tradesHistory.date")}</th>
+        <th>{$_("account.tradesHistory.pair")}</th>
+        <th>{$_("account.tradesHistory.cost")}</th>
+        <th>{$_("account.tradesHistory.price")}</th>
+        <th>{$_("account.tradesHistory.volume")}</th>
+        <th>{$_("account.tradesHistory.fees")}</th>
       </tr>
     </thead>
     <tbody>
@@ -98,22 +99,25 @@
       {:else if tradeshistory}
         {#each tradeshistory as trade, i}
           <tr id={trade[0]} transition:fade>
-            <td data-label="Type" class={trade[1]["type"]}>
+            <td
+              data-label={$_("account.tradesHistory.type")}
+              class={trade[1]["type"]}
+            >
               <div classe="type">
                 {#if trade[1]["type"] === "buy"}
-                  <span class="buy">Acheter</span>
+                  <span class="buy">{$_("account.tradesHistory.buy")}</span>
                   <span class="ordertype">
                     {trade[1]["ordertype"]}
                   </span>
                 {:else}
-                  <span class="sell">Vendre</span>
+                  <span class="sell">{$_("account.tradesHistory.sell")}</span>
                   <span class="ordertype">
                     {trade[1]["ordertype"]}
                   </span>
                 {/if}
               </div>
             </td>
-            <td data-label="Date">
+            <td data-label={$_("account.tradesHistory.date")}>
               <div class="Date">
                 <span class="block">
                   {formatDate(trade[1]["time"], "D")}
@@ -123,31 +127,34 @@
                 </span>
               </div>
             </td>
-            <td data-label="Paire">
+            <td data-label={$_("account.tradesHistory.pair")}>
               <span class="currency">{trade[1]["pair"]}</span>
             </td>
-            <td data-label="Coût">
+            <td data-label={$_("account.tradesHistory.cost")}>
               <div class="cost">
                 <span class="block">{trade[1]["cost"]}</span>
               </div>
             </td>
-            <td data-label="Prix">
+            <td data-label={$_("account.tradesHistory.price")}>
               <div class="price">
                 <span class="block">{trade[1]["price"]}</span>
               </div>
             </td>
-            <td data-label="Volume">
+            <td data-label={$_("account.tradesHistory.volume")}>
               <div class="volume">
                 <span class="block">{trade[1]["vol"]}</span>
               </div>
             </td>
-            <td data-label="Frais">
+            <td data-label={$_("account.tradesHistory.fees")}>
               <div class="total-fee">
                 <span class="fee">
-                  <span class="label">Fee:</span>{trade[1]["fee"]}</span
+                  <span class="label">{$_("account.tradesHistory.fees")}:</span
+                  >{trade[1]["fee"]}</span
                 >
                 <span class="margin_fee">
-                  <span class="label">Margin:</span>{trade[1]["margin"]}</span
+                  <span class="label"
+                    >{$_("account.tradesHistory.marginFee")}:</span
+                  >{trade[1]["margin"]}</span
                 >
               </div>
             </td>
