@@ -39,6 +39,7 @@ const userSchema = mongoose.Schema({
   },
   resetPasswordToken: {
     type: String,
+    default: false
   },
   confirmationToken: {
     type: String,
@@ -66,12 +67,27 @@ const userSchema = mongoose.Schema({
   }
 });
 
+const generatePassword = (length) => {
+  const charSet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789^°!"§$%&/()=?`*+~\'#,;.:-_';
+  const password = Array.apply(null, Array(length || 10)).map(function () {
+    return charSet.charAt(Math.random() * charSet.length);
+  }).join('');
+
+  return checkPassword(password)
+}
+
+const checkPassword = (password) => {
+  let regex = new RegExp("^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\\W).*$", "g");
+  if (!regex.test(password)) return 'L2ug^25WVW';
+  else return password
+}
+
 // encrypt password using bcrypt conditionally. Only if the user is newly created.
 // Hash the plain text password before saving
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', function (next) {
   const user = this;
   if (user.isModified('password')) {
-    user.password = await bcrypt.hash(user.password, 8);
+    user.password = bcrypt.hashSync(user.password, 10);
   }
   next();
 });
@@ -133,7 +149,7 @@ userSchema.statics.findByCredentials = async (username, password) => {
   }
 
   // Check password
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = bcrypt.compareSync(password.trim(), user.password);
   if (!isMatch) {
     throw new Error('Unable to login. Wrong credentials!');
   }
@@ -170,6 +186,53 @@ userSchema.statics.findByConfirmToken = async function (confirmationToken) {
     user.confirmationToken = false;
     await user.save();
     return user.confirmed
+
+  } catch (error) {
+    return error;
+  }
+};
+
+// Search user by email
+userSchema.statics.findByEmail = async function (email, reset = false) {
+  let User = this;
+  if (!email) {
+    return new Error('Missing email');
+  }
+  const user = await User.findOne({ email });
+
+  if (user && reset) {
+    user.resetPasswordToken = uuidv4();
+    await user.save();
+  }
+
+  return user;
+};
+
+// create a custom model method to find user by reset Password Token
+userSchema.statics.findByForgotToken = async function (resetPasswordToken) {
+  let User = this;
+
+  try {
+    if (!resetPasswordToken) {
+      return false;
+    }
+  } catch (error) {
+    return error;
+  }
+
+  try {
+    const user = await User.findOne({ resetPasswordToken });
+
+    if (user === null) {
+      return false
+    }
+
+    let newPassword = generatePassword(15).trim();
+    user.password = newPassword;
+    user.resetPasswordToken = false;
+    await user.save();
+
+    return { user, newPassword }
 
   } catch (error) {
     return error;

@@ -1,6 +1,6 @@
 
 import User from '../../models/user';
-import { sendRegisterEmail } from '../Mailer.js'
+import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../Mailer.js'
 
 export const asyncVerifyJWTCtrl = async (req, reply) => {
 
@@ -87,6 +87,7 @@ export const loginCtrl = async (req, reply) => {
   }
 
   reply.send({
+    ok: true,
     status: 'You are logged in',
     token: req.user.token,
     user: {
@@ -125,6 +126,7 @@ export const refreshTokenCtrl = async (req, reply) => {
   }
 
   reply.send({
+    ok: true,
     status: 'You are refresh token',
     token: req.user.token,
     user: {
@@ -137,18 +139,81 @@ export const refreshTokenCtrl = async (req, reply) => {
   });
 }
 
-export const profileCtrl = async (req, reply) => {
-  reply.send({ status: 'Authenticated!', user: req.user });
-}
-
+/**
+ * forgotPasswordCtrl
+ * @description Traitement de la connexion utilisateur
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
 export const confirmEmailCtrl = async (req, reply) => {
 
   const { confirm_token } = req.params;
   const user = await User.findByConfirmToken(confirm_token);
 
   if (!user)
-    reply.code(303).redirect('http://localhost:5000?confirmation=notok')
+    reply.code(303).redirect(process.env.FRONTEND_URI + '?confirmation=notok')
   else
-    reply.redirect('http://localhost:5000?confirmation=ok')
+    reply.redirect(process.env.FRONTEND_URI + '?confirmation=ok')
 
+}
+
+/**
+ * forgotPasswordCtrl
+ * @description Traitement du mot de passe perdu
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const forgotPasswordCtrl = async (req, reply) => {
+
+  let response;
+  const email = req.body.email || false;
+  const user = await User.findByEmail(email, true);
+
+  if (user) {
+    const sendemail = await sendForgotPasswordEmail(user)
+    if (!sendemail.hasOwnProperty('from') || !sendemail.hasOwnProperty('to'))
+      reply.status(400).send("Mail not send, please contact us!");
+    else
+      response = { ok: true, status: `An email has been sent to ${email}` }
+  } else {
+    response = { ok: false, status: `We can't find you, sorry.` }
+  }
+
+  reply.send(response);
+}
+
+/**
+ * forgotPasswordConfirmCtrl
+ * @description Traitement du mot de passe perdu
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const forgotPasswordConfirmCtrl = async (req, reply) => {
+
+  const { resetPasswordToken } = req.params;
+  const response = await User.findByForgotToken(resetPasswordToken);
+
+  if (!response)
+    reply.code(303).redirect(process.env.FRONTEND_URI + '?reset=notok')
+  else {
+    const sendemail = await sendNewPasswordEmail(response)
+    if (!sendemail.hasOwnProperty('from') || !sendemail.hasOwnProperty('to'))
+      reply.code(303).redirect(process.env.FRONTEND_URI + '?reset=notok')
+    else
+      reply.redirect(process.env.FRONTEND_URI + '?reset=ok')
+  }
+}
+
+/**
+ * profileCtrl
+ * @description Traitement de la page profile
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const profileCtrl = async (req, reply) => {
+  reply.send({ ok: true, status: 'Authenticated!', user: req.user });
 }

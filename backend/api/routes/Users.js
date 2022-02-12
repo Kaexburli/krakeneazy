@@ -7,7 +7,9 @@ import {
   logoutCtrl,
   profileCtrl,
   confirmEmailCtrl,
-  refreshTokenCtrl
+  refreshTokenCtrl,
+  forgotPasswordCtrl,
+  forgotPasswordConfirmCtrl
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
@@ -61,12 +63,28 @@ export default function usersRoutes(fastify, options, done) {
         handler: refreshTokenCtrl
       });
 
-      // proifle route
+      // email-confirm
       fastify.route({
-        method: ['GET', 'HEAD'],
+        method: ['GET'],
         url: '/email-confirm/:confirm_token',
         logLevel: 'warn',
         handler: confirmEmailCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['POST'],
+        url: '/forgot-password',
+        logLevel: 'warn',
+        handler: forgotPasswordCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['GET'],
+        url: '/forgot-password-confirm/:resetPasswordToken',
+        logLevel: 'warn',
+        handler: forgotPasswordConfirmCtrl
       });
 
     });

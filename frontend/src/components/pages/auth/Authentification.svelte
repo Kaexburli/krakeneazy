@@ -1,5 +1,5 @@
 <script>
-  import { afterUpdate } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import {
     userRegister,
     userLogin,
@@ -16,6 +16,37 @@
   let isLoginFom = true;
   let isForgotFom = false;
   let formClass = isLoginFom ? "loginForm" : "registerForm";
+
+  const flashMessage = {
+    confirmation: {
+      ok: { message: "Votre email à bien été confirmé!", flag: "success" },
+      notok: { message: "Cette email a déja été confirmé!", flag: "error" },
+    },
+    reset: {
+      ok: {
+        message: "Un nouveau mot de passe vous a été envoyé par email!",
+        flag: "success",
+      },
+      notok: {
+        message:
+          "Une erreur c'est produite lors de la réinitialisation de votre mot de passe!",
+        flag: "error",
+      },
+    },
+  };
+
+  const checkQueryParamaters = (flashMessage) => {
+    const params = new URLSearchParams(window.location.search);
+    for (const [action, response] of params.entries()) {
+      const msg = Object.keys(flashMessage);
+      if (msg.includes(action)) {
+        Notification(
+          flashMessage[action][response]["message"],
+          flashMessage[action][response]["flag"]
+        );
+      }
+    }
+  };
 
   /**
    * resetForm
@@ -280,19 +311,18 @@
    * @returns { boolean } boolean
    */
   const processForgotPassword = async (data) => {
-    console.log("processForgotPassword", data);
     const forgot = await userForgotPassword(data);
-    console.log("FORGOT:", forgot);
-    if (forgot.hasOwnProperty("error")) {
+    if (!forgot.ok) {
       isLoading = false;
-      isError = forgot.message;
+      isError = !!forgot.status ? forgot.status : forgot.message;
       Notification(isError, "error");
       resetForm();
     } else {
-      console.log("Traitement des données cookie + localstorage");
       isLoading = false;
-      isSuccess = `Un email a ete envoyé!`;
+      isSuccess = forgot.status;
       Notification(isSuccess, "success");
+      resetForm();
+      toogleForgotForm();
     }
   };
 
@@ -347,19 +377,17 @@
     toogleColorIcon();
   });
 
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("confirmation")) {
-    const confirmation = params.get("confirmation");
-    if (confirmation === "ok")
-      Notification("Votre email à bien été confirmé!", "success");
-    else if (confirmation === "notok")
-      Notification("Cette email a déja été confirmé!", "error");
-  }
+  /**
+   * Method onMount
+   */
+  onMount(async () => {
+    checkQueryParamaters(flashMessage);
+  });
 </script>
 
 <form on:submit|preventDefault={onSubmit} class={formClass} id="authForm">
   <div class="logo">
-    <h1>WallTrade</h1>
+    <h1>Kurlitrade</h1>
   </div>
 
   {#if isError}
