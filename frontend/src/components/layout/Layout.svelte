@@ -10,10 +10,19 @@
   import { Modals, closeModal } from "svelte-modals";
   import { User } from "store/userStore.js";
 
+  /** I18n */
+  import { addMessages, init, getLocaleFromNavigator } from "svelte-i18n";
+  import en from "lang/en.json";
+  import fr from "lang/fr.json";
+  addMessages("en", en);
+  addMessages("fr", fr);
+  init({ fallbackLocale: "en", initialLocale: getLocaleFromNavigator() });
+
+  /** Authentification */
   let isLoggedIn;
   User.init();
 
-  /**** store */
+  /** store */
   $: isLoggedIn = User.isLogged();
 </script>
 

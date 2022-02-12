@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount, afterUpdate } from "svelte";
   import {
     userRegister,
@@ -8,7 +9,6 @@
   } from "utils/userApi.js";
   import { SvelteToast, toast } from "@zerodevx/svelte-toast";
   import { Moon } from "svelte-loading-spinners";
-
   import { User } from "store/userStore.js";
 
   let isLoading = false;
@@ -20,19 +20,12 @@
 
   const flashMessage = {
     confirmation: {
-      ok: { message: "Votre email à bien été confirmé!", flag: "success" },
-      notok: { message: "Cette email a déja été confirmé!", flag: "error" },
+      ok: { message: $_("auth.emailConfirmSuccess"), flag: "success" },
+      notok: { message: $_("auth.emailConfirmError"), flag: "error" },
     },
     reset: {
-      ok: {
-        message: "Un nouveau mot de passe vous a été envoyé par email!",
-        flag: "success",
-      },
-      notok: {
-        message:
-          "Une erreur c'est produite lors de la réinitialisation de votre mot de passe!",
-        flag: "error",
-      },
+      ok: { message: $_("auth.resetConfirmSuccess"), flag: "success" },
+      notok: { message: $_("auth.resetConfirmError"), flag: "error" },
     },
   };
 
@@ -172,22 +165,26 @@
    */
   const isFormValid = (data) => {
     if (isRequiredFieldValid(data)) {
-      isError = `All fields is required!`;
+      isError = $_("auth.error.fieldsRequire");
+      isLoading = false;
       return false;
     }
 
     if (isValidEmail(data)) {
-      isError = `Your email is not valid!`;
+      isError = $_("auth.error.emailNotValid");
+      isLoading = false;
       return false;
     }
 
     if (isValidPassword(data)) {
-      isError = `Your password is not valid! <br />Minimum 8 caractères contenant une majuscules et un caractère spécial`;
+      isError = $_("auth.error.passwordNotValid");
+      isLoading = false;
       return false;
     }
 
     if (isValidPswdConfirmation(data)) {
-      isError = `Your password is not corresponding with your password confirmation`;
+      isError = $_("auth.error.confirmPasswordNotValid");
+      isLoading = false;
       return false;
     }
 
@@ -304,8 +301,6 @@
           processForgotPassword(data);
           break;
       }
-    } else {
-      isError = "Invalid Form";
     }
   };
 
@@ -351,7 +346,7 @@
       }
     } else {
       isLoading = false;
-      isSuccess = `Bienvenue ${login.user.firstname}!`;
+      isSuccess = `${$_("auth.welcome")} ${login.user.firstname}!`;
       Notification(isSuccess, "success", true);
       resetForm();
       User.signin({ token: login.token });
@@ -373,7 +368,9 @@
       Notification(isError, "error");
     } else {
       isLoading = false;
-      isSuccess = `Bienvenue ${register.user.firstname}! Votre compte a bien été créé! <br /> Veuillez confirmer votre adresse email (${register.user.email}).`;
+      isSuccess = `${$_("auth.welcome")} ${register.user.firstname}! ${$_(
+        "auth.welcomeMessage"
+      )} (${register.user.email}).`;
       Notification(isSuccess, "success");
       resetForm();
       toogleForm();
@@ -397,7 +394,7 @@
 
 <form on:submit|preventDefault={onSubmit} class={formClass} id="authForm">
   <div class="logo">
-    <h1>Kurlitrade</h1>
+    <h1>{$_("site.name")}</h1>
   </div>
 
   {#if isError}
@@ -413,7 +410,7 @@
       <h2>
         <span class="entypo-login">
           <i class="fa fa-sign-in" />
-        </span>&nbsp; Login
+        </span>&nbsp; {$_("auth.login")}
         <div id="clockloader">
           {#if isLoading}
             <Moon size="30" color="#e8e8e8" unit="px" duration="1s" />
@@ -432,7 +429,7 @@
         <input
           type="email"
           class="input"
-          placeholder="Email"
+          placeholder={$_("auth.email")}
           name="log_email"
           required
         />
@@ -442,15 +439,15 @@
         <input
           type="password"
           class="input"
-          placeholder="Password"
+          placeholder={$_("auth.password")}
           name="log_password"
           required
         />
         <input type="checkbox" id="remember_me" name="remember_me" />
         <input type="hidden" name="action" value="login" />
-        <label for="remember_me">Remember me</label>
+        <label for="remember_me">{$_("auth.rememberMe")}</label>
         <a href="/" on:click|preventDefault={toogleForm}>
-          Register&nbsp;
+          {$_("auth.register")}&nbsp;
           <i class="fa fa-user-plus" />
         </a>
         <a
@@ -458,7 +455,7 @@
           style="margin-right: 10px;"
           on:click|preventDefault={toogleForgotForm}
         >
-          Forgot password&nbsp;
+          {$_("auth.forgotPassword")}&nbsp;
           <i class="fa fa-refresh" />
         </a>
       </div>
@@ -466,7 +463,7 @@
       <h2>
         <span class="entypo-login">
           <i class="fa fa-sign-in" />
-        </span>&nbsp; Forgot password
+        </span>&nbsp; {$_("auth.forgotPassword")}
         <div id="clockloader">
           {#if isLoading}
             <Moon size="30" color="#e8e8e8" unit="px" duration="1s" />
@@ -485,13 +482,13 @@
         <input
           type="email"
           class="input"
-          placeholder="Email"
+          placeholder={$_("auth.email")}
           name="forgot_email"
           required
         />
         <input type="hidden" name="action" value="forgotpasswd" />
         <a href="/" on:click|preventDefault={toogleForgotForm}>
-          Login&nbsp;
+          {$_("auth.login")}&nbsp;
           <i class="fa fa-sign-in" />
         </a>
       </div>
@@ -500,7 +497,7 @@
     <h2>
       <span class="entypo-register">
         <i class="fa fa-user-plus" />
-      </span>&nbsp; Register
+      </span>&nbsp; {$_("auth.register")}
       <div id="clockloader">
         {#if isLoading}
           <Moon size="30" color="#e8e8e8" unit="px" duration="1s" />
@@ -519,7 +516,7 @@
       <input
         type="text"
         class="input"
-        placeholder="Firstname"
+        placeholder={$_("auth.firstname")}
         name="reg_firstname"
         required
       />
@@ -529,7 +526,7 @@
       <input
         type="text"
         class="input"
-        placeholder="Lastname"
+        placeholder={$_("auth.lastname")}
         name="reg_lastname"
         required
       />
@@ -539,7 +536,7 @@
       <input
         type="email"
         class="input"
-        placeholder="Email"
+        placeholder={$_("auth.email")}
         name="reg_email"
         required
       />
@@ -549,7 +546,7 @@
       <input
         type="password"
         class="input"
-        placeholder="Password"
+        placeholder={$_("auth.password")}
         name="reg_password"
         required
       />
@@ -559,13 +556,13 @@
       <input
         type="password"
         class="input"
-        placeholder="Confirm password"
+        placeholder={$_("auth.passwordConfirm")}
         name="reg_password_confirm"
         required
       />
       <input type="hidden" name="action" value="register" />
       <a href="/" on:click|preventDefault={toogleForm}>
-        Login&nbsp;
+        {$_("auth.login")}&nbsp;
         <i class="fa fa-sign-in" />
       </a>
     </div>

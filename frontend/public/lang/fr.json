@@ -1,0 +1,31 @@
+{
+  "site": {
+    "name": "Kurlitrade"
+  },
+  "home": {
+    "title": "home FR"
+  },
+  "auth": {
+    "login": "Connexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "rememberMe": "Me reconnaître",
+    "forgotPassword": "Réinitialiser",
+    "register": "Inscription",
+    "lastname": "Nom",
+    "firstname": "Prénom",
+    "passwordConfirm": "Confirmation mot de passe",
+    "emailConfirmSuccess": "Votre email à bien été confirmé!",
+    "emailConfirmError": "Cette email a déja été confirmé!",
+    "resetConfirmSuccess": "Un nouveau mot de passe vous a été envoyé par email!",
+    "resetConfirmError": "Une erreur c'est produite lors de la réinitialisation de votre mot de passe!",
+    "welcome": "Bienvenue",
+    "welcomeMessage": "Votre compte a bien été créé! <br /> Veuillez confirmer votre adresse email",
+    "error": {
+      "fieldsRequire": "Tous les champs sont requis!",
+      "emailNotValid": "L'email indiqué n'est pas valide!",
+      "passwordNotValid": "Votre mot de passe n'est pas valide ! <br />Minimum 8 caractères contenant une majuscule et un caractère spécial",
+      "confirmPasswordNotValid": "Votre mot de passe ne correspond pas à votre confirmation de mot de passe"
+    }
+  }
+}

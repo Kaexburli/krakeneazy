@@ -19,6 +19,7 @@ const aliases = alias({
     { find: 'store', replacement: 'src/store' },
     { find: 'utils', replacement: 'src/utils' },
     { find: 'machin', replacement: 'src/xstate' },
+    { find: 'lang', replacement: 'public/lang' },
   ]
 });
 

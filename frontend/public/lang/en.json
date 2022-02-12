@@ -1,0 +1,31 @@
+{
+  "site": {
+    "name": "Kurlitrade"
+  },
+  "home": {
+    "title": "home EN"
+  },
+  "auth": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password",
+    "register": "Register",
+    "lastname": "Lastname",
+    "firstname": "Firstname",
+    "passwordConfirm": "Confirma password",
+    "emailConfirmSuccess": "Your email has been confirmed!",
+    "emailConfirmError": "This email has already been confirmed!",
+    "resetConfirmSuccess": "A new password has been emailed to you!",
+    "resetConfirmError": "An error occurred while resetting your password!",
+    "welcome": "Welcome",
+    "welcomeMessage": "Your account has been created! <br /> Please confirm your email address",
+    "error": {
+      "fieldsRequire": "All fields is required!",
+      "emailNotValid": "Your email is not valid!",
+      "passwordNotValid": "Your password is invalid! <br />Minimum 8 characters containing a capital letter and a special character!",
+      "confirmPasswordNotValid": "Your password is not corresponding with your password confirmation!"
+    }
+  }
+}
