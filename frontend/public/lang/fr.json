@@ -2,14 +2,81 @@
   "site": {
     "name": "Kurlitrade"
   },
+  "sidebar": {
+    "home": "Accueil",
+    "account": "Compte",
+    "trading": "Trading",
+    "statistics": "Statistiques",
+    "reports": "Rapports",
+    "settings": "Paramètres"
+  },
+  "header": {
+    "assetPairSearch": {
+      "placeholder": "Rechercher une paire..."
+    }
+  },
+  "footer": {
+    "clock": {
+      "display_since": "Affiché depuis:",
+      "sec_singular": "seconde",
+      "sec_plurial": "secondes"
+    }
+  },
   "home": {
-    "title": "home FR"
+    "title": "Accueil",
+    "choose_pair": "Veuillez choisir une paire",
+    "chart": {
+      "alert": {
+        "succcess": "Une alert à été mise en place",
+        "error": "Le prix doit être positif",
+        "menuDel": "Suppression des alertes",
+        "menuConfirmDel": "Veuillez confirmer la supression des alertes pour la paire",
+        "createAlert": "Créer une alerte",
+        "delAlerts": "Supprimer toutes les alertes"
+      },
+      "checkbox": {
+        "tooltip": "Tooltip",
+        "position": "Positions",
+        "orders": "Ordres",
+        "magnet": "Magnet",
+        "loga": "Logarithmique",
+        "volume": "Volume"
+      }
+    },
+    "book": {
+      "totalVolume": "Volume total",
+      "spread": "Spread",
+      "time": "Temps",
+      "volume": "Volume",
+      "price": "Prix"
+    },
+    "ticker": {
+      "ask": "Vente",
+      "bid": "Achat",
+      "currentPrice": "Prix actuel",
+      "volume": "Volume",
+      "vwap": "VWAP",
+      "numberOfTrade": "Nombre de trades",
+      "lowPrice": "Plus bas prix",
+      "highPrice": "Plus haut prix",
+      "openPrice": "Prix d'ouverture",
+      "closePrice": "Plus de fermeture",
+      "askValue": "Offre de vente",
+      "bidValue": "Offre d'achat",
+      "totalVolume": "Volume total",
+      "lotVolume": "Volume du lot",
+      "price": "Prix",
+      "spread": "Spread",
+      "today": "Aujourd'hui",
+      "last24h": "Dernière 24H"
+    }
   },
   "auth": {
+    "title": "Authentification",
     "login": "Connexion",
     "email": "Email",
     "password": "Mot de passe",
-    "rememberMe": "Me reconnaître",
+    "rememberMe": "Prolonger",
     "forgotPassword": "Réinitialiser",
     "register": "Inscription",
     "lastname": "Nom",

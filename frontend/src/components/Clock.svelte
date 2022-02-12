@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { time, elapsed } from "store/store.js";
 
   let long = {
@@ -36,9 +37,11 @@
 <div class="clock">
   {formatter.format($time)}
 
-  Affiché depuis:
+  {$_("footer.clock.display_since")}
   {$elapsed}
-  {$elapsed === 1 ? "second" : "seconds"}
+  {$elapsed === 1
+    ? $_("footer.clock.sec_singular")
+    : $_("footer.clock.sec_plurial")}
 </div>
 
 <style>

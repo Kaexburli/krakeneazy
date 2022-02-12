@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import Fetch from "utils/Runfetch.js";
   import { fetchurl, pair, assetpair, assetpairs } from "store/store.js";
   import { DoubleBounce } from "svelte-loading-spinners";
@@ -89,7 +90,7 @@
     <input
       id="inputsearchassetpair"
       type="text"
-      placeholder="Rechercher une paire..."
+      placeholder={$_("header.assetPairSearch.placeholder")}
       bind:this={assetpairVal}
       on:blur={onBlur}
       on:focus={onFocus}

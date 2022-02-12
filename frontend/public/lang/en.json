@@ -2,11 +2,78 @@
   "site": {
     "name": "Kurlitrade"
   },
+  "sidebar": {
+    "home": "Home",
+    "account": "Account",
+    "trading": "Trading",
+    "statistics": "Statistics",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "header": {
+    "assetPairSearch": {
+      "placeholder": "Search a pair..."
+    }
+  },
+  "footer": {
+    "clock": {
+      "display_since": "Display since:",
+      "sec_singular": "second",
+      "sec_plurial": "seconds"
+    }
+  },
   "home": {
-    "title": "home EN"
+    "title": "Home",
+    "choose_pair": "Please choose a pair",
+    "chart": {
+      "alert": {
+        "succcess": "An alert has been set up",
+        "error": "The price must be po,sitive",
+        "menuDel": "Delete alerts",
+        "menuConfirmDel": "Please confirm clearing alerts for the pair",
+        "createAlert": "Create an alert",
+        "delAlerts": "Delete all alerts"
+      },
+      "checkbox": {
+        "tooltip": "Tooltip",
+        "position": "Positions",
+        "orders": "Orders",
+        "magnet": "Magnet",
+        "loga": "Logarithmique",
+        "volume": "Volume"
+      }
+    },
+    "book": {
+      "totalVolume": "Total volume",
+      "spread": "Spread",
+      "time": "Time",
+      "volume": "Volume",
+      "price": "Price"
+    },
+    "ticker": {
+      "ask": "Ask",
+      "bid": "Bid",
+      "currentPrice": "Current price",
+      "volume": "Volume",
+      "vwap": "VWAP",
+      "numberOfTrade": "Number of trades",
+      "lowPrice": "Low Price",
+      "highPrice": "High Price",
+      "openPrice": "Open Price",
+      "closePrice": "Close Price",
+      "askValue": "Sell offer",
+      "bidValue": "Bid to Buy",
+      "totalVolume": "Total Volume",
+      "lotVolume": "Total Volume",
+      "price": "Price",
+      "spread": "Spread",
+      "today": "Today",
+      "last24h": "Last 24H"
+    }
   },
   "auth": {
-    "title": "Login",
+    "title": "Authentification",
+    "login": "Login",
     "email": "Email",
     "password": "Password",
     "rememberMe": "Remember me",
@@ -14,7 +81,7 @@
     "register": "Register",
     "lastname": "Lastname",
     "firstname": "Firstname",
-    "passwordConfirm": "Confirma password",
+    "passwordConfirm": "Confirm password",
     "emailConfirmSuccess": "Your email has been confirmed!",
     "emailConfirmError": "This email has already been confirmed!",
     "resetConfirmSuccess": "A new password has been emailed to you!",

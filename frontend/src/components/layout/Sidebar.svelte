@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { page } from "store/store.js";
 
   const handleClickMenu = (slug) => {
@@ -6,12 +7,16 @@
   };
 
   const pages = [
-    { name: "Accueil", slug: "home", icon: "fa-home" },
-    { name: "Compte", slug: "account", icon: "fa-user-shield" },
-    { name: "Trading", slug: "trading", icon: "fa-desktop" },
-    { name: "Statistiques", slug: "statistic", icon: "fa-tachometer-alt" },
-    { name: "Rapports", slug: "reports", icon: "fa-chart-line" },
-    { name: "Paramètres", slug: "settings", icon: "fa-cog" },
+    { name: $_("sidebar.home"), slug: "home", icon: "fa-home" },
+    { name: $_("sidebar.account"), slug: "account", icon: "fa-user-shield" },
+    { name: $_("sidebar.trading"), slug: "trading", icon: "fa-desktop" },
+    {
+      name: $_("sidebar.statistics"),
+      slug: "statistic",
+      icon: "fa-tachometer-alt",
+    },
+    { name: $_("sidebar.reports"), slug: "reports", icon: "fa-chart-line" },
+    { name: $_("sidebar.settings"), slug: "settings", icon: "fa-cog" },
   ];
 </script>
 
