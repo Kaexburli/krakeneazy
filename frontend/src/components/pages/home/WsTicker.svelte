@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount, createEventDispatcher } from "svelte";
   import { ticker } from "store/wsstore.js";
   import { assetpair } from "store/store.js";
@@ -32,76 +33,94 @@
 <div class="tick-block">
   {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
     <div class="tick ask-tick">
-      <h3>Vente</h3>
-      <span class="label">Offre de vente : </span>{Number(
+      <h3>{$_("home.ticker.ask")}</h3>
+      <span class="label">{$_("home.ticker.askValue")} : </span>{Number(
         tickerdata["a"][0]
       ).toFixed(decimals)}&nbsp;{quote}
       <br />
-      <span class="label">Volume total : </span>{tickerdata["a"][1]} <br />
-      <span class="label">Volume du lot : </span>{tickerdata["a"][2]}
+      <span class="label">
+        {$_("home.ticker.totalVolume")} :
+      </span>{tickerdata["a"][1]} <br />
+      <span class="label">
+        {$_("home.ticker.lotVolume")} :
+      </span>{tickerdata["a"][2]}
     </div>
     <div class="tick close-tick">
-      <h3>Prix actuel</h3>
-      <span class="label">Prix : </span>{Number(tickerdata["c"][0]).toFixed(
-        decimals
-      )}&nbsp;{quote}
+      <h3>{$_("home.ticker.currentPrice")}</h3>
+      <span class="label"> {$_("home.ticker.price")} : </span>{Number(
+        tickerdata["c"][0]
+      ).toFixed(decimals)}&nbsp;{quote}
       <br />
-      <span class="label">Volume total : </span>{tickerdata["c"][1]} <br />
-      <span class="label">Spread : </span>{spread}
+      <span class="label">
+        {$_("home.ticker.totalVolume")} :
+      </span>{tickerdata["c"][1]} <br />
+      <span class="label">{$_("home.ticker.spread")} : </span>{spread}
     </div>
     <div class="tick bid-tick">
-      <h3>Achat</h3>
-      <span class="label">Offre d'achat : </span>{Number(
+      <h3>{$_("home.ticker.bid")}</h3>
+      <span class="label">{$_("home.ticker.bidValue")} : </span>{Number(
         tickerdata["b"][0]
       ).toFixed(decimals)}&nbsp;{quote} <br />
-      <span class="label">Volume total : </span>{tickerdata["b"][1]} <br />
-      <span class="label">Volume du lot : </span>{tickerdata["b"][2]}
+      <span class="label">
+        {$_("home.ticker.totlaVolume")} :
+      </span>{tickerdata["b"][1]} <br />
+      <span class="label">
+        {$_("home.ticker.lotVolume")} :
+      </span>{tickerdata["b"][2]}
     </div>
     <div class="tick volume-tick">
-      <h3>Volume</h3>
-      <span class="label">Aujourd'hui : </span>{tickerdata["v"][0]} <br />
-      <span class="label">Dernière 24H : </span>{tickerdata["v"][1]}
+      <h3>{$_("home.ticker.volume")}</h3>
+      <span class="label">
+        {$_("home.ticker.today")} :
+      </span>{tickerdata["v"][0]} <br />
+      <span class="label">
+        {$_("home.ticker.last24h")} :
+      </span>{tickerdata["v"][1]}
     </div>
     <div class="tick vwap-tick">
-      <h3>VWAP</h3>
-      <span class="label">Aujourd'hui : </span>{Number(
-        tickerdata["p"][0]
-      ).toFixed(decimals)}&nbsp;{quote} <br />
-      <span class="label">Dernière 24H : </span>{Number(
-        tickerdata["p"][1]
-      ).toFixed(decimals)}&nbsp;{quote}
+      <h3>{$_("home.ticker.vwap")}</h3>
+      <span class="label">
+        {$_("home.ticker.today")} :
+      </span>{Number(tickerdata["p"][0]).toFixed(decimals)}&nbsp;{quote} <br />
+      <span class="label">
+        {$_("home.ticker.last24h")} :
+      </span>{Number(tickerdata["p"][1]).toFixed(decimals)}&nbsp;{quote}
     </div>
     <div class="tick trade-tick">
-      <h3>Nombre de trades</h3>
-      <span class="label">Aujourd'hui : </span>{tickerdata["t"][0]} <br />
-      <span class="label">Dernière 24H : </span>{tickerdata["t"][1]}
+      <h3>{$_("home.ticker.numberOfTrade")}</h3>
+      <span class="label">
+        {$_("home.ticker.today")} :
+      </span>{tickerdata["t"][0]} <br />
+      <span class="label">
+        {$_("home.ticker.last24h")} :
+      </span>{tickerdata["t"][1]}
     </div>
     <div class="tick low-tick">
-      <h3>Plus bas prix</h3>
-      <span class="label">Aujourd'hui : </span>{Number(
-        tickerdata["l"][0]
-      ).toFixed(decimals)}&nbsp;{quote} <br />
-      <span class="label">Dernière 24H : </span>{Number(
-        tickerdata["l"][1]
-      ).toFixed(decimals)}&nbsp;{quote}
+      <h3>{$_("home.ticker.lowPrice")}</h3>
+      <span class="label">
+        {$_("home.ticker.today")} :
+      </span>{Number(tickerdata["l"][0]).toFixed(decimals)}&nbsp;{quote} <br />
+      <span class="label">
+        {$_("home.ticker.last24h")} :
+      </span>{Number(tickerdata["l"][1]).toFixed(decimals)}&nbsp;{quote}
     </div>
     <div class="tick hight-tick">
-      <h3>Plus haut prix</h3>
-      <span class="label">Aujourd'hui : </span>{Number(
-        tickerdata["h"][0]
-      ).toFixed(decimals)}&nbsp;{quote} <br />
-      <span class="label">Dernière 24H : </span>{Number(
-        tickerdata["h"][1]
-      ).toFixed(decimals)}&nbsp;{quote}
+      <h3>{$_("home.ticker.highPrice")}</h3>
+      <span class="label">
+        {$_("home.ticker.today")} :
+      </span>{Number(tickerdata["h"][0]).toFixed(decimals)}&nbsp;{quote} <br />
+      <span class="label">
+        {$_("home.ticker.last24h")} :
+      </span>{Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
     </div>
     <div class="tick open-tick">
-      <h3>Prix d'ouverture</h3>
-      <span class="label">Aujourd'hui : </span>{Number(
-        tickerdata["o"][0]
-      ).toFixed(decimals)}&nbsp;{quote} <br />
-      <span class="label">Dernière 24H : </span>{Number(
-        tickerdata["h"][1]
-      ).toFixed(decimals)}&nbsp;{quote}
+      <h3>{$_("home.ticker.openPrice")}</h3>
+      <span class="label">
+        {$_("home.ticker.today")} :
+      </span>{Number(tickerdata["o"][0]).toFixed(decimals)}&nbsp;{quote} <br />
+      <span class="label">
+        {$_("home.ticker.last24h")} :
+      </span>{Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
     </div>
   {/if}
 </div>

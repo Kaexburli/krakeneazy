@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount, createEventDispatcher } from "svelte";
   import { assetpair } from "store/store.js";
   import { book, ticker, spread, trade } from "store/wsstore.js";
@@ -114,10 +115,14 @@
       </div>
       <div id="current-infos">
         <div id="current-volume">
-          <span class="label">Volume total : </span>{tickerdata["c"][1]}
+          <span class="label">
+            {$_("home.book.totalVolume")} :
+          </span>{tickerdata["c"][1]}
         </div>
         <div id="current-spread">
-          <span class="label">Spread : </span>{spread_calcul}
+          <span class="label">
+            {$_("home.book.spread")} :
+          </span>{spread_calcul}
         </div>
       </div>
     </div>
@@ -127,10 +132,10 @@
       {#each asks as a, i}
         {#if i === 0}
           <li class="ask ask-label" id="ask-{i}">
-            <span class="time-label">Time</span>
-            <span class="vol-total-label">Total Volume</span>
-            <span class="volume-label">Volume</span>
-            <span class="price-label">Price</span>
+            <span class="time-label">{$_("home.book.time")}</span>
+            <span class="vol-total-label">{$_("home.book.totalVolume")}</span>
+            <span class="volume-label">{$_("home.book.volume")}</span>
+            <span class="price-label">{$_("home.book.price")}</span>
           </li>
         {/if}
         {#if ask && i == 0}
@@ -153,10 +158,10 @@
       {#each bids as b, i}
         {#if i === 0}
           <li class="bid bid-label" id="bid-{i}">
-            <span class="price-label">Price</span>
-            <span class="volume-label">Volume</span>
-            <span class="vol-total-label">Total Volume</span>
-            <span class="time-label">Time</span>
+            <span class="price-label">{$_("home.book.price")}</span>
+            <span class="volume-label">{$_("home.book.volume")}</span>
+            <span class="vol-total-label">{$_("home.book.totalVolume")}</span>
+            <span class="time-label">{$_("home.book.time")}</span>
           </li>
         {/if}
         {#if bid && i == 0}

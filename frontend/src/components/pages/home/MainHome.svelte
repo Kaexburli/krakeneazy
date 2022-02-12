@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { pair, assetpair } from "store/store.js";
   import { slide } from "svelte/transition";
   import { Moon } from "svelte-loading-spinners";
@@ -37,10 +38,10 @@
       <div id="BlockOrderBooks"><OrderBooksWs /></div>
     </div>
   {:else}
-    <h1>Accueil</h1>
+    <h1>{$_("home.title")}</h1>
     <div class="main-info">
       <i class="fas fa-info-circle" />
-      <span>Veuillez choisir une paire</span>
+      <span>{$_("home.choose_pair")}</span>
     </div>
   {/if}
 </div>

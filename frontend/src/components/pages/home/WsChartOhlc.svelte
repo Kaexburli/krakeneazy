@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { ohlc, ticker, openorders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
@@ -612,7 +613,7 @@
         ];
       }
       toast.push(
-        `Une alert à été mise en place <strong>${pair}@${price}</strong>`,
+        `${$_("home.chart.alert.succcess")} <strong>${pair}@${price}</strong>`,
         {
           target: "new",
           theme: {
@@ -622,7 +623,7 @@
         }
       );
     } else {
-      toast.push("Le prix doit être positif", {
+      toast.push($_("home.chart.alert.error"), {
         target: "new",
         theme: {
           "--toastBackground": "#F56565",
@@ -637,8 +638,8 @@
    ************************/
   const removeAllAlertPrice = (pair) => {
     openModal(ConfirmModal, {
-      title: `[${pair}] Suppression des alertes`,
-      message: `Veuillez confirmer la supression des alertes pour la paire : ${pair}`,
+      title: `[${pair}] ${$_("home.chart.alert.menuDel")}`,
+      message: `${$_("home.chart.alert.menuConfirmDel")} : ${pair}`,
       confirm: () => {
         $pricealertlist[pair] = { up: [], down: [] };
         closeModal();
@@ -796,7 +797,9 @@
       id="active-tooltip"
       bind:checked={activetooltip}
     />
-    <label class="label-checkbox" for="active-tooltip">Tooltip</label>
+    <label class="label-checkbox" for="active-tooltip"
+      >{$_("home.chart.checkbox.tooltip")}</label
+    >
     <input
       type="checkbox"
       name="active-positions"
@@ -806,7 +809,7 @@
     <label
       class="label-checkbox"
       for="active-positions"
-      id="label-active-positions">Positions</label
+      id="label-active-positions">{$_("home.chart.checkbox.position")}</label
     >
     <input
       type="checkbox"
@@ -815,7 +818,7 @@
       bind:checked={activeOrders}
     />
     <label class="label-checkbox" for="active-orders" id="label-active-orders"
-      >Ordres</label
+      >{$_("home.chart.checkbox.orders")}</label
     >
     <input
       type="checkbox"
@@ -824,7 +827,9 @@
       bind:checked={crosshairMode}
       on:change={handleCrosshairMode}
     />
-    <label class="label-checkbox" for="crosshair-mode">Magnet</label>
+    <label class="label-checkbox" for="crosshair-mode"
+      >{$_("home.chart.checkbox.magnet")}</label
+    >
     <input
       type="checkbox"
       name="pricescale-mode"
@@ -832,7 +837,9 @@
       bind:checked={rightPriceScaleMode}
       on:change={handleRightPriceScaleMode}
     />
-    <label class="label-checkbox" for="pricescale-mode">Logarithmique</label>
+    <label class="label-checkbox" for="pricescale-mode"
+      >{$_("home.chart.checkbox.loga")}</label
+    >
     <input
       type="checkbox"
       name="volume-chart"
@@ -840,7 +847,9 @@
       bind:checked={volumeDisplaying}
       on:change={(n) => !volumeDisplaying}
     />
-    <label class="label-checkbox" for="volume-chart">Volume</label>
+    <label class="label-checkbox" for="volume-chart"
+      >{$_("home.chart.checkbox.volume")}</label
+    >
   </div>
   <div class="chart-block">
     <select
@@ -878,12 +887,14 @@
     <div class="floating-tooltip {type}" />
     <div id="rightclickmenu">
       <a href="/" on:click={createAlertPrice(pricealert, $assetpair.wsname)}>
-        <i class="fa fa-bell">&nbsp;</i> Créer une alerte
+        <i class="fa fa-bell">&nbsp;</i>
+        {$_("home.chart.alert.createAlert")}
         <span id="pricealert">@{pricealert}</span>
       </a>
       {#if hasAlertForPair}
         <a href="/" on:click={removeAllAlertPrice($assetpair.wsname)}>
-          <i class="fa fa-trash">&nbsp;</i> Supprimer toutes les alertes
+          <i class="fa fa-trash">&nbsp;</i>
+          {$_("home.chart.alert.delAlerts")}
         </a>
       {/if}
       <!-- <hr />
