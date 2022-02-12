@@ -100,6 +100,13 @@ export const loginCtrl = async (req, reply) => {
   });
 }
 
+/**
+ * logoutCtrl
+ * @description Traitement de la déconnexion utilisateur
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
 export const logoutCtrl = async (req, reply) => {
   try {
     req.user.token = false
@@ -140,7 +147,7 @@ export const refreshTokenCtrl = async (req, reply) => {
 }
 
 /**
- * forgotPasswordCtrl
+ * confirmEmailCtrl
  * @description Traitement de la connexion utilisateur
  * @param { Object } req Object request
  * @param { Object } reply Object replying
@@ -155,6 +162,33 @@ export const confirmEmailCtrl = async (req, reply) => {
     reply.code(303).redirect(process.env.FRONTEND_URI + '?confirmation=notok')
   else
     reply.redirect(process.env.FRONTEND_URI + '?confirmation=ok')
+
+}
+
+/**
+ * resendConfirmEmailCtrl
+ * @description Traitement de l'inscription utilisateur
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const resendConfirmEmailCtrl = async (req, reply) => {
+
+  let response;
+  const email = req.body.email || false;
+  const user = await User.findByEmail(email, true);
+
+  if (user) {
+    const sendemail = await sendRegisterEmail(user)
+    if (!sendemail.hasOwnProperty('from') || !sendemail.hasOwnProperty('to'))
+      reply.status(400).send("Mail not send, please contact us!");
+    else
+      response = { ok: true, status: `An email has been sent to ${email}` }
+  } else {
+    response = { ok: false, status: `We can't find you, sorry.` }
+  }
+
+  reply.send(response);
 
 }
 

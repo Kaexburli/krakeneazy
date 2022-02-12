@@ -4,6 +4,7 @@
     userRegister,
     userLogin,
     userForgotPassword,
+    resendConfirmEmail,
   } from "utils/userApi.js";
   import { SvelteToast, toast } from "@zerodevx/svelte-toast";
   import { Moon } from "svelte-loading-spinners";
@@ -35,6 +36,10 @@
     },
   };
 
+  /**
+   * checkQueryParamaters
+   * @description Vérifie les paramètres de l'url
+   */
   const checkQueryParamaters = (flashMessage) => {
     const params = new URLSearchParams(window.location.search);
     for (const [action, response] of params.entries()) {
@@ -339,6 +344,11 @@
       isError = login.message;
       Notification(isError, "error");
       resetForm();
+
+      if (isError.includes("confirmed")) {
+        const resend = await resendConfirmEmail(data);
+        if (resend.ok) Notification(resend.status, "success");
+      }
     } else {
       isLoading = false;
       isSuccess = `Bienvenue ${login.user.firstname}!`;

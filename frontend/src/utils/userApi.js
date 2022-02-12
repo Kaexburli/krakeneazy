@@ -129,3 +129,22 @@ export const userForgotPassword = async (data) => {
     return { error: true, message: error.message }
   }
 }
+
+/**
+ * resendConfirmEmail
+************************************************************************************************/
+export const resendConfirmEmail = async (data) => {
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/send-confirm-email", {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        email: data.log_email
+      }),
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return { error: true, message: error.message }
+  }
+}

@@ -157,7 +157,7 @@ userSchema.statics.findByCredentials = async (username, password) => {
   // Check is confirmed email
   const isConfirmed = user.confirmed;
   if (!isConfirmed) {
-    throw new Error('Your email is not confirmed!');
+    throw new Error('Your email is not confirmed! Please confirm your email!');
   }
 
   return user;

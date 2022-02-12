@@ -9,7 +9,8 @@ import {
   confirmEmailCtrl,
   refreshTokenCtrl,
   forgotPasswordCtrl,
-  forgotPasswordConfirmCtrl
+  forgotPasswordConfirmCtrl,
+  resendConfirmEmailCtrl
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
@@ -36,15 +37,6 @@ export default function usersRoutes(fastify, options, done) {
         handler: loginCtrl
       });
 
-      // proifle route
-      fastify.route({
-        method: ['GET', 'HEAD'],
-        url: '/me',
-        logLevel: 'warn',
-        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
-        handler: profileCtrl
-      });
-
       // logout route
       fastify.route({
         method: ['POST', 'HEAD'],
@@ -52,6 +44,15 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: logoutCtrl
+      });
+
+      // proifle route
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/me',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: profileCtrl
       });
 
       // refreshToken route
@@ -65,7 +66,7 @@ export default function usersRoutes(fastify, options, done) {
 
       // email-confirm
       fastify.route({
-        method: ['GET'],
+        method: ['GET', 'HEAD'],
         url: '/email-confirm/:confirm_token',
         logLevel: 'warn',
         handler: confirmEmailCtrl
@@ -73,7 +74,7 @@ export default function usersRoutes(fastify, options, done) {
 
       // forgot-password
       fastify.route({
-        method: ['POST'],
+        method: ['POST', 'HEAD'],
         url: '/forgot-password',
         logLevel: 'warn',
         handler: forgotPasswordCtrl
@@ -81,10 +82,18 @@ export default function usersRoutes(fastify, options, done) {
 
       // forgot-password
       fastify.route({
-        method: ['GET'],
+        method: ['GET', 'HEAD'],
         url: '/forgot-password-confirm/:resetPasswordToken',
         logLevel: 'warn',
         handler: forgotPasswordConfirmCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/send-confirm-email',
+        logLevel: 'warn',
+        handler: resendConfirmEmailCtrl
       });
 
     });
