@@ -32,6 +32,7 @@
     "svelte-chartjs": "^1.1.2",
     "svelte-favicon-badge": "^1.0.0",
     "svelte-fetch": "^0.2.0",
+    "svelte-i18n": "^3.3.13",
     "svelte-lightweight-charts": "^1.1.1",
     "svelte-modals": "^1.0.4",
     "svelte-websocket-store": "^1.1.16",
