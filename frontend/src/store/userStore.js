@@ -1,8 +1,9 @@
+import { _ } from "svelte-i18n";
+import { writable } from 'svelte/store';
 import { userLogout, userRefreshToken } from "utils/userApi.js";
 import { openModal, closeModal } from "svelte-modals";
 import RefreshTokenModal from "components/modal/RefreshTokenModal.svelte";
 import jwt_decode from "jwt-decode";
-import { writable } from 'svelte/store';
 
 const storedUser = JSON.parse(localStorage.getItem("user")) || false;
 const { subscribe, set, update } = writable(storedUser);
@@ -112,10 +113,10 @@ const refreshToken = async (jwt) => {
   }, 1000);
 
   openModal(RefreshTokenModal, {
-    title: `Déconnexion imminente`,
-    btn: `Rester connecté!`,
-    message: `Votre session va expirer dans ${refresh >= 0 && refresh <= 30 ? refresh : 0
-      } ${refresh >= 2 ? "secondes" : "seconde"}`,
+    title: $_("modal.refreshToken.title"),
+    btn: $_("modal.refreshToken.btn"),
+    message: `${$_("modal.refreshToken.title")} ${refresh >= 0 && refresh <= 30 ? refresh : 0
+      } ${refresh >= 2 ? $_("modal.refreshToken.sec_plurial") : $_("modal.refreshToken.sec_singular")}`,
     confirm: async () => {
       callRefreshToken();
       clearTimeout(stoRefresh);

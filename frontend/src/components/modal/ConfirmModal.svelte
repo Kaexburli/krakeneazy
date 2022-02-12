@@ -1,7 +1,8 @@
 <script>
+  import { _ } from "svelte-i18n";
+
   // provided by Modals
   export let isOpen;
-
   export let title;
   export let message;
   export let confirm;
@@ -14,8 +15,12 @@
       <h3>{title}</h3>
       <p>{message}</p>
       <div class="actions">
-        <button class="left" on:click={cancel}>Annuler</button>
-        <button class="right" on:click={confirm}>Confirmer</button>
+        <button class="left" on:click={cancel}
+          >{$_("modal.confirmation.cancel")}</button
+        >
+        <button class="right" on:click={confirm}
+          >{$_("modal.confirmation.confirm")}</button
+        >
       </div>
     </div>
   </div>

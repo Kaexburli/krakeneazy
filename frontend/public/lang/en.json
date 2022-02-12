@@ -22,6 +22,19 @@
       "sec_plurial": "seconds"
     }
   },
+  "modal": {
+    "confirmation": {
+      "cancel": "Canceled",
+      "confirm": "Confirmed"
+    },
+    "refreshToken": {
+      "title": "Disconnection in progress",
+      "btn": "Stay logged in!",
+      "message": "Your session will expire in",
+      "sec_singular": "second",
+      "sec_plurial": "seconds"
+    }
+  },
   "home": {
     "title": "Home",
     "choose_pair": "Please choose a pair",

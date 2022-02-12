@@ -22,6 +22,19 @@
       "sec_plurial": "secondes"
     }
   },
+  "modal": {
+    "confirmation": {
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "refreshToken": {
+      "title": "Déconnexion imminente",
+      "btn": "Rester connecté!",
+      "message": "Votre session va expirer dans",
+      "sec_singular": "seconde",
+      "sec_plurial": "secondes"
+    }
+  },
   "home": {
     "title": "Accueil",
     "choose_pair": "Veuillez choisir une paire",
