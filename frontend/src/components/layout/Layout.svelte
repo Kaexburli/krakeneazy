@@ -16,7 +16,10 @@
   import fr from "lang/fr.json";
   addMessages("en", en);
   addMessages("fr", fr);
-  init({ fallbackLocale: "en", initialLocale: getLocaleFromNavigator() });
+  init({
+    fallbackLocale: "en",
+    initialLocale: getLocaleFromNavigator(),
+  });
 
   /** Authentification */
   let isLoggedIn;

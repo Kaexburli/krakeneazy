@@ -370,7 +370,7 @@
     display: inline-block;
     margin-right: 3px;
   }
-  :global(progress) {
+  progress {
     display: block;
     width: 100%;
     margin: 15px 0px;

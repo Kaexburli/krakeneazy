@@ -66,7 +66,7 @@
   {:else}
     <div class="main-info">
       <i class="fas fa-info-circle" />
-      <span>{$_("account.choosePair")}</span>
+      <span>{$_("site.choosePair")}</span>
     </div>
   {/if}
 </div>

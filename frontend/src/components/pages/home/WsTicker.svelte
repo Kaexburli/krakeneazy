@@ -62,7 +62,7 @@
         tickerdata["b"][0]
       ).toFixed(decimals)}&nbsp;{quote} <br />
       <span class="label">
-        {$_("home.ticker.totlaVolume")} :
+        {$_("home.ticker.totalVolume")} :
       </span>{tickerdata["b"][1]} <br />
       <span class="label">
         {$_("home.ticker.lotVolume")} :
