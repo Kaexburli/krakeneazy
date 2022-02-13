@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { ticker, spread, trade } from "store/wsstore.js";
   import { assetpair, asymbole } from "store/store.js";
@@ -102,12 +103,14 @@
       <div class="spread-box right">
         <h5>
           <span class="left"
-            >Offre de vente <span class="little">(Ask)</span></span
+            >{$_("trading.spreadBox.askTitle")}
+            <span class="little">({$_("trading.spreadBox.ask")})</span></span
           >
           <span class="right"
-            >Demande d'achat <span class="little">(Bid)</span></span
+            >{$_("trading.spreadBox.bidTitle")}
+            <span class="little">({$_("trading.spreadBox.bid")})</span></span
           >
-          <span>Spread</span>
+          <span>{$_("trading.spreadBox.spread")}</span>
         </h5>
         <div class="left">
           <span class="ask-spread">
@@ -133,12 +136,14 @@
       <div class="ticker-box">
         <h5>
           <span class="left"
-            >Offre de vente <span class="little">(Ask)</span></span
+            >{$_("trading.spreadBox.askTitle")}
+            <span class="little">({$_("trading.spreadBox.ask")})</span></span
           >
           <span class="right"
-            >Demande d'achat <span class="little">(Bid)</span></span
+            >{$_("trading.spreadBox.bidTitle")}
+            <span class="little">({$_("trading.spreadBox.bid")})</span></span
           >
-          <span>Prix</span>
+          <span>{$_("trading.spreadBox.price")}</span>
         </h5>
         <div>
           <span class="ask-tick left">
@@ -156,20 +161,31 @@
 
     {#if typeof tradedata !== "undefined" && tradedata.length >= 1}
       <div class="recent-trade">
-        <h5>Dernier(s) trade(s)</h5>
+        <h5>{$_("trading.spreadBox.lastTrade")}</h5>
         {#each tradedata as td}
           <div class={td[3]}>
             <span class="date">{formatter.format(parseInt(td[2]) * 1000)}</span>
             <span class="badge">
-              {#if td[4] === "l"}Limit{:else if td[4] === "m"}Marché{/if}
+              {#if td[4] === "l"}{$_(
+                  "trading.spreadBox.limit"
+                )}{:else if td[4] === "m"}{$_("trading.spreadBox.market")}{/if}
             </span>
-            <span class="price"
-              >Prix {#if td[3] === "b"}d'achat{:else if td[3] === "s"}de vente{/if}:
-              {Number(td[0]).toFixed(decimals)}&nbsp;{quote}</span
+            <span class="price">
+              {$_("trading.spreadBox.price")}
+              {#if td[3] === "b"}
+                {$_("trading.spreadBox.priceBid")}
+              {:else if td[3] === "s"}
+                {$_("trading.spreadBox.priceAsk")}
+              {/if}:
+              {Number(td[0]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+            <span class="volume"
+              >{$_("trading.spreadBox.volume")}: ({td[1]})</span
             >
-            <span class="volume">Volume: ({td[1]})</span>
             <span class="amount">
-              Coût total: {Number(td[1] * td[0]).toFixed(decimals)}&nbsp;{quote}
+              {$_("trading.spreadBox.totalCost")}: {Number(
+                td[1] * td[0]
+              ).toFixed(decimals)}&nbsp;{quote}
             </span>
           </div>
         {/each}

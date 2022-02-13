@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { online, assetpair, asymbole } from "store/store.js";
   import UserData from "classes/UserData.js";
@@ -121,14 +122,16 @@
     <div>
       <fieldset>
         <div class="item">
-          <label for="trading-o-action">Action</label>
+          <label for="trading-o-action">
+            {$_("trading.order.action")}
+          </label>
           <button
             type="button"
             class="action-buy"
             name="trading-o-action-buy"
             on:click={() => setActionWay("buy")}
           >
-            Acheter
+            {$_("trading.order.buy")}
           </button>
           <button
             type="button"
@@ -136,25 +139,41 @@
             name="trading-o-action-sell"
             on:click={() => setActionWay("sell")}
           >
-            Vendre
+            {$_("trading.order.sell")}
           </button>
         </div>
         <hr />
         <div class="item">
-          <label for="trading-o-type">Type:</label>
+          <label for="trading-o-type">{$_("trading.order.type")}:</label>
           <select name="trading-o-type" bind:value={type} use:setAttr={type}>
-            <option value="market">Marché</option>
-            <option value="limit">Limite</option>
-            <option value="settle-position">Régler la position</option>
-            <option value="stop-loss">Stop Loss</option>
-            <option value="take-profit">Take Profit</option>
-            <option value="stop-loss-limit">Stop Loss Lmt</option>
-            <option value="take-profit-limit">Take profit lmt</option>
+            <option value="market">
+              {$_("trading.order.market")}
+            </option>
+            <option value="limit">
+              {$_("trading.order.limit")}
+            </option>
+            <option value="settle-position">
+              {$_("trading.order.setPosition")}
+            </option>
+            <option value="stop-loss">
+              {$_("trading.order.stopLoss")}
+            </option>
+            <option value="take-profit">
+              {$_("trading.order.takeProfit")}
+            </option>
+            <option value="stop-loss-limit">
+              {$_("trading.order.stopLossLmt")}
+            </option>
+            <option value="take-profit-limit">
+              {$_("trading.order.takeProfitLmt")}
+            </option>
           </select>
         </div>
         <hr />
         <div class="item">
-          <label for="trading-o-leverage">Levier:</label>
+          <label for="trading-o-leverage">
+            {$_("trading.order.margin")}:
+          </label>
           <div class="stepper">
             <ul>
               <li>
@@ -189,7 +208,9 @@
         <hr />
         <div class="item">
           <div>
-            <label for="trading-o-total">Fonds:</label>
+            <label for="trading-o-total">
+              {$_("trading.order.funds")}:
+            </label>
             <input
               type="number"
               name="trading-o-total"
@@ -239,7 +260,9 @@
     <div>
       <fieldset>
         <div class="separator">
-          <label for="qty">Quantité</label>
+          <label for="qty">
+            {$_("trading.order.quantity")}
+          </label>
           <input
             type="text"
             name="qty"
@@ -250,7 +273,9 @@
           <span class="input-label">BTC</span>
         </div>
         <div class="separator">
-          <label for="price">Prix</label>
+          <label for="price">
+            {$_("trading.order.price")}
+          </label>
           <input
             type="text"
             name="price"
@@ -261,7 +286,9 @@
           <span class="input-label">USDT</span>
         </div>
         <div class="separator">
-          <label for="total">Total</label>
+          <label for="total">
+            {$_("trading.order.total")}
+          </label>
           <input
             type="text"
             name="total"
@@ -279,16 +306,22 @@
             bind:checked={postonly}
             use:setAttr={postonly}
           />
-          <span class="label-checkbox">Post only</span>
+          <span class="label-checkbox">
+            {$_("trading.order.postOnly")}
+          </span>
           <input
             type="checkbox"
             name="condclose"
             bind:checked={condclose}
             use:setAttr={condclose}
           />
-          <span class="label-checkbox">Fermeture conditionnelle</span>
+          <span class="label-checkbox">
+            {$_("trading.order.closeCond")}
+          </span>
           <div class="right">
-            <span class="label-checkbox">Frais : </span>
+            <span class="label-checkbox">
+              {$_("trading.order.fees")} :
+            </span>
             <input
               type="radio"
               name="devise"
@@ -310,9 +343,11 @@
         <hr />
         <div class="confirmation">
           <button type="button" class="reset" on:click={resetForm}>
-            Réinitialiser
+            {$_("trading.order.reset")}
           </button>
-          <button type="submit">Confirmer</button>
+          <button type="submit">
+            {$_("trading.order.confirm")}
+          </button>
         </div>
       </fieldset>
     </div>
@@ -320,25 +355,30 @@
 
   {#if condclose}
     <div id="closed-conditionnaly">
-      <h2>fermeture conditionnelle</h2>
+      <h2>{$_("trading.order.closeCond")}</h2>
       <fieldset>
         <div class="item">
-          <label for="trading-o-type">Type:</label>
+          <label for="trading-o-type">{$_("trading.order.type")}:</label>
           <select name="trading-o-type">
-            <option value="limit">Limite</option>
-            <option value="stop-loss">Stop Loss</option>
-            <option value="take-profit">Take Profit</option>
-            <option value="stop-loss-limit">Stop Loss Lmt</option>
-            <option value="take-profit-limit">Take profit lmt</option>
+            <option value="limit">{$_("trading.order.limit")}</option>
+            <option value="stop-loss">{$_("trading.order.stopLoss")}</option>
+            <option value="take-profit">{$_("trading.order.takeProfit")}</option
+            >
+            <option value="stop-loss-limit"
+              >{$_("trading.order.stopLossLmt")}</option
+            >
+            <option value="take-profit-limit"
+              >{$_("trading.order.takeProfitLmt")}</option
+            >
           </select>
         </div>
         <div class="separator">
-          <label for="price">Prix</label>
+          <label for="price">{$_("trading.order.price")}</label>
           <input type="text" name="price" />
           <span class="input-label">USDT</span>
         </div>
         <div class="separator">
-          <label for="price">Total</label>
+          <label for="price">{$_("trading.order.total")}</label>
           <input type="text" name="price" />
           <span class="input-label">USDT</span>
         </div>

@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { slide } from "svelte/transition";
   import { assetpair } from "store/store.js";
   import TradingOrder from "components/pages/trading/TradingOrder.svelte";
@@ -6,15 +7,15 @@
 
 <div id="page-trading" in:slide out:slide>
   {#if $assetpair !== "false" && $assetpair}
-    <h1>Trading {$assetpair.wsname}</h1>
+    <h1>{$_("trading.title")} {$assetpair.wsname}</h1>
     <div class="trading">
       <TradingOrder />
     </div>
   {:else}
-    <h1>Trading</h1>
+    <h1>{$_("trading.title")}</h1>
     <div class="main-info">
       <i class="fas fa-info-circle" />
-      <span>Veuillez choisir une paire</span>
+      <span>{$_("site.choosePair")}</span>
     </div>
   {/if}
 </div>

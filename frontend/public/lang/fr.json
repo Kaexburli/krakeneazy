@@ -1,6 +1,7 @@
 {
   "site": {
-    "name": "Kurlitrade"
+    "name": "Kurlitrade",
+    "choosePair": "Veuillez choisir une paire"
   },
   "sidebar": {
     "home": "Accueil",
@@ -37,7 +38,6 @@
   },
   "home": {
     "title": "Accueil",
-    "choosePair": "Veuillez choisir une paire",
     "chart": {
       "alert": {
         "succcess": "Une alert à été mise en place",
@@ -110,7 +110,6 @@
   },
   "account": {
     "title": "Mon compte kraken",
-    "choosePair": "Veuillez choisir une paire",
     "tabs": {
       "openOrders": "Ordres ouverts",
       "closedOrders": "Ordres fermés",
@@ -283,5 +282,46 @@
     "receive": "Reception",
     "spend": "Emission",
     "transfer": "Transfert"
+  },
+  "trading": {
+    "title": "Trading",
+    "spreadBox": {
+      "askTitle": "Offre de vente",
+      "bidTitle": "Offre d'achat",
+      "ask": "Ask",
+      "bid": "Bid",
+      "spread": "Spread",
+      "price": "Prix",
+      "lastTrade": "Dernier(s) trade(s)",
+      "limit": "Limite",
+      "market": "Marché",
+      "priceAsk": "de vente",
+      "priceBid": "d'achat",
+      "volume": "Volume",
+      "totalCost": "Coût total"
+    },
+    "order": {
+      "action": "Action",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "type": "Type",
+      "market": "Marché",
+      "limit": "Limite",
+      "setPosition": "Régler la position",
+      "stopLoss": "Stop loss",
+      "takeProfit": "Take profit",
+      "stopLossLmt": "Stop loss limite",
+      "takeProfitLmt": "Take profit limite",
+      "margin": "Levier",
+      "funds": "Fonds",
+      "quantity": "Quantité",
+      "price": "Prix",
+      "total": "Total",
+      "postOnly": "Post only",
+      "closeCond": "Fermeture conditionnelle",
+      "fees": "Frais",
+      "reset": "Réinitialiser",
+      "confirm": "Confirmer"
+    }
   }
 }
