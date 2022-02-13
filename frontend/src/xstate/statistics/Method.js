@@ -23,7 +23,7 @@ export const FetchExport = async (ctx, event) => {
       let id = store[type]
       const res = await ud.readExport({ id, type });
 
-      if (typeof res !== 'undefined')
+      if (typeof res !== 'undefined' && res)
         read[type] = res.reverse()
       else
         console.error(res)
