@@ -271,5 +271,17 @@
       "apiError": "Kraken API not responding properly",
       "addError": "The export request was not made correctly!"
     }
+  },
+  "statistics": {
+    "title": "Statistic",
+    "margin": "Margin",
+    "rollover": "Rollover",
+    "trade": "Trade",
+    "staking": "Staking",
+    "deposit": "Deposit",
+    "withdrawal": "Withdrawal",
+    "receive": "Receive",
+    "spend": "Spend",
+    "transfer": "Transfer"
   }
 }

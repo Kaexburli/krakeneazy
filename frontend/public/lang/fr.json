@@ -271,5 +271,17 @@
       "apiError": "L'API Kraken ne répond pas correctement",
       "addError": "La demande d'exportation n'a pas été effectuée correctement!"
     }
+  },
+  "statistics": {
+    "title": "Statistiques",
+    "margin": "Levier",
+    "rollover": "Roulement",
+    "trade": "Trader",
+    "staking": "Financement",
+    "deposit": "Dépôt",
+    "withdrawal": "Retrait",
+    "receive": "Reception",
+    "spend": "Emission",
+    "transfer": "Transfert"
   }
 }

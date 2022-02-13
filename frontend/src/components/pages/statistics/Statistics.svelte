@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { SyncLoader } from "svelte-loading-spinners";
   import ChartItem from "components/pages/statistics/ChartItem.svelte";
@@ -90,7 +91,7 @@
 {/if}
 
 <div class="block">
-  <h3>Statistiques</h3>
+  <h3>{$_("statistics.title")}</h3>
   {#if isLoading}<SyncLoader
       size="30"
       color="#e8e8e8"
@@ -101,7 +102,7 @@
     {#if datas.hasOwnProperty("chartDatas")}
       {#each Object.keys(datas.chartDatas) as ledg}
         <div class="chart">
-          <h4>{ledg}</h4>
+          <h4>{$_(`statistics.${ledg}`)}</h4>
           <ChartItem
             data={Object.assign({}, datas.chartDatas[ledg])}
             chartLayout="pie"

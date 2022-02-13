@@ -1,10 +1,11 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { slide } from "svelte/transition";
   import Statistics from "components/pages/statistics/Statistics.svelte";
 </script>
 
 <div id="page-statistic" in:slide out:slide>
-  <h1>Statistic</h1>
+  <h1>{$_("statistics.title")}</h1>
   <div class="statistics">
     <Statistics />
   </div>
