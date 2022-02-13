@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import formatDate from "utils/formatDate.js";
   import { SyncLoader } from "svelte-loading-spinners";
@@ -56,19 +57,36 @@
    * addExport
    */
   const addExport = (_ctx, event) => {
-    message = `[${new Date().toLocaleString()}] <br />Initialisation de l'export <strong>${
-      event.data.type
-    }</strong> <br />`;
+    message = $_("reports.export.initExport", {
+      values: {
+        date: new Date().toLocaleString(),
+        type: `<strong>${event.data.type}</strong><br />`,
+      },
+    });
 
     return async (callback, _onEvent) => {
       const res = await AddExport(event.data.type);
 
-      if (res.hasOwnProperty("callback")) callback(res.callback);
+      if (res.hasOwnProperty("callback")) {
+        if (res.callback.type === "ERROR_TRAD") {
+          const callBack = {
+            type: "ERROR",
+            error: $_(`reports.export.${res.callback.error}`),
+          };
+          return callback(callBack);
+        }
+
+        return callback(res.callback);
+      }
 
       if (res.id) {
-        message += `En attente de l'export <strong>${event.data.type}</strong><br />`;
+        message += $_("reports.export.waitExport", {
+          values: {
+            type: `<strong>${event.data.type}</strong><br />`,
+          },
+        });
 
-        callback({
+        return callback({
           type: "ADDED",
           data: { type: event.data.type, id: res.id },
         });
@@ -85,9 +103,9 @@
 
       if (res) {
         if (res.hasOwnProperty("error"))
-          callback({ type: "ERROR", error: res.error });
+          callback({ type: "ERROR", error: $_(`reports.export.${res.error}`) });
 
-        if (ctx.count >= 1) await wait(10000);
+        if (ctx.count >= 1) await wait(15000);
 
         callback({
           type: res[0].status.toUpperCase(), // QUEUED
@@ -107,17 +125,22 @@
    * retreiveExport
    */
   const retreiveExport = (ctx, event) => {
-    message += "<br />Téléchargement terminé! <br />";
+    console.log("retreiveExport");
+    message += `<br />${$_("reports.export.endExport")}<br />`;
     progress.set(1);
     progressBar = false;
     progress.set(0);
     return async (callback, _onEvent) => {
-      message += "Extraction du fichier... <br />";
+      message += `${$_("reports.export.extractExport")}<br />`;
       const retreive = await RetreiveExport(event.data.id, event.data.type);
       if (typeof retreive !== "undefined" && retreive.hasOwnProperty("error")) {
         message += retreive.error;
       } else if (typeof retreive !== "undefined" && retreive.res) {
-        message += `Extraction du fichier ${retreive.filename} terminé!`;
+        message += $_("reports.export.endExtractExport", {
+          values: {
+            filename: retreive.filename,
+          },
+        });
         ctx.count = 0;
       }
       callback({ type: "DONE" });
@@ -143,7 +166,11 @@
    */
   const assignProgress = (ctx, event) => {
     if (ctx.count === 0) {
-      let string = `Téléchargement de l'export <strong>[${event.data.id}]</strong> en cours `;
+      let string = $_("reports.export.downloadExport", {
+        values: {
+          id: `<strong>[${event.data.id}]</strong>`,
+        },
+      });
       if (message) message += string;
       else message = string;
     } else message += Array(ctx.count).join(".");
@@ -209,14 +236,14 @@
 </script>
 
 {#if isError}
-  <span class="error">[ERREUR]: {errorMsg}</span>
+  <span class="error">{$_("reports.export.error")}: {errorMsg}</span>
 {/if}
 
 {#if isQueued}
-  <pre class="console">
-    {#if message}{@html message}{/if}
-    {#if progressBar}<progress value={$progress} />{/if}
-  </pre>
+  <pre
+    class="console">{#if message}{@html message}{/if}{#if progressBar}<progress
+        value={$progress}
+      />{/if}</pre>
 {/if}
 
 {#if isLoading && !isQueued}
@@ -227,12 +254,12 @@
   <table class="flex-table flex-fixhead-table">
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Période</th>
-        <th>Expiration</th>
-        <th>Status</th>
-        <th>ID</th>
-        <th>Format</th>
+        <th>{$_("reports.export.type")}</th>
+        <th>{$_("reports.export.period")}</th>
+        <th>{$_("reports.export.expiration")}</th>
+        <th>{$_("reports.export.statut")}</th>
+        <th>{$_("reports.export.id")}</th>
+        <th>{$_("reports.export.format")}</th>
       </tr>
     </thead>
     <tbody>
@@ -269,9 +296,9 @@
               {#if ex.flags === "0"}
                 {ex.status}
               {:else if ex.flags === "1"}
-                Canceled
+                {$_("reports.export.canceled")}
               {:else if ex.flags === "2"}
-                Deleted
+                {$_("reports.export.deleted")}
               {:else}
                 -
               {/if}
@@ -342,5 +369,11 @@
   :global(.circle) {
     display: inline-block;
     margin-right: 3px;
+  }
+  :global(progress) {
+    display: block;
+    width: 100%;
+    margin: 15px 0px;
+    padding: 15px;
   }
 </style>

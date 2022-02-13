@@ -17,8 +17,8 @@ export const StatusExport = async (type, id) => {
     });
 
     // La requête à disfonctionné
-    if (typeof res === "undefined") {
-      return { error: "L'api Kraken ne répond pas correctement" };
+    if (typeof res === "undefined" || !res) {
+      return { error: 'apiError' };
     }
     // Affiche les erreurs
     else if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
@@ -64,7 +64,7 @@ export const AddExport = async (type, starttm) => {
     });
 
     if (typeof res === "undefined" || !res.hasOwnProperty('id')) {
-      return { callback: { type: "ERROR", error: "La demande d'export n'a pas été effectué correctement!" } }
+      return { callback: { type: "ERROR_TRAD", error: "addError" } }
     }
 
     if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
@@ -265,7 +265,7 @@ export const getListExport = async (ctx, _event) => {
       })
     }
     else {
-      console.log("[LEDGERS] une erreur inatendu c'est produite!")
+      console.log("[LEDGERS] an unexpected error has occurred!")
     }
   }
 
@@ -323,7 +323,7 @@ export const getListExport = async (ctx, _event) => {
       })
     }
     else {
-      console.log("[TRADES] une erreur inatendu c'est produite!")
+      console.log("[TRADES] an unexpected error has occurred!")
     }
   }
 

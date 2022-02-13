@@ -247,5 +247,29 @@
         "error": "Please choose an asset pair"
       }
     }
+  },
+  "reports": {
+    "main": {
+      "title": "Data Export"
+    },
+    "export": {
+      "error": "[ERROR]",
+      "type": "Type",
+      "period": "Period",
+      "expiration": "Expiration",
+      "statut": "Statut",
+      "id": "ID",
+      "format": "Format",
+      "canceled": "Canceled",
+      "deleted": "Deleted",
+      "initExport": "[{date}] Export initialization {type}",
+      "waitExport": "Waiting for export {type}",
+      "endExport": "Download complete!",
+      "extractExport": "Extracting the file...",
+      "endExtractExport": "Extracting the file {filename} complete!",
+      "downloadExport": "Export Download {id} in progress",
+      "apiError": "Kraken API not responding properly",
+      "addError": "The export request was not made correctly!"
+    }
   }
 }

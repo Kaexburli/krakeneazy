@@ -1,10 +1,11 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { slide } from "svelte/transition";
   import ExportData from "components/pages/reports/Export.svelte";
 </script>
 
 <div id="page-reports" in:slide out:slide>
-  <h1>Exports de données</h1>
+  <h1>{$_("reports.main.title")}</h1>
 
   <div class="reports">
     <ExportData />
