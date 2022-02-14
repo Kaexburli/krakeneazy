@@ -83,7 +83,7 @@ export const loginCtrl = async (req, reply) => {
 
   if (req.user) {
     const remember = req.body.remember || false;
-    await req.user.generateToken(remember, 1);
+    await req.user.generateToken(remember, true);
   }
 
   reply.send({
@@ -91,11 +91,7 @@ export const loginCtrl = async (req, reply) => {
     status: 'You are logged in',
     token: req.user.token,
     user: {
-      id: req.user._id.toString(),
-      firstname: req.user.firstname,
-      lastname: req.user.lastname,
-      username: req.user.username,
-      email: req.user.email
+      id: req.user._id.toString()
     }
   });
 }
@@ -128,8 +124,7 @@ export const refreshTokenCtrl = async (req, reply) => {
 
   if (req.user) {
     const remember = false;
-    const tokenVersion = req.body.tokenVersion || 0;
-    await req.user.generateToken(remember, tokenVersion);
+    await req.user.generateToken(remember);
   }
 
   reply.send({
@@ -249,5 +244,17 @@ export const forgotPasswordConfirmCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const profileCtrl = async (req, reply) => {
-  reply.send({ ok: true, status: 'Authenticated!', user: req.user });
+  reply.send({
+    ok: true,
+    status: 'Authenticated!',
+    user: {
+      _id: req.user._id,
+      firstname: req.user.firstname,
+      lastname: req.user.lastname,
+      username: req.user.username,
+      email: req.user.email,
+      role: req.user.role,
+      tokenVersion: req.user.tokenVersion,
+    }
+  });
 }

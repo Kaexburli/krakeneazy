@@ -91,7 +91,7 @@ export const userLogout = async (token) => {
 /**
  * userRefreshToken
 ************************************************************************************************/
-export const userRefreshToken = async (token, tokenVersion) => {
+export const userRefreshToken = async (token) => {
   try {
     return await fetch(__env["BACKEND_URI"] + "/refresh-token", {
       method: 'POST',
@@ -100,8 +100,7 @@ export const userRefreshToken = async (token, tokenVersion) => {
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
-        token,
-        tokenVersion
+        token
       })
     })
       .then(checkStatus)
@@ -141,6 +140,25 @@ export const resendConfirmEmail = async (data) => {
       body: JSON.stringify({
         email: data.log_email
       }),
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return { error: true, message: error.message }
+  }
+}
+
+/**
+ * userProfile
+************************************************************************************************/
+export const userProfile = async (token) => {
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/me", {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
     })
       .then(checkStatus)
       .then(parseJSON);

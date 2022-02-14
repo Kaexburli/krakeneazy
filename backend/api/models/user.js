@@ -61,9 +61,9 @@ const userSchema = mongoose.Schema({
     type: String,
     default: false
   },
-  tokenVerion: {
-    type: String,
-    default: false
+  tokenVersion: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -92,7 +92,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-userSchema.methods.generateToken = async function (remember, tokenVerion) {
+userSchema.methods.generateToken = async function (remember, reset = false) {
   let user = this;
 
   const token = jwt.sign(
@@ -110,7 +110,7 @@ userSchema.methods.generateToken = async function (remember, tokenVerion) {
   );
 
   user.token = token;
-  user.tokenVerion = tokenVerion;
+  user.tokenVersion = reset ? 1 : user.tokenVersion + 1;
   await user.save();
   return token;
 };

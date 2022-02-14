@@ -1,17 +1,15 @@
-import { _ } from "svelte-i18n";
-import { writable } from 'svelte/store';
-import { userLogout, userRefreshToken } from "utils/userApi.js";
+import { userLogout, userRefreshToken, userProfile } from "utils/userApi.js";
 import { openModal, closeModal } from "svelte-modals";
 import RefreshTokenModal from "components/modal/RefreshTokenModal.svelte";
 import jwt_decode from "jwt-decode";
+import { writable } from 'svelte/store';
 
 const storedUser = JSON.parse(localStorage.getItem("user")) || false;
 const { subscribe, set, update } = writable(storedUser);
 
-const logoutDelay = 60000;
-const logoutRefresh = logoutDelay / 2;
+const logoutDelay = 500;
+const logoutRefresh = 30000;
 let setTimeOutLogout, setTimeOutRefresh, stoRefresh;
-let tokenVersion = 1;
 const track = "../sound/warning_auto_logout_2.mp3";
 
 let user;
@@ -21,11 +19,30 @@ subscribe((data) => {
 })
 
 /**
- * isLogged
-************************************************************************************************/
-const isLogged = () => {
-  return !!user
-}
+ * playSound
+ ************************************************************************************************/
+const playSound = () => {
+  let audio = new Audio(track);
+  let playPromise = audio.play();
+  playPromise;
+};
+
+/**
+ * convertMilli
+ ************************************************************************************************/
+const convertMilli = (milli, end = false) => {
+  const seconds = Math.floor((milli / 1000) % 60);
+  const minutes = Math.floor((milli / 1000 / 60) % 60);
+  const hours = Math.floor((milli / 1000 / 60 / 60) % 24);
+
+  if (end) return seconds.toString().padStart(2, "0");
+
+  return [
+    hours.toString().padStart(2, "0"),
+    minutes.toString().padStart(2, "0"),
+    seconds.toString().padStart(2, "0"),
+  ].join(":");
+};
 
 /**
  * init
@@ -48,7 +65,6 @@ const init = async () => {
           playSound();
           refreshToken(jwt);
         }, timerRefresh);
-        tokenVersion++;
       }
     }
   }
@@ -113,10 +129,10 @@ const refreshToken = async (jwt) => {
   }, 1000);
 
   openModal(RefreshTokenModal, {
-    title: $_("modal.refreshToken.title"),
-    btn: $_("modal.refreshToken.btn"),
-    message: `${$_("modal.refreshToken.title")} ${refresh >= 0 && refresh <= 30 ? refresh : 0
-      } ${refresh >= 2 ? $_("modal.refreshToken.sec_plurial") : $_("modal.refreshToken.sec_singular")}`,
+    title: `Déconnexion imminente`,
+    btn: `Rester connecté!`,
+    message: `Votre session va expirer dans ${refresh >= 0 && refresh <= 30 ? refresh : 0
+      } ${refresh >= 2 ? "secondes" : "seconde"}`,
     confirm: async () => {
       callRefreshToken();
       clearTimeout(stoRefresh);
@@ -132,7 +148,7 @@ const refreshToken = async (jwt) => {
  ************************************************************************************************/
 const callRefreshToken = async () => {
   try {
-    const res = await userRefreshToken(user.token, tokenVersion);
+    const res = await userRefreshToken(user.token);
     if (res.hasOwnProperty("error")) {
       console.log("ERROR:", res.error);
     } else {
@@ -144,34 +160,58 @@ const callRefreshToken = async () => {
   }
 };
 
+
 /**
- * convertMilli
- ************************************************************************************************/
-const convertMilli = (milli, end = false) => {
-  const seconds = Math.floor((milli / 1000) % 60);
-  const minutes = Math.floor((milli / 1000 / 60) % 60);
-  const hours = Math.floor((milli / 1000 / 60 / 60) % 24);
+ * isLogged
+************************************************************************************************/
+const isLogged = () => {
+  return !!user
+}
 
-  if (end) return seconds.toString().padStart(2, "0");
+/**
+ * getProfile
+************************************************************************************************/
+const getProfile = async () => {
+  if (user) {
+    const profile = await userProfile(user.token);
+    if (profile.ok)
+      return { token: user.token, user: profile.user };
+    else return false;
+  }
+  else return false;
+}
 
-  return [
-    hours.toString().padStart(2, "0"),
-    minutes.toString().padStart(2, "0"),
-    seconds.toString().padStart(2, "0"),
-  ].join(":");
-};
+/**
+ * getJWTData
+************************************************************************************************/
+const getJWTData = async () => {
+  if (user) {
+    return await parseJwt(user);
+  }
+  else return false;
+}
 
-
+/**
+ * refresh
+************************************************************************************************/
 const refresh = (user) => {
   user = JSON.stringify(user)
   localStorage.setItem("user", user)
   return set(JSON.parse(localStorage.getItem("user")))
 }
+
+/**
+ * signin
+************************************************************************************************/
 const signin = (user) => {
   user = JSON.stringify(user)
   localStorage.setItem("user", user)
   return update(v => JSON.parse(localStorage.getItem("user")))
 }
+
+/**
+ * signout
+************************************************************************************************/
 const signout = () => {
   clearTimeout(stoRefresh);
   clearTimeout(setTimeOutLogout);
@@ -181,18 +221,11 @@ const signout = () => {
   return set(false)
 }
 
-/**
- * playSound
- ************************************************************************************************/
-const playSound = () => {
-  let audio = new Audio(track);
-  let playPromise = audio.play();
-  playPromise;
-};
-
 export const User = function () {
   return {
     init,
+    getData: getJWTData,
+    getProfile,
     isLogged,
     subscribe,
     signout,
