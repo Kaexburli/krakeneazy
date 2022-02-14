@@ -19,8 +19,11 @@
   "footer": {
     "clock": {
       "display_since": "Affiché depuis:",
-      "sec_singular": "seconde",
-      "sec_plurial": "secondes"
+      "secondes": "{n, plural, =0 {seconde} one {# seconde} other {# secondes}}",
+      "date": "Date/Heure",
+      "beginSession": "Debut de session",
+      "endSession": "Fin de session",
+      "in": "dans"
     }
   },
   "modal": {
@@ -32,8 +35,7 @@
       "title": "Déconnexion imminente",
       "btn": "Rester connecté!",
       "message": "Votre session va expirer dans",
-      "sec_singular": "seconde",
-      "sec_plurial": "secondes"
+      "secondes": "{n, plural, =0 {seconde} one {# seconde} other {# secondes}}"
     }
   },
   "home": {
@@ -322,6 +324,47 @@
       "fees": "Frais",
       "reset": "Réinitialiser",
       "confirm": "Confirmer"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "drawer": {
+      "labels": {
+        "profile": "Profile utilisateur",
+        "kraken": "Compte Kraken",
+        "settings": "Paramètres du site"
+      },
+      "subtitle": {
+        "profile": "Mon profile utilisateur",
+        "kraken": "Mon compte Kraken",
+        "settings": "Mes paramètres du site"
+      }
+    },
+    "profile": {
+      "firstname": {
+        "label": "Prénom",
+        "helper": "Ce paramètre n'est pas modifiable"
+      },
+      "lastname": {
+        "label": "Nom",
+        "helper": "Ce paramètre n'est pas modifiable"
+      },
+      "username": {
+        "label": "Pseudo",
+        "helper": "Ce paramètre n'est pas modifiable"
+      },
+      "email": {
+        "label": "Email",
+        "helper": "Ce paramètre n'est pas modifiable"
+      },
+      "password": {
+        "label": "Mot de passe",
+        "helper": "This parameter is not editable"
+      },
+      "passwordConfirm": {
+        "label": "Confirmation mot de passe",
+        "helper": "This parameter is not editable"
+      }
     }
   }
 }

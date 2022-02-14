@@ -19,8 +19,11 @@
   "footer": {
     "clock": {
       "display_since": "Display since:",
-      "sec_singular": "second",
-      "sec_plurial": "seconds"
+      "secondes": "{n, plural, =0 {seconde} one {# seconde} other {# secondes}}",
+      "date": "Date/Hours",
+      "beginSession": "Begin of session",
+      "endSession": "End of session",
+      "in": "in"
     }
   },
   "modal": {
@@ -32,8 +35,7 @@
       "title": "Disconnection in progress",
       "btn": "Stay logged in!",
       "message": "Your session will expire in",
-      "sec_singular": "second",
-      "sec_plurial": "seconds"
+      "secondes": "{n, plural, =0 {seconde} one {# seconde} other {# secondes}}"
     }
   },
   "home": {
@@ -322,6 +324,47 @@
       "fees": "Fees",
       "reset": "Reset",
       "confirm": "Confirm"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "drawer": {
+      "labels": {
+        "profile": "User profile",
+        "kraken": "Kraken account",
+        "settings": "Website settings"
+      },
+      "subtitle": {
+        "profile": "My user profile",
+        "kraken": "My Kraken account",
+        "settings": "My website settings"
+      }
+    },
+    "profile": {
+      "firstname": {
+        "label": "Firstname",
+        "helper": "This parameter is not editable"
+      },
+      "lastname": {
+        "label": "Lastname",
+        "helper": "This parameter is not editable"
+      },
+      "username": {
+        "label": "Username",
+        "helper": "This parameter is not editable"
+      },
+      "email": {
+        "label": "Email",
+        "helper": "This parameter is not editable"
+      },
+      "password": {
+        "label": "Password",
+        "helper": "This parameter is not editable"
+      },
+      "passwordConfirm": {
+        "label": "Confirm password",
+        "helper": "This parameter is not editable"
+      }
     }
   }
 }
