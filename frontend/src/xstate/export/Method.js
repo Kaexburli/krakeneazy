@@ -143,7 +143,7 @@ const CheckExportExistFolder = async (id, type) => {
  * @returns Renvoie true si l'export est expiré
  */
 const checkTimeExpired = (completedtm, id) => {
-  const expire_time = 3600000; // 3600000 // A changer selon le compte
+  const expire_time = 12 * 60 * 60 * 1000; // 12h // A changer selon le compte #settings
   const time_remaining = parseInt(Date.now() - parseInt(completedtm * 1000));
   const remaining = expire_time - time_remaining
   const check = (remaining <= 0)

@@ -26,7 +26,7 @@ export const FetchExport = async (ctx, event) => {
       if (typeof res !== 'undefined' && res)
         read[type] = res.reverse()
       else
-        console.error(res)
+        return false;
     }
 
     return read
@@ -81,6 +81,9 @@ const formatChartData = (datas) => {
 export const ProcessingData = async (ctx, _event) => {
 
   let { ledgers, trades } = ctx;
+
+  if (!ledgers || !trades)
+    return { dataformat: [], chartDatas: [] }
 
   let type;
 
