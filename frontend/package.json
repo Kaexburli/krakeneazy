@@ -5,7 +5,10 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public --no-clear"
+    "start": "sirv public --no-clear",
+    "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
+    "smui-theme-light": "smui-theme compile public/static/svelte-material-ui/smui.css -i src/theme",
+    "smui-theme-dark": "smui-theme compile public/static/svelte-material-ui/smui-dark.css -i src/theme/dark"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.8",
@@ -22,6 +25,7 @@
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
+    "smui-theme": "^6.0.0-beta.14",
     "svelte": "^3.0.0",
     "svelte-loading-spinners": "^0.1.7"
   },
