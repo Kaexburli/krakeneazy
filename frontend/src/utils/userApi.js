@@ -166,3 +166,53 @@ export const userProfile = async (token) => {
     return { error: true, message: error.message }
   }
 }
+
+/**
+ * addApiKey
+************************************************************************************************/
+export const addApiKey = async (token, data) => {
+  const { privateKey, publicKey } = data
+
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/add-apikey", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        privateKey,
+        publicKey
+      })
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return error
+  }
+}
+
+/**
+ * removeApiKey
+************************************************************************************************/
+export const removeApiKey = async (token, data) => {
+  const { ids, userId } = data
+
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/remove-apikey", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ids,
+        userId
+      })
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return { error: true, message: error.message }
+  }
+}
