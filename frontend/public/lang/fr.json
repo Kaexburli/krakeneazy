@@ -365,6 +365,33 @@
         "label": "Confirmation mot de passe",
         "helper": "This parameter is not editable"
       }
+    },
+    "kraken": {
+      "dialog": {
+        "title": "Suppression de clé API",
+        "description": "Etes-vous sur de vouloir supprimer {n, plural, =0 {clé} one {# clé} other {# clés}} API?",
+        "yes": "Oui",
+        "no": "Non"
+      },
+      "addSuccess": "Votre clé a bien été ajouté!",
+      "addError": "Les champs ne peuvent pas être vide",
+      "removeSuccess": "{n, plural, =0 {Votre clé a} one {Votre clé a} other {Vos clés ont}} bien été {n, plural, =0 {supprimée} one {supprimée} other {supprimées}}!",
+      "table": {
+        "title": "Vos clés",
+        "publickey": "Clé publique",
+        "privatekey": "Clé privée",
+        "createdAt": "Ajouté le",
+        "noKeyFound": "Aucune clé trouvé",
+        "removeKeyBtn": "Supprimer la selection"
+      },
+      "form": {
+        "title": "Ajouter une clé",
+        "publickey": "Clé publique",
+        "publickeyHelper": "Veuillez ajouter ici la clé publique api généré par kraken",
+        "privatekey": "Clé privée",
+        "privatekeyHelper": "Veuillez ajouter ici la clé privée api généré par kraken",
+        "addKeyBtn": "Ajouter cette clé"
+      }
     }
   }
 }
