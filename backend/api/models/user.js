@@ -3,69 +3,86 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 
-const userSchema = mongoose.Schema({
-  firstname: {
-    type: String,
-    trim: true,
-    required: true,
+const userSchema = mongoose.Schema(
+  {
+    firstname: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    lastname: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    email: {
+      type: String,
+      minlength: 6,
+      unique: true,
+      trim: true,
+      required: true,
+    },
+    username: {
+      type: String,
+      minlength: 3,
+      unique: true,
+      trim: true,
+      required: true,
+    },
+    password: {
+      type: String,
+      minlength: 6,
+      required: true
+    },
+    provider: {
+      type: String,
+      default: "email"
+    },
+    resetPasswordToken: {
+      type: String,
+      default: false
+    },
+    confirmationToken: {
+      type: String,
+      default: uuidv4()
+    },
+    confirmed: {
+      type: Boolean,
+      default: false,
+    },
+    blocked: {
+      type: Boolean,
+      default: false,
+    },
+    role: {
+      type: String,
+      default: 'user',
+    },
+    token: {
+      type: String,
+      default: false
+    },
+    tokenVersion: {
+      type: Number,
+      default: 0
+    },
+    settings: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user_settings"
+      }
+    ],
+    apikeys: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user_kraken"
+      }
+    ]
   },
-  lastname: {
-    type: String,
-    trim: true,
-    required: true,
-  },
-  email: {
-    type: String,
-    minlength: 6,
-    unique: true,
-    trim: true,
-    required: true,
-  },
-  username: {
-    type: String,
-    minlength: 3,
-    unique: true,
-    trim: true,
-    required: true,
-  },
-  password: {
-    type: String,
-    minlength: 6,
-    required: true
-  },
-  provider: {
-    type: String,
-    default: "email"
-  },
-  resetPasswordToken: {
-    type: String,
-    default: false
-  },
-  confirmationToken: {
-    type: String,
-    default: uuidv4()
-  },
-  confirmed: {
-    type: Boolean,
-    default: false,
-  },
-  blocked: {
-    type: Boolean,
-    default: false,
-  },
-  role: {
-    type: String,
-    default: 'user',
-  },
-  token: {
-    type: String,
-    default: false
-  },
-  tokenVersion: {
-    type: Number,
-    default: 0
+  {
+    timestamps: true
   }
-});
+);
 
 const generatePassword = (length) => {
   const charSet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789^°!"§$%&/()=?`*+~\'#,;.:-_';
@@ -130,7 +147,8 @@ userSchema.statics.findByToken = async function (token) {
   return await User.findOne({
     _id: decoded.id,
     token
-  });
+  }).populate(["settings", "apikeys"]);
+
 };
 
 /**

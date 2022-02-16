@@ -1,5 +1,7 @@
 
 import User from '../../models/user';
+import UserSettings from '../../models/userSettings';
+import UserKraken from '../../models/userKraken';
 import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../Mailer.js'
 
 export const asyncVerifyJWTCtrl = async (req, reply) => {
@@ -47,7 +49,20 @@ export const registerCtrl = async (req, reply) => {
 
   const user = new User(req.body);
   try {
+    // assume user ID is passed in body from frontend for simplicity
+    // Create settings
+    const setting = new UserSettings({ user: user._id })
+    const savedSetting = await setting.save()
+    user.settings = user.settings.concat(savedSetting)
+
+    // Create kraken
+    const kraken = new UserKraken({ user: user._id })
+    const savedKraken = await kraken.save()
+    user.apikeys = user.apikeys.concat(savedKraken)
+
+    // Create user with settings
     await user.save();
+
     const email = await sendRegisterEmail(user)
     if (!email.hasOwnProperty('from') || !email.hasOwnProperty('to'))
       reply.status(400).send("Mail not send, please contact us!");
@@ -91,7 +106,10 @@ export const loginCtrl = async (req, reply) => {
     status: 'You are logged in',
     token: req.user.token,
     user: {
-      id: req.user._id.toString()
+      id: req.user._id.toString(),
+      firstname: req.user.firstname,
+      lastname: req.user.lastname,
+      email: req.user.email
     }
   });
 }
@@ -255,6 +273,106 @@ export const profileCtrl = async (req, reply) => {
       email: req.user.email,
       role: req.user.role,
       tokenVersion: req.user.tokenVersion,
+      settings: {
+        exports: req.user.settings[0].exports,
+        interval: req.user.settings[0].interval,
+        sound: req.user.settings[0].sound,
+        maxratecount: req.user.settings[0].maxratecount,
+      },
+      apikeys: req.user.apikeys
     }
   });
+}
+
+/**
+ * addApiKeyCtrl
+ * @description Ajout une clé api dans la base de données
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const addApiKeyCtrl = async (req, reply) => {
+  const { publicKey, privateKey } = req.body;
+
+  // Add api key
+  const apikey = new UserKraken({
+    apiKeyPublic: publicKey,
+    apiKeyPrivate: privateKey,
+    user: req.user._id
+  })
+
+  try {
+    const savedApikey = await apikey.save();
+    // save user
+    req.user.apikeys = req.user.apikeys.concat(savedApikey);
+    await req.user.save();
+
+    reply.send({ ok: true, id: savedApikey._id });
+  } catch (error) {
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0] || " apikey ";
+      reply.status(400).send({ ok: false, message: `Your ${field} is already exist!` })
+    }
+    else {
+      reply.status(400).send({ ok: false, message: error.errors });
+    }
+  }
+}
+
+/**
+ * removeApiKeyCtrl
+ * @description Supprime une ou plusieurs clé api dans la base de données
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const removeApiKeyCtrl = async (req, reply) => {
+  const { ids, userId } = req.body;
+
+  if (req.user._id != userId)
+    reply.status(400).send({ ok: false, message: `User ID does not match` })
+
+  try {
+
+    let removedIds = []
+    for (const apikey of ids) {
+      const removedApikey = await UserKraken.deleteOne({ _id: apikey, user: req.user._id });
+      if (removedApikey.deletedCount)
+        removedIds.push(apikey)
+    }
+
+    if (removedIds.length === ids.length) reply.send({ ok: true, removedIds });
+    else reply.status(400).send({ ok: false, message: `An unexpected error is produced` })
+
+  } catch (error) {
+    reply.status(400).send({ ok: false, message: error.message })
+  }
+}
+
+/**
+ * changeUserDateCtrl
+ * @description Ajout une clé api dans la base de données
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const changeUserDateCtrl = async (req, reply) => {
+  const { firstname, lastname, username, email, password } = req.body.user;
+  reply.send({ ok: true, controller: "changeUserDateCtrl", body: req.body });
+  try {
+    const savedApikey = await apikey.save();
+    // save user
+    req.user.apikeys = req.user.apikeys.concat(savedApikey);
+    await req.user.save();
+
+    reply.send({ ok: true, controller: "changeUserDateCtrl" });
+  } catch (error) {
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0] || " apikey ";
+      reply.status(400).send({ ok: false, message: `Your ${field} is already exist!` })
+    }
+    else {
+      reply.status(400).send({ ok: false, message: error.errors });
+    }
+  }
 }

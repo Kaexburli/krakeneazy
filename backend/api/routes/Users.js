@@ -10,7 +10,10 @@ import {
   refreshTokenCtrl,
   forgotPasswordCtrl,
   forgotPasswordConfirmCtrl,
-  resendConfirmEmailCtrl
+  resendConfirmEmailCtrl,
+  addApiKeyCtrl,
+  removeApiKeyCtrl,
+  changeUserDateCtrl
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
@@ -53,6 +56,33 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: profileCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/add-apikey',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: addApiKeyCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/remove-apikey',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: removeApiKeyCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/change-user-data',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: changeUserDateCtrl
       });
 
       // refreshToken route

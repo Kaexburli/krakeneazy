@@ -1,8 +1,14 @@
 import fp from 'fastify-plugin';
 import mongoose from 'mongoose';
 import User from '../models/user';
+import UserSettings from '../models/userSettings';
+import UserKraken from '../models/userKraken';
 
-const models = { User };
+const models = {
+  User,
+  UserSettings,
+  UserKraken
+};
 
 const ConnectDB = async (fastify, options) => {
   try {
