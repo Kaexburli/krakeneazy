@@ -32,7 +32,7 @@
     second: "2-digit",
   };
 
-  const formatter = new Intl.DateTimeFormat("fr-FR", medium);
+  const formatter = new Intl.DateTimeFormat(navigator.language, medium);
 
   const cmtt = (milli) => {
     const seconds = Math.floor((milli / 1000) % 60);

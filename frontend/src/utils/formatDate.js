@@ -21,7 +21,7 @@ const formatDate = (timestamp, patern) => {
 
   patern = typeof patern === "undefined" ? "D" : patern;
 
-  const formatter = new Intl.DateTimeFormat("fr-FR", format[patern]);
+  const formatter = new Intl.DateTimeFormat(navigator.language, format[patern]);
 
   return formatter.format(date);
 }

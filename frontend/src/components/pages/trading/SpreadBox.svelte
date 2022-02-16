@@ -22,7 +22,7 @@
   let decimals = $assetpair.pair_decimals;
   let lot_decimals = $assetpair.lot_decimals;
 
-  const formatter = new Intl.DateTimeFormat("fr-FR", {
+  const formatter = new Intl.DateTimeFormat(navigator.language, {
     hour12: false,
     year: "numeric",
     month: "numeric",
