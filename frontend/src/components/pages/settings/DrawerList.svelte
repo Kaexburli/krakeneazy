@@ -41,19 +41,17 @@
   .drawer-container {
     position: relative;
     display: flex;
-    min-height: 400px;
-    max-height: 550px;
-    border: 1px solid
-      var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.1));
+    align-items: stretch;
+    border: 1px solid #222222;
     overflow: hidden;
     z-index: 0;
   }
 
   * :global(.app-content) {
     flex: auto;
-    overflow: auto;
+    /* overflow: auto; */
     position: relative;
-    flex-grow: 1;
+    /* flex-grow: 1; */
   }
 
   .main-content {

@@ -4,8 +4,8 @@
 
   import DrawerList from "./DrawerList.svelte";
   import Profile from "./profile.svelte";
-  import Tab2 from "./kraken.svelte";
-  import Tab3 from "./settings.svelte";
+  import Kraken from "./kraken.svelte";
+  import Settings from "./settings.svelte";
 
   let items = [
     {
@@ -18,13 +18,13 @@
       label: $_("settings.drawer.labels.kraken"),
       subtitle: $_("settings.drawer.subtitle.kraken"),
       position: 2,
-      component: Tab2,
+      component: Kraken,
     },
     {
       label: $_("settings.drawer.labels.settings"),
       subtitle: $_("settings.drawer.subtitle.settings"),
       position: 3,
-      component: Tab3,
+      component: Settings,
     },
   ];
 </script>
