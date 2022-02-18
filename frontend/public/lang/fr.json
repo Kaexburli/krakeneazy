@@ -3,6 +3,9 @@
     "name": "Kurlitrade",
     "choosePair": "Veuillez choisir une paire"
   },
+  "online": {
+    "errorMessage": "Problème réseaux, veuillez vérifier votre connection internet."
+  },
   "sidebar": {
     "home": "Accueil",
     "account": "Compte",
@@ -33,9 +36,9 @@
     },
     "refreshToken": {
       "title": "Déconnexion imminente",
-      "btn": "Rester connecté!",
-      "message": "Votre session va expirer dans",
-      "secondes": "{n, plural, =0 {seconde} one {# seconde} other {# secondes}}"
+      "btnStay": "Rester connecté!",
+      "btnLogout": "Déconnexion",
+      "message": "Votre session va expirer dans {n, plural, =0 {seconde} one {# seconde} other {# secondes}}"
     }
   },
   "home": {

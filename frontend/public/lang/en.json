@@ -3,6 +3,9 @@
     "name": "Kurlitrade",
     "choosePair": "Please choose a pair"
   },
+  "online": {
+    "errorMessage": "Network problem, please check your internet connection."
+  },
   "sidebar": {
     "home": "Home",
     "account": "Account",
@@ -33,9 +36,9 @@
     },
     "refreshToken": {
       "title": "Disconnection in progress",
-      "btn": "Stay logged in!",
-      "message": "Your session will expire in",
-      "secondes": "{n, plural, =0 {seconde} one {# seconde} other {# secondes}}"
+      "btnStay": "Stay logged in!",
+      "btnLogout": "Disconnect",
+      "message": "Your session will expire in {n, plural, =0 {seconde} one {# seconde} other {# secondes}}"
     }
   },
   "home": {
