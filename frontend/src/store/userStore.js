@@ -148,7 +148,8 @@ const refreshToken = async (jwt) => {
  ************************************************************************************************/
 const callRefreshToken = async () => {
   try {
-    const res = await userRefreshToken(user.token);
+    const jwt = await parseJwt(user);
+    const res = await userRefreshToken(user.token, jwt.remember);
     if (res.hasOwnProperty("error")) {
       console.log("ERROR:", res.error);
     } else {

@@ -30,7 +30,7 @@ export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
     if (!req.body) {
       throw new Error('username and Password is required!');
     }
-    const user = await User.findByCredentials(req.body.username, req.body.password);
+    const user = await User.findByCredentials(req.body.email, req.body.password);
     req.user = user || false;
   } catch (error) {
     reply.code(400).send(error);
@@ -109,6 +109,7 @@ export const loginCtrl = async (req, reply) => {
       id: req.user._id.toString(),
       firstname: req.user.firstname,
       lastname: req.user.lastname,
+      username: req.user.username,
       email: req.user.email
     }
   });
@@ -141,7 +142,7 @@ export const logoutCtrl = async (req, reply) => {
 export const refreshTokenCtrl = async (req, reply) => {
 
   if (req.user) {
-    const remember = false;
+    const remember = req.body.remember || false;
     await req.user.generateToken(remember);
   }
 
@@ -350,25 +351,29 @@ export const removeApiKeyCtrl = async (req, reply) => {
 }
 
 /**
- * changeUserDateCtrl
+ * changeUserDataCtrl
  * @description Ajout une clé api dans la base de données
  * @param { Object } req Object request
  * @param { Object } reply Object replying
  * @returns { Object } HTTP response
  */
-export const changeUserDateCtrl = async (req, reply) => {
+export const changeUserDataCtrl = async (req, reply) => {
   const { firstname, lastname, username, email, password } = req.body.user;
-  reply.send({ ok: true, controller: "changeUserDateCtrl", body: req.body });
+  const field = req.body.field;
+
   try {
-    const savedApikey = await apikey.save();
+    if (firstname) req.user.firstname = firstname;
+    if (lastname) req.user.lastname = lastname;
+    if (username) req.user.username = username;
+    if (email) req.user.email = email;
+    if (password) req.user.password = password;
+
     // save user
-    req.user.apikeys = req.user.apikeys.concat(savedApikey);
     await req.user.save();
 
-    reply.send({ ok: true, controller: "changeUserDateCtrl" });
+    reply.send({ ok: true, message: `Change ${field} done!` });
   } catch (error) {
     if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern)[0] || " apikey ";
       reply.status(400).send({ ok: false, message: `Your ${field} is already exist!` })
     }
     else {

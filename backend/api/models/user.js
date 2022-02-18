@@ -118,7 +118,8 @@ userSchema.methods.generateToken = async function (remember, reset = false) {
       firstname: user.firstname,
       lastname: user.lastname,
       username: user.username,
-      email: user.email
+      email: user.email,
+      remember
     },
     process.env.JWT_STANDARD_SECRET,
     {
@@ -158,10 +159,10 @@ userSchema.statics.findByToken = async function (token) {
  * @param { String } password
  * @returns { Object } HTTP response
  */
-userSchema.statics.findByCredentials = async (username, password) => {
+userSchema.statics.findByCredentials = async (email, password) => {
 
   // Check user
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ email });
   if (!user) {
     throw new Error('Unable to login. Wrong credentials!');
   }

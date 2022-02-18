@@ -13,7 +13,7 @@ import {
   resendConfirmEmailCtrl,
   addApiKeyCtrl,
   removeApiKeyCtrl,
-  changeUserDateCtrl
+  changeUserDataCtrl
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
@@ -82,7 +82,7 @@ export default function usersRoutes(fastify, options, done) {
         url: '/change-user-data',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
-        handler: changeUserDateCtrl
+        handler: changeUserDataCtrl
       });
 
       // refreshToken route

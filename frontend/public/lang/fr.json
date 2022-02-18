@@ -341,29 +341,31 @@
       }
     },
     "profile": {
+      "error": "Le champ \"{field}\" est incorrect!",
+      "success": "Le champ \"{field}\" a bien été mis à jour!",
       "firstname": {
         "label": "Prénom",
-        "helper": "Ce paramètre n'est pas modifiable"
+        "helper": "Ce n'est pas un prénom valide."
       },
       "lastname": {
         "label": "Nom",
-        "helper": "Ce paramètre n'est pas modifiable"
+        "helper": "Ce n'est pas un nom valide."
       },
       "username": {
         "label": "Pseudo",
-        "helper": "Ce paramètre n'est pas modifiable"
+        "helper": "Ce n'est pas un pseudo valide."
       },
       "email": {
         "label": "Email",
-        "helper": "Ce paramètre n'est pas modifiable"
+        "helper": "Ce n'est pas une adresse e-mail valide."
       },
       "password": {
         "label": "Mot de passe",
-        "helper": "This parameter is not editable"
+        "helper": "Votre mot de passe n'est pas valide ! Minimum 8 caractères contenant une majuscule et un caractère spécial"
       },
       "passwordConfirm": {
         "label": "Confirmation mot de passe",
-        "helper": "This parameter is not editable"
+        "helper": "Votre mot de passe ne correspond pas à votre confirmation de mot de passe"
       }
     },
     "kraken": {

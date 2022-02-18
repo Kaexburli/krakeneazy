@@ -55,7 +55,7 @@ export const userLogin = async (data) => {
       headers,
       body: JSON.stringify({
         remember: data.remember_me,
-        username: data.log_email,
+        email: data.log_email,
         password: data.log_password,
       }),
     })
@@ -91,7 +91,7 @@ export const userLogout = async (token) => {
 /**
  * userRefreshToken
 ************************************************************************************************/
-export const userRefreshToken = async (token) => {
+export const userRefreshToken = async (token, remember) => {
   try {
     return await fetch(__env["BACKEND_URI"] + "/refresh-token", {
       method: 'POST',
@@ -100,7 +100,7 @@ export const userRefreshToken = async (token) => {
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
-        token
+        token, remember
       })
     })
       .then(checkStatus)
@@ -214,5 +214,42 @@ export const removeApiKey = async (token, data) => {
       .then(parseJSON);
   } catch (error) {
     return { error: true, message: error.message }
+  }
+}
+
+/**
+ * changeUserData
+************************************************************************************************/
+export const changeUserData = async (token, data, field) => {
+  const firstname = data.firstname || false;
+  const lastname = data.lastname || false;
+  const username = data.username || false;
+  const email = data.email || false;
+  const password = data.password || false;
+
+  const user = {
+    firstname,
+    lastname,
+    username,
+    email,
+    password
+  }
+
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/change-user-data", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        user,
+        field
+      })
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return error
   }
 }
