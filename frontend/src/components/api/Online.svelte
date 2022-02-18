@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount, onDestroy } from "svelte";
   import { wssurl, online } from "store/store.js";
   import websocketStore from "svelte-websocket-store";
@@ -73,8 +74,8 @@
     <div id="error-network">
       <div id="offline">
         <i class="fa fa-exclamation-triangle" />
-        <span class="errno">[{error}]</span>&nbsp; Problème réseaux, veuillez
-        vérifier votre connection internet.
+        <span class="errno">[{error}]</span>&nbsp;
+        {$_("online.errorMessage")}
       </div>
     </div>
   {/if}
