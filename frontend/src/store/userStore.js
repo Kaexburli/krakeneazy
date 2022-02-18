@@ -121,7 +121,7 @@ const refreshToken = async (jwt) => {
   }
   const { timerLogout } = await verifyValidity(jwt);
 
-  let refresh = convertMilli(timerLogout, true);
+  let timer = convertMilli(timerLogout, true);
 
   stoRefresh = setTimeout(() => {
     closeModal();
@@ -129,16 +129,17 @@ const refreshToken = async (jwt) => {
   }, 1000);
 
   openModal(RefreshTokenModal, {
-    title: `Déconnexion imminente`,
-    btn: `Rester connecté!`,
-    message: `Votre session va expirer dans ${refresh >= 0 && refresh <= 30 ? refresh : 0
-      } ${refresh >= 2 ? "secondes" : "seconde"}`,
+    timer,
     confirm: async () => {
       callRefreshToken();
       clearTimeout(stoRefresh);
       clearTimeout(setTimeOutLogout);
       clearTimeout(setTimeOutRefresh);
       closeModal();
+    },
+    no: async () => {
+      closeModal();
+      expiredJWT();
     },
   });
 };

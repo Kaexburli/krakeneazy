@@ -1,20 +1,26 @@
 <script>
+  import { _ } from "svelte-i18n";
+  import Button, { Label } from "@smui/button";
+
   // provided by Modals
   export let isOpen;
-
-  export let title;
-  export let btn;
-  export let message;
+  export let timer;
   export let confirm;
+  export let no;
 </script>
 
 {#if isOpen}
   <div role="dialog" class="modal">
     <div class="contents">
-      <h3>{title}</h3>
-      <p>{message}</p>
+      <h3>{$_("modal.refreshToken.title")}</h3>
+      <p>{$_("modal.refreshToken.message", { values: { n: timer } })}</p>
       <div class="actions">
-        <button class="right" on:click={confirm}>{btn}</button>
+        <Button color="secondary" on:click={no}>
+          <Label>{$_("modal.refreshToken.btnLogout")}</Label>
+        </Button>&nbsp;
+        <Button on:click={confirm} variant="outlined">
+          <Label>{$_("modal.refreshToken.btnStay")}</Label>
+        </Button>
       </div>
     </div>
   </div>
