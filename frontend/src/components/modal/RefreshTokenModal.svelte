@@ -65,22 +65,6 @@
     margin-top: 16px;
   }
 
-  button {
-    padding: 5px;
-    margin: 0 10px;
-    background-color: #333333;
-    border: 2px solid #444444;
-    cursor: pointer;
-    color: #a7a7a7;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-  }
-
-  button:hover {
-    background-color: #555555;
-  }
-
   .actions {
     margin-top: 15px;
     display: flex;
