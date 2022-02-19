@@ -1,11 +1,14 @@
 <script>
   import { _ } from "svelte-i18n";
+  import { User } from "store/userStore.js";
   import { slide } from "svelte/transition";
 
   import DrawerList from "./DrawerList.svelte";
   import Profile from "./profile.svelte";
   import Kraken from "./kraken.svelte";
   import Settings from "./settings.svelte";
+
+  const isLogged = User.isLogged();
 
   let items = [
     {
@@ -29,10 +32,12 @@
   ];
 </script>
 
-<div id="page-settings" in:slide out:slide>
-  <h1>{$_("settings.title")}</h1>
+{#if isLogged}
+  <div id="page-settings" in:slide out:slide>
+    <h1>{$_("settings.title")}</h1>
 
-  <div class="box">
-    <DrawerList {items} />
+    <div class="box">
+      <DrawerList {items} />
+    </div>
   </div>
-</div>
+{/if}

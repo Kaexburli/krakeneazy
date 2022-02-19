@@ -1,41 +1,73 @@
 <script>
   import { _ } from "svelte-i18n";
+  import { User } from "store/userStore.js";
   import { page } from "store/store.js";
 
+  const isLogged = User.isLogged();
+  if (!isLogged) page.update((n) => "home");
+
   const handleClickMenu = (slug) => {
-    page.update((n) => slug);
+    if (slug && typeof slug !== ("undefined" || null)) page.update((n) => slug);
   };
 
   const pages = [
-    { name: $_("sidebar.home"), slug: "home", icon: "fa-home" },
-    { name: $_("sidebar.account"), slug: "account", icon: "fa-user-shield" },
-    { name: $_("sidebar.trading"), slug: "trading", icon: "fa-desktop" },
+    {
+      name: $_("sidebar.home"),
+      slug: "home",
+      icon: "fa-home",
+      authenticated: false,
+    },
+    {
+      name: $_("sidebar.account"),
+      slug: "account",
+      icon: "fa-user-shield",
+      authenticated: true,
+    },
+    {
+      name: $_("sidebar.trading"),
+      slug: "trading",
+      icon: "fa-desktop",
+      authenticated: true,
+    },
     {
       name: $_("sidebar.statistics"),
       slug: "statistic",
       icon: "fa-tachometer-alt",
+      authenticated: true,
     },
-    { name: $_("sidebar.reports"), slug: "reports", icon: "fa-chart-line" },
-    { name: $_("sidebar.settings"), slug: "settings", icon: "fa-cog" },
+    {
+      name: $_("sidebar.reports"),
+      slug: "reports",
+      icon: "fa-chart-line",
+      authenticated: true,
+    },
+    {
+      name: $_("sidebar.settings"),
+      slug: "settings",
+      icon: "fa-cog",
+      authenticated: true,
+    },
   ];
 </script>
 
 <div id="sidebar">
   <div class="logo">
-    <h3>AlgoTrade</h3>
+    <h3>{$_("site.name")}</h3>
   </div>
   <ul>
-    {#each pages as { name, slug, icon }, i}
-      <li>
-        <a
-          href="/{slug}"
-          class:active={$page === slug}
-          on:click|preventDefault={() => handleClickMenu(slug)}
-        >
-          <span class="icon"><i class="fas {icon}" /></span>
-          <span class="item">{name}</span>
-        </a>
-      </li>
+    {#each pages as { name, slug, icon, authenticated }, i}
+      {#if !authenticated || (authenticated && isLogged)}
+        <li>
+          <a
+            href="/{slug}"
+            class:active={$page === slug}
+            on:click|preventDefault={() => handleClickMenu(slug)}
+          >
+            <span class="icon"><i class="fas {icon}" /></span>
+            <span class="item">{name}</span>
+          </a>
+        </li>
+      {/if}
     {/each}
   </ul>
 </div>

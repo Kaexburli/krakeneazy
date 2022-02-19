@@ -1,5 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
+  import { User } from "store/userStore.js";
   import { sound, pair } from "store/store.js";
   import { slide } from "svelte/transition";
 
@@ -14,62 +15,66 @@
 
   import { Tabs, TabList, TabPanel, Tab } from "components/tabs/tabs.js";
 
+  const isLogged = User.isLogged();
+
   const handleClickSound = () => {
     sound.update((n) => (n == "up" ? "mute" : "up"));
   };
 </script>
 
-<div id="page-account" in:slide out:slide>
-  <h1>
-    {$_("account.title")}
-    <i
-      class="btn-sound fa fa-volume-{$sound}"
-      on:click={handleClickSound}
-      muted="true"
-    />
-  </h1>
-  {#if $pair !== "false" && $pair}
-    <div class="account">
-      <BlockTradeVolume />
-      <BlockTradeBalance />
-      <BlockBalance />
-    </div>
-    <Tabs>
-      <TabList>
-        <Tab>{$_("account.tabs.openOrders")}</Tab>
-        <Tab>{$_("account.tabs.closedOrders")}</Tab>
-        <Tab>{$_("account.tabs.transaction")}</Tab>
-        <Tab>{$_("account.tabs.trades")}</Tab>
-        <Tab>{$_("account.tabs.register")}</Tab>
-      </TabList>
+{#if isLogged}
+  <div id="page-account" in:slide out:slide>
+    <h1>
+      {$_("account.title")}
+      <i
+        class="btn-sound fa fa-volume-{$sound}"
+        on:click={handleClickSound}
+        muted="true"
+      />
+    </h1>
+    {#if $pair !== "false" && $pair}
+      <div class="account">
+        <BlockTradeVolume />
+        <BlockTradeBalance />
+        <BlockBalance />
+      </div>
+      <Tabs>
+        <TabList>
+          <Tab>{$_("account.tabs.openOrders")}</Tab>
+          <Tab>{$_("account.tabs.closedOrders")}</Tab>
+          <Tab>{$_("account.tabs.transaction")}</Tab>
+          <Tab>{$_("account.tabs.trades")}</Tab>
+          <Tab>{$_("account.tabs.register")}</Tab>
+        </TabList>
 
-      <TabPanel>
-        <BlockOpenOrders />
-      </TabPanel>
+        <TabPanel>
+          <BlockOpenOrders />
+        </TabPanel>
 
-      <TabPanel>
-        <BlockClosedOrders />
-      </TabPanel>
+        <TabPanel>
+          <BlockClosedOrders />
+        </TabPanel>
 
-      <TabPanel>
-        <BlockOwnTrades />
-      </TabPanel>
+        <TabPanel>
+          <BlockOwnTrades />
+        </TabPanel>
 
-      <TabPanel>
-        <BlockTradesHistory />
-      </TabPanel>
+        <TabPanel>
+          <BlockTradesHistory />
+        </TabPanel>
 
-      <TabPanel>
-        <BlockLedgers />
-      </TabPanel>
-    </Tabs>
-  {:else}
-    <div class="main-info">
-      <i class="fas fa-info-circle" />
-      <span>{$_("site.choosePair")}</span>
-    </div>
-  {/if}
-</div>
+        <TabPanel>
+          <BlockLedgers />
+        </TabPanel>
+      </Tabs>
+    {:else}
+      <div class="main-info">
+        <i class="fas fa-info-circle" />
+        <span>{$_("site.choosePair")}</span>
+      </div>
+    {/if}
+  </div>
+{/if}
 
 <style>
   .account {
