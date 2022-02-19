@@ -23,7 +23,7 @@
   let decimals = $assetpair.pair_decimals;
 
   const updatePriceClass = (tick) => {
-    if (typeof tick !== "undefined" && tick.hasOwnProperty("a")) {
+    if (typeof tick !== "undefined" && tick && tick.hasOwnProperty("a")) {
       spread_calcul = (tick["a"][0] - tick["b"][0]).toFixed(decimals);
 
       if (tick["c"][0] > pricetmp) priceway = "price-up";
@@ -53,17 +53,17 @@
 
   onMount(() => {
     trade.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
+      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1)
         if (tick.service === "Trade" && tick.data) tradedata = tick.data;
     });
 
     spread.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
+      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1)
         if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
     });
 
     ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
+      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
         if (tick.service === "Ticker" && tick.data) {
           tickerdata = tick.data;
           updatePriceClass(tickerdata);
@@ -72,7 +72,7 @@
     });
 
     book.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length) {
+      if (typeof tick !== "undefined" && tick && Object.keys(tick).length) {
         if (tick.service === "OrderBook" && tick.data) {
           bookdata = tick.data;
           getBook(bookdata);

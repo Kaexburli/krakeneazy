@@ -10,7 +10,7 @@
 
   onMount(() => {
     ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
+      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
         if (tick.service === "Ticker" && tick.data) {
           tickerdata = tick.data;
           dispatch("loading", { loading: true });

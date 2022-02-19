@@ -43,6 +43,7 @@
   };
 
   $: if (
+    $tickeralert &&
     typeof $tickeralert !== "undefined" &&
     typeof $pricealertlist !== "undefined" &&
     display
@@ -51,6 +52,7 @@
     pairs.forEach((pair) => {
       if (
         typeof $tickeralert[pair] !== "undefined" &&
+        $tickeralert[pair] !== null &&
         $tickeralert[pair].hasOwnProperty("data")
       ) {
         if ($tickeralert[pair].data.hasOwnProperty("a")) {
