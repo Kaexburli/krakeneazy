@@ -1,12 +1,29 @@
+import FastifyAuth from 'fastify-auth';
+import {
+  asyncVerifyJWTCtrl,
+  asyncVerifyUsernameAndPasswordCtrl,
+} from '../controllers/private/userController.js'
+
 import { getTradeVolume } from '../controllers/private/userdata.js'
 
-const TradeVolumeOpts = {
-  handler: getTradeVolume,
-}
-
 export default function PrivateTradeVolumeRoute(fastify, options, done) {
-  // Get Api TradeVolume - private
-  fastify.get('/api/private/tradevolume/:pair', TradeVolumeOpts)
+
+  fastify
+    .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
+    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
+    .register(FastifyAuth)
+    .after(() => {
+
+      // Get Api TradeVolume - private
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/tradevolume/:pair',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getTradeVolume
+      });
+
+    });
 
   done()
 }

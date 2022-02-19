@@ -1,12 +1,29 @@
+import FastifyAuth from 'fastify-auth';
+import {
+  asyncVerifyJWTCtrl,
+  asyncVerifyUsernameAndPasswordCtrl,
+} from '../controllers/private/userController.js'
+
 import { getBalance } from '../controllers/private/userdata.js'
 
-const BalanceOpts = {
-  handler: getBalance,
-}
-
 export default function PrivateBalanceRoute(fastify, options, done) {
-  // Get Api Balance - private
-  fastify.get('/api/private/balance', BalanceOpts)
+
+  fastify
+    .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
+    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
+    .register(FastifyAuth)
+    .after(() => {
+
+      // Get Api Balance - private
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/balance',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getBalance
+      });
+
+    });
 
   done()
 }

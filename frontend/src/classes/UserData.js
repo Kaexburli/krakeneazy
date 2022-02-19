@@ -1,8 +1,11 @@
 import Fetch from "utils/Runfetch.js"
 import { fetchurl } from "store/store.js";
+import { User } from "store/userStore.js";
 
 let url;
+let user;
 fetchurl.subscribe((v) => url = v);
+User.subscribe((v) => user = v);
 
 class UserData {
   constructor() {
@@ -11,6 +14,7 @@ class UserData {
     this.params = null;
     this.url = null;
     this.server = url + "/api/private/";
+    this.token = user.token || false;
   }
 
   /**
@@ -21,10 +25,15 @@ class UserData {
 
   // Get kraken /private/Balance
   async getBalance() {
+    this.endpoint = "balance";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
+
     try {
-      this.endpoint = "balance"
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -37,11 +46,16 @@ class UserData {
 
   // Get kraken /private/TradeBalance
   async getTradeBalance(params) {
+    this.endpoint = "tradebalance";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
+
     try {
-      this.endpoint = "tradebalance"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -54,14 +68,18 @@ class UserData {
 
   // Get kraken /private/OpenOrders
   async getOpenOrders(params) {
+    this.endpoint = "openorders";
 
-    params = Object.values(params).join('/')
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`);
+    }
+
+    params = Object.values(params).join('/');
 
     try {
-      this.endpoint = "openorders"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -74,14 +92,18 @@ class UserData {
 
   // Get kraken /private/OpenOrders
   async getClosedOrders(params) {
+    this.endpoint = "closedorders";
 
-    params = Object.values(params).join('/')
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
+
+    params = Object.values(params).join('/');
 
     try {
-      this.endpoint = "closedorders"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -94,16 +116,20 @@ class UserData {
 
   // Get kraken /private/TradeVolume
   async getTradeVolume(params) {
+    this.endpoint = "tradevolume"
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
 
     if (typeof params.pair === undefined && !params.pair) {
       params.pair = "XBTUSD"
     }
 
     try {
-      this.endpoint = "tradevolume"
       this.params = params.pair
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -116,10 +142,15 @@ class UserData {
 
   // Get kraken /private/Ledgers
   async getLedgers(params) {
+    this.endpoint = "ledgers";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
+
     try {
-      this.endpoint = "ledgers"
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -132,10 +163,15 @@ class UserData {
 
   // Get kraken /private/TradeHistory
   async getTradesHistory(params) {
+    this.endpoint = "tradeshistory";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
+
     try {
-      this.endpoint = "tradeshistory"
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -148,14 +184,18 @@ class UserData {
 
   // Get kraken /private/openPositions
   async getOpenPositions(params) {
+    this.endpoint = "openpositions";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "openpositions"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -168,14 +208,18 @@ class UserData {
 
   // Get kraken /private/addExport
   async addExport(params) {
+    this.endpoint = "addexport";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "addexport"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -188,14 +232,18 @@ class UserData {
 
   // Get kraken /private/statusExport
   async statusExport(params) {
+    this.endpoint = "statusexport";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "statusexport"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error')) {
         if (res.hasOwnProperty('statusCode') && res.hasOwnProperty('message'))
@@ -211,14 +259,18 @@ class UserData {
 
   // Get kraken /private/retrieveExport
   async retrieveExport(params) {
+    this.endpoint = "retrieveexport";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "retrieveexport"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -231,14 +283,18 @@ class UserData {
 
   // Get kraken /private/removeOldFile
   async removeOldFile(params) {
+    this.endpoint = "removeoldexport";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
 
     params = (typeof params !== "undefined") ? params : ''
 
     try {
-      this.endpoint = "removeoldexport"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      const res = await Fetch(this.url, this.endpoint)
+      const res = await Fetch(this.url, this.endpoint, this.token)
       return res;
     } catch (error) {
       console.error(error)
@@ -247,13 +303,17 @@ class UserData {
 
   // Get kraken /private/readExport
   async readExport(params) {
+    this.endpoint = "readexport";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
     try {
-      this.endpoint = "readexport"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
+      let res = await Fetch(this.url, this.endpoint, this.token)
 
       if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
         return { error: "ERROR: " + res.statusCode + " " + res.message }
@@ -266,13 +326,18 @@ class UserData {
 
   // Check if folder exist
   async checkExportExist(params) {
+    this.endpoint = "checkexport";
+
+    if (!this.token) {
+      console.log(`Token was not fund for ${this.endpoint}`)
+    }
+
     params = (typeof params === "object") ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "checkexport"
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      return await Fetch(this.url, this.endpoint)
+      return await Fetch(this.url, this.endpoint, this.token)
     } catch (error) {
       console.error(error)
     }

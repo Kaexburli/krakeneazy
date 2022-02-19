@@ -44,7 +44,7 @@
 
     <Header />
     <Sidebar />
-    <Main />
+    <Main {User} />
     <Footer />
     <PriceAlert display="true" />
   </div>

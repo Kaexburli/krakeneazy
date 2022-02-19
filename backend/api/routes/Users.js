@@ -31,6 +31,38 @@ export default function usersRoutes(fastify, options, done) {
         handler: registerCtrl
       });
 
+      // email-confirm
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/email-confirm/:confirm_token',
+        logLevel: 'warn',
+        handler: confirmEmailCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/forgot-password',
+        logLevel: 'warn',
+        handler: forgotPasswordCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/forgot-password-confirm/:resetPasswordToken',
+        logLevel: 'warn',
+        handler: forgotPasswordConfirmCtrl
+      });
+
+      // forgot-password
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/send-confirm-email',
+        logLevel: 'warn',
+        handler: resendConfirmEmailCtrl
+      });
+
       // login route
       fastify.route({
         method: ['POST', 'HEAD'],
@@ -92,38 +124,6 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: refreshTokenCtrl
-      });
-
-      // email-confirm
-      fastify.route({
-        method: ['GET', 'HEAD'],
-        url: '/email-confirm/:confirm_token',
-        logLevel: 'warn',
-        handler: confirmEmailCtrl
-      });
-
-      // forgot-password
-      fastify.route({
-        method: ['POST', 'HEAD'],
-        url: '/forgot-password',
-        logLevel: 'warn',
-        handler: forgotPasswordCtrl
-      });
-
-      // forgot-password
-      fastify.route({
-        method: ['GET', 'HEAD'],
-        url: '/forgot-password-confirm/:resetPasswordToken',
-        logLevel: 'warn',
-        handler: forgotPasswordConfirmCtrl
-      });
-
-      // forgot-password
-      fastify.route({
-        method: ['POST', 'HEAD'],
-        url: '/send-confirm-email',
-        logLevel: 'warn',
-        handler: resendConfirmEmailCtrl
       });
 
     });

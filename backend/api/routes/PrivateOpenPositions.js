@@ -1,12 +1,29 @@
+import FastifyAuth from 'fastify-auth';
+import {
+  asyncVerifyJWTCtrl,
+  asyncVerifyUsernameAndPasswordCtrl,
+} from '../controllers/private/userController.js'
+
 import { getOpenPositions } from '../controllers/private/userdata.js'
 
-const OpenPositionsOpts = {
-  handler: getOpenPositions,
-}
-
 export default function PrivateOpenPositionsRoute(fastify, options, done) {
-  // Get Api OpenPositions - private
-  fastify.get('/api/private/openpositions', OpenPositionsOpts)
+
+  fastify
+    .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
+    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
+    .register(FastifyAuth)
+    .after(() => {
+
+      // Get Api OpenPositions - private
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/openpositions',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getOpenPositions
+      });
+
+    });
 
   done()
 }

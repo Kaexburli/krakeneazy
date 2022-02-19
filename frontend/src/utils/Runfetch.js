@@ -10,7 +10,7 @@ const fetch = new Fetch()
  */
 
 
-const callApiFetch = async (url, endpoint) => {
+const callApiFetch = async (url, endpoint, token = false) => {
 
   try {
 
@@ -21,7 +21,15 @@ const callApiFetch = async (url, endpoint) => {
     //   console.log('[Fetch Background]:', background, endpoint)
     // })
 
-    let response = await fetch.background.expect(JSON).get(url);
+    let options = {}
+
+    if (token) {
+      options = {
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+      }
+    }
+
+    let response = await fetch.background.expect(JSON).get(url, options);
 
     if (response.hasOwnProperty('error')) {
       let errmsg = `[${response.statusCode}] ${response.error} ${response.message}`;
