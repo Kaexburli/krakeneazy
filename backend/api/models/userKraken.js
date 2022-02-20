@@ -4,14 +4,12 @@ const userKrakenSchema = mongoose.Schema(
   {
     apiKeyPrivate: {
       type: String,
-      minlength: 80,
       trim: true,
       unique: true,
       default: false
     },
     apiKeyPublic: {
       type: String,
-      minlength: 50,
       trim: true,
       unique: true,
       default: false
