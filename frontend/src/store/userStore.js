@@ -77,7 +77,7 @@ const parseJwt = async (user) => {
   try {
     return await jwt_decode(user.token);
   } catch (error) {
-    console.error("[ERROR][parseJwt]:", error);
+    console.error("[ERROR]:", error);
     return null;
   }
 }
@@ -152,11 +152,11 @@ const callRefreshToken = async () => {
     const jwt = await parseJwt(user);
     const res = await userRefreshToken(user.token, jwt.remember);
     if (res.hasOwnProperty("error")) {
-      console.log("ERROR:", res.error);
+      console.error("[ERROR]:", res.error);
     } else {
       const profile = await userProfile(res.token);
       if (profile.ok) {
-        User.refresh({ token: res.token, user: profile.user });
+        User.refresh({ token: res.token, id: profile.user._id });
         init();
       }
       else {
@@ -165,7 +165,7 @@ const callRefreshToken = async () => {
       }
     }
   } catch (error) {
-    console.error("ERROR:", error);
+    console.error("[ERROR]:", error);
   }
 };
 
@@ -204,18 +204,38 @@ const getJWTData = async () => {
  * refresh
 ************************************************************************************************/
 const refresh = (user) => {
-  user = JSON.stringify(user)
-  localStorage.setItem("user", user)
-  return set(JSON.parse(localStorage.getItem("user")))
+  if (
+    !user.hasOwnProperty('token') ||
+    !user.hasOwnProperty('id') ||
+    typeof user.token === (null || false || undefined || "undefined") ||
+    typeof user.id === (null || false || undefined || "undefined")
+  ) {
+    return false;
+  }
+  else {
+    user = JSON.stringify(user)
+    localStorage.setItem("user", user)
+    return set(JSON.parse(localStorage.getItem("user")))
+  }
 }
 
 /**
  * signin
 ************************************************************************************************/
 const signin = (user) => {
-  user = JSON.stringify(user)
-  localStorage.setItem("user", user)
-  return update(v => JSON.parse(localStorage.getItem("user")))
+  if (
+    !user.hasOwnProperty('token') ||
+    !user.hasOwnProperty('id') ||
+    typeof user.token === (null || false || undefined || "undefined") ||
+    typeof user.id === (null || false || undefined || "undefined")
+  ) {
+    return false;
+  }
+  else {
+    user = JSON.stringify(user)
+    localStorage.setItem("user", user)
+    return update(v => JSON.parse(localStorage.getItem("user")))
+  }
 }
 
 /**
