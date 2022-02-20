@@ -349,7 +349,7 @@
       isSuccess = `${$_("auth.welcome")} ${login.user.firstname}!`;
       Notification(isSuccess, "success", true);
       resetForm();
-      User.signin({ token: login.token });
+      User.signin({ token: login.token, id: login.user.id });
     }
   };
 

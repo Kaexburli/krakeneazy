@@ -154,8 +154,15 @@ const callRefreshToken = async () => {
     if (res.hasOwnProperty("error")) {
       console.log("ERROR:", res.error);
     } else {
-      User.refresh({ token: res.token });
-      init();
+      const profile = await userProfile(res.token);
+      if (profile.ok) {
+        User.refresh({ token: res.token, user: profile.user });
+        init();
+      }
+      else {
+        User.signout();
+        location.reload();
+      }
     }
   } catch (error) {
     console.error("ERROR:", error);
