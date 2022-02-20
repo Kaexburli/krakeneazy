@@ -1,5 +1,5 @@
 <script>
-  import { t, _ } from "svelte-i18n";
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { User } from "store/userStore.js";
   import { changeUserData } from "utils/userApi.js";
