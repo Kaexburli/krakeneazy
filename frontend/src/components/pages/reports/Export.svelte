@@ -23,13 +23,13 @@
     easing: linear,
   });
 
-  let datas = false;
-  let message = false;
-  let isQueued = false;
-  let isError = false;
-  let isLoading = false;
-  let progressBar = false;
-  let errorMsg;
+  let datas = false,
+    message = false,
+    isQueued = false,
+    isError = false,
+    isLoading = false,
+    progressBar = false,
+    errorMsg;
 
   /**
    * wait
@@ -116,7 +116,7 @@
           },
         });
       } else {
-        console.error("statusExport error");
+        console.error("statusExport unoccured error !!!!!!");
       }
     };
   };
@@ -125,7 +125,6 @@
    * retreiveExport
    */
   const retreiveExport = (ctx, event) => {
-    console.log("retreiveExport");
     message += `<br />${$_("reports.export.endExport")}<br />`;
     progress.set(1);
     progressBar = false;

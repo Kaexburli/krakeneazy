@@ -10,12 +10,12 @@
 
   const ud = new UserData();
 
-  let error = false;
-  let tradeshistory = false;
-  let tradeshistory_store = false;
-  let limit = 0;
-  let count = false;
-  let life = 300; // Secondes
+  let error = false,
+    tradeshistory = false,
+    tradeshistory_store = false,
+    limit = 0,
+    count = false,
+    life = 300; // Secondes
 
   const get__store = (store) => {
     let $val;
@@ -63,7 +63,7 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   };
 
@@ -71,7 +71,7 @@
     try {
       await GetTradesHistory();
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   });
 </script>

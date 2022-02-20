@@ -8,24 +8,23 @@
   import { tweened } from "svelte/motion";
   import { linear } from "svelte/easing";
 
-  let currency;
-  let tradevol;
-  let next_vol;
-  let progress_value;
-  let progress_percent;
-  let actual_fees_taker;
-  let actual_fees_maker;
-  let next_fees_taker;
-  let next_fees_maker;
+  let currency,
+    tradevol,
+    next_vol,
+    progress_value,
+    progress_percent,
+    actual_fees_taker,
+    actual_fees_maker,
+    next_fees_taker,
+    next_fees_maker,
+    error = false,
+    tradevolume = false,
+    limit = 0;
 
   const progress = tweened(0, {
     duration: 1000,
     easing: linear,
   });
-
-  let error = false;
-  let tradevolume = false;
-  let limit = 0;
 
   const GetTradeVolume = async () => {
     try {
@@ -57,7 +56,7 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   };
 

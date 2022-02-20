@@ -3,20 +3,7 @@
   import { onMount } from "svelte";
   import { User } from "store/userStore.js";
 
-  import FormField from "@smui/form-field";
-  import Radio from "@smui/radio";
-  import Button from "@smui/button";
-  import Checkbox from "@smui/checkbox";
-  import Textfield from "@smui/textfield";
-  import Icon from "@smui/textfield/icon";
-  import HelperText from "@smui/textfield/helper-text";
-  import LayoutGrid, { Cell } from "@smui/layout-grid";
-
-  let userProfile = false,
-    firstname = "",
-    lastname = "",
-    username = "",
-    email = "";
+  let userProfile = false;
 
   const getProfile = async () => {
     return await User.getProfile();

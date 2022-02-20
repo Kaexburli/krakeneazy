@@ -11,12 +11,12 @@
   import { Moon } from "svelte-loading-spinners";
   import { User } from "store/userStore.js";
 
-  let isLoading = false;
-  let isError = false;
-  let isSuccess = false;
-  let isLoginFom = true;
-  let isForgotFom = false;
-  let formClass = isLoginFom ? "loginForm" : "registerForm";
+  let isLoading = false,
+    isError = false,
+    isSuccess = false,
+    isLoginFom = true,
+    isForgotFom = false,
+    formClass = isLoginFom ? "loginForm" : "registerForm";
 
   const flashMessage = {
     confirmation: {

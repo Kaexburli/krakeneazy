@@ -8,13 +8,12 @@
   import formatDate from "utils/formatDate.js";
   import { SyncLoader } from "svelte-loading-spinners";
 
-  let error = false;
-  let count = 0;
-  let owntradesdata = false;
+  let error = false,
+    count = 0,
+    owntradesdata = false;
 
   onMount(() => {
     owntrades.subscribe((tick) => {
-      // console.log(tick);
       if (!$online) {
         error = true;
         return false;

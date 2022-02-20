@@ -10,12 +10,12 @@
 
   const ud = new UserData();
 
-  let error = false;
-  let ledgers = false;
-  let ledgers_store = false;
-  let limit = 0;
-  let count = false;
-  let life = 300; // Secondes
+  let error = false,
+    ledgers = false,
+    ledgers_store = false,
+    limit = 0,
+    count = false,
+    life = 300; // Secondes
 
   const typeLabel = {
     margin: $_("account.ledgers.typeLabel.margin"),
@@ -73,7 +73,7 @@
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error("[ERROR]:", error);
     }
   };
 

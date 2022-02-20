@@ -10,9 +10,7 @@
     let res = await Fetch(fetchUrl, "assets", token);
 
     if (typeof res !== "undefined" && res.hasOwnProperty("error"))
-      console.error(
-        "[GET ASSETS] ERROR: " + res.statusCode + " " + res.message
-      );
+      console.error("[ERROR] : " + res.statusCode + " " + res.message);
 
     assets.set(res);
   };

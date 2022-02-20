@@ -18,9 +18,8 @@
     email = "",
     password = "",
     passwordConfirm = "",
-    saveLoad = false;
-
-  let invalidEmail = false,
+    saveLoad = false,
+    invalidEmail = false,
     invalidFirstname = false,
     invalidLastname = false,
     invalidUsername = false,
@@ -117,8 +116,6 @@
         { [field]: value },
         field
       );
-
-      console.log(change);
 
       if (change.ok) {
         Notification(

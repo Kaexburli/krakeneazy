@@ -27,36 +27,39 @@
     pricealertlist,
   } from "store/store.js";
 
-  let type;
-  let series;
-  let volSeries;
-  let chartApi;
-  let activetooltip = false;
-  let activeOrders = false;
-  let activePositions = false;
-  let crosshairMode = false;
-  let rightPriceScaleMode = false;
-  let volumeDisplaying = false;
-  let markers_orders = [];
-  let markers_positions = [];
-  let newCandel = false;
-  let ohlcLastItemhistory = null;
-  let lastCandelStartTime = null;
-  let lastCandelEndTime = null;
-  let timeZoneOffset = new Date().getTimezoneOffset() / -60;
-  let intval = $interval * 60;
-  let isMounted = false;
-  let pricealert = "0.00";
-  let hasAlertForPair;
-  let open, high, low, close, volume;
-  let legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M";
-  let fetchUrl = $fetchurl + "/api/ohlc/" + $pair + "/" + $interval;
+  let type,
+    series,
+    volSeries,
+    chartApi,
+    activetooltip = false,
+    activeOrders = false,
+    activePositions = false,
+    crosshairMode = false,
+    rightPriceScaleMode = false,
+    volumeDisplaying = false,
+    markers_orders = [],
+    markers_positions = [],
+    newCandel = false,
+    ohlcLastItemhistory = null,
+    lastCandelStartTime = null,
+    lastCandelEndTime = null,
+    timeZoneOffset = new Date().getTimezoneOffset() / -60,
+    intval = $interval * 60,
+    isMounted = false,
+    pricealert = "0.00",
+    hasAlertForPair,
+    open,
+    high,
+    low,
+    close,
+    volume,
+    legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M",
+    fetchUrl = $fetchurl + "/api/ohlc/" + $pair + "/" + $interval,
+    error = false,
+    openpositions = false,
+    limit = 0;
 
   const ud = new UserData();
-
-  let error = false;
-  let openpositions = false;
-  let limit = 0;
 
   const GetOpenPositions = async () => {
     try {
@@ -77,14 +80,8 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
-  };
-
-  const cmtt = (milliseconde) => {
-    return new Date(milliseconde).toLocaleTimeString(navigator.language, {
-      timeZone: "UTC",
-    });
   };
 
   /**
@@ -138,7 +135,7 @@
         }
       }
     } catch (error) {
-      console.error("[ERROR] getChartHistoryDatas: ", error);
+      console.error("[ERROR]:", error);
     }
   };
 
@@ -677,15 +674,6 @@
         ? PriceScaleMode.Logarithmic
         : PriceScaleMode.Normal,
     },
-    // leftPriceScale: {
-    //   scaleMargins: {
-    //     top: 0.2,
-    //     bottom: 0.2,
-    //   },
-    //   drawTicks: true,
-    //   visible: true,
-    //   borderVisible: false,
-    // },
     timeScale: {
       timeVisible: true,
       secondsVisible: true,
@@ -897,15 +885,6 @@
           {$_("home.chart.alert.delAlerts")}
         </a>
       {/if}
-      <!-- <hr />
-      <a href="/">
-        <i class="fa fa-undo">&nbsp;</i> Retour
-        <span>Ctrl + Z</span>
-      </a>
-      <a href="/">
-        <i class="fa fa-redo">&nbsp;</i> Rétablir
-        <span>Ctrl + Y</span>
-      </a> -->
     </div>
   </div>
 {/if}

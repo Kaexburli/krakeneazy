@@ -34,18 +34,15 @@
 
   onMount(() => {
     ticker.subscribe((tick) => {
-      // console.log("wsTicker:", tick);
       if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
         if (tick.service === "Ticker" && tick.data) tickerdata = tick.data;
       }
     });
     spread.subscribe((tick) => {
-      // console.log("wsSpread:", tick);
       if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1)
         if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
     });
     trade.subscribe((tick) => {
-      // console.log("wsTrade:", tick);
       if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
         if (tick.service === "Trade" && tick.data) tradedata = tick.data;
       }

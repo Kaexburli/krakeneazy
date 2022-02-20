@@ -14,8 +14,8 @@ const callApiFetch = async (url, endpoint, token = false) => {
 
   try {
 
-    const checkratecount = checkRateCount(endpoint);
-    if (!checkratecount) return false;
+    // const checkratecount = checkRateCount(endpoint);
+    // if (!checkratecount) return false;
 
     // hasBackground.subscribe((background) => {
     //   console.log('[Fetch Background]:', background, endpoint)

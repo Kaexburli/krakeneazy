@@ -13,8 +13,8 @@
   import { fade } from "svelte/transition";
   import { SyncLoader } from "svelte-loading-spinners";
 
-  let limit = 0;
-  let error = false;
+  let limit = 0,
+    error = false;
 
   /**
    * checkStatusDatas
@@ -112,9 +112,6 @@
           break;
       }
     });
-
-    // console.log("openorders_tmp", openorders_tmp);
-    // openordersdata.update((n) => openorders_tmp);
   };
 
   /**
@@ -191,7 +188,7 @@
         error = false;
       }
     } catch (error) {
-      console.error(error);
+      console.error("[ERROR]:", error);
     }
   };
 
@@ -200,10 +197,6 @@
   $: if (!$openordersdata) {
     GetOpenOrders();
   }
-
-  // $: if ($openordersdata) {
-  //   console.log("openordersdata", $openordersdata);
-  // }
 </script>
 
 <div class="block open-orders">

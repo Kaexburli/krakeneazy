@@ -9,12 +9,12 @@
   import { SyncLoader } from "svelte-loading-spinners";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
-  let error = false;
-  let closedorders = false;
-  let closedorders_store = false;
-  let limit = 0;
-  let count = false;
-  let life = 300; // Secondes
+  let error = false,
+    closedorders = false,
+    closedorders_store = false,
+    limit = 0,
+    count = false,
+    life = 300; // Secondes
 
   const get__store = (store) => {
     let $val;
@@ -62,7 +62,7 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   };
 

@@ -6,21 +6,21 @@
 
   const dispatch = createEventDispatcher();
 
-  let spread_calcul = "0.0";
-  let asks = [];
-  let bids = [];
-  let ask = [];
-  let bid = [];
-  let bookdata = false;
-  let tickerdata = false;
-  let tradedata = false;
-  let spreaddata = false;
-  let totalVask = 0;
-  let totalVbid = 0;
-  let priceway = "";
-  let pricetmp = 0;
-  let quote = $assetpair.quote;
-  let decimals = $assetpair.pair_decimals;
+  let spread_calcul = "0.0",
+    asks = [],
+    bids = [],
+    ask = [],
+    bid = [],
+    bookdata = false,
+    tickerdata = false,
+    tradedata = false,
+    spreaddata = false,
+    totalVask = 0,
+    totalVbid = 0,
+    priceway = "",
+    pricetmp = 0,
+    quote = $assetpair.quote,
+    decimals = $assetpair.pair_decimals;
 
   const updatePriceClass = (tick) => {
     if (typeof tick !== "undefined" && tick && tick.hasOwnProperty("a")) {

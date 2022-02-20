@@ -41,7 +41,6 @@
       initial: 0,
       next: 0,
       dismissable: true,
-      // target: "new",
     });
   };
 

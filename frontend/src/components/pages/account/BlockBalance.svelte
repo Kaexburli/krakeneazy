@@ -8,18 +8,14 @@
 
   const ud = new UserData();
 
-  let error = false;
-  let balance = false;
-  let limit = 0;
+  let error = false,
+    balance = false,
+    limit = 0;
 
   const GetBalance = async () => {
     try {
       if (!$online) {
         error = true;
-        return false;
-      }
-
-      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
         return false;
       }
 
@@ -35,7 +31,7 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   };
 

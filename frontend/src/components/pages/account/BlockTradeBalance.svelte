@@ -9,14 +9,14 @@
   import { SyncLoader } from "svelte-loading-spinners";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
-  let error = false;
-  let tradebalancedata;
-  let limit = 0;
-  let balance_way = "down";
-  let balance_way_tmp;
-  let played = false;
-  let trading_percent;
-  const asset = $devise;
+  let error = false,
+    tradebalancedata,
+    limit = 0,
+    balance_way = "down",
+    balance_way_tmp,
+    played = false,
+    trading_percent,
+    asset = $devise;
 
   const playSound = (track) => {
     let audio = new Audio("../sound/" + track + ".wav");
@@ -84,7 +84,7 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   };
 

@@ -9,13 +9,11 @@
   import { statisticsService } from "machin/statistics/Service.js";
 
   import { FetchExport, ProcessingData } from "machin/statistics/Method.js";
-  import { log } from "xstate/lib/actions";
-  import { mapValues } from "xstate/lib/utils";
 
-  let errorMsg;
-  let datas = [];
-  let isError = false;
-  let isLoading = false;
+  let errorMsg,
+    datas = [],
+    isError = false,
+    isLoading = false;
 
   /**
    * displayError
@@ -24,7 +22,7 @@
    * @param { Object } event Evenement
    */
   const displayError = async (ctx, event) => {
-    console.error("[displayError]:", ctx, event);
+    console.error("[ERROR]:", ctx, event);
     await wait(30000);
     send({ type: "FETCH" });
   };
@@ -87,7 +85,7 @@
 </script>
 
 {#if isError}
-  <span class="error">[ERREUR]: {errorMsg}</span>
+  <span class="error">{errorMsg}</span>
 {/if}
 
 <div class="block">
