@@ -4,7 +4,18 @@
     "choosePair": "Veuillez choisir une paire"
   },
   "online": {
-    "errorMessage": "Problème réseaux, veuillez vérifier votre connection internet."
+    "errorMessage": "Problème réseaux, veuillez vérifier votre connection internet.",
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "cancel_only": "Annulation",
+    "post_only": "Post"
+  },
+  "krakenStatusAPI": {
+    "title": "Incidents liés à Kraken",
+    "affecté": "Affecté:",
+    "started": "Démarré:",
+    "updated": "Mise à jour:",
+    "résolu": "Résolu:"
   },
   "pricealert": {
     "title": "Alert!",

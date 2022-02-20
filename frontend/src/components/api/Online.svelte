@@ -2,8 +2,10 @@
   import { _ } from "svelte-i18n";
   import { onMount, onDestroy } from "svelte";
   import { wssurl, online } from "store/store.js";
+  import { toast } from "@zerodevx/svelte-toast";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
+  import KrakenStatusAPI from "components/api/KrakenStatusAPI.svelte";
 
   // Appel Websocket
   let wss_systemstatus;
@@ -11,18 +13,121 @@
   const wsSystemStatus = websocketStore(wss_systemstatus);
   // Appel Websocket
 
-  let count = 0;
-  let background = "#FF0000";
-  let color = "#FFFFFF";
-
-  let error = false;
-  let status = "online";
-  let interval = Date.now();
+  let count = 0,
+    background = "#FF0000",
+    color = "#FFFFFF",
+    error = false,
+    status = "online",
+    interval = Date.now(),
+    krakenStatus = false,
+    incidents = [];
 
   export let display;
 
-  onMount(() => {
+  /**
+   * Notification
+   * @description Envoi une alert message
+   * @param { String } message Message a afficher
+   * @param { String } theme Thème (default, success, error)
+   */
+  const Notification = (message, theme = "default", reload = false) => {
+    if (!message) return;
+
+    const themes = {
+      default: {},
+      success: {
+        "--toastBackground": "darkgreen",
+        "--toastBarBackground": "#1f4a22",
+      },
+      error: {
+        "--toastBackground": "brown",
+        "--toastBarBackground": "#4a1f1f",
+      },
+    };
+    theme = themes[theme];
+
+    toast.push(message, {
+      initial: 0,
+      next: 1,
+      pausable: true,
+      dismissable: true,
+      target: "new",
+      theme,
+      duration: reload ? 500 : 5000,
+      onpop: () => {
+        reload ? location.reload() : false;
+      },
+    });
+  };
+
+  /**
+   * fetchKrakenStatusAPI
+   * @description Vérifie le status KRAKEN
+   */
+  const fetchKrakenStatusAPI = async () => {
+    try {
+      const statusKraken = await fetch(__env["KRAKEN_STATUS_API_URL"]);
+      if (statusKraken.ok) {
+        let body = await statusKraken.json();
+        return body;
+      }
+    } catch (error) {
+      console.error("[ERROR]:", error);
+    }
+
+    return false;
+  };
+
+  const initKrakenStatusApi = async () => {
+    krakenStatus = await fetchKrakenStatusAPI();
+
+    if (krakenStatus && krakenStatus.status.indicator !== "none") {
+      Notification(krakenStatus.status.description, "error");
+    }
+
+    // Vérification des components
+    const krakenComponents = krakenStatus.components;
+    for (const KKComponent of krakenComponents) {
+      if (KKComponent.status !== "operational") {
+        const status = KKComponent.status;
+        const name = KKComponent.name;
+        const description =
+          KKComponent.description !== null ? KKComponent.description : "";
+        const errMsg = `[${status}] ${name} ${description}`;
+        Notification(errMsg, "error");
+      }
+    }
+
+    // Vérification des incidents
+    const krakenIncidents = krakenStatus.incidents;
+    if (krakenIncidents.length) {
+      incidents = [];
+      for (const incident of krakenIncidents) {
+        const updates = incident.incident_updates;
+        for (const update of updates) {
+          incidents.push({
+            name: incident.name,
+            resolved_at: incident.resolved_at,
+            started_at: incident.started_at,
+            updated_at: incident.updated_at,
+            impact: incident.impact,
+            status: incident.status,
+            affected: update.affected_components,
+            body: update.body,
+          });
+        }
+      }
+    }
+
+    // Vérification des maintenances programmées
+    const krakenMaintenances = krakenStatus.scheduled_maintenances;
+    if (krakenMaintenances.length)
+      console.log("[KRAKEN maintenances]:", krakenMaintenances);
+  };
+
+  onMount(async () => {
     wsSystemStatus.subscribe((tick) => {
+      initKrakenStatusApi();
       if (typeof tick === "undefined") return false;
       if (tick.service !== "WsSystemStatus") return false;
 
@@ -80,6 +185,9 @@
     </div>
   {/if}
 {:else if display === "footer"}
+  {#if incidents.length}
+    <KrakenStatusAPI {incidents} />
+  {/if}
   <div class="online-api">
     {#if error}
       <span class="error_status">{error}</span>
@@ -88,11 +196,11 @@
     {#if status === undefined}
       <span class="dot" />
     {:else if status === "online"}
-      {status}&nbsp;<span class="dot dot-green" />
+      {$_(`online.${status}`)}&nbsp;&nbsp;<span class="dot dot-green" />
     {:else if status === "offline"}
-      {status}&nbsp;<span class="dot dot-red" />
+      {$_(`online.${status}`)}&nbsp;&nbsp;<span class="dot dot-red" />
     {:else}
-      <span class="dot" />
+      {$_(`online.${status}`)}<span class="dot" />
     {/if}
   </div>
 {/if}

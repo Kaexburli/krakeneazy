@@ -4,7 +4,18 @@
     "choosePair": "Please choose a pair"
   },
   "online": {
-    "errorMessage": "Network problem, please check your internet connection."
+    "errorMessage": "Network problem, please check your internet connection.",
+    "online": "Online",
+    "offline": "Offline",
+    "cancel_only": "Cancel only",
+    "post_only": "Post only"
+  },
+  "krakenStatusAPI": {
+    "title": "Kraken incidents",
+    "affected": "Affected:",
+    "started": "Started:",
+    "updated": "Updated:",
+    "resolved": "Resolved:"
   },
   "pricealert": {
     "title": "Alert!",
