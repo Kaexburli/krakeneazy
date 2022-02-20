@@ -1,3 +1,4 @@
+import { _ } from "svelte-i18n";
 import Fetch from "utils/Runfetch.js"
 import { fetchurl } from "store/store.js";
 import { User } from "store/userStore.js";
@@ -28,7 +29,7 @@ class UserData {
     this.endpoint = "balance";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     try {
@@ -49,7 +50,7 @@ class UserData {
     this.endpoint = "tradebalance";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     try {
@@ -71,7 +72,7 @@ class UserData {
     this.endpoint = "openorders";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`);
+      console.log($_("userData.errorMessage") + " : " + this.endpoint);
     }
 
     params = Object.values(params).join('/');
@@ -95,7 +96,7 @@ class UserData {
     this.endpoint = "closedorders";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = Object.values(params).join('/');
@@ -119,7 +120,7 @@ class UserData {
     this.endpoint = "tradevolume"
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     if (typeof params.pair === undefined && !params.pair) {
@@ -145,7 +146,7 @@ class UserData {
     this.endpoint = "ledgers";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     try {
@@ -166,7 +167,7 @@ class UserData {
     this.endpoint = "tradeshistory";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     try {
@@ -187,7 +188,7 @@ class UserData {
     this.endpoint = "openpositions";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
@@ -211,7 +212,7 @@ class UserData {
     this.endpoint = "addexport";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
@@ -235,7 +236,7 @@ class UserData {
     this.endpoint = "statusexport";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
@@ -262,7 +263,7 @@ class UserData {
     this.endpoint = "retrieveexport";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
@@ -286,7 +287,7 @@ class UserData {
     this.endpoint = "removeoldexport";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = (typeof params !== "undefined") ? params : ''
@@ -306,7 +307,7 @@ class UserData {
     this.endpoint = "readexport";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
@@ -329,7 +330,7 @@ class UserData {
     this.endpoint = "checkexport";
 
     if (!this.token) {
-      console.log(`Token was not fund for ${this.endpoint}`)
+      console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
     params = (typeof params === "object") ? Object.values(params).join('/') : params

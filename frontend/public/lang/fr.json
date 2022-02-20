@@ -409,5 +409,8 @@
         "addKeyBtn": "Ajouter cette clé"
       }
     }
+  },
+  "userData": {
+    "errorMessage": "Jeton introuvable pour"
   }
 }
