@@ -36,7 +36,7 @@
   let activePositions = false;
   let crosshairMode = false;
   let rightPriceScaleMode = false;
-  let volumeDisplaying = true;
+  let volumeDisplaying = false;
   let markers_orders = [];
   let markers_positions = [];
   let newCandel = false;
