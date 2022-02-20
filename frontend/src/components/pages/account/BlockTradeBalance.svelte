@@ -89,9 +89,7 @@
   };
 
   onMount(() => {
-    setTimeout(() => {
-      GetTradeBalance();
-    }, 500);
+    GetTradeBalance();
 
     tradebalance.subscribe((tick) => {
       if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
@@ -99,10 +97,13 @@
           error = true;
           return false;
         } else if (tick.hasOwnProperty("error") && tick.error) {
+          console.log(tick.message);
           error = tick.error;
-          console.error("ERROR", error);
         } else if (Object.keys(tick).length >= 1) {
-          if (tick.service === "WsTradeBalance") {
+          if (
+            tick.service === "WsTradeBalance" &&
+            tick.data.hasOwnProperty("eb")
+          ) {
             tradebalancedata = tick.data;
           }
         }

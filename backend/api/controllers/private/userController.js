@@ -4,6 +4,23 @@ import UserSettings from '../../models/userSettings';
 import UserKraken from '../../models/userKraken';
 import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../Mailer.js'
 
+
+export const websocketVerifyJWTCtrl = async (req, reply) => {
+  const { authorization } = req.params
+
+  try {
+    const user = await User.findById(authorization);
+    if (!user || user.hasOwnProperty('error')) {
+      throw new Error('Authentication failed!');
+    }
+    req.user = user;
+
+  } catch (error) {
+    reply.code(401).send(error.message);
+  }
+
+}
+
 export const asyncVerifyJWTCtrl = async (req, reply) => {
 
   try {
@@ -24,6 +41,13 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
 
 }
 
+/**
+ * asyncVerifyUsernameAndPasswordCtrl
+ * @description Traitement de la connexion utilisateur
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
 export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
 
   try {

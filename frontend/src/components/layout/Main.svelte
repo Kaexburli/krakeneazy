@@ -8,6 +8,9 @@
   import Settings from "components/pages/settings/MainSettings.svelte";
   import Reports from "components/pages/reports/MainReports.svelte";
 
+  // User
+  export let User;
+
   import websocketStore from "svelte-websocket-store";
   import {
     wssurl,
@@ -43,24 +46,20 @@
   wssurl.subscribe((server) => {
     wss_server = server;
     wss_book = $assetpair
-      ? server + "/book/" + $assetpair.wsname + "/" + depth
+      ? `${server}/book/${$assetpair.wsname}/${depth}`
       : false;
-    wss_trade = $assetpair ? server + "/trade/" + $assetpair.wsname : false;
-    wss_spread = $assetpair ? server + "/spread/" + $assetpair.wsname : false;
+    wss_trade = $assetpair ? `${server}/trade/${$assetpair.wsname}` : false;
+    wss_spread = $assetpair ? `${server}/spread/${$assetpair.wsname}` : false;
     wss_ohlc = $assetpair
-      ? server + "/ohlc/" + $assetpair.wsname + "/" + $interval
+      ? `${server}/ohlc/${$assetpair.wsname}/${$interval}`
       : false;
-    wss_openorders = server + "/openorders";
-    wss_owntrades = server + "/owntrades";
-    wss_tradebalance = $devise ? server + "/tradebalance/" + $devise : false;
+    wss_openorders = `${server}/openorders/${$User.id}`;
+    wss_owntrades = `${server}/owntrades/${$User.id}`;
+    wss_tradebalance = $devise
+      ? `${server}/tradebalance/${$devise}/${$User.id}`
+      : false;
   });
   // Appel Websocket
-
-  // User
-  let user;
-  export let User;
-  User.subscribe((v) => (user = v));
-  let token = user.token;
 
   onMount(() => {
     const wsOpenOrders = websocketStore(wss_openorders);

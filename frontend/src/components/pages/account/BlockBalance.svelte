@@ -40,9 +40,7 @@
   };
 
   onMount(() => {
-    setTimeout(() => {
-      GetBalance();
-    }, 500);
+    GetBalance();
   });
 </script>
 

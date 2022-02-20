@@ -152,6 +152,18 @@ userSchema.statics.findByToken = async function (token) {
 
 };
 
+// create a custom model method to find user by token for authenticationn
+userSchema.statics.findById = async function (id) {
+  let User = this;
+  if (!id) {
+    return new Error('Missing id found');
+  }
+  return await User.findOne({
+    _id: id,
+  }).populate(["settings", "apikeys"]);
+
+};
+
 /**
  * findByCredentials
  * @description create a new mongoose method for user login authentication
