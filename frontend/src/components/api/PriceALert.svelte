@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { pricealertlist } from "store/store.js";
   import { tickeralert } from "store/wsstore.js";
   import { SvelteToast, toast } from "@zerodevx/svelte-toast";
@@ -17,9 +18,11 @@
   const sendAlertPrice = (pair, price, way) => {
     let phraseAlert = `<div style="background: #333333;margin:-5px 0 5px 0;padding:3px;font-size:0.8em;color:${
       way === "up" ? "#5b9208" : "#ff8e8e"
-    }">Alerte de prix ! </div><div style="padding:0 5px;><h3 style="font-size:1em;color:#999999;">${pair}</h3><div style="font-size:0.8em;"> Prix ${
-      way === "up" ? "au dessus de :" : "en dessous de :"
-    }
+    }">${$_(
+      "pricealert.modal.title"
+    )}</div><div style="padding:0 5px;><h3 style="font-size:1em;color:#999999;">${pair}</h3><div style="font-size:0.8em;"> ${$_(
+      "pricealert.modal.price"
+    )} ${way === "up" ? $_("pricealert.modal.up") : $_("pricealert.modal.down")}
     ${
       way === "up"
         ? '<strong style="color:#5b9208;">' +
@@ -180,7 +183,7 @@
       <span><i class="fa {icon}" /></span>
     </div>
     <div class="overflow">
-      <h3>Alerts</h3>
+      <h3>{$_("pricealert.title")}</h3>
       <div class="pricealert-container">
         {#each Object.entries($pricealertlist) as list}
           <div id="alert-{list[0].replace('/', '-')}">
@@ -199,7 +202,7 @@
                     {#each list[1]["up"] as up}
                       <li data-index={list[1]["up"].indexOf(up)}>
                         <i class="fa fa-level-up-alt" />
-                        Alert prix au dessus de:
+                        {$_("pricealert.alertUp")}
                         <span class="alert-price">
                           <span class="alert-price-input">
                             <input
@@ -239,7 +242,7 @@
                     {#each list[1]["down"] as down}
                       <li data-index={list[1]["down"].indexOf(down)}>
                         <i class="fa fa-level-down-alt" />
-                        Alert prix en dessous de:
+                        {$_("pricealert.alertDown")}
                         <span class="alert-price">
                           <span class="alert-price-input">
                             <input

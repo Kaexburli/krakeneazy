@@ -6,6 +6,17 @@
   "online": {
     "errorMessage": "Problème réseaux, veuillez vérifier votre connection internet."
   },
+  "pricealert": {
+    "title": "Alert!",
+    "alertUp": "Alert prix au dessus de:",
+    "alertDown": "Alert prix en dessous de:",
+    "modal": {
+      "title": "Alerte de prix !",
+      "price": "Prix",
+      "up": "au dessus de :",
+      "down": "en dessous de :"
+    }
+  },
   "sidebar": {
     "home": "Accueil",
     "account": "Compte",
