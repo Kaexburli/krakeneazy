@@ -1,7 +1,6 @@
-import FastifyAuth from 'fastify-auth';
 import {
   asyncVerifyJWTCtrl,
-  asyncVerifyUsernameAndPasswordCtrl,
+  websocketVerifyJWTCtrl
 } from '../controllers/private/userController.js'
 
 import { getOpenOrders, getWsOpenOrders } from '../controllers/private/userdata.js'
@@ -10,8 +9,7 @@ export default function PrivateOpenOrdersRoute(fastify, options, done) {
 
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
-    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
-    .register(FastifyAuth)
+    .decorate('websocketVerifyJWT', websocketVerifyJWTCtrl)
     .after(() => {
 
       // Get Api OpenOrders - private
@@ -32,7 +30,14 @@ export default function PrivateOpenOrdersRoute(fastify, options, done) {
       });
 
       // Get Api OpenOrders - Websocket
-      fastify.get('/api/ws/openorders', { websocket: true }, getWsOpenOrders)
+      fastify.route({
+        method: 'GET',
+        url: '/api/ws/openorders/:authorization',
+        logLevel: 'warn',
+        websocket: true,
+        preHandler: fastify.auth([fastify.websocketVerifyJWT]),
+        handler: getWsOpenOrders
+      })
 
     });
 

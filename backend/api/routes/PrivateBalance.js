@@ -1,7 +1,5 @@
-import FastifyAuth from 'fastify-auth';
 import {
   asyncVerifyJWTCtrl,
-  asyncVerifyUsernameAndPasswordCtrl,
 } from '../controllers/private/userController.js'
 
 import { getBalance } from '../controllers/private/userdata.js'
@@ -10,8 +8,6 @@ export default function PrivateBalanceRoute(fastify, options, done) {
 
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
-    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
-    .register(FastifyAuth)
     .after(() => {
 
       // Get Api Balance - private

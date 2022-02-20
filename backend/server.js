@@ -2,12 +2,13 @@
 import path from 'path';
 const __dirname = path.resolve(path.dirname(''));
 
-import Fastify from 'fastify'
-import FastifySwagger from 'fastify-swagger'
-import FastifyEnv from 'fastify-env'
-import FastifyCors from 'fastify-cors'
-import FastifyWs from 'fastify-websocket'
-import Autoload from 'fastify-autoload'
+import Fastify from 'fastify';
+import FastifySwagger from 'fastify-swagger';
+import FastifyEnv from 'fastify-env';
+import FastifyCors from 'fastify-cors';
+import FastifyWs from 'fastify-websocket';
+import Autoload from 'fastify-autoload';
+import FastifyAuth from 'fastify-auth';
 
 import db from './api/config/index';
 
@@ -38,10 +39,12 @@ fastify.register(FastifySwagger, {
   },
 })
 
-fastify.register(db, { uri });
-fastify.register(FastifyEnv, options)
-fastify.register(FastifyCors)
-fastify.register(FastifyWs)
+fastify
+  .register(db, { uri })
+  .register(FastifyEnv, options)
+  .register(FastifyCors)
+  .register(FastifyWs)
+  .register(FastifyAuth);
 
 
 // Declare a route
@@ -64,7 +67,8 @@ const start = async () => {
 start()
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.log('reason is', reason);
-  console.log('promise is', promise);
-  // Application specific logging, throwing an error, or other logic here
+  if (typeof reason !== "undefined" && typeof promise !== "undefined") {
+    console.log('reason is', reason);
+    console.log('promise is', promise);
+  }
 });

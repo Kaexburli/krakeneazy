@@ -1,7 +1,5 @@
-import FastifyAuth from 'fastify-auth';
 import {
   asyncVerifyJWTCtrl,
-  asyncVerifyUsernameAndPasswordCtrl,
 } from '../controllers/private/userController.js'
 
 import {
@@ -17,8 +15,6 @@ export default function PrivateAddExportRoute(fastify, options, done) {
 
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
-    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
-    .register(FastifyAuth)
     .after(() => {
 
       // Get Api AddExport - private

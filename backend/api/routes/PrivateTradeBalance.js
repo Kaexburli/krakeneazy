@@ -1,17 +1,18 @@
-import FastifyAuth from 'fastify-auth';
 import {
   asyncVerifyJWTCtrl,
-  asyncVerifyUsernameAndPasswordCtrl,
+  websocketVerifyJWTCtrl
 } from '../controllers/private/userController.js'
 
-import { getTradeBalance, getWsTradeBalance } from '../controllers/private/userdata.js'
+import {
+  getTradeBalance,
+  getWsTradeBalance
+} from '../controllers/private/userdata.js'
 
 export default function PrivateTradeBalanceRoute(fastify, options, done) {
 
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
-    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
-    .register(FastifyAuth)
+    .decorate('websocketVerifyJWT', websocketVerifyJWTCtrl)
     .after(() => {
 
       // Get Api TradeBalance - private
@@ -23,10 +24,17 @@ export default function PrivateTradeBalanceRoute(fastify, options, done) {
         handler: getTradeBalance
       });
 
-    });
+      // Get Api TradeBalance - Websocket
+      fastify.route({
+        method: 'GET',
+        url: '/api/ws/tradebalance/:asset/:authorization',
+        logLevel: 'warn',
+        websocket: true,
+        preHandler: fastify.auth([fastify.websocketVerifyJWT]),
+        handler: getWsTradeBalance
+      })
 
-  // Get Api OpenOrders - Websocket
-  fastify.get('/api/ws/tradebalance/:asset', { websocket: true }, getWsTradeBalance)
+    });
 
   done()
 }
