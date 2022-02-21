@@ -124,7 +124,7 @@ class UserData {
     }
 
     if (typeof params.pair === undefined && !params.pair) {
-      params.pair = "XBTUSD"
+      return { error: "ERROR: No pair found!" }
     }
 
     try {
