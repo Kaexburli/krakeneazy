@@ -21,7 +21,6 @@
     interval,
     pair,
     assetpair,
-    fetchurl,
     ohlcchart,
     volumechart,
     pricealertlist,
@@ -54,7 +53,8 @@
     close,
     volume,
     legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M",
-    fetchUrl = $fetchurl + "/api/ohlc/" + $pair + "/" + $interval,
+    backUrl = __env["BACKEND_URI"],
+    fetchUrl = backUrl + "/api/ohlc/" + $pair + "/" + $interval,
     error = false,
     openpositions = false;
 
@@ -840,7 +840,6 @@
       id="interval"
       class="interval"
       bind:value={$interval}
-      on:change={() => location.reload()}
     >
       <option value="1">1M</option>
       <option value="5">5M</option>

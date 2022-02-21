@@ -1,11 +1,9 @@
 import { _ } from "svelte-i18n";
 import Fetch from "utils/Runfetch.js"
-import { fetchurl } from "store/store.js";
 import { User } from "store/userStore.js";
 
 let url;
 let user;
-fetchurl.subscribe((v) => url = v);
 User.subscribe((v) => user = v);
 
 class UserData {
@@ -14,7 +12,7 @@ class UserData {
     this.endpoint = null;
     this.params = null;
     this.url = null;
-    this.server = url + "/api/private/";
+    this.server = __env["BACKEND_URI"] + "/api/private/";
     this.token = user.token || false;
   }
 

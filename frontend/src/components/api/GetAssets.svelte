@@ -1,9 +1,10 @@
 <script>
   import Fetch from "utils/Runfetch.js";
   import { User } from "store/userStore.js";
-  import { fetchurl, assets } from "store/store.js";
+  import { assets } from "store/store.js";
 
-  let fetchUrl = $fetchurl + "/api/assets";
+  let backUrl = __env["BACKEND_URI"],
+    fetchUrl = backUrl + "/api/assets";
   const token = $User.token || false;
 
   const getAssets = async () => {

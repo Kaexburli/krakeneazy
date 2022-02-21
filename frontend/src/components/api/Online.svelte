@@ -1,15 +1,15 @@
 <script>
   import { _ } from "svelte-i18n";
   import { onMount, onDestroy } from "svelte";
-  import { wssurl, online } from "store/store.js";
+  import { online } from "store/store.js";
   import { toast } from "@zerodevx/svelte-toast";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
   import KrakenStatusAPI from "components/api/KrakenStatusAPI.svelte";
 
   // Appel Websocket
-  let wss_systemstatus;
-  wssurl.subscribe((server) => (wss_systemstatus = server + "/systemstatus"));
+  const server = __env["BACKEND_WS_URI"];
+  const wss_systemstatus = server + "/systemstatus";
   const wsSystemStatus = websocketStore(wss_systemstatus);
   // Appel Websocket
 

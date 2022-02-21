@@ -2,13 +2,15 @@
   import { _ } from "svelte-i18n";
   import Fetch from "utils/Runfetch.js";
   import { User } from "store/userStore.js";
-  import { fetchurl, pair, assetpair, assetpairs } from "store/store.js";
+  import { pair, assetpair, assetpairs } from "store/store.js";
   import { DoubleBounce } from "svelte-loading-spinners";
 
-  let fetchUrl = $fetchurl + "/api/assetpairs";
-  let assetpairVal;
-  let spinner = false;
-  let isFocused = false;
+  let backUrl = __env["BACKEND_URI"],
+    fetchUrl = backUrl + "/api/assetpairs",
+    assetpairVal,
+    spinner = false,
+    isFocused = false;
+
   const onFocus = () => (isFocused = true);
   const onBlur = () => {
     assetpairVal.value = "";

@@ -12,13 +12,7 @@
   export let User;
 
   import websocketStore from "svelte-websocket-store";
-  import {
-    wssurl,
-    assetpair,
-    interval,
-    devise,
-    pricealertlist,
-  } from "store/store.js";
+  import { assetpair, interval, devise, pricealertlist } from "store/store.js";
   import {
     book,
     ticker,
@@ -43,7 +37,8 @@
     depth = 10,
     wss_ticker_alert = [];
 
-  wssurl.subscribe((server) => {
+  const initWebsocketUri = () => {
+    const server = __env["BACKEND_WS_URI"];
     wss_server = server;
     wss_book = $assetpair
       ? `${server}/book/${$assetpair.wsname}/${depth}`
@@ -58,10 +53,12 @@
     wss_tradebalance = $devise
       ? `${server}/tradebalance/${$devise}/${$User.id}`
       : false;
-  });
+  };
   // Appel Websocket
 
   onMount(() => {
+    console.log("Main onMount");
+    initWebsocketUri();
     const wsOpenOrders = websocketStore(wss_openorders);
     wsOpenOrders.subscribe((tick) => {
       if (typeof tick !== "undefined" && tick) openorders.set(tick);
