@@ -13,8 +13,7 @@
   import { fade } from "svelte/transition";
   import { SyncLoader } from "svelte-loading-spinners";
 
-  let limit = 0,
-    error = false;
+  let error = false;
 
   /**
    * checkStatusDatas
@@ -154,10 +153,6 @@
       const res = await ud.getOpenOrders({ trade: true });
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetOpenOrders();
-          limit++;
-        }
       } else {
         if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
           let openorders_tmp = [];

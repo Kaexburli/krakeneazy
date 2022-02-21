@@ -9,8 +9,7 @@
   const ud = new UserData();
 
   let error = false,
-    balance = false,
-    limit = 0;
+    balance = false;
 
   const GetBalance = async () => {
     try {
@@ -22,10 +21,6 @@
       const res = await ud.getBalance();
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetBalance();
-          limit++;
-        }
       } else {
         balance = res;
         error = false;
@@ -43,7 +38,7 @@
 <div class="block">
   <h3>{$_("account.balance.title")}</h3>
   <ul class="balance">
-    {#if error && limit <= 5 && typeof error !== "boolean"}
+    {#if error && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
     {#if !balance && !error}

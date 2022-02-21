@@ -8,7 +8,6 @@
   const ud = new UserData();
   let error = false;
   let balance = false;
-  let limit = 0;
   let action;
   let type = "market";
   let leverage = "0";
@@ -38,10 +37,6 @@
       const res = await ud.getBalance();
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetBalance();
-          limit++;
-        }
       } else {
         balance = res;
         error = false;

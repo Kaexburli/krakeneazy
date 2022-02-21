@@ -56,8 +56,7 @@
     legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M",
     fetchUrl = $fetchurl + "/api/ohlc/" + $pair + "/" + $interval,
     error = false,
-    openpositions = false,
-    limit = 0;
+    openpositions = false;
 
   const ud = new UserData();
 
@@ -71,10 +70,6 @@
       const res = await ud.getOpenPositions();
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetOpenPositions();
-          limit++;
-        }
       } else {
         openpositions = res;
         error = false;

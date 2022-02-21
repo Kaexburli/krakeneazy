@@ -13,7 +13,6 @@
   let error = false,
     ledgers = false,
     ledgers_store = false,
-    limit = 0,
     count = false,
     life = 300; // Secondes
 
@@ -55,10 +54,6 @@
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetLedgers();
-          limit++;
-        }
       } else {
         if (res && typeof res !== "undefined") {
           let json = {

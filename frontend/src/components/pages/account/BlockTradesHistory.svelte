@@ -13,7 +13,6 @@
   let error = false,
     tradeshistory = false,
     tradeshistory_store = false,
-    limit = 0,
     count = false,
     life = 300; // Secondes
 
@@ -47,10 +46,6 @@
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetTradesHistory();
-          limit++;
-        }
       } else {
         let json = {
           data: Object.entries(res.trades),

@@ -18,8 +18,7 @@
     next_fees_taker,
     next_fees_maker,
     error = false,
-    tradevolume = false,
-    limit = 0;
+    tradevolume = false;
 
   const progress = tweened(0, {
     duration: 1000,
@@ -38,19 +37,10 @@
         return false;
       }
 
-      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-        error = true;
-        return false;
-      }
-
       const ud = new UserData();
       const res = await ud.getTradeVolume({ pair: $assetpair.altname });
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetTradeVolume();
-          limit++;
-        }
       } else {
         tradevolume = res;
         error = false;

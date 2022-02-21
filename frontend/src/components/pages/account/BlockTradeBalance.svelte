@@ -11,7 +11,6 @@
 
   let error = false,
     tradebalancedata,
-    limit = 0,
     balance_way = "down",
     balance_way_tmp,
     played = false,
@@ -75,10 +74,7 @@
       const res = await ud.getTradeBalance(asset);
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-        if (limit < 2) {
-          GetTradeBalance();
-          limit++;
-        }
+        error = res.error;
       } else {
         tradebalancedata = res;
         error = false;
@@ -105,6 +101,7 @@
             tick.data.hasOwnProperty("eb")
           ) {
             tradebalancedata = tick.data;
+            error = false;
           }
         }
       }
@@ -134,12 +131,12 @@
 <div class="block">
   <h3>{$_("account.tradeBalance.title")}</h3>
   <ul class="trade-balance">
-    {#if error && limit <= 2 && typeof error !== "boolean"}
+    {#if error && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
     {#if !tradebalancedata && !error}
       <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-    {:else}
+    {:else if tradebalancedata}
       {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["eb", "tb", "m", "e", "mf"].includes(index)}
           <li>
@@ -184,12 +181,12 @@
 <div class="block">
   <h3>{$_("account.tradeBalance.title2")}</h3>
   <ul class="trade-balance">
-    {#if error && limit <= 5 && typeof error !== "boolean"}
+    {#if error && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
     {#if !tradebalancedata && !error}
       <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-    {:else}
+    {:else if tradebalancedata}
       {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["n", "c", "v", "ml"].includes(index)}
           <li>

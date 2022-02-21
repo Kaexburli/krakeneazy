@@ -12,7 +12,6 @@
   let error = false,
     closedorders = false,
     closedorders_store = false,
-    limit = 0,
     count = false,
     life = 300; // Secondes
 
@@ -46,10 +45,6 @@
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        if (limit < 5) {
-          GetClosedOrders();
-          limit++;
-        }
       } else {
         let json = {
           data: Object.entries(res.closed),
