@@ -1,3 +1,4 @@
+import { User } from "store/userStore.js";
 import checkRateCount from "utils/checkRateCount.js"
 import Fetch, { hasBackground } from "svelte-fetch"
 
@@ -31,17 +32,20 @@ const callApiFetch = async (url, endpoint, token = false) => {
 
     let response = await fetch.background.expect(JSON).get(url, options);
 
-    if (response.hasOwnProperty('error')) {
-      let errmsg = `[${response.statusCode}] ${response.error} ${response.message}`;
-      if (response.message === ('[\"EAPI:Invalid nonce\"]' || '["EAPI:Invalid nonce"]')) {
-        throw errmsg
-      }
-      if (response.message === ('[\"EAPI:Rate limit exceeded\"]' || '["EAPI:Rate limit exceeded"]')) {
-        throw errmsg
-      }
+    if (response.hasOwnProperty("error")) {
+      console.log(`[ERROR]: ${endpoint} = ${response.error.body.error ? response.error.body.error : error}`)
     }
-    else
-      return response
+
+    if (
+      response.hasOwnProperty("statusCode") &&
+      response.statusCode === 401
+    ) {
+      User.signout();
+      location.reload()
+      return false;
+    }
+
+    return response
   }
   catch (error) {
     const err = "[" + endpoint + "]" + (typeof error !== 'undefined' ? error : 'unknown error')

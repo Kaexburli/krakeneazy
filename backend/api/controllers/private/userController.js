@@ -11,6 +11,7 @@ export const websocketVerifyJWTCtrl = async (req, reply) => {
   try {
     const user = await User.findById(authorization);
     if (!user || user.hasOwnProperty('error')) {
+      reply.code(401).send({ error: true, statusCode: 401, message: 'Authentication failed!' });
       throw new Error('Authentication failed!');
     }
     req.user = user;
@@ -30,7 +31,7 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
     const token = req.headers.authorization.replace('Bearer ', '');
     const user = await User.findByToken(token);
     if (!user || user.hasOwnProperty('error')) {
-      // handles logged out user with valid token
+      reply.code(401).send({ error: true, statusCode: 401, message: 'Authentication failed!' });
       throw new Error('Authentication failed!');
     }
     req.user = user;
