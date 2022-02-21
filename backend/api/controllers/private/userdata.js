@@ -63,6 +63,13 @@ const initApiKraken = (apikeys = false) => {
  *  *****************
  */
 
+const handleError = (error) => {
+  console.log("####### [handleError] ######", error)
+
+  if (error.hasOwnProperty('body'))
+    console.log("####### [handleError] ######", error.body, error.body.error)
+}
+
 // /SystemStatus
 const getSystemStatus = async (_req, _reply) => {
   const apiKraken = initApiKraken()
@@ -72,6 +79,7 @@ const getSystemStatus = async (_req, _reply) => {
     let response = await apiKraken.systemStatus()
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -86,6 +94,7 @@ const getBalance = async (req, _reply) => {
     let response = await apiKraken.balance()
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -102,6 +111,7 @@ const getTradeBalance = async (req, _reply) => {
     let response = await apiKraken.tradeBalance({ asset: asset })
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -127,6 +137,7 @@ const getOpenOrders = async (req, _reply) => {
     let response = await apiKraken.openOrders(params)
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -152,6 +163,7 @@ const getClosedOrders = async (req, _reply) => {
     let response = await apiKraken.closedOrders(params)
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -165,13 +177,14 @@ const getTradeVolume = async (req, _reply) => {
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
   if (typeof pair === undefined && !pair) {
-    pair = "XBTUSD"
+    return { error: true, message: "Asset Pair error!" };
   }
 
   try {
-    let response = await apiKraken.tradeVolume({ pair })
+    let response = await apiKraken.tradeVolume({ pair });
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -186,6 +199,7 @@ const getLedgers = async (req, _reply) => {
     let response = await apiKraken.ledgers()
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -201,6 +215,7 @@ const getTradesHistory = async (req, _reply) => {
     let response = await apiKraken.tradesHistory()
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -215,6 +230,7 @@ const getOpenPositions = async (req, _reply) => {
     let response = await apiKraken.openPositions({ docalcs: true })
     return response
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -231,6 +247,7 @@ const addExport = async (req, _reply) => {
     let add = await apiKraken.addExport({ report, description, starttm })
     return add
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -247,6 +264,7 @@ const statusExport = async (req, _reply) => {
     let status = await apiKraken.exportStatus({ report })
     return status
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -285,6 +303,7 @@ const retrieveExport = async (req, _reply) => {
     return { filename, res, data }
 
   } catch (error) {
+    handleError(error)
     return { error }
   }
 }
@@ -304,6 +323,7 @@ const rmOldExport = async (req, _reply) => {
     return res;
 
   } catch (error) {
+    handleError(error)
     return { error }
   }
 }
@@ -323,6 +343,7 @@ const readExport = async (req, _reply) => {
     return data
 
   } catch (error) {
+    handleError(error)
     return { error }
   }
 }
@@ -338,8 +359,8 @@ const checkIfFolderExist = async (req, _reply) => {
 const extractZip = async (source, target) => {
   try {
     return await extract(source, { dir: target });
-  } catch (err) {
-    console.log("Oops: extractZip failed", err);
+  } catch (error) {
+    handleError(error)
   }
 }
 
@@ -381,6 +402,7 @@ const getWsOpenOrders = async (connection, req, _reply) => {
     })
 
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -417,6 +439,7 @@ const getWsOwnTrades = async (connection, req, _reply) => {
     })
 
   } catch (error) {
+    handleError(error)
     return error
   }
 }
@@ -441,7 +464,7 @@ const getWsTradeBalance = async (connection, req, reply) => {
       let response = await getTradeBalance(req, reply)
       checkAndSendResult(response)
     } catch (error) {
-      console.log('[ERROR]:', error)
+      handleError(error)
     }
   }
 
@@ -494,7 +517,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
       let response = await getSystemStatus(req, reply)
       checkAndSendResult(response)
     } catch (error) {
-      console.log("[ERROR]:", error)
+      handleError(error)
     }
   }
 
