@@ -68,7 +68,7 @@ start()
 
 process.on('unhandledRejection', (reason, promise) => {
   if (typeof reason !== "undefined" && typeof promise !== "undefined") {
-    console.log('reason is', reason);
-    console.log('promise is', promise);
+    console.log('[unhandledRejection]: reason is', reason);
+    console.log('[unhandledRejection]: promise is', promise);
   }
 });
