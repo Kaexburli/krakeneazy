@@ -9,6 +9,8 @@
 
   let isVisible = false;
   let hasData = krakenIncidents && krakenIncidents.length ? true : false;
+  let hasProcess =
+    krakenMaintenances && krakenMaintenances.length ? true : false;
   let hasDegraded = krakenStatus ? true : false;
 
   let medium = {
@@ -39,59 +41,66 @@
       </h3>
     </div>
     <div class="container">
-      {#if isVisible && (hasData || hasDegraded)}
-        <div class="krakenMaintenances" in:slide out:slide>
-          <h4>{$_("krakenStatusAPI.titleMaintenance")}</h4>
-          {#each krakenMaintenances as item}
-            <div class="item">
-              <a href={item.shortlink} target="_blank">{item.name}</a>
-            </div>
-          {/each}
-        </div>
-        <div class="krakenIncidents" in:slide out:slide>
-          {#each krakenIncidents as item}
-            <div class="content">
-              <h4 class={item.impact}>{item.name}</h4>
+      {#if isVisible && (hasData || hasDegraded || hasProcess)}
+        {#if hasProcess}
+          <div class="krakenMaintenances" in:slide out:slide>
+            <h4>{$_("krakenStatusAPI.titleMaintenance")}</h4>
+            {#each krakenMaintenances as item}
               <div class="item">
-                <p>
-                  <strong class="upper">{item.status}</strong> : {item.body}
-                </p>
-                <p>
-                  <strong>
-                    {$_("krakenStatusAPI.affected")}
-                  </strong>
-                </p>
-                <ul>
-                  {#each item.affected as affected}
-                    <li>
-                      {affected.name} : {affected.new_status.replace("_", " ")}
-                    </li>
-                  {/each}
-                </ul>
+                <a href={item.shortlink} target="_blank">{item.name}</a>
               </div>
-              <div class="item-footer">
-                <p class="datetime">
-                  <strong>
-                    {$_("krakenStatusAPI.started")}
-                  </strong>
-                  {formatter.format(new Date(item.started_at).getTime())}
-                  <strong>
-                    {$_("krakenStatusAPI.updated")}
-                  </strong>
-                  {formatter.format(new Date(item.updated_at).getTime())}
-                  <strong>
-                    {$_("krakenStatusAPI.resolved")}
-                  </strong>
-                  {#if item.resolved_at === null}
-                    --/--/--, --:--:--
-                  {:else}
-                    {formatter.format(new Date(item.resolved_at).getTime())}
-                  {/if}
-                </p>
+            {/each}
+          </div>
+        {/if}
+        {#if hasData}
+          <div class="krakenIncidents" in:slide out:slide>
+            {#each krakenIncidents as item}
+              <div class="content">
+                <h4 class={item.impact}>{item.name}</h4>
+                <div class="item">
+                  <p>
+                    <strong class="upper">{item.status}</strong> : {item.body}
+                  </p>
+                  <p>
+                    <strong>
+                      {$_("krakenStatusAPI.affected")}
+                    </strong>
+                  </p>
+                  <ul>
+                    {#each item.affected as affected}
+                      <li>
+                        {affected.name} : {affected.new_status.replace(
+                          "_",
+                          " "
+                        )}
+                      </li>
+                    {/each}
+                  </ul>
+                </div>
+                <div class="item-footer">
+                  <p class="datetime">
+                    <strong>
+                      {$_("krakenStatusAPI.started")}
+                    </strong>
+                    {formatter.format(new Date(item.started_at).getTime())}
+                    <strong>
+                      {$_("krakenStatusAPI.updated")}
+                    </strong>
+                    {formatter.format(new Date(item.updated_at).getTime())}
+                    <strong>
+                      {$_("krakenStatusAPI.resolved")}
+                    </strong>
+                    {#if item.resolved_at === null}
+                      --/--/--, --:--:--
+                    {:else}
+                      {formatter.format(new Date(item.resolved_at).getTime())}
+                    {/if}
+                  </p>
+                </div>
               </div>
-            </div>
-          {/each}
-        </div>
+            {/each}
+          </div>
+        {/if}
       {/if}
     </div>
   </div>
