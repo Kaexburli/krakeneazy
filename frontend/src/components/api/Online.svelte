@@ -2,7 +2,6 @@
   import { _ } from "svelte-i18n";
   import { onMount, onDestroy } from "svelte";
   import { online } from "store/store.js";
-  import { toast } from "@zerodevx/svelte-toast";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
   import KrakenStatusAPI from "components/api/KrakenStatusAPI.svelte";
@@ -19,50 +18,18 @@
     error = false,
     status = "online",
     interval = Date.now(),
+    krakenStatusFetch = false,
+    krakenIncidentsFetch = false,
+    krakenMaintenances = false,
     krakenStatus = false,
-    incidents = [];
+    krakenIncidents = [],
+    components = [];
 
   export let display;
 
   /**
-   * Notification
-   * @description Envoi une alert message
-   * @param { String } message Message a afficher
-   * @param { String } theme Thème (default, success, error)
-   */
-  const Notification = (message, theme = "default", reload = false) => {
-    if (!message) return;
-
-    const themes = {
-      default: {},
-      success: {
-        "--toastBackground": "darkgreen",
-        "--toastBarBackground": "#1f4a22",
-      },
-      error: {
-        "--toastBackground": "brown",
-        "--toastBarBackground": "#4a1f1f",
-      },
-    };
-    theme = themes[theme];
-
-    toast.push(message, {
-      initial: 0,
-      next: 1,
-      pausable: true,
-      dismissable: true,
-      target: "new",
-      theme,
-      duration: reload ? 500 : 5000,
-      onpop: () => {
-        reload ? location.reload() : false;
-      },
-    });
-  };
-
-  /**
    * fetchKrakenStatusAPI
-   * @description Vérifie le status KRAKEN
+   * @description Appels du status KRAKEN
    */
   const fetchKrakenStatusAPI = async () => {
     try {
@@ -78,34 +45,45 @@
     return false;
   };
 
+  /**
+   * initKrakenStatusApi
+   * @description Initialise les appels du status KRAKEN
+   */
   const initKrakenStatusApi = async () => {
-    krakenStatus = await fetchKrakenStatusAPI();
+    krakenStatusFetch = await fetchKrakenStatusAPI();
 
-    if (krakenStatus && krakenStatus.status.indicator !== "none") {
-      Notification(krakenStatus.status.description, "error");
+    // Vérification des maintenances programmées
+    krakenMaintenances = krakenStatusFetch.scheduled_maintenances;
+
+    if (krakenStatusFetch && krakenStatusFetch.status.indicator !== "none") {
+      krakenStatus = krakenStatusFetch.status.description;
     }
 
     // Vérification des components
-    const krakenComponents = krakenStatus.components;
-    for (const KKComponent of krakenComponents) {
-      if (KKComponent.status !== "operational") {
-        const status = KKComponent.status;
-        const name = KKComponent.name;
-        const description =
-          KKComponent.description !== null ? KKComponent.description : "";
-        const errMsg = `[${status}] ${name} ${description}`;
-        Notification(errMsg, "error");
+    const krakenComponents = krakenStatusFetch.components;
+    if (krakenComponents.length) {
+      components = [];
+      for (const KKComponent of krakenComponents) {
+        if (KKComponent.status !== "operational") {
+          const status = KKComponent.status;
+          const name = KKComponent.name;
+          const description =
+            KKComponent.description !== null ? KKComponent.description : "";
+          const errMsg = `[${status}] ${name} ${description}`;
+          components.push(errMsg);
+        }
       }
+      krakenStatus += components.map((v) => `\n ${v}`);
     }
 
     // Vérification des incidents
-    const krakenIncidents = krakenStatus.incidents;
-    if (krakenIncidents.length) {
-      incidents = [];
-      for (const incident of krakenIncidents) {
+    krakenIncidentsFetch = krakenStatusFetch.incidents;
+    if (krakenIncidentsFetch.length) {
+      krakenIncidents = [];
+      for (const incident of krakenIncidentsFetch) {
         const updates = incident.incident_updates;
         for (const update of updates) {
-          incidents.push({
+          krakenIncidents.push({
             name: incident.name,
             resolved_at: incident.resolved_at,
             started_at: incident.started_at,
@@ -118,13 +96,12 @@
         }
       }
     }
-
-    // Vérification des maintenances programmées
-    const krakenMaintenances = krakenStatus.scheduled_maintenances;
-    if (krakenMaintenances.length)
-      console.log("[KRAKEN maintenances]:", krakenMaintenances);
   };
 
+  /**
+   * onMount
+   * @description Svelte function native
+   */
   onMount(async () => {
     wsSystemStatus.subscribe((tick) => {
       initKrakenStatusApi();
@@ -168,6 +145,10 @@
     });
   });
 
+  /**
+   * onDestroy
+   * @description Svelte function native
+   */
   onDestroy(() => {
     display = false;
   });
@@ -185,8 +166,8 @@
     </div>
   {/if}
 {:else if display === "footer"}
-  {#if incidents.length}
-    <KrakenStatusAPI {incidents} />
+  {#if krakenIncidents.length}
+    <KrakenStatusAPI {krakenIncidents} {krakenStatus} {krakenMaintenances} />
   {/if}
   <div class="online-api">
     {#if error}

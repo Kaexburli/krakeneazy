@@ -1,11 +1,15 @@
 <script>
   import { _ } from "svelte-i18n";
   import { slide } from "svelte/transition";
+  import Tooltip, { Wrapper, Content } from "@smui/tooltip";
 
-  export let incidents;
+  export let krakenStatus;
+  export let krakenIncidents;
+  export let krakenMaintenances;
 
   let isVisible = false;
-  let hasData = incidents && incidents.length ? true : false;
+  let hasData = krakenIncidents && krakenIncidents.length ? true : false;
+  let hasDegraded = krakenStatus ? true : false;
 
   let medium = {
     hour12: false,
@@ -24,9 +28,8 @@
   <div id="krakenStatusAPI" in:slide out:slide>
     <div id="header">
       <h3>
-        <i class="fas fa-triangle-exclamation" /> &nbsp; {$_(
-          "krakenStatusAPI.title"
-        )}
+        <i class="fas fa-triangle-exclamation" /> &nbsp;
+        {$_("krakenStatusAPI.title")}
         <span class="head right">
           <i
             class="fas fa-angle-double-down"
@@ -36,42 +39,56 @@
       </h3>
     </div>
     <div class="container">
-      {#if isVisible && hasData}
-        <div class="incidents" in:slide out:slide>
-          {#each incidents as item}
-            <h3 class={item.impact}>{item.name}</h3>
+      {#if isVisible && (hasData || hasDegraded)}
+        <div class="krakenMaintenances" in:slide out:slide>
+          <h4>{$_("krakenStatusAPI.titleMaintenance")}</h4>
+          {#each krakenMaintenances as item}
             <div class="item">
-              <p><strong class="upper">{item.status}</strong> : {item.body}</p>
-              <p>
-                <strong>
-                  {$_("krakenStatusAPI.affected")}
-                </strong>
-              </p>
-              <ul>
-                {#each item.affected as affected}
-                  <li>{affected.name} : {affected.new_status}</li>
-                {/each}
-              </ul>
+              <a href={item.shortlink} target="_blank">{item.name}</a>
             </div>
-            <div class="item-footer">
-              <p class="datetime">
-                <strong>
-                  {$_("krakenStatusAPI.started")}
-                </strong>
-                {formatter.format(new Date(item.started_at).getTime())}
-                <strong>
-                  {$_("krakenStatusAPI.updated")}
-                </strong>
-                {formatter.format(new Date(item.updated_at).getTime())}
-                <strong>
-                  {$_("krakenStatusAPI.resolved")}
-                </strong>
-                {#if item.resolved_at === null}
-                  --/--/--, --:--:--
-                {:else}
-                  {formatter.format(new Date(item.resolved_at).getTime())}
-                {/if}
-              </p>
+          {/each}
+        </div>
+        <div class="krakenIncidents" in:slide out:slide>
+          {#each krakenIncidents as item}
+            <div class="content">
+              <h4 class={item.impact}>{item.name}</h4>
+              <div class="item">
+                <p>
+                  <strong class="upper">{item.status}</strong> : {item.body}
+                </p>
+                <p>
+                  <strong>
+                    {$_("krakenStatusAPI.affected")}
+                  </strong>
+                </p>
+                <ul>
+                  {#each item.affected as affected}
+                    <li>
+                      {affected.name} : {affected.new_status.replace("_", " ")}
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+              <div class="item-footer">
+                <p class="datetime">
+                  <strong>
+                    {$_("krakenStatusAPI.started")}
+                  </strong>
+                  {formatter.format(new Date(item.started_at).getTime())}
+                  <strong>
+                    {$_("krakenStatusAPI.updated")}
+                  </strong>
+                  {formatter.format(new Date(item.updated_at).getTime())}
+                  <strong>
+                    {$_("krakenStatusAPI.resolved")}
+                  </strong>
+                  {#if item.resolved_at === null}
+                    --/--/--, --:--:--
+                  {:else}
+                    {formatter.format(new Date(item.resolved_at).getTime())}
+                  {/if}
+                </p>
+              </div>
             </div>
           {/each}
         </div>
@@ -80,15 +97,27 @@
   </div>
 {/if}
 
-<div id="krakenStatusAPIBtn">
-  <i
-    id="toogle"
-    class="fas fa-triangle-exclamation"
-    on:click={() => (isVisible = !isVisible)}
-    class:hasData
-    class:isVisible
-  />
-</div>
+{#if hasData || hasDegraded}
+  <div id="krakenStatusAPIBtn">
+    <Wrapper>
+      <i
+        id="toogle"
+        class="fas fa-triangle-exclamation"
+        on:click={() => (isVisible = !isVisible)}
+        class:hasData
+        class:isVisible
+        class:hasDegraded
+      />
+      {#if krakenStatus}
+        <Tooltip xPos="start">
+          <Content style="color: #fff;font-size:0.9em;">
+            {krakenStatus}
+          </Content>
+        </Tooltip>
+      {/if}
+    </Wrapper>
+  </div>
+{/if}
 
 <style>
   #krakenStatusAPI {
@@ -115,34 +144,63 @@
     height: auto;
     padding: 10px;
   }
-  .incidents {
-    font-size: 1em;
-    color: black;
+  .krakenMaintenances {
+    font-size: 0.9em;
+    color: #272727;
     font-weight: normal;
-    background-color: rgb(167 167 167);
     padding: 0;
     border-top: 1px dotted black;
     border-bottom: 1px dotted black;
   }
-  .incidents h3 {
+  .krakenMaintenances h4 {
+    background-color: #d20000;
+    padding: 10px;
+  }
+  .krakenMaintenances .item a {
+    color: #534100;
+  }
+
+  .krakenMaintenances .item {
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: rgb(167 167 167);
+  }
+  .krakenIncidents {
+    font-size: 0.8em;
+    color: black;
+    font-weight: normal;
+    padding: 0;
+    border-top: 1px dotted black;
+    border-bottom: 1px dotted black;
+  }
+  .krakenIncidents .content {
+    width: 50%;
+    float: left;
+    border: 1px solid #2c2c2c;
+  }
+  .krakenIncidents h4 {
     background-color: #272727;
     padding: 10px;
   }
-  .incidents h3.minor {
+  .krakenIncidents h4.minor {
     color: #222222;
     background-color: #d1a91c;
   }
-  .incidents .item {
+  .krakenIncidents .item {
+    min-height: 100px;
     padding: 10px;
+    background-color: rgb(167 167 167);
   }
-  .incidents .item-footer {
+  .krakenIncidents .item-footer {
     padding: 5px;
     background-color: #575757;
+    margin-bottom: 1px;
+    font-size: 0.8em;
   }
-  .incidents .datetime {
+  .krakenIncidents .datetime {
     font-size: 0.9em;
   }
-  .incidents .upper {
+  .krakenIncidents .upper {
     text-transform: uppercase;
   }
   .head i {
@@ -169,6 +227,9 @@
   }
   #krakenStatusAPIBtn #toogle.hasData {
     color: #d1a91c;
+  }
+  #krakenStatusAPIBtn #toogle.hasDegraded {
+    color: #d11c1c;
   }
   #krakenStatusAPIBtn #toogle:hover,
   #krakenStatusAPIBtn #toogle.isVisible {
