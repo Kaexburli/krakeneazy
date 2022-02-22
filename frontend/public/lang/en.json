@@ -15,7 +15,8 @@
     "affected": "Affected:",
     "started": "Started:",
     "updated": "Updated:",
-    "resolved": "Resolved:"
+    "resolved": "Resolved:",
+    "titleMaintenance": "Kraken Maintenance Schedules"
   },
   "pricealert": {
     "title": "Alert!",
