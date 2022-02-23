@@ -33,9 +33,6 @@ class UserData {
     try {
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -55,9 +52,6 @@ class UserData {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -79,9 +73,6 @@ class UserData {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -103,9 +94,6 @@ class UserData {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -129,9 +117,6 @@ class UserData {
       this.params = params.pair
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -150,9 +135,6 @@ class UserData {
     try {
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -171,9 +153,6 @@ class UserData {
     try {
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -195,9 +174,6 @@ class UserData {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -219,9 +195,6 @@ class UserData {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -244,11 +217,6 @@ class UserData {
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
 
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error')) {
-        if (res.hasOwnProperty('statusCode') && res.hasOwnProperty('message'))
-          return { error: "ERROR: " + res.statusCode + " " + res.message }
-      }
-
       return res
 
     } catch (error) {
@@ -270,9 +238,6 @@ class UserData {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
@@ -313,9 +278,6 @@ class UserData {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
       let res = await Fetch(this.url, this.endpoint, this.token)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
       return res
 
     } catch (error) {
