@@ -56,7 +56,10 @@
           <div class="krakenIncidents" in:slide out:slide>
             {#each krakenIncidents as item}
               <div class="content">
-                <h4 class={item.impact}>{item.name}</h4>
+                <h4 class={item.impact}>
+                  <strong>[{item.impact.toUpperCase()}]</strong>
+                  {item.name}
+                </h4>
                 <div class="item">
                   <p>
                     <strong class="upper">{item.status}</strong> : {item.body}
@@ -162,7 +165,7 @@
     border-bottom: 1px dotted black;
   }
   .krakenMaintenances h4 {
-    background-color: #d20000;
+    background-color: #00704f;
     padding: 10px;
   }
   .krakenMaintenances .item a {
@@ -195,6 +198,10 @@
     color: #222222;
     background-color: #d1a91c;
   }
+  .krakenIncidents h4.major {
+    color: #222222;
+    background-color: #d20000;
+  }
   .krakenIncidents .item {
     min-height: 100px;
     padding: 10px;
@@ -205,6 +212,7 @@
     background-color: #575757;
     margin-bottom: 1px;
     font-size: 0.8em;
+    color: lightblue;
   }
   .krakenIncidents .datetime {
     font-size: 0.9em;
