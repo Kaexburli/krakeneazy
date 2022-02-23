@@ -1,51 +1,59 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { User } from "store/userStore.js";
   import { page } from "store/store.js";
+  import { hasApikeysStore } from "store/userStore.js";
 
-  const isLogged = User.isLogged();
-  if (!isLogged) page.update((n) => "home");
+  // User
+  export let isLoggedIn;
+  if (!isLoggedIn) page.update((n) => "home");
 
   const handleClickMenu = (slug) => {
     if (slug && typeof slug !== ("undefined" || null)) page.update((n) => slug);
   };
 
+  // Pages
   const pages = [
     {
       name: $_("sidebar.home"),
       slug: "home",
       icon: "fa-home",
       authenticated: false,
+      apikeys: false,
     },
     {
       name: $_("sidebar.account"),
       slug: "account",
       icon: "fa-user-shield",
       authenticated: true,
+      apikeys: true,
     },
     {
       name: $_("sidebar.trading"),
       slug: "trading",
       icon: "fa-desktop",
       authenticated: true,
+      apikeys: true,
     },
     {
       name: $_("sidebar.statistics"),
       slug: "statistic",
       icon: "fa-tachometer-alt",
       authenticated: true,
+      apikeys: true,
     },
     {
       name: $_("sidebar.reports"),
       slug: "reports",
       icon: "fa-chart-line",
       authenticated: true,
+      apikeys: true,
     },
     {
       name: $_("sidebar.settings"),
       slug: "settings",
       icon: "fa-cog",
       authenticated: true,
+      apikeys: false,
     },
   ];
 </script>
@@ -55,8 +63,8 @@
     <h3>{$_("site.name")}</h3>
   </div>
   <ul>
-    {#each pages as { name, slug, icon, authenticated }, i}
-      {#if !authenticated || (authenticated && isLogged)}
+    {#each pages as { name, slug, icon, authenticated, apikeys }, i}
+      {#if !authenticated || (authenticated && isLoggedIn && !apikeys) || (apikeys && $hasApikeysStore)}
         <li>
           <a
             href="/{slug}"

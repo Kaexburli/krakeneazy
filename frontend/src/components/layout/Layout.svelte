@@ -1,4 +1,5 @@
 <script>
+  import { onMount, setContext } from "svelte";
   import Sidebar from "components/layout/Sidebar.svelte";
   import Header from "components/layout/Header.svelte";
   import Main from "components/layout/Main.svelte";
@@ -8,7 +9,7 @@
   import PriceAlert from "components/api/PriceAlert.svelte";
   import Authentification from "components/pages/auth/Authentification.svelte";
   import { Modals, closeModal } from "svelte-modals";
-  import { User } from "store/userStore.js";
+  import { User, hasApikeysStore } from "store/userStore.js";
 
   /** I18n */
   import { addMessages, init, getLocaleFromNavigator } from "svelte-i18n";
@@ -22,11 +23,34 @@
   });
 
   /** Authentification */
+  let userProfile;
+  let userId;
   let isLoggedIn;
   User.init();
+  isLoggedIn = User.isLogged();
+
+  const hasApikeys = {
+    subscribe: hasApikeysStore.subscribe,
+    change: (data) => {
+      hasApikeysStore.update(() => data);
+    },
+  };
+  setContext("data", hasApikeys);
+
+  const getProfile = async () => {
+    return await User.getProfile();
+  };
+
+  onMount(async () => {
+    userProfile = await getProfile();
+  });
 
   /** store */
-  $: isLoggedIn = User.isLogged();
+  $: if (userProfile) {
+    let change = userProfile.user.apikeys.length ? true : false;
+    hasApikeys.change(change);
+    userId = userProfile.user._id;
+  }
 </script>
 
 {#if !isLoggedIn}
@@ -41,10 +65,9 @@
       <div slot="backdrop" class="backdrop" on:click={closeModal} />
     </Modals>
     <!-- // No displaying -->
-
     <Header />
-    <Sidebar />
-    <Main {User} />
+    <Sidebar {isLoggedIn} />
+    <Main {userId} />
     <Footer />
     <PriceAlert display="true" />
   </div>

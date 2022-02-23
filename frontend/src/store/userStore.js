@@ -4,6 +4,7 @@ import RefreshTokenModal from "components/modal/RefreshTokenModal.svelte";
 import jwt_decode from "jwt-decode";
 import { writable } from 'svelte/store';
 
+export const hasApikeysStore = writable(true);
 const storedUser = JSON.parse(localStorage.getItem("user")) || false;
 const { subscribe, set, update } = writable(storedUser);
 

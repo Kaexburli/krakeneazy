@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount } from "svelte";
+  import { onMount, getContext } from "svelte";
   import { User } from "store/userStore.js";
   import { addApiKey, removeApiKey } from "utils/userApi.js";
   import { toast } from "@zerodevx/svelte-toast";
@@ -13,6 +13,8 @@
   import Badge from "@smui-extra/badge";
   import Checkbox from "@smui/checkbox";
   import Dialog, { Title, Content, Actions } from "@smui/dialog";
+
+  const hasApikeys = getContext("data");
 
   const subtrLength = 20;
   let open = false,
@@ -100,6 +102,7 @@
 
     if (addapikey.ok) {
       userProfile = await getProfile();
+      hasApikeys.change(true);
       Notification($_("settings.kraken.addSuccess"), "success");
       resetForm();
     } else {
@@ -125,6 +128,7 @@
 
     if (removeapikey.ok) {
       userProfile = await getProfile();
+      hasApikeys.change(userProfile.user.apikeys.length >= 1 ? true : false);
       loadingRemove = false;
       selectedId = [];
       Notification(

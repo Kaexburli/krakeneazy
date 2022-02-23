@@ -14,6 +14,7 @@
   import BlockTradesHistory from "components/pages/account/BlockTradesHistory.svelte";
 
   import { Tabs, TabList, TabPanel, Tab } from "components/tabs/tabs.js";
+  import Paper, { Content } from "@smui/paper";
 
   const isLogged = User.isLogged();
 
@@ -68,10 +69,12 @@
         </TabPanel>
       </Tabs>
     {:else}
-      <div class="main-info">
-        <i class="fas fa-info-circle" />
-        <span>{$_("site.choosePair")}</span>
-      </div>
+      <Paper color="secondary" square>
+        <Content>
+          <i class="fas fa-info-circle" />
+          <span>{$_("site.choosePair")}</span>
+        </Content>
+      </Paper>
     {/if}
   </div>
 {/if}

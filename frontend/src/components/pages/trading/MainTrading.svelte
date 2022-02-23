@@ -4,6 +4,7 @@
   import { slide } from "svelte/transition";
   import { assetpair } from "store/store.js";
   import TradingOrder from "components/pages/trading/TradingOrder.svelte";
+  import Paper, { Content } from "@smui/paper";
 
   const isLogged = User.isLogged();
 </script>
@@ -17,10 +18,12 @@
       </div>
     {:else}
       <h1>{$_("trading.title")}</h1>
-      <div class="main-info">
-        <i class="fas fa-info-circle" />
-        <span>{$_("site.choosePair")}</span>
-      </div>
+      <Paper color="secondary" square>
+        <Content>
+          <i class="fas fa-info-circle" />
+          <span>{$_("site.choosePair")}</span>
+        </Content>
+      </Paper>
     {/if}
   </div>
 {/if}

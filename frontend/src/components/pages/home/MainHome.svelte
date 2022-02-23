@@ -9,6 +9,8 @@
   import SpreadBox from "components/pages/trading/SpreadBox.svelte";
   import TickerWs from "components/pages/home/WsTicker.svelte";
   import OrderBooksWs from "components/pages/home/WsOrderBooks.svelte";
+  import { hasApikeysStore } from "store/userStore.js";
+  import Paper, { Content } from "@smui/paper";
 
   let loading = false;
 
@@ -18,7 +20,14 @@
 </script>
 
 <div id="page-home" in:slide out:slide>
-  {#if $pair !== "false" && $pair}
+  {#if !$hasApikeysStore}
+    <Paper color="primary" square>
+      <Content>
+        <i class="fas fa-info-circle" />
+        <span>{$_("site.addApiKey")}</span>
+      </Content>
+    </Paper>
+  {:else if $pair !== "false" && $pair}
     <h1>
       <div id="clockloader">
         {#if !loading}<Moon
@@ -31,18 +40,31 @@
       Kraken {$assetpair.wsname}
     </h1>
     <div id="home-wrapper">
-      <div id="ChartCtrl"><ChartCtrl /></div>
-      <div id="BlockChartOhlc"><ChartOhlc /></div>
-      <div id="SpreadBox"><SpreadBox /></div>
-      <div id="BlockTicker"><TickerWs on:loading={handleLoading} /></div>
-      <div id="BlockOrderBooks"><OrderBooksWs /></div>
+      <div id="ChartCtrl">
+        <ChartCtrl />
+      </div>
+      <div id="BlockChartOhlc">
+        <ChartOhlc />
+      </div>
+      <div id="SpreadBox">
+        <SpreadBox />
+      </div>
+      <div id="BlockTicker">
+        <TickerWs on:loading={handleLoading} />
+      </div>
+      <div id="BlockOrderBooks">
+        <OrderBooksWs />
+      </div>
     </div>
   {:else}
     <h1>{$_("home.title")}</h1>
-    <div class="main-info">
-      <i class="fas fa-info-circle" />
-      <span>{$_("site.choosePair")}</span>
-    </div>
+    <Paper color="secondary" square>
+      <Content>
+        <i class="fas fa-info-circle" />
+        <span>{$_("site.choosePair")}</span>
+      </Content>
+    </Paper>
+    <br />
   {/if}
 </div>
 

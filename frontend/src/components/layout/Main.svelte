@@ -7,9 +7,10 @@
   import Statistic from "components/pages/statistics/MainStatistics.svelte";
   import Settings from "components/pages/settings/MainSettings.svelte";
   import Reports from "components/pages/reports/MainReports.svelte";
+  import { hasApikeysStore } from "store/userStore.js";
 
   // User
-  export let User;
+  export let userId;
 
   import websocketStore from "svelte-websocket-store";
   import { assetpair, interval, devise, pricealertlist } from "store/store.js";
@@ -37,8 +38,9 @@
     depth = 10,
     wss_ticker_alert = [];
 
+  const server = __env["BACKEND_WS_URI"];
+
   const initWebsocketUri = () => {
-    const server = __env["BACKEND_WS_URI"];
     wss_server = server;
     wss_book = $assetpair
       ? `${server}/book/${$assetpair.wsname}/${depth}`
@@ -48,16 +50,14 @@
     wss_ohlc = $assetpair
       ? `${server}/ohlc/${$assetpair.wsname}/${$interval}`
       : false;
-    wss_openorders = `${server}/openorders/${$User.id}`;
-    wss_owntrades = `${server}/owntrades/${$User.id}`;
+    wss_openorders = `${server}/openorders/${userId}`;
+    wss_owntrades = `${server}/owntrades/${userId}`;
     wss_tradebalance = $devise
-      ? `${server}/tradebalance/${$devise}/${$User.id}`
+      ? `${server}/tradebalance/${$devise}/${userId}`
       : false;
   };
-  // Appel Websocket
 
-  onMount(() => {
-    console.log("Main onMount");
+  const initWebsocket = () => {
     initWebsocketUri();
     const wsOpenOrders = websocketStore(wss_openorders);
     wsOpenOrders.subscribe((tick) => {
@@ -129,21 +129,30 @@
         if (typeof tick !== "undefined" && tick) ohlc.set(tick);
       });
     }
+  };
+  // Appel Websocket
+
+  onMount(() => {
+    initWebsocket();
   });
+
+  $: if ($interval) {
+    initWebsocket();
+  }
 </script>
 
 <div class="main">
   {#if $page === "home"}
     <div class:hidden={$page !== "home"}><Home /></div>
-  {:else if $page === "account"}
+  {:else if $page === "account" && $hasApikeysStore}
     <div class:hidden={$page !== "account"}><Account /></div>
-  {:else if $page === "trading"}
+  {:else if $page === "trading" && $hasApikeysStore}
     <div class:hidden={$page !== "trading"}><Trading /></div>
-  {:else if $page === "statistic"}
+  {:else if $page === "statistic" && $hasApikeysStore}
     <div class:hidden={$page !== "statistic"}><Statistic /></div>
   {:else if $page === "settings"}
     <div class:hidden={$page !== "settings"}><Settings /></div>
-  {:else if $page === "reports"}
+  {:else if $page === "reports" && $hasApikeysStore}
     <div class:hidden={$page !== "reports"}><Reports /></div>
   {/if}
 </div>
@@ -203,6 +212,17 @@
     background-color: darkcyan;
     padding: 10px;
     border: 2px solid #414141;
+    border-radius: 10px;
+
+    font-weight: bold;
+    color: #222222;
+    margin-top: 10px;
+  }
+
+  :global(.main .main-warning) {
+    background-color: rgb(139, 118, 0);
+    padding: 10px;
+    border: 2px solid #85834a;
     border-radius: 10px;
 
     font-weight: bold;

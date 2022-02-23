@@ -1,7 +1,8 @@
 {
   "site": {
     "name": "Kurlitrade",
-    "choosePair": "Veuillez choisir une paire"
+    "choosePair": "Veuillez choisir une paire",
+    "addApiKey": "Veuillez ajouter une clé api dans les paramètres de votre compte."
   },
   "online": {
     "errorMessage": "Problème réseaux, veuillez vérifier votre connection internet.",
