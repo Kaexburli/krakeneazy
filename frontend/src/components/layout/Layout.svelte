@@ -28,7 +28,12 @@
   let isLoggedIn;
   User.init();
   isLoggedIn = User.isLogged();
+  userId = $User.id;
+  const getProfile = async () => {
+    return await User.getProfile();
+  };
 
+  // Vérification des clés api pour l'affichage du menu
   const hasApikeys = {
     subscribe: hasApikeysStore.subscribe,
     change: (data) => {
@@ -36,10 +41,6 @@
     },
   };
   setContext("data", hasApikeys);
-
-  const getProfile = async () => {
-    return await User.getProfile();
-  };
 
   onMount(async () => {
     userProfile = await getProfile();
@@ -49,7 +50,6 @@
   $: if (userProfile) {
     let change = userProfile.user.apikeys.length ? true : false;
     hasApikeys.change(change);
-    userId = userProfile.user._id;
   }
 </script>
 
