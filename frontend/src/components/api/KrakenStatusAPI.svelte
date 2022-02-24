@@ -63,15 +63,20 @@
                     {formatter.format(new Date(item.scheduled_until).getTime())}
                   </p>
                 </div>
-                <div>
-                  <ul>
-                    {#each item.components as component}
-                      <li>
-                        {component.name} : {component.status.replace("_", " ")}
-                      </li>
-                    {/each}
-                  </ul>
-                </div>
+                {#if item.hasOwnProperty("components") && item.components !== null}
+                  <div>
+                    <ul>
+                      {#each item.components as component}
+                        <li>
+                          {component.name} : {component.status.replace(
+                            "_",
+                            " "
+                          )}
+                        </li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/if}
               </div>
             {/each}
           </div>
@@ -93,16 +98,18 @@
                       {$_("krakenStatusAPI.affected")}
                     </strong>
                   </p>
-                  <ul>
-                    {#each item.affected as affected}
-                      <li>
-                        {affected.name} : {affected.new_status.replace(
-                          "_",
-                          " "
-                        )}
-                      </li>
-                    {/each}
-                  </ul>
+                  {#if item.hasOwnProperty("affected") && item.affected !== null}
+                    <ul>
+                      {#each item.affected as affected}
+                        <li>
+                          {affected.name} : {affected.new_status.replace(
+                            "_",
+                            " "
+                          )}
+                        </li>
+                      {/each}
+                    </ul>
+                  {/if}
                 </div>
                 <div class="item-footer">
                   <p class="datetime">
