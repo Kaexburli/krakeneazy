@@ -45,6 +45,7 @@ const initApiKraken = (apikeys = false) => {
 
   const pubKey = apikeys[shuffle].apiKeyPublic || false;
   const privKey = apikeys[shuffle].apiKeyPrivate || false;
+
   if (!pubKey || !privKey) {
     return new Kraken({ gennonce: () => NonceGenerator() })
   }
@@ -60,10 +61,10 @@ const initApiKraken = (apikeys = false) => {
 
 const krakenErrorsList = {
   EGeneral: { "Temporary lockout": 900000, "Internal error": 60000, "Too many requests": 60000 },
-  EAPI: { "Invalid nonce": 500, "Rate limit exceeded": 900000 },
+  EAPI: { "Invalid nonce": 100, "Rate limit exceeded": 60000 },
   EQuery: {},
   ESession: {},
-  EOrder: { "Rate limit exceeded": 900000, },
+  EOrder: { "Rate limit exceeded": 60000, },
   EService: {},
   EService: { "Busy": 60000 },
   ETrade: {}
@@ -74,12 +75,12 @@ const krakenErrorsList = {
  *  API REST METHOD
  *  *****************
  */
-
 const handleError = (error, func) => {
   if (error) {
     if (error.hasOwnProperty('body')) {
       apiError = error.body.error[0].split(':') || false;
-      if (apiError && krakenErrorsList[apiError[0]].hasOwnProperty(apiError[1])) {
+      console.log(`\x1b[33m [handleError] ${func} ${error.body.error[0]}\x1b[0m`);
+      if (apiError && typeof krakenErrorsList[apiError[0]] !== "undefined") {
         return {
           error: apiError[1],
           timeout: krakenErrorsList[apiError[0]][apiError[1]],
@@ -88,6 +89,7 @@ const handleError = (error, func) => {
         }
       }
       else {
+        console.log(`\x1b[33m [handleError] ${error} \x1b[0m`);
         return { error: apiError[1], timeout: false, response: { error, name: apiError[0] }, func }
       }
     }
