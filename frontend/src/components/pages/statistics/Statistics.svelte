@@ -1,6 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
+  import { page } from "store/store.js";
   import LinearProgress from "@smui/linear-progress";
   import ChartItem from "components/pages/statistics/ChartItem.svelte";
 
@@ -81,6 +82,9 @@
     isError = $state.matches("error");
     isLoading = !$state.matches("displaying");
     datas = $state.context.dataformat;
+    if (datas.hasOwnProperty("chartDatas") && datas.chartDatas.length == 0) {
+      $page = "reports";
+    }
   }
 </script>
 
