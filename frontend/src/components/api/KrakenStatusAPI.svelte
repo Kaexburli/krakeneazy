@@ -47,7 +47,31 @@
             <h4>{$_("krakenStatusAPI.titleMaintenance")}</h4>
             {#each krakenMaintenances as item}
               <div class="item">
-                <a href={item.shortlink} target="_blank">{item.name}</a>
+                <strong>[{item.impact.toUpperCase()}]</strong>
+                <a href={item.shortlink} target="_blank">
+                  {item.name}
+                </a>
+                <div class="item-scheduled">
+                  <p class="datetime">
+                    <strong>
+                      {$_("krakenStatusAPI.scheduledFor")}
+                    </strong>
+                    {formatter.format(new Date(item.scheduled_for).getTime())}
+                    <strong>
+                      {$_("krakenStatusAPI.scheduledUntil")}
+                    </strong>
+                    {formatter.format(new Date(item.scheduled_until).getTime())}
+                  </p>
+                </div>
+                <div>
+                  <ul>
+                    {#each item.components as component}
+                      <li>
+                        {component.name} : {component.status.replace("_", " ")}
+                      </li>
+                    {/each}
+                  </ul>
+                </div>
               </div>
             {/each}
           </div>
@@ -141,11 +165,12 @@
     height: auto;
     background-color: #2c2c2c;
     overflow: auto;
+    max-height: 600px;
   }
   #krakenStatusAPI #header {
     height: 30px;
     width: 100%;
-    background-color: #8d2525;
+    background-color: #c7c7c7;
     color: #222222;
   }
   #krakenStatusAPI #header h3 {
@@ -165,7 +190,7 @@
     border-bottom: 1px dotted black;
   }
   .krakenMaintenances h4 {
-    background-color: #00704f;
+    background-color: #00706e;
     padding: 10px;
   }
   .krakenMaintenances .item a {
