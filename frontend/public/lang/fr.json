@@ -8,8 +8,9 @@
     "errorMessage": "Problème réseaux, veuillez vérifier votre connection internet.",
     "online": "En ligne",
     "offline": "Hors ligne",
-    "cancel_only": "Annulation",
-    "post_only": "Post"
+    "cancel_only": "Annulation seul",
+    "post_only": "Post seul",
+    "maintenance": "Maintenance"
   },
   "krakenStatusAPI": {
     "title": "Incidents liés à Kraken",

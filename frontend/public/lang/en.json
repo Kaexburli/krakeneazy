@@ -9,7 +9,8 @@
     "online": "Online",
     "offline": "Offline",
     "cancel_only": "Cancel only",
-    "post_only": "Post only"
+    "post_only": "Post only",
+    "maintenance": "Maintenance"
   },
   "krakenStatusAPI": {
     "title": "Kraken incidents",

@@ -268,7 +268,7 @@
   #krakenStatusAPIBtn {
     display: block;
     float: right;
-    margin: 0 0 0 10px;
+    margin: 2px 0 0 10px;
   }
   #krakenStatusAPIBtn #toogle {
     cursor: pointer;

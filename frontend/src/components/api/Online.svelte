@@ -177,11 +177,14 @@
     {#if status === undefined}
       <span class="dot" />
     {:else if status === "online"}
-      {$_(`online.${status}`)}&nbsp;&nbsp;<span class="dot dot-green" />
+      <span class="status-green">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
+      <span class="dot dot-green" />
     {:else if status === "offline"}
-      {$_(`online.${status}`)}&nbsp;&nbsp;<span class="dot dot-red" />
+      <span class="status-red">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
+      <span class="dot dot-red" />
     {:else}
-      {$_(`online.${status}`)}<span class="dot" />
+      <span class="status-orange">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
+      <span class="dot dot-orange" />
     {/if}
   </div>
 {/if}
@@ -209,6 +212,28 @@
   .dot-red {
     background-color: red;
     vertical-align: inherit;
+  }
+  .dot-orange {
+    background-color: orange;
+    vertical-align: inherit;
+  }
+  .status-green {
+    color: chartreuse;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
+  .status-red {
+    color: red;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
+  .status-orange {
+    color: orange;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
   }
   .error_status {
     color: red;
