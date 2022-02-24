@@ -4,7 +4,7 @@
 
   import UserData from "classes/UserData.js";
   import { online, assetpair, asymbole } from "store/store.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
   import { tweened } from "svelte/motion";
   import { linear } from "svelte/easing";
 
@@ -41,6 +41,9 @@
       const res = await ud.getTradeVolume({ pair: $assetpair.altname });
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
+        // setInterval(() => {
+        //   GetTradeVolume();
+        // }, res.timeout);
       } else {
         tradevolume = res;
         error = false;
@@ -91,7 +94,7 @@
     <span class="error">{error}</span>
   {/if}
   {#if !tradevolume && !error}
-    <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+    <LinearProgress indeterminate />
   {:else if tradevolume}
     <div class="trade_volume">
       <h5>{$_("account.tradeVolume.volume")}</h5>

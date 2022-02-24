@@ -6,7 +6,7 @@
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
   import { online, closedordersdata } from "store/store.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
   let error = false,
@@ -128,7 +128,7 @@
         <span class="error">{error}</span>
       {/if}
       {#if !closedorders && !error}
-        <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+        <LinearProgress indeterminate />
       {:else if closedorders}
         {#each closedorders as el, i}
           <tr id={el[0]} transition:fade class="tr-{el[1]['status']}">

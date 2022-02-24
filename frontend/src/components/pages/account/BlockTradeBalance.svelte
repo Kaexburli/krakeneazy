@@ -6,7 +6,7 @@
   import { tradebalance } from "store/wsstore.js";
 
   import { devise, online, sound, asymbole } from "store/store.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
   let error = false,
@@ -135,7 +135,7 @@
       <span class="error">{error}</span>
     {/if}
     {#if !tradebalancedata && !error}
-      <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+      <LinearProgress indeterminate />
     {:else if tradebalancedata}
       {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["eb", "tb", "m", "e", "mf"].includes(index)}
@@ -185,7 +185,7 @@
       <span class="error">{error}</span>
     {/if}
     {#if !tradebalancedata && !error}
-      <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+      <LinearProgress indeterminate />
     {:else if tradebalancedata}
       {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["n", "c", "v", "ml"].includes(index)}

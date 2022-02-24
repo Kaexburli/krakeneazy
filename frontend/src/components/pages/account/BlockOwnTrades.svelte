@@ -6,7 +6,7 @@
   import { online } from "store/store.js";
   import { owntrades } from "store/wsstore.js";
   import formatDate from "utils/formatDate.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
 
   let error = false,
     count = 0,
@@ -49,7 +49,7 @@
         <span class="error">{error}</span>
       {/if}
       {#if typeof owntradesdata !== "undefined" && owntradesdata.length === 0 && !error}
-        <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+        <LinearProgress indeterminate />
       {:else if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
         {#each owntradesdata as el, i}
           <tr id={Object.keys(el)} transition:fade>

@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
   import ChartItem from "components/pages/statistics/ChartItem.svelte";
 
   import { assign, createMachine } from "xstate";
@@ -90,12 +90,9 @@
 
 <div class="block">
   <h3>{$_("statistics.title")}</h3>
-  {#if isLoading}<SyncLoader
-      size="30"
-      color="#e8e8e8"
-      unit="px"
-      duration="1s"
-    />{/if}
+  {#if isLoading}
+    <LinearProgress indeterminate />
+  {/if}
   <div class="chart-block">
     {#if datas.hasOwnProperty("chartDatas")}
       {#each Object.keys(datas.chartDatas) as ledg}

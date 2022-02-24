@@ -11,7 +11,7 @@
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
   import { fade } from "svelte/transition";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
 
   let error = false;
 
@@ -214,7 +214,7 @@
         <span class="error">{error}</span>
       {/if}
       {#if $openordersdata.length === 0 && !error}
-        <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+        <LinearProgress indeterminate />
       {:else if typeof $openordersdata !== "undefined" && $openordersdata.length > 0 && $openordersdata}
         {#each $openordersdata as el, i}
           <tr id={Object.keys(el)} transition:fade>

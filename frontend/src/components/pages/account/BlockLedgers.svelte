@@ -6,7 +6,7 @@
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
   import { online, asymbole, ledgersdata } from "store/store.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
 
   const ud = new UserData();
 
@@ -96,7 +96,7 @@
         <span class="error">{error}</span>
       {/if}
       {#if !ledgers && !error}
-        <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+        <LinearProgress indeterminate />
       {:else if typeof ledgers !== "undefined" && ledgers}
         {#each ledgers as ledger, i}
           <tr id={ledger[0]} transition:fade>
