@@ -253,3 +253,24 @@ export const changeUserData = async (token, data, field) => {
     return error
   }
 }
+
+/**
+ * acceptCgv
+************************************************************************************************/
+export const acceptCgv = async (token) => {
+
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/accept-cgv", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ cgvConfirmed: true })
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return error
+  }
+}

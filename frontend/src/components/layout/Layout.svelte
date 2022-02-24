@@ -24,11 +24,9 @@
 
   /** Authentification */
   let userProfile;
-  let userId;
   let isLoggedIn;
   User.init();
   isLoggedIn = User.isLogged();
-  userId = $User.id;
   const getProfile = async () => {
     return await User.getProfile();
   };
@@ -67,7 +65,7 @@
     <!-- // No displaying -->
     <Header />
     <Sidebar {isLoggedIn} />
-    <Main {userId} />
+    <Main {User} />
     <Footer />
     <PriceAlert display="true" />
   </div>

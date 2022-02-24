@@ -32,6 +32,13 @@
       "down": "below:"
     }
   },
+  "main": {
+    "dialog": {
+      "title": "Terms and Conditions",
+      "reject": "Reject",
+      "accept": "Accept"
+    }
+  },
   "sidebar": {
     "home": "Home",
     "account": "Account",

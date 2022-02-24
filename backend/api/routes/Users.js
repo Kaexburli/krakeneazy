@@ -12,7 +12,8 @@ import {
   resendConfirmEmailCtrl,
   addApiKeyCtrl,
   removeApiKeyCtrl,
-  changeUserDataCtrl
+  changeUserDataCtrl,
+  confirmCGVCtrl
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
@@ -106,7 +107,7 @@ export default function usersRoutes(fastify, options, done) {
         handler: removeApiKeyCtrl
       });
 
-      // forgot-password
+      // change-user-data
       fastify.route({
         method: ['POST', 'HEAD'],
         url: '/change-user-data',
@@ -122,6 +123,15 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: refreshTokenCtrl
+      });
+
+      // change-user-data
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/accept-cgv',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: confirmCGVCtrl
       });
 
     });

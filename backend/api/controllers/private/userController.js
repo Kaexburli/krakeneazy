@@ -294,6 +294,7 @@ export const profileCtrl = async (req, reply) => {
       email: req.user.email,
       role: req.user.role,
       tokenVersion: req.user.tokenVersion,
+      cgvConfirmed: req.user.cgvConfirmed,
       settings: {
         exports: req.user.settings[0].exports,
         interval: req.user.settings[0].interval,
@@ -399,5 +400,25 @@ export const changeUserDataCtrl = async (req, reply) => {
     else {
       reply.status(400).send({ ok: false, message: error.errors });
     }
+  }
+}
+
+/**
+ * confirmCGVCtrl
+ * @description Modifie la confirmation des CGV
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const confirmCGVCtrl = async (req, reply) => {
+  const { cgvConfirmed } = req.body;
+
+  try {
+    if (cgvConfirmed) req.user.cgvConfirmed = cgvConfirmed;
+    // save user
+    await req.user.save();
+    reply.send({ ok: true, message: `CGV accepted!` });
+  } catch (error) {
+    reply.status(400).send({ ok: false, message: error.errors });
   }
 }

@@ -54,6 +54,10 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    cgvConfirmed: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       default: 'user',
