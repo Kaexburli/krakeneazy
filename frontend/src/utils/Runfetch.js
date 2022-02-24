@@ -1,6 +1,12 @@
 import { User } from "store/userStore.js";
+import { fetchTimeout } from "store/store.js";
 import checkRateCount from "utils/checkRateCount.js"
 import Fetch, { hasBackground } from "svelte-fetch"
+
+let background = 0;
+let timeout = false;
+hasBackground.subscribe((v) => background = v)
+fetchTimeout.subscribe((v) => timeout = v)
 
 const fetch = new Fetch()
 
@@ -15,13 +21,22 @@ const callApiFetch = async (url, endpoint, token = false) => {
 
   try {
 
-    // const checkratecount = checkRateCount(endpoint);
-    // if (!checkratecount) return false;
+    if (timeout.timeout) {
+      let end = parseInt(timeout.started + timeout.timeout)
+      let now = Date.now()
+      if (now < end) {
+        console.log("Timeout:", parseInt(end - now) / 60000)
+        return false
+      }
+    }
 
-    // hasBackground.subscribe((background) => {
-    //   console.log('[Fetch Background]:', background, endpoint)
-    // })
 
+    const checkratecount = checkRateCount(endpoint);
+    if (!checkratecount) return false;
+
+    // console.log('[Fetch Background]:', background, endpoint)
+
+    let errorTimeout = false;
     let options = {}
 
     if (token) {
@@ -32,9 +47,19 @@ const callApiFetch = async (url, endpoint, token = false) => {
 
     let response = await fetch.background.expect(JSON).get(url, options);
 
+    // console.log(`[RUNFECTH] ${endpoint}`, response)
+
+
     if (response.hasOwnProperty("error")) {
-      console.log(`[ERROR]: ${endpoint} = ${response.error.body.error ? response.error.body.error : error}`)
+      errorTimeout = response.timeout
+      console.error(`[HAS ERROR]: ${endpoint} = ${response.error}`)
     }
+
+    fetchTimeout.update((n) => {
+      n['timeout'] = errorTimeout;
+      n['started'] = Date.now();
+      return n
+    });
 
     if (
       response.hasOwnProperty("statusCode") &&
@@ -44,12 +69,11 @@ const callApiFetch = async (url, endpoint, token = false) => {
       location.reload()
       return false;
     }
-
-    return response
+    else return response
   }
   catch (error) {
-    const err = "[" + endpoint + "]" + (typeof error !== 'undefined' ? error : 'unknown error')
-    return { error: err };
+    console.error("CATCH ERROR RUNFECTH:", error)
+    return { error, endpoint };
   }
 }
 

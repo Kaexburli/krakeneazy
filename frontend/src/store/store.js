@@ -19,7 +19,6 @@ const asset_replace = {
 
 
 
-
 export const asymbole = writable(asset_replace);
 export const ledgersdata = writable(false);
 export const closedordersdata = writable(false);
@@ -110,9 +109,6 @@ pair.subscribe(value => {
 
 
 
-
-
-
 // Storage devise (OBJECT)
 const storedMaxratecountDataDefault = JSON.stringify({ rate_count: { count: 0, count_total: 0, timestamp: Date.now(), ratecount_end: null } });
 const storedMaxratecountData = JSON.parse(localStorage.getItem("maxratecount_data")) || storedMaxratecountDataDefault;
@@ -169,4 +165,13 @@ export const exportcsv = writable(storedExportCSV);
 exportcsv.subscribe(value => {
   value = (typeof value === 'object') ? JSON.stringify(value) : defaultStoredExportCSV
   localStorage.setItem("exportcsv", (value !== "false") ? value : defaultStoredExportCSV);
+});
+
+// Storage fetchTimeout (STRING)
+const storedFetchTimeoutDataDefault = JSON.stringify({ timeout: false, started: Date.now() })
+const storedFetchTimeout = JSON.parse(localStorage.getItem("fetchTimeout") || storedFetchTimeoutDataDefault);
+export const fetchTimeout = writable(storedFetchTimeout);
+fetchTimeout.subscribe(value => {
+  value = (typeof value === 'object') ? JSON.stringify(value) : value
+  localStorage.setItem("fetchTimeout", (value !== false) ? value : storedFetchTimeoutDataDefault);
 });
