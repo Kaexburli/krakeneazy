@@ -2,8 +2,6 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import formatDate from "utils/formatDate.js";
-  import { tweened } from "svelte/motion";
-  import { linear } from "svelte/easing";
   import LinearProgress from "@smui/linear-progress";
   import { User } from "store/userStore.js";
 
@@ -18,11 +16,6 @@
     getListExport,
     RemoveExport,
   } from "machin/export/Method.js";
-
-  const progress = tweened(0, {
-    duration: 1000,
-    easing: linear,
-  });
 
   let datas = false,
     message = false,
@@ -131,9 +124,7 @@
    */
   const retreiveExport = (ctx, event) => {
     message += `<br />${$_("reports.export.endExport")}<br />`;
-    progress.set(1);
     progressBar = false;
-    progress.set(0);
     return async (callback, _onEvent) => {
       message += `${$_("reports.export.extractExport")}<br />`;
       const retreive = await RetreiveExport(
@@ -185,7 +176,6 @@
     } else message += Array(ctx.count).join(".");
 
     progressBar = true;
-    progress.set((parseInt(Date.now() / 1000) - event.data.createdtm) / 100);
     ctx.count++;
   };
 
@@ -252,8 +242,7 @@
   <pre class="console">
     {#if message}{@html message}{/if}
     {#if progressBar}
-      <LinearProgress {$progress} />  
-      <progress indeterminate />
+      <LinearProgress indeterminate />
     {/if}
     </pre>
 {/if}
@@ -381,11 +370,5 @@
   :global(.circle) {
     display: inline-block;
     margin-right: 3px;
-  }
-  progress {
-    display: block;
-    width: 100%;
-    margin: 15px 0px;
-    padding: 15px;
   }
 </style>
