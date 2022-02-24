@@ -80,11 +80,6 @@ export const registerCtrl = async (req, reply) => {
     const savedSetting = await setting.save()
     user.settings = user.settings.concat(savedSetting)
 
-    // Create kraken
-    const kraken = new UserKraken({ user: user._id })
-    const savedKraken = await kraken.save()
-    user.apikeys = user.apikeys.concat(savedKraken)
-
     // Create user with settings
     await user.save();
 
