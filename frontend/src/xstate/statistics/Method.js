@@ -1,7 +1,11 @@
 import { produce, original, current } from 'immer'
 import { exportcsv } from "store/store.js";
+import { User } from "store/userStore.js";
 import UserData from "classes/UserData.js";
 const ud = new UserData();
+
+let userId;
+User.subscribe((user) => userId = user.id)
 
 /**
  * Method FetchExport
@@ -21,7 +25,7 @@ export const FetchExport = async (ctx, event) => {
     for (const type of Object.keys(store)) {
 
       let id = store[type]
-      const res = await ud.readExport({ id, type });
+      const res = await ud.readExport({ id, type, userId });
 
       if (typeof res !== 'undefined' && res)
         read[type] = res.reverse()

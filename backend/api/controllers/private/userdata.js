@@ -1,4 +1,4 @@
-import { existsSync, rmSync, writeFileSync } from "fs";
+import { existsSync, rmSync, writeFileSync, mkdirSync } from "fs";
 import * as path from 'path';
 
 import { Kraken } from 'node-kraken-api'
@@ -298,8 +298,7 @@ const statusExport = async (req, reply) => {
 
 // /private/retrieveExport
 const retrieveExport = async (req, reply) => {
-
-  const { id, type } = req.params
+  const { id, type, userId } = req.params
 
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
@@ -309,8 +308,8 @@ const retrieveExport = async (req, reply) => {
 
     let res = true;
     const filename = `${id}_${type}.zip`;
-    const fullPath = __base + '/' + filename
-    const destPath = __base + '/' + id
+    const fullPath = `${__base}/${userId}/${id}/${filename}`
+    const destPath = `${__base}/${userId}/${id}`
 
     let data = await apiKraken.retrieveExport({ id });
     const writeOpts = {
@@ -318,6 +317,10 @@ const retrieveExport = async (req, reply) => {
       flag: "w",
       mode: 0o666
     };
+
+    if (!existsSync(destPath)) {
+      mkdirSync(destPath, { recursive: true })
+    }
 
     writeFileSync(fullPath, data, writeOpts);
 
@@ -338,14 +341,14 @@ const retrieveExport = async (req, reply) => {
 // /private/rmOldExport
 const rmOldExport = async (req, reply) => {
 
-  const { id } = req.params
+  const { id, userId } = req.params
 
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
-    const fullPath = path.join(__base, id)
+    const fullPath = path.join(__base, userId, id)
     if (existsSync(fullPath)) rmSync(fullPath, { recursive: true })
     const res = await apiKraken.removeExport({ id, type: 'delete' });
     return res;
@@ -358,12 +361,11 @@ const rmOldExport = async (req, reply) => {
 // /private/readExport
 const readExport = async (req, reply) => {
 
-  const { id, type } = req.params
+  const { id, type, userId } = req.params
   try {
     let data;
-    let fileExist = false;
-    const filename = id + '\\' + type + '.csv';
-    const fullPath = __base + '\\' + filename
+
+    const fullPath = `${__base}/${userId}/${id}/${type}.csv`
 
     if (existsSync(fullPath)) data = await CSVToJSON().fromFile(fullPath)
     else data = false;
@@ -377,8 +379,8 @@ const readExport = async (req, reply) => {
 
 // Verifie que le dossier de destination existe
 const checkIfFolderExist = async (req, reply) => {
-  const { id, type } = req.params
-  const destPath = __base + '/' + id + '/' + type + '.csv'
+  const { id, type, userId } = req.params
+  const destPath = `${__base}/${userId}/${id}/${type}.csv`
   return existsSync(destPath)
 }
 

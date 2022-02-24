@@ -36,7 +36,7 @@ export default function PrivateAddExportRoute(fastify, options, done) {
 
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/api/private/retrieveexport/:id/:type',
+        url: '/api/private/retrieveexport/:id/:type/:userId',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: retrieveExport
@@ -44,7 +44,7 @@ export default function PrivateAddExportRoute(fastify, options, done) {
 
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/api/private/readexport/:id/:type',
+        url: '/api/private/readexport/:id/:type/:userId',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: readExport
@@ -52,7 +52,7 @@ export default function PrivateAddExportRoute(fastify, options, done) {
 
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/api/private/removeoldexport/:id',
+        url: '/api/private/removeoldexport/:id/:userId',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: rmOldExport
@@ -60,7 +60,7 @@ export default function PrivateAddExportRoute(fastify, options, done) {
 
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/api/private/checkexport/:id/:type',
+        url: '/api/private/checkexport/:id/:type/:userId',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: checkIfFolderExist

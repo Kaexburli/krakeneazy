@@ -253,7 +253,7 @@ class UserData {
       console.log($_("userData.errorMessage") + " : " + this.endpoint)
     }
 
-    params = (typeof params !== "undefined") ? params : ''
+    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
 
     try {
       this.params = (typeof params !== "undefined") ? params : "";

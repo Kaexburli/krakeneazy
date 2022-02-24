@@ -2,9 +2,10 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import formatDate from "utils/formatDate.js";
-  import { SyncLoader } from "svelte-loading-spinners";
   import { tweened } from "svelte/motion";
   import { linear } from "svelte/easing";
+  import LinearProgress from "@smui/linear-progress";
+  import { User } from "store/userStore.js";
 
   import { assign, createMachine } from "xstate";
   import { useMachine } from "utils/useMachin.js";
@@ -29,7 +30,8 @@
     isError = false,
     isLoading = false,
     progressBar = false,
-    errorMsg;
+    errorMsg,
+    userId = $User.id;
 
   /**
    * wait
@@ -45,6 +47,7 @@
    */
   const initLoadData = (ctx, event) => {
     return async (callback, _onEvent) => {
+      ctx.userId = userId; // Set userId in context
       const res = await getListExport(ctx, event);
 
       if (Array.isArray(res)) callback({ type: "PROCESSED", newData: res });
@@ -99,21 +102,23 @@
    */
   const statusExport = (ctx, event) => {
     return async (callback, _onEvent) => {
-      const res = await StatusExport(event.data.type, event.data.id);
+      const res = await StatusExport(event.data.type, event.data.id, userId);
 
       if (res) {
         if (res.hasOwnProperty("error"))
           callback({ type: "ERROR", error: $_(`reports.export.${res.error}`) });
 
-        if (ctx.count >= 1) await wait(15000);
+        if (ctx.count >= 1) await wait(10000);
 
-        callback({
-          type: res[0].status.toUpperCase(), // QUEUED
-          data: {
-            type: event.data.type,
-            id: event.data.id,
-            createdtm: res[0].createdtm,
-          },
+        res.map((r) => {
+          callback({
+            type: r.status.toUpperCase() || false, // QUEUED
+            data: {
+              type: event.data.type,
+              id: event.data.id,
+              createdtm: r.createdtm,
+            },
+          });
         });
       } else {
         console.error("statusExport unoccured error !!!!!!");
@@ -131,7 +136,12 @@
     progress.set(0);
     return async (callback, _onEvent) => {
       message += `${$_("reports.export.extractExport")}<br />`;
-      const retreive = await RetreiveExport(event.data.id, event.data.type);
+      const retreive = await RetreiveExport(
+        event.data.id,
+        event.data.type,
+        userId
+      );
+
       if (typeof retreive !== "undefined" && retreive.hasOwnProperty("error")) {
         message += retreive.error;
       } else if (typeof retreive !== "undefined" && retreive.res) {
@@ -185,7 +195,7 @@
   const assignExpired = (ctx, event) => {
     const ids = event.data.ids;
     ids.map(async (id) => {
-      await RemoveExport(id);
+      await RemoveExport(id, userId);
       ctx.expired.push(id);
     });
   };
@@ -239,14 +249,17 @@
 {/if}
 
 {#if isQueued}
-  <pre
-    class="console">{#if message}{@html message}{/if}{#if progressBar}<progress
-        value={$progress}
-      />{/if}</pre>
+  <pre class="console">
+    {#if message}{@html message}{/if}
+    {#if progressBar}
+      <LinearProgress {$progress} />  
+      <progress indeterminate />
+    {/if}
+    </pre>
 {/if}
 
 {#if isLoading && !isQueued}
-  <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+  <LinearProgress indeterminate />
 {/if}
 
 {#if datas.length >= 1}
