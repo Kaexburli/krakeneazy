@@ -181,7 +181,6 @@
   </Textfield>
 </div>
 <div class="margins mbot">
-  <h4>{$_("settings.profile.lastname.label")}</h4>
   <Textfield
     style="width: 100%;"
     helperLine$style="width: 100%;"
@@ -297,7 +296,7 @@
 
 <style>
   .mbot {
-    margin-bottom: 15px;
+    margin-bottom: 5px;
   }
 
   .btn-back {
