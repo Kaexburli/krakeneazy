@@ -5,6 +5,7 @@ import { Kraken } from 'node-kraken-api'
 import extract from 'extract-zip'
 import CSVToJSON from 'csvtojson'
 const __base = path.resolve('../export/.');
+const now = new Date().toLocaleTimeString();
 let debug = false
 let apiError = false;
 
@@ -75,11 +76,18 @@ const krakenErrorsList = {
  *  API REST METHOD
  *  *****************
  */
+const logError = (error, func) => {
+  console.log(
+    `\x1b[35m%s\x1b[0m`, `[${now}]`,
+    '\x1b[33m[ERROR]\x1b[0m',
+    `\x1b[0m${func}:\x1b[0m\x1b[33m${error}\x1b[0m`
+  );
+}
 const handleError = (error, func) => {
   if (error) {
     if (error.hasOwnProperty('body')) {
+      logError(error.body.error[0], func)
       apiError = error.body.error[0].split(':') || false;
-      console.log(`\x1b[33m [handleError] ${func} ${error.body.error[0]}\x1b[0m`);
       if (apiError && typeof krakenErrorsList[apiError[0]] !== "undefined") {
         return {
           error: apiError[1],
@@ -89,7 +97,7 @@ const handleError = (error, func) => {
         }
       }
       else {
-        console.log(`\x1b[33m [handleError] ${error} \x1b[0m`);
+        logError(error, func)
         return { error: apiError[1], timeout: false, response: { error, name: apiError[0] }, func }
       }
     }
@@ -480,7 +488,7 @@ const getWsTradeBalance = async (connection, req, reply) => {
 
 
   let timer = null;
-  let interval = 5000;
+  let interval = 30000;
 
   // Strat interval
   const startInterval = () => {
