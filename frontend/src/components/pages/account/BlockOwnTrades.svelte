@@ -1,77 +1,126 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount } from "svelte";
-  import { fade } from "svelte/transition";
-
+  import { onDestroy, onMount } from "svelte";
   import { online } from "store/store.js";
   import { owntrades } from "store/wsstore.js";
   import formatDate from "utils/formatDate.js";
+  import DataTable, {
+    Head,
+    Body,
+    Row,
+    Cell,
+    Pagination,
+  } from "@smui/data-table";
+  import Select, { Option } from "@smui/select";
+  import IconButton from "@smui/icon-button";
+  import { Label } from "@smui/common";
   import LinearProgress from "@smui/linear-progress";
 
   let error = false,
-    count = 0,
-    owntradesdata = false;
+    owntradesdata = false,
+    isLoading = false,
+    unsubscribe = false;
 
+  /**
+   * onMount
+   *********************/
   onMount(() => {
-    owntrades.subscribe((tick) => {
+    unsubscribe = owntrades.subscribe((tick) => {
       if (!$online) {
         error = true;
+        isLoading = true;
         return false;
       } else if (
         typeof tick !== "undefined" &&
         tick.hasOwnProperty("errorMessage")
       ) {
         error = "[" + tick.subscription.name + "] " + tick.errorMessage;
+        isLoading = true;
       } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
-        if (tick.service === "OwnTrades" && tick.data)
+        if (tick.service === "OwnTrades" && tick.data) {
           owntradesdata = tick.data;
+          isLoading = true;
+        }
       }
     });
   });
+
+  /**
+   * onDestroy
+   *********************/
+  onDestroy(() => {
+    unsubscribe;
+  });
+
+  /**
+   * Pagination
+   *********************/
+  let owntradesdataSlice = [],
+    nbTotal = 0,
+    start = 0,
+    end = 0,
+    lastPage = 0,
+    rowsPerPage = 5,
+    currentPage = 0,
+    perPage = [5, 10, 25, 50];
+
+  $: if (owntradesdata) {
+    nbTotal = owntradesdata.length;
+    start = currentPage * rowsPerPage;
+    end = Math.min(start + rowsPerPage, nbTotal);
+    owntradesdataSlice = owntradesdata.slice(start, end);
+    lastPage = Math.max(Math.ceil(nbTotal / rowsPerPage) - 1, 0);
+
+    if (currentPage > lastPage) currentPage = lastPage;
+    if (rowsPerPage > nbTotal) rowsPerPage = nbTotal;
+
+    isLoading = !!owntradesdataSlice;
+  }
 </script>
 
 <div class="block owntrades">
-  <h4>{$_("account.ownTrades.title")}</h4>
-  <table class="flex-table flex-fixhead-table">
-    <thead>
-      <tr>
-        <th>{$_("account.ownTrades.type")}</th>
-        <th>{$_("account.ownTrades.date")}</th>
-        <th>{$_("account.ownTrades.pair")}</th>
-        <th>{$_("account.ownTrades.cost")}</th>
-        <th>{$_("account.ownTrades.price")}</th>
-        <th>{$_("account.ownTrades.volume")}</th>
-        <th>{$_("account.ownTrades.fees")}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#if error && typeof error !== "boolean"}
-        <span class="error">{error}</span>
-      {/if}
-      {#if typeof owntradesdata !== "undefined" && owntradesdata.length === 0 && !error}
-        <LinearProgress indeterminate />
-      {:else if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
-        {#each owntradesdata as el, i}
-          <tr id={Object.keys(el)} transition:fade>
-            <td
+  {#if error && typeof error !== "boolean"}
+    <span class="error">{error}</span>
+  {/if}
+  <DataTable
+    table$aria-label={$_("account.ownTrades.dataLabel")}
+    style="width: 100%;"
+    class="open-orders"
+  >
+    <Head>
+      <Row>
+        <Cell>{$_("account.ownTrades.type")}</Cell>
+        <Cell>{$_("account.ownTrades.date")}</Cell>
+        <Cell>{$_("account.ownTrades.pair")}</Cell>
+        <Cell>{$_("account.ownTrades.cost")}</Cell>
+        <Cell>{$_("account.ownTrades.price")}</Cell>
+        <Cell>{$_("account.ownTrades.volume")}</Cell>
+        <Cell>{$_("account.ownTrades.fees")}</Cell>
+      </Row>
+    </Head>
+    <Body>
+      {#if owntradesdataSlice && nbTotal > 0}
+        {#each owntradesdataSlice as el, i}
+          <Row id={Object.keys(el)}>
+            <Cell
+              style="padding:0;width:13%;"
               data-label={$_("account.ownTrades.type")}
-              class={el[Object.keys(el)]["type"]}
             >
-              <div classe="type">
+              <div class={el[Object.keys(el)]["type"]}>
                 {#if el[Object.keys(el)]["type"] === "buy"}
-                  <span class="buy">{$_("account.ownTrades.buy")}</span>
+                  {$_("account.ownTrades.buy")}
                   <span class="ordertype">
                     {el[Object.keys(el)]["ordertype"]}
                   </span>
                 {:else}
-                  <span class="sell">{$_("account.ownTrades.sell")}</span>
+                  {$_("account.ownTrades.sell")}
                   <span class="ordertype">
                     {el[Object.keys(el)]["ordertype"]}
                   </span>
                 {/if}
               </div>
-            </td>
-            <td data-label={$_("account.ownTrades.date")}>
+            </Cell>
+            <Cell style="width:10%" data-label={$_("account.ownTrades.date")}>
               <div class="Date">
                 <span class="block">
                   {formatDate(el[Object.keys(el)]["time"], "D")}
@@ -80,76 +129,103 @@
                   ({formatDate(el[Object.keys(el)]["time"], "H")})
                 </span>
               </div>
-            </td>
-            <td data-label={$_("account.ownTrades.pair")}>
-              <span class="currency">{el[Object.keys(el)]["pair"]}</span>
-            </td>
-            <td data-label="Coût">
+            </Cell>
+            <Cell data-label={$_("account.ownTrades.pair")}>
+              <span class="currency">
+                {el[Object.keys(el)]["pair"]}
+              </span>
+            </Cell>
+            <Cell data-label={$_("account.ownTrades.cost")}>
               <div class="cost">
                 <span class="block">{el[Object.keys(el)]["cost"]}</span>
                 <span class="currency"
                   >{el[Object.keys(el)]["pair"].split("/")[1]}</span
                 >
               </div>
-            </td>
-            <td data-label={$_("account.ownTrades.price")}>
+            </Cell>
+            <Cell data-label={$_("account.ownTrades.price")}>
               <div class="price">
                 <span class="block">{el[Object.keys(el)]["price"]}</span>
                 <span class="currency"
                   >{el[Object.keys(el)]["pair"].split("/")[1]}</span
                 >
               </div>
-            </td>
-            <td data-label={$_("account.ownTrades.volume")}>
+            </Cell>
+            <Cell data-label={$_("account.ownTrades.volume")}>
               <div class="volume">
                 <span class="block">{el[Object.keys(el)]["vol"]}</span>
                 <span class="currency"
                   >{el[Object.keys(el)]["pair"].split("/")[0]}</span
                 >
               </div>
-            </td>
-            <td data-label={$_("account.ownTrades.fees")}>
+            </Cell>
+            <Cell data-label={$_("account.ownTrades.fees")}>
               <div class="total-fee">
                 <span class="fee">
                   <span class="label"
                     >{$_("account.ownTrades.fees")} :
                   </span>{el[Object.keys(el)]["fee"]}</span
-                >
+                ><br />
                 <span class={$_("account.ownTrades.fees")}>
                   <span class="label"
                     >{$_("account.ownTrades.marginFee")} :
                   </span>{el[Object.keys(el)]["margin"]}</span
                 >
               </div>
-            </td>
-          </tr>
+            </Cell>
+          </Row>
         {/each}
       {/if}
-    </tbody>
-  </table>
-  {#if typeof owntradesdata !== "undefined" && owntradesdata.length > 0 && owntradesdata}
-    <div class="pagination">
-      <span class="prev">
-        <i class="fa fa-caret-square-left" />
-      </span>
-      <span class="total">1 - 50 sur {count}</span>
-      {count / 50}
-      <span class="next">
-        <i class="fa fa-caret-square-right" />
-      </span>
-    </div>
-  {/if}
+    </Body>
+    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
+    <Pagination slot="paginate">
+      <svelte:fragment slot="rowsPerPage">
+        <Label>{$_("account.rowsPerPage")}</Label>
+        <Select variant="outlined" bind:value={rowsPerPage} noLabel>
+          {#each perPage as option}
+            <Option value={option}>{option}</Option>
+          {/each}
+        </Select>
+      </svelte:fragment>
+      <svelte:fragment slot="total">
+        {start + 1}-{end}
+        {$_("account.of")}
+        {nbTotal}
+      </svelte:fragment>
+
+      <IconButton
+        class="material-icons"
+        action="first-page"
+        title={$_("account.firstPage")}
+        on:click={() => (currentPage = 0)}
+        disabled={currentPage === 0}>first_page</IconButton
+      >
+      <IconButton
+        class="material-icons"
+        action="prev-page"
+        title={$_("account.prevPage")}
+        on:click={() => currentPage--}
+        disabled={currentPage === 0}>chevron_left</IconButton
+      >
+      <IconButton
+        class="material-icons"
+        action="next-page"
+        title={$_("account.nextPage")}
+        on:click={() => currentPage++}
+        disabled={currentPage === lastPage}>chevron_right</IconButton
+      >
+      <IconButton
+        class="material-icons"
+        action="last-page"
+        title={$_("account.lastPage")}
+        on:click={() => (currentPage = lastPage)}
+        disabled={currentPage === lastPage}>last_page</IconButton
+      >
+    </Pagination>
+  </DataTable>
 </div>
 
 <style>
-  .owntrades h4 {
-    background-color: #3a3a3a;
-    padding: 5px;
-    border: 1px solid #222222;
-    color: #c7c7c7;
-    font-size: 0.9em;
-    font-weight: inherit;
-  }
   .owntrades .total-fee {
     font-size: 1em;
   }
@@ -163,14 +239,14 @@
     font-size: 0.8em;
     color: #858585;
   }
-  .owntrades td.buy {
+  .owntrades .buy {
     border-left: 3px solid rgb(83 104 50);
     border-right: 1px solid #1c1c1c;
     border-bottom: 1px solid rgb(37 46 24);
     background: #242424;
     padding: 15px 0 15px 10px;
   }
-  .owntrades td.sell {
+  .owntrades .sell {
     border-left: 3px solid #8d2525;
     border-right: 1px solid #1c1c1c;
     border-bottom: 1px solid #3e2626;
@@ -179,12 +255,12 @@
   }
   .owntrades .buy {
     color: rgb(83 104 50);
-    display: inline-block;
+    display: block;
     text-transform: uppercase;
   }
   .owntrades .sell {
     color: #8d2525;
-    display: inline-block;
+    display: block;
     text-transform: uppercase;
   }
   .owntrades .ordertype {
@@ -211,44 +287,5 @@
   }
   .owntrades .block {
     display: block;
-  }
-  /* .owntrades .badge-closed {
-    .owntrades .badge-canceled {
-      padding: 5px;
-      color: #ffa2a2;
-      background-color: #442929;
-      border: 1px dotted #1e1e1e;
-      text-transform: capitalize;
-    }
-    color: #a3a3a3;
-    background-color: #222222;
-    border: 1px dotted #1e1e1e;
-    text-transform: capitalize;
-    padding: 7px 12px;
-  }
-  .owntrades .hidden {
-    display: none;
-    visibility: hidden;
-  } */
-
-  .pagination {
-    background-color: #141414;
-    padding: 10px;
-    text-align: right;
-  }
-  .pagination .prev {
-    margin: 0 5px;
-    cursor: pointer;
-  }
-  .pagination .next {
-    margin: 0 5px;
-    cursor: pointer;
-  }
-
-  .pagination .prev:hover {
-    color: #3a3a3a;
-  }
-  .pagination .next:hover {
-    color: #3a3a3a;
   }
 </style>

@@ -149,6 +149,12 @@
   },
   "account": {
     "title": "My kraken account",
+    "rowsPerPage": "Rows Per Page",
+    "of": "of",
+    "firstPage": "First page",
+    "prevPage": "Prev page",
+    "nextPage": "Next page",
+    "lastPage": "Last page",
     "tabs": {
       "openOrders": "Open orders",
       "closedOrders": "Closed orders",
@@ -212,7 +218,8 @@
       "statut": "Statut",
       "action": "Action",
       "buy": "Buy",
-      "sell": "Sell"
+      "sell": "Sell",
+      "dataLabel": "Closed Order List"
     },
     "openOrders": {
       "title": "Open orders",
@@ -226,6 +233,7 @@
       "action": "Action",
       "buy": "Buy",
       "sell": "Sell",
+      "dataLabel": "Open orders List",
       "getOpenOrders": {
         "error": "Please choose an asset pair"
       }
@@ -241,7 +249,8 @@
       "fees": "Fees",
       "marginFee": "Margin fee",
       "buy": "Buy",
-      "sell": "Sell"
+      "sell": "Sell",
+      "dataLabel": "Own Trades List"
     },
     "ledgers": {
       "title": "Register",
@@ -259,7 +268,8 @@
       "pair": "Pair",
       "amount": "Amount",
       "fees": "Fees",
-      "solde": "Solde"
+      "solde": "Solde",
+      "dataLabel": "Register List"
     },
     "tradesHistory": {
       "title": "Trades History",
@@ -272,7 +282,8 @@
       "fees": "Fees",
       "marginFee": "Margin fee",
       "buy": "Buy",
-      "sell": "Sell"
+      "sell": "Sell",
+      "dataLabel": "Trades History List"
     },
     "tradeVolume": {
       "title": "Fee Schedule",

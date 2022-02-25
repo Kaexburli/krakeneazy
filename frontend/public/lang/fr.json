@@ -149,6 +149,12 @@
   },
   "account": {
     "title": "Mon compte kraken",
+    "rowsPerPage": "Lignes par page",
+    "of": "sur",
+    "firstPage": "Première page",
+    "prevPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "lastPage": "Dernière page",
     "tabs": {
       "openOrders": "Ordres ouverts",
       "closedOrders": "Ordres fermés",
@@ -212,7 +218,8 @@
       "statut": "Status",
       "action": "Action",
       "buy": "Acheter",
-      "sell": "Vendre"
+      "sell": "Vendre",
+      "dataLabel": "Liste des ordres fermés"
     },
     "openOrders": {
       "title": "Ordres ouverts",
@@ -226,6 +233,7 @@
       "action": "Action",
       "buy": "Acheter",
       "sell": "Vendre",
+      "dataLabel": "Liste des ordres ouverts",
       "getOpenOrders": {
         "error": "Veuillez choisir une paire d'asset"
       }
@@ -241,7 +249,8 @@
       "fees": "Frais",
       "marginFee": "Frais de marge",
       "buy": "Acheter",
-      "sell": "Vendre"
+      "sell": "Vendre",
+      "dataLabel": "Liste des transactions"
     },
     "ledgers": {
       "title": "Registre",
@@ -259,7 +268,8 @@
       "pair": "Paire",
       "amount": "Montant",
       "fees": "Frais",
-      "solde": "Solde"
+      "solde": "Solde",
+      "dataLabel": "Liste des registres"
     },
     "tradesHistory": {
       "title": "Historique des trades",
@@ -272,7 +282,8 @@
       "fees": "Frais",
       "marginFee": "Frais de marge",
       "buy": "Acheter",
-      "sell": "Vendre"
+      "sell": "Vendre",
+      "dataLabel": "Liste historique des trades"
     },
     "tradeVolume": {
       "title": "Grille Tarifaire",

@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { openorders } from "store/wsstore.js";
   import {
     online,
@@ -10,12 +10,12 @@
   } from "store/store.js";
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
-  import { fade } from "svelte/transition";
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
   import LinearProgress from "@smui/linear-progress";
 
-  let error = false;
-  let isLoading = true;
+  let error = false,
+    isLoading = true,
+    unsubscribe;
 
   /**
    * checkStatusDatas
@@ -119,15 +119,17 @@
    * onMount
    *********************/
   onMount(() => {
-    openorders.subscribe((tick) => {
+    unsubscribe = openorders.subscribe((tick) => {
       if (!$online) {
         error = true;
+        isLoading = false;
         return false;
       } else if (
         typeof tick !== "undefined" &&
         tick.hasOwnProperty("errorMessage")
       ) {
         error = "[" + tick.subscription.name + "] " + tick.errorMessage;
+        isLoading = false;
       } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
         if (tick.service === "OpenOrders" && tick.data) {
           checkStatusDatas(tick.data);
@@ -137,17 +139,26 @@
   });
 
   /**
+   * onDestroy
+   *********************/
+  onDestroy(() => {
+    unsubscribe;
+  });
+
+  /**
    * GetOpenOrders
    *********************/
   const GetOpenOrders = async () => {
     try {
       if (!$online) {
         error = true;
+        isLoading = false;
         return false;
       }
 
       if (typeof $assetpair.altname === "undefined") {
         error = $_("account.openOrders.getOpenOrders.error");
+        isLoading = false;
         return false;
       }
 
@@ -196,12 +207,11 @@
 </script>
 
 <div class="block open-orders">
-  <h4>{$_("account.openOrders.title")}</h4>
   {#if error && typeof error !== "boolean"}
     <span class="error">{error}</span>
   {/if}
   <DataTable
-    table$aria-label="Open orders List"
+    table$aria-label={$_("account.openOrders.dataLabel")}
     style="width: 100%;"
     class="open-orders"
   >
@@ -222,7 +232,7 @@
         {#each $openordersdata as el, i}
           <Row id={Object.keys(el)}>
             <Cell
-              style="padding:0;width:10%;"
+              style="padding:0;width:13%;"
               data-label={$_("account.openOrders.type")}
             >
               <div class={el[Object.keys(el)]["descr"]["type"]}>
@@ -281,7 +291,10 @@
             <Cell data-label={$_("account.openOrders.cost")}>
               {el[Object.keys(el)]["cost"]}
             </Cell>
-            <Cell data-label={$_("account.openOrders.statut")}>
+            <Cell
+              style="width:5%;"
+              data-label={$_("account.openOrders.statut")}
+            >
               <span class="badge">
                 {el[Object.keys(el)]["status"]}
               </span>
@@ -293,20 +306,11 @@
         {/each}
       {/if}
     </Body>
-
     <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
   </DataTable>
 </div>
 
 <style>
-  .open-orders h4 {
-    background-color: #3a3a3a;
-    padding: 5px;
-    border: 1px solid #222222;
-    color: #c7c7c7;
-    font-size: 0.9em;
-    font-weight: inherit;
-  }
   .open-orders .hour {
     font-size: 0.8em;
     color: #858585;
@@ -339,6 +343,9 @@
     background-color: #283826;
     border: 1px dotted #1e1e1e;
     text-transform: capitalize;
+    display: block;
+    min-width: 100px;
+    text-align: center;
   }
   .open-orders .actions {
     cursor: pointer;
