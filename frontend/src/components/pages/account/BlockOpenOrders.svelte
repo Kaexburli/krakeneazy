@@ -11,9 +11,11 @@
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
   import { fade } from "svelte/transition";
+  import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
   import LinearProgress from "@smui/linear-progress";
 
   let error = false;
+  let isLoading = true;
 
   /**
    * checkStatusDatas
@@ -189,67 +191,68 @@
 
   // Si aucune données n'existe on appel
   // l'api REST pour récupérer les datas
-  $: if (!$openordersdata) {
-    GetOpenOrders();
-  }
+  $: if (!$openordersdata) GetOpenOrders();
+  $: isLoading = !!$openordersdata;
 </script>
 
 <div class="block open-orders">
   <h4>{$_("account.openOrders.title")}</h4>
-  <table class="flex-table flex-fixhead-table">
-    <thead>
-      <tr>
-        <th>{$_("account.openOrders.type")}</th>
-        <th>{$_("account.openOrders.date")}</th>
-        <th>{$_("account.openOrders.pair")}</th>
-        <th>{$_("account.openOrders.price")}</th>
-        <th>{$_("account.openOrders.volume")}</th>
-        <th>{$_("account.openOrders.cost")}</th>
-        <th>{$_("account.openOrders.statut")}</th>
-        <th>{$_("account.openOrders.action")}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#if error && typeof error !== "boolean"}
-        <span class="error">{error}</span>
-      {/if}
-      {#if $openordersdata.length === 0 && !error}
-        <LinearProgress indeterminate />
-      {:else if typeof $openordersdata !== "undefined" && $openordersdata.length > 0 && $openordersdata}
+  {#if error && typeof error !== "boolean"}
+    <span class="error">{error}</span>
+  {/if}
+  <DataTable
+    table$aria-label="Open orders List"
+    style="width: 100%;"
+    class="open-orders"
+  >
+    <Head>
+      <Row>
+        <Cell>{$_("account.openOrders.type")}</Cell>
+        <Cell>{$_("account.openOrders.date")}</Cell>
+        <Cell>{$_("account.openOrders.pair")}</Cell>
+        <Cell>{$_("account.openOrders.price")}</Cell>
+        <Cell>{$_("account.openOrders.volume")}</Cell>
+        <Cell>{$_("account.openOrders.cost")}</Cell>
+        <Cell>{$_("account.openOrders.statut")}</Cell>
+        <Cell>{$_("account.openOrders.action")}</Cell>
+      </Row>
+    </Head>
+    <Body>
+      {#if $openordersdata && $openordersdata.length > 0}
         {#each $openordersdata as el, i}
-          <tr id={Object.keys(el)} transition:fade>
-            <td
+          <Row id={Object.keys(el)}>
+            <Cell
+              style="padding:0;width:10%;"
               data-label={$_("account.openOrders.type")}
-              class={el[Object.keys(el)]["descr"]["type"]}
             >
-              {#if el[Object.keys(el)]["descr"]["type"] === "buy"}
-                <span class="buy">{$_("account.openOrders.buy")}</span>
-              {:else}
-                <span class="sell">{$_("account.openOrders.sell")}</span>
-              {/if}
-            </td>
-            <td data-label={$_("account.openOrders.date")}>
-              <div class="Date">
-                <div>{formatDate(el[Object.keys(el)]["opentm"], "D")}</div>
-                <span class="hour">
-                  ({formatDate(el[Object.keys(el)]["opentm"], "H")})
-                </span>
+              <div class={el[Object.keys(el)]["descr"]["type"]}>
+                {#if el[Object.keys(el)]["descr"]["type"] === "buy"}
+                  {$_("account.openOrders.buy")}
+                {:else}
+                  {$_("account.openOrders.sell")}
+                {/if}
               </div>
-            </td>
-            <td data-label={$_("account.openOrders.pair")}>
-              <span class="currency"
-                >{el[Object.keys(el)]["descr"]["pair"]}</span
-              >
-            </td>
-            <td data-label={$_("account.openOrders.price")}>
+            </Cell>
+            <Cell style="width:10%" data-label={$_("account.openOrders.date")}>
+              <div>{formatDate(el[Object.keys(el)]["opentm"], "D")}</div>
+              <span class="hour">
+                ({formatDate(el[Object.keys(el)]["opentm"], "H")})
+              </span>
+            </Cell>
+            <Cell data-label={$_("account.openOrders.pair")}>
+              <span class="currency">
+                {el[Object.keys(el)]["descr"]["pair"]}
+              </span>
+            </Cell>
+            <Cell data-label={$_("account.openOrders.price")}>
               <span>
                 {el[Object.keys(el)]["descr"]["price"]}
-                <span class="currency"
-                  >{el[Object.keys(el)]["descr"]["pair"].split("/")[1]}</span
-                >
+                <span class="currency">
+                  {el[Object.keys(el)]["descr"]["pair"].split("/")[1]}
+                </span>
               </span>
-            </td>
-            <td data-label={$_("account.openOrders.volume")}>
+            </Cell>
+            <Cell data-label={$_("account.openOrders.volume")}>
               <div class="volume">
                 <div>
                   <span class="price-little">
@@ -274,23 +277,25 @@
                   </span>
                 </div>
               </div>
-            </td>
-            <td data-label={$_("account.openOrders.cost")}>
+            </Cell>
+            <Cell data-label={$_("account.openOrders.cost")}>
               {el[Object.keys(el)]["cost"]}
-            </td>
-            <td data-label={$_("account.openOrders.statut")}>
+            </Cell>
+            <Cell data-label={$_("account.openOrders.statut")}>
               <span class="badge">
                 {el[Object.keys(el)]["status"]}
               </span>
-            </td>
-            <td data-label={$_("account.openOrders.action")}>
+            </Cell>
+            <Cell style="width:3%" data-label={$_("account.openOrders.action")}>
               <span class="icon actions"><i class="fas fa-cog" /></span>
-            </td>
-          </tr>
+            </Cell>
+          </Row>
         {/each}
       {/if}
-    </tbody>
-  </table>
+    </Body>
+
+    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
+  </DataTable>
 </div>
 
 <style>
@@ -306,19 +311,19 @@
     font-size: 0.8em;
     color: #858585;
   }
-  .open-orders td.buy {
+  .open-orders .buy {
     border-left: 3px solid rgb(83 104 50);
     border-right: 1px solid #1c1c1c;
     border-bottom: 1px solid rgb(37 46 24);
     background: #242424;
-    padding: 15px 0 15px 10px;
+    padding: 15px;
   }
-  .open-orders td.sell {
+  .open-orders .sell {
     border-left: 3px solid #8d2525;
     border-right: 1px solid #1c1c1c;
     border-bottom: 1px solid #3e2626;
     background: #242424;
-    padding: 15px 0 15px 10px;
+    padding: 15px;
   }
   .open-orders .buy {
     color: rgb(83 104 50);
@@ -329,7 +334,7 @@
     text-transform: uppercase;
   }
   .open-orders .badge {
-    padding: 7px 15px 0 15px;
+    padding: 15px;
     color: rgb(141, 199, 54);
     background-color: #283826;
     border: 1px dotted #1e1e1e;
@@ -337,6 +342,7 @@
   }
   .open-orders .actions {
     cursor: pointer;
+    text-align: center;
   }
   .open-orders .price-little {
     font-size: 0.8em;
