@@ -1,9 +1,10 @@
 <script>
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
-  import formatDate from "utils/formatDate.js";
-  import LinearProgress from "@smui/linear-progress";
   import { User } from "store/userStore.js";
+  import formatDate from "utils/formatDate.js";
+  import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
+  import LinearProgress from "@smui/linear-progress";
 
   import { assign, createMachine } from "xstate";
   import { useMachine } from "utils/useMachin.js";
@@ -226,7 +227,7 @@
     isLoading = !$state.matches("processed");
     isError = $state.matches("failure");
     isQueued =
-      ["ADD", "ADDED", "QUEUED"].includes($state.event.type) ||
+      ["ADD", "ADDED", "QUEUED", "RETRIEVE"].includes($state.event.type) ||
       $state.matches("retreive")
         ? true
         : false;
@@ -252,41 +253,35 @@
 {/if}
 
 {#if datas.length >= 1}
-  <table class="flex-table flex-fixhead-table">
-    <thead>
-      <tr>
-        <th>{$_("reports.export.type")}</th>
-        <th>{$_("reports.export.period")}</th>
-        <th>{$_("reports.export.expiration")}</th>
-        <th>{$_("reports.export.statut")}</th>
-        <th>{$_("reports.export.id")}</th>
-        <th>{$_("reports.export.format")}</th>
-      </tr>
-    </thead>
-    <tbody>
+  <DataTable table$aria-label="User list" style="width: 100%;">
+    <Head>
+      <Row>
+        <Cell>{$_("reports.export.type")}</Cell>
+        <Cell>{$_("reports.export.period")}</Cell>
+        <Cell>{$_("reports.export.expiration")}</Cell>
+        <Cell>{$_("reports.export.statut")}</Cell>
+        <Cell>{$_("reports.export.id")}</Cell>
+        <Cell>{$_("reports.export.format")}</Cell>
+      </Row>
+    </Head>
+    <Body>
       {#each datas as ex, i}
-        <tr>
-          <td>
-            <span class="capitaliz">{ex.report} </span>
-          </td>
-          <td>
-            <div>
-              <span>{formatDate(ex.datastarttm, "D")}</span>
-              <span class="time">{formatDate(ex.datastarttm, "H")}</span>
-            </div>
-            <div class="space">&#x2192;</div>
-            <div>
-              <span>{formatDate(ex.dataendtm, "D")}</span>
-              <span class="time">{formatDate(ex.dataendtm, "H")}</span>
-            </div>
-          </td>
-          <td>
+        <Row>
+          <Cell style="width: 5%;">{ex.report}</Cell>
+          <Cell style="width: 45%;">
+            <span>{formatDate(ex.datastarttm, "D")}</span>
+            <span class="time">{formatDate(ex.datastarttm, "H")}</span>
+            <span class="space">&#x2192;</span>
+            <span>{formatDate(ex.dataendtm, "D")}</span>
+            <span class="time">{formatDate(ex.dataendtm, "H")}</span>
+          </Cell>
+          <Cell style="width: 15%;">
             <div>
               <span>{formatDate(ex.expiretm, "D")}</span><br />
               <span class="time">{formatDate(ex.expiretm, "H")}</span>
             </div>
-          </td>
-          <td>
+          </Cell>
+          <Cell style="width: 15%;">
             <span
               class="status {ex.flags === '1'
                 ? 'canceled'
@@ -304,13 +299,17 @@
                 -
               {/if}
             </span>
-          </td>
-          <td>{ex.id}</td>
-          <td>{ex.format}</td>
-        </tr>
+          </Cell>
+          <Cell style="width: 10%;">{ex.id}</Cell>
+          <Cell style="width: 10%;">{ex.format}</Cell>
+        </Row>
       {/each}
-    </tbody>
-  </table>
+    </Body>
+
+    {#if isLoading && !isQueued}
+      <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
+    {/if}
+  </DataTable>
 {/if}
 
 <style>
