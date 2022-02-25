@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy, tick } from "svelte";
   import { online } from "store/store.js";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
@@ -9,7 +9,9 @@
   // Appel Websocket
   const server = __env["BACKEND_WS_URI"];
   const wss_systemstatus = server + "/systemstatus";
+  const wss_krakenstatus = server + "/krakenstatus";
   const wsSystemStatus = websocketStore(wss_systemstatus);
+  const wsKrakenStatus = websocketStore(wss_krakenstatus);
   // Appel Websocket
 
   let count = 0,
@@ -18,8 +20,7 @@
     error = false,
     status = "online",
     interval = Date.now(),
-    krakenStatusFetch = false,
-    krakenIncidentsFetch = false,
+    krakenIncidentsDatas = false,
     krakenMaintenances = false,
     krakenStatus = false,
     krakenIncidents = [],
@@ -28,39 +29,18 @@
   export let display;
 
   /**
-   * fetchKrakenStatusAPI
-   * @description Appels du status KRAKEN
-   */
-  const fetchKrakenStatusAPI = async () => {
-    try {
-      const statusKraken = await fetch(__env["KRAKEN_STATUS_API_URL"]);
-      if (statusKraken.ok) {
-        let body = await statusKraken.json();
-        return body;
-      }
-    } catch (error) {
-      console.error("[ERROR]:", error);
-    }
-
-    return false;
-  };
-
-  /**
    * initKrakenStatusApi
    * @description Initialise les appels du status KRAKEN
    */
-  const initKrakenStatusApi = async () => {
-    krakenStatusFetch = await fetchKrakenStatusAPI();
-
+  const initKrakenStatusApi = async (datas) => {
     // Vérification des maintenances programmées
-    krakenMaintenances = krakenStatusFetch.scheduled_maintenances;
-
-    if (krakenStatusFetch && krakenStatusFetch.status.indicator !== "none") {
-      krakenStatus = krakenStatusFetch.status.description;
+    krakenMaintenances = datas.scheduled_maintenances;
+    if (datas && datas.status.indicator !== "none") {
+      krakenStatus = datas.status.description;
     }
 
     // Vérification des components
-    const krakenComponents = krakenStatusFetch.components;
+    const krakenComponents = datas.components;
     if (krakenComponents.length) {
       components = [];
       for (const KKComponent of krakenComponents) {
@@ -77,10 +57,10 @@
     }
 
     // Vérification des incidents
-    krakenIncidentsFetch = krakenStatusFetch.incidents;
-    if (krakenIncidentsFetch.length) {
+    krakenIncidentsDatas = datas.incidents;
+    if (krakenIncidentsDatas.length) {
       krakenIncidents = [];
-      for (const incident of krakenIncidentsFetch) {
+      for (const incident of krakenIncidentsDatas) {
         const updates = incident.incident_updates;
         for (const update of updates) {
           krakenIncidents.push({
@@ -103,10 +83,25 @@
    * @description Svelte function native
    */
   onMount(async () => {
+    wsKrakenStatus.subscribe((tick) => {
+      if (
+        !tick ||
+        typeof tick === "undefined" ||
+        tick.service !== "WsKrakenStatus" ||
+        !tick.hasOwnProperty("data")
+      )
+        return false;
+
+      initKrakenStatusApi(tick.data);
+    });
+
     wsSystemStatus.subscribe((tick) => {
-      initKrakenStatusApi();
-      if (typeof tick === "undefined") return false;
-      if (tick.service !== "WsSystemStatus") return false;
+      if (
+        !tick ||
+        typeof tick === "undefined" ||
+        tick.service !== "WsSystemStatus"
+      )
+        return false;
 
       if (tick.data.hasOwnProperty("errno")) {
         count = 1;

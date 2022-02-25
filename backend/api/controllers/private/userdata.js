@@ -1,3 +1,4 @@
+import fetch from "node-fetch";
 import { existsSync, rmSync, writeFileSync, mkdirSync } from "fs";
 import * as path from 'path';
 
@@ -553,7 +554,6 @@ const getWsTradeBalance = async (connection, req, reply) => {
 // /SystemStatus WS
 const getWsSystemStatus = async (connection, req, reply) => {
 
-
   let timer = null,
     interval = 2000;
 
@@ -614,6 +614,72 @@ const getWsSystemStatus = async (connection, req, reply) => {
   startInterval()
 }
 
+// /getWsKrakenStatus WS
+const getWsKrakenStatus = async (connection, req, reply) => {
+
+  let timer = null,
+    interval = 2000;
+
+  // Strat interval
+  const startInterval = () => {
+    timer = setInterval(() => {
+      getWsKrakenStatusData()
+    }, interval);
+  }
+
+  // Envoie la requête api
+  const getWsKrakenStatusData = async () => {
+    try {
+      try {
+        const statusKraken = await fetch(process.env.KRAKEN_STATUS_API_URL);
+        let body = await statusKraken.json();
+        checkAndSendResult(body)
+      } catch (error) {
+        console.error("[ERROR]:", error);
+      }
+
+    } catch (error) {
+      handleError(error, "getWsKrakenStatus")
+    }
+  }
+
+  // Verifie la réponse si erreur
+  const checkAndSendResult = async (data) => {
+    if (!data) {
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsKrakenStatus',
+          data: { error: true, response: data }
+        })
+      )
+      stopInterval()
+
+      setTimeout(() => {
+        timer = startInterval()
+      }, 60000);
+
+    }
+    else {
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsKrakenStatus',
+          error: false,
+          data
+        })
+      )
+    }
+  }
+
+  // Stop l'interval
+  const stopInterval = () => {
+    clearInterval(timer)
+    timer = null
+  }
+
+  // Lancement de l'interval 
+  startInterval()
+}
+
 /**
  *  *****************
  *  EXPORT
@@ -641,4 +707,5 @@ export {
   getWsOwnTrades,
   getWsTradeBalance,
   getWsSystemStatus,
+  getWsKrakenStatus
 };
