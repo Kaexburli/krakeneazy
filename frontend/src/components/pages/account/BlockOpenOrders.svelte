@@ -12,6 +12,7 @@
   import formatDate from "utils/formatDate.js";
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
   import LinearProgress from "@smui/linear-progress";
+  import Paper, { Title, Content } from "@smui/paper";
 
   let error = false,
     isLoading = true,
@@ -166,6 +167,7 @@
       const res = await ud.getOpenOrders({ trade: true });
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
+        isLoading = false;
       } else {
         if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
           let openorders_tmp = [];
@@ -194,6 +196,7 @@
           openordersdata.set(openorders_tmp);
         }
         error = false;
+        isLoading = false;
       }
     } catch (error) {
       console.error("[ERROR]:", error);
@@ -208,13 +211,18 @@
 
 <div class="block open-orders">
   {#if error && typeof error !== "boolean"}
-    <span class="error">{error}</span>
+    <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>
+      <Content>
+        {error}
+      </Content>
+    </Paper>
   {/if}
   <DataTable
     table$aria-label={$_("account.openOrders.dataLabel")}
     style="width: 100%;"
     class="open-orders"
   >
+    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
     <Head>
       <Row>
         <Cell>{$_("account.openOrders.type")}</Cell>
@@ -224,7 +232,6 @@
         <Cell>{$_("account.openOrders.volume")}</Cell>
         <Cell>{$_("account.openOrders.cost")}</Cell>
         <Cell>{$_("account.openOrders.statut")}</Cell>
-        <Cell>{$_("account.openOrders.action")}</Cell>
       </Row>
     </Head>
     <Body>
@@ -299,14 +306,10 @@
                 {el[Object.keys(el)]["status"]}
               </span>
             </Cell>
-            <Cell style="width:3%" data-label={$_("account.openOrders.action")}>
-              <span class="icon actions"><i class="fas fa-cog" /></span>
-            </Cell>
           </Row>
         {/each}
       {/if}
     </Body>
-    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
   </DataTable>
 </div>
 

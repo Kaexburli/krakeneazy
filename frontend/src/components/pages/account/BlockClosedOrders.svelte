@@ -16,6 +16,7 @@
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
   import LinearProgress from "@smui/linear-progress";
+  import Paper, { Title, Content } from "@smui/paper";
 
   let error = false,
     closedorders = false,
@@ -112,13 +113,18 @@
 
 <div class="block closed-orders">
   {#if error && typeof error !== "boolean"}
-    <span class="error">{error}</span>
+    <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>
+      <Content>
+        {error}
+      </Content>
+    </Paper>
   {/if}
   <DataTable
     table$aria-label={$_("account.closedOrders.dataLabel")}
     style="width: 100%;"
     class="open-orders"
   >
+    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
     <Head>
       <Row>
         <Cell>{$_("account.closedOrders.type")}</Cell>
@@ -128,7 +134,6 @@
         <Cell>{$_("account.closedOrders.volume")}</Cell>
         <Cell>{$_("account.closedOrders.cost")}</Cell>
         <Cell>{$_("account.closedOrders.statut")}</Cell>
-        <Cell>{$_("account.closedOrders.action")}</Cell>
       </Row>
     </Head>
     <Body>
@@ -195,17 +200,10 @@
                 {order[1]["status"]}
               </span>
             </Cell>
-            <Cell
-              style="width:3%"
-              data-label={$_("account.closedOrders.action")}
-            >
-              <span class="icon actions"><i class="fas fa-cog" /></span>
-            </Cell>
           </Row>
         {/each}
       {/if}
     </Body>
-    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
     <Pagination slot="paginate">
       <svelte:fragment slot="rowsPerPage">
         <Label>{$_("account.rowsPerPage")}</Label>

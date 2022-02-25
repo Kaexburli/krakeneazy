@@ -15,6 +15,7 @@
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
   import LinearProgress from "@smui/linear-progress";
+  import Paper, { Title, Content } from "@smui/paper";
 
   let error = false,
     owntradesdata = false,
@@ -80,13 +81,18 @@
 
 <div class="block owntrades">
   {#if error && typeof error !== "boolean"}
-    <span class="error">{error}</span>
+    <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>
+      <Content>
+        {error}
+      </Content>
+    </Paper>
   {/if}
   <DataTable
     table$aria-label={$_("account.ownTrades.dataLabel")}
     style="width: 100%;"
     class="open-orders"
   >
+    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
     <Head>
       <Row>
         <Cell>{$_("account.ownTrades.type")}</Cell>
@@ -177,7 +183,6 @@
         {/each}
       {/if}
     </Body>
-    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
     <Pagination slot="paginate">
       <svelte:fragment slot="rowsPerPage">
         <Label>{$_("account.rowsPerPage")}</Label>
