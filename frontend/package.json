@@ -35,6 +35,8 @@
     "@smui/segmented-button": "^6.0.0-beta.14",
     "@smui/select": "^6.0.0-beta.14",
     "@smui/slider": "^6.0.0-beta.14",
+    "@smui/tab": "^6.0.0-beta.14",
+    "@smui/tab-bar": "^6.0.0-beta.14",
     "@smui/textfield": "^6.0.0-beta.14",
     "@smui/tooltip": "^6.0.0-beta.14",
     "@zerodevx/svelte-toast": "^0.6.3",

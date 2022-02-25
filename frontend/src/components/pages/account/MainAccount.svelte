@@ -13,10 +13,20 @@
   import BlockLedgers from "components/pages/account/BlockLedgers.svelte";
   import BlockTradesHistory from "components/pages/account/BlockTradesHistory.svelte";
 
-  import { Tabs, TabList, TabPanel, Tab } from "components/tabs/tabs.js";
   import Paper, { Content } from "@smui/paper";
+  import Tab, { Label } from "@smui/tab";
+  import TabBar from "@smui/tab-bar";
+
+  let active = $_("account.tabs.openOrders");
 
   const isLogged = User.isLogged();
+  const tabList = [
+    $_("account.tabs.openOrders"),
+    $_("account.tabs.closedOrders"),
+    $_("account.tabs.transaction"),
+    $_("account.tabs.trades"),
+    $_("account.tabs.register"),
+  ];
 
   const handleClickSound = () => {
     sound.update((n) => (n == "up" ? "mute" : "up"));
@@ -39,35 +49,26 @@
         <BlockTradeBalance />
         <BlockBalance />
       </div>
-      <Tabs>
-        <TabList>
-          <Tab>{$_("account.tabs.openOrders")}</Tab>
-          <Tab>{$_("account.tabs.closedOrders")}</Tab>
-          <Tab>{$_("account.tabs.transaction")}</Tab>
-          <Tab>{$_("account.tabs.trades")}</Tab>
-          <Tab>{$_("account.tabs.register")}</Tab>
-        </TabList>
+      <div class="tab-barre">
+        <TabBar tabs={tabList} let:tab bind:active>
+          <Tab {tab} minWidth>
+            <Label>{tab}</Label>
+          </Tab>
+        </TabBar>
+        <hr />
 
-        <TabPanel>
+        {#if active === $_("account.tabs.openOrders")}
           <BlockOpenOrders />
-        </TabPanel>
-
-        <TabPanel>
+        {:else if active === $_("account.tabs.closedOrders")}
           <BlockClosedOrders />
-        </TabPanel>
-
-        <TabPanel>
+        {:else if active === $_("account.tabs.transaction")}
           <BlockOwnTrades />
-        </TabPanel>
-
-        <TabPanel>
+        {:else if active === $_("account.tabs.trades")}
           <BlockTradesHistory />
-        </TabPanel>
-
-        <TabPanel>
+        {:else if active === $_("account.tabs.register")}
           <BlockLedgers />
-        </TabPanel>
-      </Tabs>
+        {/if}
+      </div>
     {:else}
       <Paper color="secondary" square>
         <Content>
@@ -90,6 +91,15 @@
   }
   .btn-sound {
     cursor: pointer;
+  }
+  .tab-barre {
+    margin-top: 10px;
+    background-color: #1b1b1b;
+    border: 1px solid #434343;
+  }
+  hr {
+    background-color: #222222;
+    border: 1px dashed #000000;
   }
   :global(.account div.block) {
     margin: 5px;
