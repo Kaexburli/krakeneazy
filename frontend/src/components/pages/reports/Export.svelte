@@ -317,7 +317,7 @@
     height: 20px;
     color: #dddddd;
     background: rgb(165, 165, 165);
-    padding: 1px 6px;
+    padding: 10px;
     margin: 0 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -327,27 +327,22 @@
   .status.processed {
     color: #dddddd;
     background: darkolivegreen;
-    padding: 1px 6px;
   }
   .status.processing {
     color: #dddddd;
     background: orange;
-    padding: 1px 6px;
   }
   .status.canceled {
     color: #dddddd;
     background: brown;
-    padding: 1px 6px;
   }
   .status.deleted {
     color: #dddddd;
     background: darkred;
-    padding: 1px 6px;
   }
   .status.queued {
     color: #dddddd;
     background: black;
-    padding: 1px 6px;
   }
   .time {
     display: inline-block;
