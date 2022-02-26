@@ -13,6 +13,7 @@
   import Paper, { Content } from "@smui/paper";
 
   let loading = false;
+  export let User;
 
   const handleLoading = (e) => {
     loading = e.detail.loading;
@@ -44,7 +45,7 @@
         <ChartCtrl />
       </div>
       <div id="BlockChartOhlc">
-        <ChartOhlc />
+        <ChartOhlc {User} />
       </div>
       <div id="SpreadBox">
         <SpreadBox />

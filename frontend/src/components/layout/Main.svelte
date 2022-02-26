@@ -173,7 +173,7 @@
 
 <div class="main">
   {#if $page === "home"}
-    <div class:hidden={$page !== "home"}><Home /></div>
+    <div class:hidden={$page !== "home"}><Home {User} /></div>
   {:else if $page === "account" && $hasApikeysStore}
     <div class:hidden={$page !== "account"}><Account /></div>
   {:else if $page === "trading" && $hasApikeysStore}
