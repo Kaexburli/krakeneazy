@@ -13,8 +13,11 @@
   import HistogramSeries from "svelte-lightweight-charts/components/histogram-series.svelte";
   import Fetch from "utils/Runfetch.js";
   import UserData from "classes/UserData.js";
+  import { setPriceAlert } from "utils/userApi.js";
 
   const dispatch = createEventDispatcher();
+
+  export let User;
 
   import {
     online,
@@ -27,7 +30,7 @@
   } from "store/store.js";
 
   let type,
-    series,
+    candleSeries,
     volSeries,
     chartApi,
     activetooltip = false,
@@ -52,11 +55,14 @@
     low,
     close,
     volume,
-    legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M",
+    legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
     backUrl = __env["BACKEND_URI"],
-    fetchUrl = backUrl + "/api/ohlc/" + $pair + "/" + $interval,
+    fetchUrl = backUrl + "/api/ohlc",
     error = false,
-    openpositions = false;
+    openpositions = false,
+    currentPriceWay,
+    currentPriceOld = 0,
+    currentPrice = false;
 
   const ud = new UserData();
 
@@ -108,7 +114,8 @@
     if (!$online) return false;
 
     try {
-      let res = await Fetch(fetchUrl, "ohlc");
+      let url = [fetchUrl, $pair, $interval].join("/");
+      let res = await Fetch(url, "ohlc");
 
       if (res.hasOwnProperty("error")) {
         console.error(`${res.message} ${res.error} (${res.statusCode})`);
@@ -154,9 +161,20 @@
   onMount(() => {
     isMounted = true;
     getChartHistoryDatas();
-    setTimeout(() => {
-      GetOpenPositions();
-    }, 502);
+    GetOpenPositions();
+
+    ticker.subscribe((tick) => {
+      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
+        if (tick.service === "Ticker" && tick.data) {
+          currentPrice = tick.data["c"][0];
+          currentPriceWay =
+            parseFloat(currentPrice) > parseFloat(currentPriceOld)
+              ? "up"
+              : "down";
+          currentPriceOld = currentPrice;
+        }
+      }
+    });
   });
 
   /**
@@ -170,6 +188,7 @@
    * formatCandelTick
    ************************/
   const formatCandelTick = (tick) => {
+    // console.log("formatCandelTick", tick);
     if (
       typeof $ohlcchart !== "undefined" &&
       !isNaN($ohlcchart.length - 1) &&
@@ -184,7 +203,8 @@
         ohlcLastItemhistory = candle;
         delete candle.endtime;
         newCandel = false;
-        if (typeof series !== ("undefined" || null)) series.update(candle);
+        if (typeof candleSeries !== ("undefined" || null))
+          candleSeries.update(candle);
       }
 
       if (!newCandel) {
@@ -196,7 +216,8 @@
         if (ohlcLastItemhistory.low < candle.low)
           candle.low = ohlcLastItemhistory.low;
         delete candle.endtime;
-        if (typeof series !== ("undefined" || null)) series.update(candle);
+        if (typeof candleSeries !== ("undefined" || null))
+          candleSeries.update(candle);
       }
     }
   };
@@ -246,7 +267,7 @@
       }
 
       if (typeof value === "string") {
-        volumetooltip = value;
+        volumetooltip = parseFloat(value).toFixed(2);
       }
     }
 
@@ -266,7 +287,7 @@
       toolTip.style.display = "none";
     } else {
       toolTip.style.display = "block";
-      let price = param.seriesPrices.get(series);
+      let price = param.seriesPrices.get(candleSeries);
       type = price.open <= price.close ? "green" : "red";
       let timelaps =
         $interval >= 10080
@@ -274,28 +295,26 @@
           : $interval >= 60
           ? $interval / 60 + "H"
           : $interval + "M";
-      toolTip.innerHTML =
-        "<div class=" +
-        type +
-        '><div class="title"><strong>' +
-        $assetpair.wsname +
-        " " +
-        timelaps +
-        '</strong></div><div style="padding:3px;"> <strong>Open:</strong> ' +
-        opentooltip +
-        "<br /><strong>High:</strong> " +
-        hightooltip +
-        "<br /><strong>Low:</strong> " +
-        lowtooltip +
-        "<br /><strong>Close:</strong> " +
-        closetooltip +
-        "<br /><strong>Volume:</strong> " +
-        volumetooltip +
-        "";
-      ("</div></div>");
+
+      let vol = "";
+      if (typeof volumetooltip !== "undefined")
+        vol = `<br /><strong>Volume:</strong> ${volumetooltip}`;
+
+      toolTip.innerHTML = `<div class="${type}">
+        <div class="title">
+          <strong>${$assetpair.wsname} ${timelaps}</strong>
+        </div>
+        <div style="padding:3px;">
+          <strong>Open:</strong> ${opentooltip} <br />
+          <strong>High:</strong> ${hightooltip}<br />
+          <strong>Low:</strong> ${lowtooltip}<br />
+          <strong>Close:</strong> ${closetooltip}
+          ${vol}
+        </div>
+      </div>`;
 
       let priceCoordinate = type === "green" ? price.open : price.close;
-      let coordinate = series.priceToCoordinate(priceCoordinate);
+      let coordinate = candleSeries.priceToCoordinate(priceCoordinate);
       let shiftedCoordinate = param.point.x - 30;
 
       if (coordinate === null) return;
@@ -340,36 +359,24 @@
         }
 
         if (typeof value === "string") {
-          volume = value;
+          volume = parseFloat(value).toFixed(2);
         }
       }
 
-      legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M  ";
-      legend +=
-        ' <span class="ohlc">' +
-        '<span class="' +
-        type +
-        '">OPEN</span>: ' +
-        open +
-        ' <span class="' +
-        type +
-        '">HIGH</span>: ' +
-        high +
-        ' <span class="' +
-        type +
-        '">LOW</span>: ' +
-        low +
-        ' <span class="' +
-        type +
-        '">CLOSE</span>: ' +
-        close +
-        ' <span class="' +
-        type +
-        '">VOL</span>: ' +
-        volume +
-        "</span>";
+      let vol = "";
+      if (typeof volume !== "undefined")
+        vol = `<span class="${type}">VOL</span>: ${volume}`;
+
+      legend = `KRAKEN ${$assetpair.wsname} ${$interval}M
+      <span class="ohlc">
+        <span class="${type}">OPEN</span>: ${open}
+        <span class="${type}">HIGH</span>: ${high}
+        <span class="${type}">LOW</span>: ${low}
+        <span class="${type}">CLOSE</span>: ${close}
+        ${vol}
+      </span>`;
     } else {
-      legend = "KRAKEN " + $assetpair.wsname + " " + $interval + "M  ";
+      legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`;
     }
   };
 
@@ -381,7 +388,7 @@
     let rightclickmenu = document.getElementById("rightclickmenu").style;
 
     if (typeof param.point !== "undefined") {
-      let price = series.coordinateToPrice(param.point.y);
+      let price = candleSeries.coordinateToPrice(param.point.y);
       pricealert = price.toFixed($assetpair.pair_decimals);
     }
 
@@ -583,16 +590,7 @@
   /**
    * createAlertPrice
    ************************/
-  const createAlertPrice = (price, pair) => {
-    let currentPrice = false;
-    ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker" && tick.data) {
-          currentPrice = tick.data["a"][0];
-        }
-      }
-    });
-
+  const createAlertPrice = async (price, pair, currentPrice) => {
     let pushway = parseFloat(currentPrice) > parseFloat(price) ? "down" : "up";
     if (price >= 0) {
       if (!$pricealertlist.hasOwnProperty(pair)) {
@@ -604,6 +602,9 @@
           price,
         ];
       }
+
+      await setPriceAlert($User.token, $pricealertlist);
+
       toast.push(
         `${$_("home.chart.alert.succcess")} <strong>${pair}@${price}</strong>`,
         {
@@ -632,8 +633,9 @@
     openModal(ConfirmModal, {
       title: `[${pair}] ${$_("home.chart.alert.menuDel")}`,
       message: `${$_("home.chart.alert.menuConfirmDel")} : ${pair}`,
-      confirm: () => {
-        $pricealertlist[pair] = { up: [], down: [] };
+      confirm: async () => {
+        delete $pricealertlist[pair];
+        await setPriceAlert($User.token, $pricealertlist);
         closeModal();
       },
       cancel: () => {
@@ -643,7 +645,7 @@
   };
 
   const optionsChart = {
-    height: 350,
+    height: 300,
     layout: {
       backgroundColor: "#212121",
       textColor: "#fcfcfc",
@@ -727,7 +729,7 @@
       let chartblock = document.querySelector(".chart-block");
       if (typeof chartblock !== ("undefined" || null)) {
         let chartHeight = 300; // chartblock.clientHeight
-        let chartWidth = chartblock.clientWidth;
+        let chartWidth = chartblock.clientWidth || 600;
         chartApi.resize(chartWidth, chartHeight);
       }
     });
@@ -764,10 +766,11 @@
       else markers_positions = [];
 
       let markers = [...markers_orders, ...markers_positions];
-      if (typeof series !== "undefined" && isMounted)
-        series.setMarkers(markers);
+      if (typeof candleSeries !== "undefined" && isMounted)
+        candleSeries.setMarkers(markers);
     } else {
-      if (typeof series !== "undefined" && isMounted) series.setMarkers([]);
+      if (typeof candleSeries !== "undefined" && isMounted)
+        candleSeries.setMarkers([]);
     }
   }
 </script>
@@ -833,6 +836,15 @@
     <label class="label-checkbox" for="volume-chart"
       >{$_("home.chart.checkbox.volume")}</label
     >
+    {#if currentPrice}
+      <div class="current-price {currentPriceWay}">
+        <span class="icon">
+          <i class="fa-solid fa-arrow-trend-{currentPriceWay}" />
+        </span>
+        {parseFloat(currentPrice).toFixed($assetpair.pair_decimals)}
+        {$assetpair.quote}
+      </div>
+    {/if}
   </div>
   <div class="chart-block">
     <select
@@ -858,7 +870,7 @@
     >
       <CandlestickSeries
         data={$ohlcchart}
-        ref={(ref) => (series = ref)}
+        ref={(ref) => (candleSeries = ref)}
         {...CandlestickSeriesOpts}
       />
       {#if volumeDisplaying}
@@ -868,7 +880,10 @@
     <div class="legend">{@html legend}</div>
     <div class="floating-tooltip {type}" />
     <div id="rightclickmenu">
-      <a href="/" on:click={createAlertPrice(pricealert, $assetpair.wsname)}>
+      <a
+        href="/"
+        on:click={createAlertPrice(pricealert, $assetpair.wsname, currentPrice)}
+      >
         <i class="fa fa-bell">&nbsp;</i>
         {$_("home.chart.alert.createAlert")}
         <span id="pricealert">@{pricealert}</span>
@@ -937,6 +952,34 @@
     background-color: #212121;
     border: 1px solid #181818;
     padding: 10px;
+  }
+  .chartctrl-block .current-price {
+    float: right;
+    background-color: #1e1e1e;
+    border: 1px solid #232323;
+    padding: 5px 10px 5px 5px;
+    margin-top: -5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    font-size: 0.8em;
+  }
+  .chartctrl-block .current-price.up {
+    color: chartreuse;
+  }
+  .chartctrl-block .current-price.down {
+    color: red;
+  }
+  .chartctrl-block .current-price span.icon {
+    background-color: #181818;
+    margin: 0 5px 0 -5px;
+    padding: 4px;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
   }
   input[type="checkbox"] {
     width: 12px;

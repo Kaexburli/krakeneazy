@@ -274,3 +274,26 @@ export const acceptCgv = async (token) => {
     return error
   }
 }
+
+/**
+ * setPriceAlert
+************************************************************************************************/
+export const setPriceAlert = async (token, data) => {
+
+  try {
+    return await fetch(__env["BACKEND_URI"] + "/price-alerts", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        alerts: data
+      })
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  } catch (error) {
+    return error
+  }
+}
