@@ -618,7 +618,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
 const getWsKrakenStatus = async (connection, req, reply) => {
 
   let timer = null,
-    interval = 2000;
+    interval = 10000;
 
   // Strat interval
   const startInterval = () => {

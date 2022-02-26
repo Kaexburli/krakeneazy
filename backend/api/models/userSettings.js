@@ -16,7 +16,7 @@ const userSettingsSchema = mongoose.Schema(
     },
     maxratecount: {
       type: Number,
-      default: 120
+      default: 60
     },
     devise: {
       type: String,
