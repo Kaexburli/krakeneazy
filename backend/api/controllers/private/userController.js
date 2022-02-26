@@ -2,6 +2,7 @@
 import User from '../../models/user';
 import UserSettings from '../../models/userSettings';
 import UserKraken from '../../models/userKraken';
+import UserPriceAlerts from '../../models/UserPriceAlerts';
 import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../Mailer.js'
 
 
@@ -316,14 +317,14 @@ export const profileCtrl = async (req, reply) => {
 export const addApiKeyCtrl = async (req, reply) => {
   const { publicKey, privateKey } = req.body;
 
-  // Add api key
-  const apikey = new UserKraken({
-    apiKeyPublic: publicKey,
-    apiKeyPrivate: privateKey,
-    user: req.user._id
-  })
-
   try {
+    // Add api key
+    const apikey = new UserKraken({
+      apiKeyPublic: publicKey,
+      apiKeyPrivate: privateKey,
+      user: req.user._id
+    })
+
     const savedApikey = await apikey.save();
     // save user
     req.user.apikeys = req.user.apikeys.concat(savedApikey);
@@ -418,6 +419,47 @@ export const confirmCGVCtrl = async (req, reply) => {
     // save user
     await req.user.save();
     reply.send({ ok: true, message: `CGV accepted!` });
+  } catch (error) {
+    reply.status(400).send({ ok: false, message: error.errors });
+  }
+}
+
+/**
+ * setPriceAlertCtrl
+ * @description Ajoute une alert a l'utilisateur
+ * @param { Object } req Object request
+ * @param { Object } reply Object replying
+ * @returns { Object } HTTP response
+ */
+export const setPriceAlertCtrl = async (req, reply) => {
+  const { alerts } = req.body;
+
+  let priceAlert;
+
+  const countAlert = req.user.alerts.length
+
+  try {
+    // Add price alert
+    if (!countAlert) {
+      priceAlert = new UserPriceAlerts({
+        alerts: alerts,
+        user: req.user._id
+      });
+    }
+    else {
+      priceAlert = await UserPriceAlerts.findOne({
+        _id: req.user.alerts[0]._id,
+      });
+      priceAlert.alerts = alerts
+    }
+
+    const savedPriceAlert = await priceAlert.save();
+
+    // save user
+    req.user.alerts = savedPriceAlert;
+    await req.user.save();
+
+    reply.send({ ok: true, id: priceAlert._id });
   } catch (error) {
     reply.status(400).send({ ok: false, message: error.errors });
   }

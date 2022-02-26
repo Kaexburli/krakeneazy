@@ -81,6 +81,12 @@ const userSchema = mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "user_kraken"
       }
+    ],
+    alerts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user_price_alerts"
+      }
     ]
   },
   {
@@ -152,7 +158,7 @@ userSchema.statics.findByToken = async function (token) {
   return await User.findOne({
     _id: decoded.id,
     token
-  }).populate(["settings", "apikeys"]);
+  }).populate(["settings", "apikeys", "alerts"]);
 
 };
 
@@ -164,7 +170,7 @@ userSchema.statics.findById = async function (id) {
   }
   return await User.findOne({
     _id: id,
-  }).populate(["settings", "apikeys"]);
+  }).populate(["settings", "apikeys", "alerts"]);
 
 };
 

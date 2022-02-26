@@ -3,11 +3,13 @@ import mongoose from 'mongoose';
 import User from '../models/user';
 import UserSettings from '../models/userSettings';
 import UserKraken from '../models/userKraken';
+import UserPriceAlerts from '../models/UserPriceAlerts';
 
 const models = {
   User,
   UserSettings,
-  UserKraken
+  UserKraken,
+  UserPriceAlerts
 };
 
 const ConnectDB = async (fastify, options) => {

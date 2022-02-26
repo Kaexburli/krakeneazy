@@ -13,7 +13,8 @@ import {
   addApiKeyCtrl,
   removeApiKeyCtrl,
   changeUserDataCtrl,
-  confirmCGVCtrl
+  confirmCGVCtrl,
+  setPriceAlertCtrl
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
@@ -132,6 +133,15 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: confirmCGVCtrl
+      });
+
+      // add-price-alerts
+      fastify.route({
+        method: ['POST', 'HEAD'],
+        url: '/price-alerts',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: setPriceAlertCtrl
       });
 
     });
