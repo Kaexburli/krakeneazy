@@ -105,20 +105,14 @@
     margin: 5px;
     padding: 10px;
     min-width: 200px;
-    background-color: #282828;
+    background-color: #1c1c1c;
     font-size: 0.8em;
   }
   :global(.account div.block h3) {
-    background-color: darkgrey;
-    color: #222222;
-    padding: 5px;
+    background-color: #1b1b1b;
+    color: #a1a1a1;
+    padding: 10px;
     margin: -10px -10px 5px -10px;
     font-size: 1.1em;
-    -webkit-border-top-left-radius: 5px;
-    -webkit-border-top-right-radius: 5px;
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-topright: 5px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
   }
 </style>
