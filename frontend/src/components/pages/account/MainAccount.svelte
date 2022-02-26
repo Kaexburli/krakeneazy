@@ -56,7 +56,6 @@
           </Tab>
         </TabBar>
         <hr />
-
         {#if active === $_("account.tabs.openOrders")}
           <BlockOpenOrders />
         {:else if active === $_("account.tabs.closedOrders")}
@@ -67,6 +66,8 @@
           <BlockTradesHistory />
         {:else if active === $_("account.tabs.register")}
           <BlockLedgers />
+        {:else}
+          <BlockOpenOrders />
         {/if}
       </div>
     {:else}
