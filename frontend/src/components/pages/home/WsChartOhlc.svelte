@@ -881,7 +881,7 @@
     <div class="floating-tooltip {type}" />
     <div id="rightclickmenu">
       <a
-        href="/"
+        href={"#"}
         on:click={createAlertPrice(pricealert, $assetpair.wsname, currentPrice)}
       >
         <i class="fa fa-bell">&nbsp;</i>
@@ -889,7 +889,7 @@
         <span id="pricealert">@{pricealert}</span>
       </a>
       {#if hasAlertForPair}
-        <a href="/" on:click={removeAllAlertPrice($assetpair.wsname)}>
+        <a href={"#"} on:click={removeAllAlertPrice($assetpair.wsname)}>
           <i class="fa fa-trash">&nbsp;</i>
           {$_("home.chart.alert.delAlerts")}
         </a>

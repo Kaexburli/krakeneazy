@@ -17,7 +17,7 @@
 <div class="header">
   <div class="top_navbar">
     <div class="toggle-menu">
-      <a href="/" on:click|preventDefault={handleClickMenu}>
+      <a href={"#"} on:click|preventDefault={handleClickMenu}>
         <i class="fas fa-bars" />
       </a>
     </div>

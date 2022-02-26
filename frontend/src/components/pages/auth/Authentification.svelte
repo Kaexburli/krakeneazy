@@ -446,12 +446,12 @@
         <input type="checkbox" id="remember_me" name="remember_me" />
         <input type="hidden" name="action" value="login" />
         <label for="remember_me">{$_("auth.rememberMe")}</label>
-        <a href="/" on:click|preventDefault={toogleForm}>
+        <a href={"#"} on:click|preventDefault={toogleForm}>
           {$_("auth.register")}&nbsp;
           <i class="fa fa-user-plus" />
         </a>
         <a
-          href="/"
+          href={"#"}
           style="margin-right: 10px;"
           on:click|preventDefault={toogleForgotForm}
         >
@@ -487,7 +487,7 @@
           required
         />
         <input type="hidden" name="action" value="forgotpasswd" />
-        <a href="/" on:click|preventDefault={toogleForgotForm}>
+        <a href={"#"} on:click|preventDefault={toogleForgotForm}>
           {$_("auth.login")}&nbsp;
           <i class="fa fa-sign-in" />
         </a>
@@ -561,7 +561,7 @@
         required
       />
       <input type="hidden" name="action" value="register" />
-      <a href="/" on:click|preventDefault={toogleForm}>
+      <a href={"#"} on:click|preventDefault={toogleForm}>
         {$_("auth.login")}&nbsp;
         <i class="fa fa-sign-in" />
       </a>
