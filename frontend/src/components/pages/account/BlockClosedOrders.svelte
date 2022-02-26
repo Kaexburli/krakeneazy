@@ -252,14 +252,6 @@
 </div>
 
 <style>
-  .closed-orders h4 {
-    background-color: #3a3a3a;
-    padding: 5px;
-    border: 1px solid #222222;
-    color: #c7c7c7;
-    font-size: 0.9em;
-    font-weight: inherit;
-  }
   .closed-orders h4 .actions-table {
     float: right;
     margin-right: 30px;
