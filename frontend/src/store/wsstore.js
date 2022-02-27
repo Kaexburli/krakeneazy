@@ -1,5 +1,5 @@
-import { writable, derived } from 'svelte/store';
-import { assetpair, interval, devise } from "store/store.js";
+import { derived } from 'svelte/store';
+import { assetpair, interval, devise, pricealertlist } from "store/store.js";
 import { User } from "store/userStore.js";
 import websocketStore from "svelte-websocket-store";
 const environment = __env["ENVIRONMENT"] === "development" ? true : false
@@ -10,13 +10,14 @@ const depth = 10;
  * Call Ticker Websocket
  *************************/
 export const WSTicker = derived([assetpair], ([$assetpair], set) => {
+
   const ticker_url = $assetpair ? `${server}/ticker/${$assetpair.wsname}` : false;
   const ticker_websocket = websocketStore(ticker_url);
   const stop = ticker_websocket.subscribe((tick) => {
     if (tick) {
       if (tick.hasOwnProperty('status') && environment) {
         if (tick.status.status === 'error') {
-          console.error(`[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`)
+          console.error(`[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`)
         } else {
           console.warn(`[${tick.status.channelID}] ${tick.status.status === "subscribed" ? "Connect" : "Disconnect"} to channel [${tick.status.channelName.toUpperCase()}|${tick.status.pair}] ${tick.status.status}!`)
         }
@@ -28,6 +29,60 @@ export const WSTicker = derived([assetpair], ([$assetpair], set) => {
   });
 
   return stop;
+}, false);
+
+
+/**
+ * Call Ticker Websocket for alert
+ **********************************/
+export const WSTickerAlert = derived([assetpair, pricealertlist, WSTicker], ([$assetpair, $pricealertlist, $WSTicker], set) => {
+
+  let wsTickerAlert = [],
+    ticker_alert_urls = [],
+    hasCurrentAssetPair = false;
+  // List des pairs
+  let ticker_pair = Object.keys($pricealertlist);
+  // Si la pair selectionné n'est pas dans la liste on l'ajoute
+  if (ticker_pair.includes($assetpair.wsname)) {
+    hasCurrentAssetPair = true;
+    const index = ticker_pair.indexOf($assetpair.wsname)
+    ticker_pair.splice(index, 1)
+  }
+  // On boucle sur la liste et on créer une connexion websocket pour chaque pair
+  ticker_pair.map((tickpair) => {
+    ticker_alert_urls[tickpair] = `${server}/ticker/${tickpair}`;
+    wsTickerAlert[tickpair] = websocketStore(ticker_alert_urls[tickpair]);
+  });
+  // // On boucle chaque connexion websocket pour y souscrire
+  let obj = {}, objStop = {};
+  for (const tickpair in wsTickerAlert) {
+    if (Object.hasOwnProperty.call(wsTickerAlert, tickpair)) {
+      const socket = wsTickerAlert[tickpair];
+      objStop[tickpair] = socket.subscribe((tick) => {
+        if (tick) {
+          if (tick.hasOwnProperty('status') && environment) {
+            if (tick.status.status === 'error') {
+              console.error(`[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`)
+            } else {
+              console.warn(`[${tick.status.channelID}] ${tick.status.status === "subscribed" ? "Connect" : "Disconnect"} to channel [TICKER ALERT|${tick.status.pair}] ${tick.status.status}!`)
+            }
+          }
+          else if (tick.hasOwnProperty('data') && tick.data) {
+            if (tick.service === 'Ticker') {
+              if (hasCurrentAssetPair && $WSTicker) {
+                obj[$assetpair.wsname] = $WSTicker;
+              }
+              // On set toutes les données
+              obj[tickpair] = tick.data;
+              set(obj);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  return objStop;
 }, false);
 
 
@@ -66,7 +121,7 @@ export const WSOhlc = derived([assetpair, interval], ([$assetpair, $interval], s
     if (tick) {
       if (tick.hasOwnProperty('status') && environment) {
         if (tick.status.status === 'error') {
-          console.error(`[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`)
+          console.error(`[${tick.status.pair}] Websocket Ohlc ${tick.status.errorMessage}`)
         } else {
           console.warn(`[${tick.status.channelID}] ${tick.status.status === "subscribed" ? "Connect" : "Disconnect"} to channel [${tick.status.channelName.toUpperCase()}|${tick.status.pair}] ${tick.status.status}!`)
         }
@@ -91,7 +146,7 @@ export const WSSpread = derived([assetpair], ([$assetpair], set) => {
     if (tick) {
       if (tick.hasOwnProperty('status') && environment) {
         if (tick.status.status === 'error') {
-          console.error(`[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`)
+          console.error(`[${tick.status.pair}] Websocket Spread ${tick.status.errorMessage}`)
         } else {
           console.warn(`[${tick.status.channelID}] ${tick.status.status === "subscribed" ? "Connect" : "Disconnect"} to channel [${tick.status.channelName.toUpperCase()}|${tick.status.pair}] ${tick.status.status}!`)
         }
@@ -116,7 +171,7 @@ export const WSTrade = derived([assetpair], ([$assetpair], set) => {
     if (tick) {
       if (tick.hasOwnProperty('status') && environment) {
         if (tick.status.status === 'error') {
-          console.error(`[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`)
+          console.error(`[${tick.status.pair}] Websocket Trade ${tick.status.errorMessage}`)
         } else {
           console.warn(`[${tick.status.channelID}] ${tick.status.status === "subscribed" ? "Connect" : "Disconnect"} to channel [${tick.status.channelName.toUpperCase()}|${tick.status.pair}] ${tick.status.status}!`)
         }
@@ -141,7 +196,7 @@ export const WSOpenOrders = derived([User], ([$User], set) => {
     if (tick) {
       if (tick.hasOwnProperty('status') && environment) {
         if (tick.status.status === 'error') {
-          console.error(`[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`)
+          console.error(`[${tick.status.pair}] Websocket OpenOrders ${tick.status.errorMessage}`)
         } else {
           console.warn(`${tick.status.status === "subscribed" ? "Connect" : "Disconnect"} to channel [${tick.status.channelName.toUpperCase()}|${tick.status.subscription.maxratecount}] ${tick.status.status}!`)
           console.error('maxratecount a mettre dans la base de données !!!!!!!!!!!!!!')
@@ -167,7 +222,7 @@ export const WSOwnTrades = derived([User], ([$User], set) => {
     if (tick) {
       if (tick.hasOwnProperty('status') && environment) {
         if (tick.status.status === 'error') {
-          console.error(`[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`)
+          console.error(`[${tick.status.pair}] Websocket OwnTrades ${tick.status.errorMessage}`)
         } else {
           console.warn(`${tick.status.status === "subscribed" ? "Connect" : "Disconnect"} to channel [${tick.status.channelName.toUpperCase()}] ${tick.status.status}!`)
         }
@@ -198,5 +253,3 @@ export const WSTradeBalance = derived([User, devise], ([$User, $devise], set) =>
 
   return stop;
 }, false);
-
-export const tickeralert = writable(false);

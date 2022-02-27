@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { pricealertlist } from "store/store.js";
-  import { tickeralert } from "store/wsstore.js";
+  import { WSTickerAlert } from "store/wsstore.js";
   import { SvelteToast, toast } from "@zerodevx/svelte-toast";
 
   export let display = false;
@@ -45,20 +45,19 @@
   };
 
   $: if (
-    $tickeralert &&
-    typeof $tickeralert !== "undefined" &&
+    $WSTickerAlert &&
+    typeof $WSTickerAlert !== "undefined" &&
     typeof $pricealertlist !== "undefined" &&
     display
   ) {
     let pairs = Object.keys($pricealertlist);
     pairs.forEach((pair) => {
       if (
-        typeof $tickeralert[pair] !== "undefined" &&
-        $tickeralert[pair] !== null &&
-        $tickeralert[pair].hasOwnProperty("data")
+        typeof $WSTickerAlert[pair] !== "undefined" &&
+        $WSTickerAlert[pair] !== null
       ) {
-        if ($tickeralert[pair].data.hasOwnProperty("a")) {
-          let tickerPrice = $tickeralert[pair].data["a"][0];
+        if ($WSTickerAlert[pair].hasOwnProperty("a")) {
+          let tickerPrice = $WSTickerAlert[pair]["a"][0];
           let upList = $pricealertlist[pair]["up"];
           let downList = $pricealertlist[pair]["down"];
 
