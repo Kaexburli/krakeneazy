@@ -1,8 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { onDestroy, onMount } from "svelte";
-  import { online } from "store/store.js";
-  import { owntrades } from "store/wsstore.js";
+  import { WSOwnTrades } from "store/wsstore.js";
   import formatDate from "utils/formatDate.js";
   import DataTable, {
     Head,
@@ -15,7 +14,7 @@
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
   import LinearProgress from "@smui/linear-progress";
-  import Paper, { Title, Content } from "@smui/paper";
+  import Paper, { Content } from "@smui/paper";
 
   let error = false,
     owntradesdata = false,
@@ -23,28 +22,12 @@
     unsubscribe = false;
 
   /**
-   * onMount
+   * WSOwnTrades
    *********************/
-  onMount(() => {
-    unsubscribe = owntrades.subscribe((tick) => {
-      if (!$online) {
-        error = true;
-        isLoading = true;
-        return false;
-      } else if (
-        typeof tick !== "undefined" &&
-        tick.hasOwnProperty("errorMessage")
-      ) {
-        error = "[" + tick.subscription.name + "] " + tick.errorMessage;
-        isLoading = true;
-      } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
-        if (tick.service === "OwnTrades" && tick.data) {
-          owntradesdata = tick.data;
-          isLoading = true;
-        }
-      }
-    });
-  });
+  $: if ($WSOwnTrades) {
+    owntradesdata = $WSOwnTrades;
+    isLoading = true;
+  }
 
   /**
    * onDestroy

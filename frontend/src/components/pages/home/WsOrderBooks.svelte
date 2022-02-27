@@ -1,8 +1,8 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount, createEventDispatcher } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { assetpair } from "store/store.js";
-  import { book, ticker, spread, trade } from "store/wsstore.js";
+  import { WSBook, WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
 
   const dispatch = createEventDispatcher();
 
@@ -51,36 +51,17 @@
     }
   };
 
-  onMount(() => {
-    trade.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1)
-        if (tick.service === "Trade" && tick.data) tradedata = tick.data;
-    });
-
-    spread.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1)
-        if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
-    });
-
-    ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker" && tick.data) {
-          tickerdata = tick.data;
-          updatePriceClass(tickerdata);
-        }
-      }
-    });
-
-    book.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length) {
-        if (tick.service === "OrderBook" && tick.data) {
-          bookdata = tick.data;
-          getBook(bookdata);
-          dispatch("loading", { loading: true });
-        }
-      }
-    });
-  });
+  $: if ($WSTrade) tradedata = $WSTrade;
+  $: if ($WSSpread) spreaddata = $WSSpread;
+  $: if ($WSTicker) {
+    tickerdata = $WSTicker;
+    updatePriceClass(tickerdata);
+  }
+  $: if ($WSBook) {
+    bookdata = $WSBook;
+    getBook(bookdata);
+    dispatch("loading", { loading: true });
+  }
 
   // Convertie le timestamp en heure lisible
   const FDate = (timestamp) => {

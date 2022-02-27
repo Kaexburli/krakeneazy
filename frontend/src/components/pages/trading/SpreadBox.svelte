@@ -1,7 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount } from "svelte";
-  import { ticker, spread, trade } from "store/wsstore.js";
+  import { WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
   import { assetpair, asymbole } from "store/store.js";
 
   let base = $asymbole.hasOwnProperty($assetpair.base)
@@ -32,22 +31,9 @@
     second: "2-digit",
   });
 
-  onMount(() => {
-    ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker" && tick.data) tickerdata = tick.data;
-      }
-    });
-    spread.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1)
-        if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
-    });
-    trade.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
-        if (tick.service === "Trade" && tick.data) tradedata = tick.data;
-      }
-    });
-  });
+  $: if ($WSTrade) tradedata = $WSTrade;
+  $: if ($WSSpread) spreaddata = $WSSpread;
+  $: if ($WSTicker) tickerdata = $WSTicker;
 
   $: {
     if (

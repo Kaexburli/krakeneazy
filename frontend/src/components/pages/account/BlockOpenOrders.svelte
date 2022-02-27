@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { onDestroy, onMount } from "svelte";
-  import { openorders } from "store/wsstore.js";
+  import { WSOpenOrders } from "store/wsstore.js";
   import {
     online,
     assetpair,
@@ -117,27 +117,9 @@
   };
 
   /**
-   * onMount
+   * WSOpenOrders
    *********************/
-  onMount(() => {
-    unsubscribe = openorders.subscribe((tick) => {
-      if (!$online) {
-        error = true;
-        isLoading = false;
-        return false;
-      } else if (
-        typeof tick !== "undefined" &&
-        tick.hasOwnProperty("errorMessage")
-      ) {
-        error = "[" + tick.subscription.name + "] " + tick.errorMessage;
-        isLoading = false;
-      } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
-        if (tick.service === "OpenOrders" && tick.data) {
-          checkStatusDatas(tick.data);
-        }
-      }
-    });
-  });
+  $: if ($WSOpenOrders) checkStatusDatas($WSOpenOrders);
 
   /**
    * onDestroy
@@ -205,7 +187,7 @@
 
   // Si aucune données n'existe on appel
   // l'api REST pour récupérer les datas
-  $: if (!$openordersdata) GetOpenOrders();
+  $: if (!$WSOpenOrders && !$openordersdata) GetOpenOrders();
   $: isLoading = !!$openordersdata;
 </script>
 

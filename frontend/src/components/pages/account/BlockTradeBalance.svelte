@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
-  import { tradebalance } from "store/wsstore.js";
+  import { WSTradeBalance } from "store/wsstore.js";
 
   import { devise, online, sound, asymbole } from "store/store.js";
   import LinearProgress from "@smui/linear-progress";
@@ -86,27 +86,13 @@
 
   onMount(() => {
     GetTradeBalance();
-
-    tradebalance.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (!$online) {
-          error = true;
-          return false;
-        } else if (tick.hasOwnProperty("error") && tick.error) {
-          console.log(tick.message);
-          error = tick.error;
-        } else if (Object.keys(tick).length >= 1) {
-          if (
-            tick.service === "WsTradeBalance" &&
-            tick.data.hasOwnProperty("eb")
-          ) {
-            tradebalancedata = tick.data;
-            error = false;
-          }
-        }
-      }
-    });
   });
+
+  $: if ($WSTradeBalance) {
+    if ($WSTradeBalance.hasOwnProperty("eb")) {
+      tradebalancedata = $WSTradeBalance;
+    }
+  }
 
   $: if (tradebalancedata) {
     // Calcul du pourcentage de perte et profit

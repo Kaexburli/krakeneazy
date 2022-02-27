@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { page } from "store/store.js";
   import Home from "components/pages/Home/MainHome.svelte";
   import Account from "components/pages/account/MainAccount.svelte";
@@ -20,139 +20,13 @@
   // User
   export let User;
   let userProfile;
-  let userId = $User.id;
   const getProfile = async () => {
     return await User.getProfile();
   };
 
-  import websocketStore from "svelte-websocket-store";
-  import { assetpair, interval, devise, pricealertlist } from "store/store.js";
-  import {
-    book,
-    ticker,
-    spread,
-    trade,
-    ohlc,
-    openorders,
-    owntrades,
-    tradebalance,
-    tickeralert,
-  } from "store/wsstore.js";
-
-  // Appel Websocket
-  let wss_book,
-    wss_trade,
-    wss_spread,
-    wss_ohlc,
-    wss_openorders,
-    wss_owntrades,
-    wss_tradebalance,
-    wss_server,
-    depth = 10,
-    wss_ticker_alert = [];
-
-  const server = __env["BACKEND_WS_URI"];
-
-  const initWebsocketUri = () => {
-    wss_server = server;
-    wss_book = $assetpair
-      ? `${server}/book/${$assetpair.wsname}/${depth}`
-      : false;
-    wss_trade = $assetpair ? `${server}/trade/${$assetpair.wsname}` : false;
-    wss_spread = $assetpair ? `${server}/spread/${$assetpair.wsname}` : false;
-    wss_ohlc = $assetpair
-      ? `${server}/ohlc/${$assetpair.wsname}/${$interval}`
-      : false;
-    wss_openorders = `${server}/openorders/${userId}`;
-    wss_owntrades = `${server}/owntrades/${userId}`;
-    wss_tradebalance = $devise
-      ? `${server}/tradebalance/${$devise}/${userId}`
-      : false;
-  };
-
-  const initWebsocket = () => {
-    initWebsocketUri();
-    const wsOpenOrders = websocketStore(wss_openorders);
-    wsOpenOrders.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick) openorders.set(tick);
-    });
-
-    const wsOwnTrades = websocketStore(wss_owntrades);
-    wsOwnTrades.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick) owntrades.set(tick);
-    });
-
-    if ($devise) {
-      const wsTradeBalance = websocketStore(wss_tradebalance);
-      wsTradeBalance.subscribe((tick) => {
-        if (typeof tick !== "undefined" && tick) tradebalance.set(tick);
-      });
-    }
-
-    if ($assetpair) {
-      // Book websocket
-      const wsBook = websocketStore(wss_book);
-      wsBook.subscribe((tick) => {
-        if (typeof tick !== "undefined" && tick) book.set(tick);
-      });
-
-      // Ticker websocket
-      let wsTickerAlert = [];
-      // List des pairs
-      let ticker_pair = Object.keys($pricealertlist);
-      // Si la pair selectionné n'est pas dans la liste on l'ajoute
-      if (!ticker_pair.includes($assetpair.wsname))
-        ticker_pair.push($assetpair.wsname);
-      // On boucle sur la liste et on créer une connexion websocket pour chaque pair
-      ticker_pair.map((tickpair) => {
-        wss_ticker_alert[tickpair] = wss_server + "/ticker/" + tickpair;
-        wsTickerAlert[tickpair] = websocketStore(wss_ticker_alert[tickpair]);
-      });
-      // On boucle chaque connexion websocket pour y souscrire
-      let obj = {};
-      for (const tickpair in wsTickerAlert) {
-        if (Object.hasOwnProperty.call(wsTickerAlert, tickpair)) {
-          const socket = wsTickerAlert[tickpair];
-          socket.subscribe((tick) => {
-            // On set toutes les données dans tickeralert
-            obj[tickpair] = tick;
-            tickeralert.set(obj);
-
-            // On set les données de la pair selectionné dans le store ticker
-            if (tickpair === $assetpair.wsname) {
-              ticker.set(tick);
-            }
-          });
-        }
-      }
-
-      // Trade websocket
-      const wsTrade = websocketStore(wss_trade);
-      wsTrade.subscribe((tick) => {
-        if (typeof tick !== "undefined" && tick) trade.set(tick);
-      });
-      // Spread websocket
-      const wsSpread = websocketStore(wss_spread);
-      wsSpread.subscribe((tick) => {
-        if (typeof tick !== "undefined" && tick) spread.set(tick);
-      });
-      // OHLC websocket
-      const wsOhlc = websocketStore(wss_ohlc);
-      wsOhlc.subscribe((tick) => {
-        if (typeof tick !== "undefined" && tick) ohlc.set(tick);
-      });
-    }
-  };
-  // Appel Websocket
-
   onMount(async () => {
-    initWebsocket();
     userProfile = await getProfile();
   });
-
-  $: if ($interval) {
-    initWebsocket();
-  }
 
   $: if (userProfile) open = !userProfile.user.cgvConfirmed ? true : false;
 

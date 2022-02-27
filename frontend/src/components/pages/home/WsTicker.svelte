@@ -1,29 +1,20 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount, createEventDispatcher } from "svelte";
-  import { ticker } from "store/wsstore.js";
+  import { createEventDispatcher } from "svelte";
+  import { WSTicker } from "store/wsstore.js";
   import { assetpair } from "store/store.js";
 
   const dispatch = createEventDispatcher();
 
-  let tickerdata;
+  let tickerdata,
+    spread,
+    quote = $assetpair.quote,
+    decimals = $assetpair.pair_decimals;
 
-  onMount(() => {
-    ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && tick && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker" && tick.data) {
-          tickerdata = tick.data;
-          dispatch("loading", { loading: true });
-        }
-      }
-    });
-  });
+  $: if ($WSTicker) {
+    tickerdata = $WSTicker;
+    dispatch("loading", { loading: true });
 
-  let spread;
-  let quote = $assetpair.quote;
-  let decimals = $assetpair.pair_decimals;
-
-  $: {
     if (typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")) {
       spread = (tickerdata["a"][0] - tickerdata["b"][0]).toFixed(decimals);
     }

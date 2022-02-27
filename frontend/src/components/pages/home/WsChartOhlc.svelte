@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
-  import { ohlc, ticker, openorders } from "store/wsstore.js";
+  import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import { toast } from "@zerodevx/svelte-toast";
   import { openModal, closeModal } from "svelte-modals";
@@ -162,20 +162,19 @@
     isMounted = true;
     getChartHistoryDatas();
     GetOpenPositions();
-
-    ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker" && tick.data) {
-          currentPrice = tick.data["c"][0];
-          currentPriceWay =
-            parseFloat(currentPrice) > parseFloat(currentPriceOld)
-              ? "up"
-              : "down";
-          currentPriceOld = currentPrice;
-        }
-      }
-    });
   });
+
+  $: if ($WSTicker) {
+    currentPrice = $WSTicker["c"][0];
+    if (currentPriceOld === 0) currentPriceWay = false;
+    else if (parseFloat(currentPrice) > parseFloat(currentPriceOld))
+      currentPriceWay = "up";
+    else if (parseFloat(currentPrice) < parseFloat(currentPriceOld))
+      currentPriceWay = "down";
+    else currentPriceWay = false;
+
+    currentPriceOld = currentPrice;
+  }
 
   /**
    * onDestroy
@@ -714,15 +713,11 @@
     },
   };
 
-  $: {
-    if (typeof $ohlc !== "undefined" && Object.keys($ohlc).length > 1) {
-      if ($ohlc.service === "Ohlc" && $ohlc.data) {
-        if (ohlcLastItemhistory !== null) {
-          formatCandelTick($ohlc.data);
-        }
-      }
-    }
+  $: if ($WSOhlc) {
+    if (ohlcLastItemhistory !== null) formatCandelTick($WSOhlc);
+  }
 
+  $: {
     // Auto resizing chart
     window.addEventListener("resize", () => {
       if (!isMounted) return false;
@@ -745,20 +740,9 @@
   }
 
   $: {
-    if (
-      activePositions ||
-      (activeOrders &&
-        $openorders &&
-        typeof $openorders !== "undefined" &&
-        Object.keys($openorders).length >= 1)
-    ) {
-      if (
-        $openorders &&
-        $openorders.hasOwnProperty("service") &&
-        $openorders.service === "OpenOrders" &&
-        $openorders.data
-      ) {
-        if (activeOrders) getOrderMarker($openorders.data);
+    if (activePositions || (activeOrders && $WSOpenOrders)) {
+      if ($WSOpenOrders) {
+        if (activeOrders) getOrderMarker($WSOpenOrders);
         else markers_orders = [];
       }
 
@@ -839,7 +823,11 @@
     {#if currentPrice}
       <div class="current-price {currentPriceWay}">
         <span class="icon">
-          <i class="fa-solid fa-arrow-trend-{currentPriceWay}" />
+          {#if currentPriceWay}
+            <i class="fa-solid fa-arrow-trend-{currentPriceWay}" />
+          {:else}
+            <i class="fa-solid fa-circle-arrow-right" />
+          {/if}
         </span>
         {parseFloat(currentPrice).toFixed($assetpair.pair_decimals)}
         {$assetpair.quote}
@@ -965,10 +953,10 @@
     font-size: 0.8em;
   }
   .chartctrl-block .current-price.up {
-    color: chartreuse;
+    color: greenyellow;
   }
   .chartctrl-block .current-price.down {
-    color: red;
+    color: #ff0000;
   }
   .chartctrl-block .current-price span.icon {
     background-color: #181818;
