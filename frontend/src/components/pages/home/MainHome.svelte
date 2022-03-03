@@ -30,14 +30,11 @@
     </Paper>
   {:else if $pair !== "false" && $pair}
     <h1>
-      <div id="clockloader">
-        {#if !loading}<Moon
-            size="30"
-            color="#e8e8e8"
-            unit="px"
-            duration="0.5s"
-          />{/if}
-      </div>
+      {#if !loading}
+        <div id="clockloader">
+          <Moon size="30" color="#e8e8e8" unit="px" duration="0.5s" />
+        </div>
+      {/if}
       Kraken {$assetpair.wsname}
     </h1>
     <div id="home-wrapper">
@@ -45,7 +42,7 @@
         <ChartCtrl />
       </div>
       <div id="BlockChartOhlc">
-        <ChartOhlc {User} />
+        <ChartOhlc {User} on:loading={handleLoading} />
       </div>
       <div id="SpreadBox">
         <SpreadBox />
@@ -54,7 +51,7 @@
         <TickerWs on:loading={handleLoading} />
       </div>
       <div id="BlockOrderBooks">
-        <OrderBooksWs />
+        <OrderBooksWs on:loading={handleLoading} />
       </div>
     </div>
   {:else}

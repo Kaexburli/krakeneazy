@@ -6,6 +6,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { openModal, closeModal } from "svelte-modals";
   import ConfirmModal from "components/modal/ConfirmModal.svelte";
+  import LinearProgress from "@smui/linear-progress";
 
   import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
@@ -29,7 +30,9 @@
     pricealertlist,
   } from "store/store.js";
 
-  let type,
+  let candleTime,
+    candleEndTime,
+    type,
     candleSeries,
     volSeries,
     chartApi,
@@ -46,7 +49,7 @@
     lastCandelStartTime = null,
     lastCandelEndTime = null,
     timeZoneOffset = new Date().getTimezoneOffset() / -60,
-    intval = $interval * 60,
+    intvalSeconde = $interval * 60,
     isMounted = false,
     pricealert = "0.00",
     hasAlertForPair,
@@ -122,8 +125,11 @@
       } else {
         Object.keys(res).map(
           (key) => (res[key].time = res[key].time)
+          // A VOIR heure local au lieu d'heure utc
           // (key) => (res[key].time = res[key].time + timeZoneOffset * 3600)
         );
+        console.log("res", res[res.length - 1]["time"]);
+        lastCandelEndTime = res[res.length - 1]["time"];
         ohlcchart.set(res);
         formatVolumeSeries();
         dispatch("loading", { loading: true });
@@ -146,10 +152,93 @@
    ************************/
   const setTimerInterval = () => {
     let date = new Date();
-    let timeRemaining = (60 - date.getSeconds()) * 1000;
+    // Calculer remaining time pour chaque intervals
+    let timeRemaining,
+      current_second,
+      current_minute,
+      current_hour,
+      current_day,
+      modulo,
+      day;
+
+    switch ($interval) {
+      case "1": // 1M
+        current_second = date.getUTCSeconds();
+        timeRemaining = (intvalSeconde - current_second) * 1000;
+        break;
+
+      case "5": // 5M
+      case "15": // 15M
+      case "30": // 30M
+      case "60": // 60M
+        modulo = date.getUTCMinutes() % $interval;
+        current_second = 60 - date.getUTCSeconds();
+        current_minute = ($interval - modulo) * 60 - 60;
+        timeRemaining = (current_minute + current_second) * 1000;
+        break;
+
+      case "240": // 4H
+        let int4h = [0, 4, 8, 12, 16, 20];
+        let hours = date.getUTCHours();
+        const t = int4h.filter((v) => v <= hours);
+        modulo = t.pop() + 4 - 1 - (hours % $interval);
+        current_second = 60 - date.getUTCSeconds();
+        current_minute = (60 - (date.getUTCMinutes() % 60)) * 60 - 60;
+        current_hour = modulo * 60 * 60;
+        timeRemaining = (current_hour + current_minute + current_second) * 1000;
+        break;
+
+      case "1440": // 1D
+        modulo = date.getUTCHours() % $interval;
+        current_second = date.getUTCSeconds();
+        current_minute = (date.getUTCMinutes() % $interval) * 60;
+        current_hour = modulo * 60 * 60;
+        timeRemaining = current_hour + current_minute + current_second;
+        timeRemaining = (intvalSeconde - timeRemaining) * 1000;
+        break;
+
+      case "10080": // 1W
+        day = date.getDay() === 0 ? 7 : date.getDay() - 1;
+        modulo = day * 1440;
+        current_second = date.getUTCSeconds();
+        current_minute = (date.getUTCMinutes() % 1440) * 60;
+        current_hour = date.getUTCHours() * 60 * 60;
+        current_day = day * (1440 * 60);
+        timeRemaining =
+          current_day + current_hour + current_minute + current_second;
+        timeRemaining = (intvalSeconde - timeRemaining) * 1000;
+        break;
+    }
+
+    const formatter = new Intl.DateTimeFormat("fr", {
+      hour12: false,
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
 
     setTimeout(() => {
+      console.log(
+        "New candle:",
+        formatter.format(new Date()),
+        parseInt(Date.now() / 1000),
+        lastCandelEndTime
+      );
+      // candleSeries.update();
+      console.log("New interval", {
+        time: parseInt(lastCandelEndTime + $interval),
+      });
       setInterval(() => {
+        console.log(
+          "New candle:",
+          formatter.format(new Date()),
+          parseInt(Date.now() / 1000),
+          lastCandelEndTime
+        );
+        // candleSeries.update({ time: lastCandelEndTime + $interval });
         newCandel = true;
       }, $interval * 60 * 1000);
     }, timeRemaining);
@@ -187,16 +276,19 @@
    * formatCandelTick
    ************************/
   const formatCandelTick = (tick) => {
-    // console.log("formatCandelTick", tick);
+    // console.log("formatCandelTick", "newCandel", newCandel, "now", Date.now());
     if (
       typeof $ohlcchart !== "undefined" &&
       !isNaN($ohlcchart.length - 1) &&
       isMounted
     ) {
       let candle = ohlcFormat(tick);
+      lastCandelEndTime = candle.endtime;
+      console.log("candle", candle.time, candle.endtime);
+      console.log(candle);
 
       if (newCandel) {
-        // console.log("nouvelle bougie !!!");
+        // console.log("Tick nouvelle bougie !!!");
         lastCandelStartTime = candle.endtime;
         candle.time = lastCandelStartTime;
         ohlcLastItemhistory = candle;
@@ -229,8 +321,10 @@
 
     if (dataLength > 1) {
       let ohlc_tmp = JSON.parse("{}");
-      let time = parseInt(datas[0]) + timeZoneOffset * 3600;
-      let endtime = parseInt(datas[1]) + timeZoneOffset * 3600;
+      // candleTime = parseInt(datas[0]) + timeZoneOffset * 3600;
+      // candleEndTime = parseInt(datas[1]) + timeZoneOffset * 3600;
+      candleTime = parseInt(parseFloat(datas[0]) * 1000);
+      candleEndTime = parseInt(parseFloat(datas[1]) * 1000);
       ohlc_tmp["time"] = parseInt(datas[0]);
       ohlc_tmp["endtime"] = parseInt(datas[1]);
       ohlc_tmp["open"] = parseFloat(datas[2]).toFixed($assetpair.pair_decimals);
@@ -674,8 +768,15 @@
       timeVisible: true,
       secondsVisible: true,
       borderColor: "rgba(197, 203, 206, 0.8)",
+      rightOffset: 10,
+      barSpacing: 6,
+      fixLeftEdge: true,
+      lockVisibleTimeRangeOnResize: true,
+      rightBarStaysOnScroll: true,
+      // tickMarkFormatter: function (timePoint, tickMarkType, locale) {
+      //   console.log(timePoint, tickMarkType, locale);
+      // },
     },
-
     watermark: {
       color: "rgba(100, 100, 100, 0.1)",
       visible: true,
@@ -713,6 +814,7 @@
     },
   };
 
+  // Mise à jour des bougie en temps réel
   $: if ($WSOhlc) {
     if (ohlcLastItemhistory !== null) formatCandelTick($WSOhlc);
   }
@@ -739,6 +841,7 @@
     }
   }
 
+  // Set Marker Orders, Position
   $: {
     if (activePositions || (activeOrders && $WSOpenOrders)) {
       if ($WSOpenOrders) {
@@ -840,6 +943,7 @@
       id="interval"
       class="interval"
       bind:value={$interval}
+      on:change={() => location.reload()}
     >
       <option value="1">1M</option>
       <option value="5">5M</option>
@@ -849,8 +953,8 @@
       <option value="240">4H</option>
       <option value="1440">1D</option>
       <option value="10080">1W</option>
-      <option value="21600">2W</option>
     </select>
+
     <Chart
       {...optionsChart}
       on:crosshairMove={handleCrosshairMove}
@@ -884,9 +988,16 @@
       {/if}
     </div>
   </div>
+{:else}
+  <div class="loader">
+    <LinearProgress indeterminate />
+  </div>
 {/if}
 
 <style>
+  .loader {
+    margin-bottom: 10px;
+  }
   #rightclickmenu {
     visibility: hidden;
     z-index: 999;
