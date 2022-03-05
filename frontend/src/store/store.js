@@ -19,6 +19,7 @@ const asset_replace = {
 
 
 
+export const candleTimeout = writable(false);
 export const asymbole = writable(asset_replace);
 export const ledgersdata = writable(false);
 export const closedordersdata = writable(false);

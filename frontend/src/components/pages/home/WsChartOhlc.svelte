@@ -28,11 +28,10 @@
     ohlcchart,
     volumechart,
     pricealertlist,
+    candleTimeout,
   } from "store/store.js";
 
-  let candleTime,
-    candleEndTime,
-    type,
+  let type,
     candleSeries,
     volSeries,
     chartApi,
@@ -44,10 +43,8 @@
     volumeDisplaying = false,
     markers_orders = [],
     markers_positions = [],
-    newCandel = false,
     ohlcLastItemhistory = null,
-    lastCandelStartTime = null,
-    lastCandelEndTime = null,
+    lastCandle = null,
     timeZoneOffset = new Date().getTimezoneOffset() / -60,
     intvalSeconde = $interval * 60,
     isMounted = false,
@@ -65,7 +62,17 @@
     openpositions = false,
     currentPriceWay,
     currentPriceOld = 0,
-    currentPrice = false;
+    currentPrice = false,
+    timeRemaining,
+    current_second,
+    current_minute,
+    current_hour,
+    current_day,
+    modulo,
+    day,
+    candleCount = -1,
+    clearTimer = null,
+    candelFirst = true;
 
   const ud = new UserData();
 
@@ -128,8 +135,6 @@
           // A VOIR heure local au lieu d'heure utc
           // (key) => (res[key].time = res[key].time + timeZoneOffset * 3600)
         );
-        console.log("res", res[res.length - 1]["time"]);
-        lastCandelEndTime = res[res.length - 1]["time"];
         ohlcchart.set(res);
         formatVolumeSeries();
         dispatch("loading", { loading: true });
@@ -138,7 +143,6 @@
           !isNaN($ohlcchart.length - 1)
         ) {
           ohlcLastItemhistory = $ohlcchart[$ohlcchart.length - 1];
-          lastCandelStartTime = ohlcLastItemhistory.time;
           setTimerInterval();
         }
       }
@@ -152,15 +156,8 @@
    ************************/
   const setTimerInterval = () => {
     let date = new Date();
-    // Calculer remaining time pour chaque intervals
-    let timeRemaining,
-      current_second,
-      current_minute,
-      current_hour,
-      current_day,
-      modulo,
-      day;
 
+    // Calculer remaining time pour chaque intervals
     switch ($interval) {
       case "1": // 1M
         current_second = date.getUTCSeconds();
@@ -210,38 +207,30 @@
         break;
     }
 
-    const formatter = new Intl.DateTimeFormat("fr", {
-      hour12: false,
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-
-    setTimeout(() => {
-      console.log(
-        "New candle:",
-        formatter.format(new Date()),
-        parseInt(Date.now() / 1000),
-        lastCandelEndTime
-      );
-      // candleSeries.update();
-      console.log("New interval", {
-        time: parseInt(lastCandelEndTime + $interval),
-      });
-      setInterval(() => {
-        console.log(
-          "New candle:",
-          formatter.format(new Date()),
-          parseInt(Date.now() / 1000),
-          lastCandelEndTime
-        );
-        // candleSeries.update({ time: lastCandelEndTime + $interval });
-        newCandel = true;
-      }, $interval * 60 * 1000);
+    clearTimer = setTimeout(() => {
+      if (!candleCount) updateNoActivity();
+      $candleTimeout = true;
+      candleCount = 0;
     }, timeRemaining);
+  };
+
+  /**
+   * updateNoActivity
+   ************************/
+  const updateNoActivity = () => {
+    let candle = {
+      time: lastCandle.endtime,
+      endtime: lastCandle.endtime + intvalSeconde,
+      open: lastCandle.close,
+      close: lastCandle.close,
+      high: lastCandle.close,
+      low: lastCandle.close,
+      vwap: 0,
+      volume: 0,
+      trades: 0,
+    };
+    candleSeries.update(candle);
+    lastCandle = candle;
   };
 
   /**
@@ -252,18 +241,6 @@
     getChartHistoryDatas();
     GetOpenPositions();
   });
-
-  $: if ($WSTicker) {
-    currentPrice = $WSTicker["c"][0];
-    if (currentPriceOld === 0) currentPriceWay = false;
-    else if (parseFloat(currentPrice) > parseFloat(currentPriceOld))
-      currentPriceWay = "up";
-    else if (parseFloat(currentPrice) < parseFloat(currentPriceOld))
-      currentPriceWay = "down";
-    else currentPriceWay = false;
-
-    currentPriceOld = currentPrice;
-  }
 
   /**
    * onDestroy
@@ -276,41 +253,17 @@
    * formatCandelTick
    ************************/
   const formatCandelTick = (tick) => {
-    // console.log("formatCandelTick", "newCandel", newCandel, "now", Date.now());
-    if (
-      typeof $ohlcchart !== "undefined" &&
-      !isNaN($ohlcchart.length - 1) &&
-      isMounted
-    ) {
-      let candle = ohlcFormat(tick);
-      lastCandelEndTime = candle.endtime;
-      console.log("candle", candle.time, candle.endtime);
-      console.log(candle);
+    let candle = ohlcFormat(tick);
 
-      if (newCandel) {
-        // console.log("Tick nouvelle bougie !!!");
-        lastCandelStartTime = candle.endtime;
-        candle.time = lastCandelStartTime;
-        ohlcLastItemhistory = candle;
-        delete candle.endtime;
-        newCandel = false;
-        if (typeof candleSeries !== ("undefined" || null))
-          candleSeries.update(candle);
-      }
-
-      if (!newCandel) {
-        // console.log("Nous avons affaire à la meme bougie !!!");
-        candle.time = lastCandelStartTime;
-        candle.open = ohlcLastItemhistory.open;
-        if (ohlcLastItemhistory.high > candle.high)
-          candle.high = ohlcLastItemhistory.high;
-        if (ohlcLastItemhistory.low < candle.low)
-          candle.low = ohlcLastItemhistory.low;
-        delete candle.endtime;
-        if (typeof candleSeries !== ("undefined" || null))
-          candleSeries.update(candle);
-      }
+    if (!candelFirst && candleCount != -1) {
+      candleCount++;
+      candleSeries.update(candle);
+    } else {
+      candelFirst = false;
+      candleCount = 0;
     }
+
+    lastCandle = candle;
   };
 
   /**
@@ -321,12 +274,8 @@
 
     if (dataLength > 1) {
       let ohlc_tmp = JSON.parse("{}");
-      // candleTime = parseInt(datas[0]) + timeZoneOffset * 3600;
-      // candleEndTime = parseInt(datas[1]) + timeZoneOffset * 3600;
-      candleTime = parseInt(parseFloat(datas[0]) * 1000);
-      candleEndTime = parseInt(parseFloat(datas[1]) * 1000);
-      ohlc_tmp["time"] = parseInt(datas[0]);
-      ohlc_tmp["endtime"] = parseInt(datas[1]);
+      ohlc_tmp["time"] = parseInt(parseFloat(datas[1])) - intvalSeconde;
+      ohlc_tmp["endtime"] = parseInt(parseFloat(datas[1]));
       ohlc_tmp["open"] = parseFloat(datas[2]).toFixed($assetpair.pair_decimals);
       ohlc_tmp["high"] = parseFloat(datas[3]).toFixed($assetpair.pair_decimals);
       ohlc_tmp["low"] = parseFloat(datas[4]).toFixed($assetpair.pair_decimals);
@@ -814,11 +763,6 @@
     },
   };
 
-  // Mise à jour des bougie en temps réel
-  $: if ($WSOhlc) {
-    if (ohlcLastItemhistory !== null) formatCandelTick($WSOhlc);
-  }
-
   $: {
     // Auto resizing chart
     window.addEventListener("resize", () => {
@@ -860,10 +804,37 @@
         candleSeries.setMarkers([]);
     }
   }
+
+  // Mise a jour de l'affichage du prix
+  $: if ($WSTicker) {
+    currentPrice = $WSTicker["c"][0];
+    if (currentPriceOld === 0) currentPriceWay = false;
+    else if (parseFloat(currentPrice) > parseFloat(currentPriceOld))
+      currentPriceWay = "up";
+    else if (parseFloat(currentPrice) < parseFloat(currentPriceOld))
+      currentPriceWay = "down";
+    else currentPriceWay = false;
+
+    currentPriceOld = currentPrice;
+  }
+
+  // Mise à jour des bougie en temps réel
+  $: if ($WSOhlc) {
+    if (ohlcLastItemhistory !== null) formatCandelTick($WSOhlc);
+  }
+
+  $: if ($candleTimeout) {
+    $candleTimeout = false;
+    clearTimeout(clearTimer);
+    setInterval(() => {
+      if (!candleCount) updateNoActivity();
+      candleCount = 0;
+    }, $interval * 60 * 1000);
+  }
 </script>
 
 {#if $ohlcchart}
-  <div class="chartctrl-block">
+  <div class="chartctrl-block clearfix">
     <input
       type="checkbox"
       name="active-tooltip"
