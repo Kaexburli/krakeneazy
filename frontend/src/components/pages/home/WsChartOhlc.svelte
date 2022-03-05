@@ -72,7 +72,17 @@
     day,
     candleCount = -1,
     clearTimer = null,
-    candelFirst = true;
+    candelFirst = true,
+    chartConfigInterval = {
+      "1": { offset: 10, spacing: 6 },
+      "5": { offset: 10, spacing: 9 },
+      "15": { offset: 7, spacing: 18 },
+      "30": { offset: 6, spacing: 27 },
+      "60": { offset: 6, spacing: 30 },
+      "240": { offset: 6, spacing: 33 },
+      "1440": { offset: 3, spacing: 36 },
+      "10080": { offset: 3, spacing: 40 },
+    };
 
   const ud = new UserData();
 
@@ -717,8 +727,8 @@
       timeVisible: true,
       secondsVisible: true,
       borderColor: "rgba(197, 203, 206, 0.8)",
-      rightOffset: 10,
-      barSpacing: 6,
+      rightOffset: chartConfigInterval[$interval].offset,
+      barSpacing: chartConfigInterval[$interval].spacing,
       fixLeftEdge: true,
       lockVisibleTimeRangeOnResize: true,
       rightBarStaysOnScroll: true,
