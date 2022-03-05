@@ -93,7 +93,8 @@
         "magnet": "Magnet",
         "loga": "Logarithmique",
         "volume": "Volume"
-      }
+      },
+      "nextCandle": "Next"
     },
     "book": {
       "totalVolume": "Volume total",

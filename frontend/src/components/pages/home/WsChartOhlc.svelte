@@ -86,6 +86,12 @@
 
   const ud = new UserData();
 
+  const cmtt = (milliseconde) => {
+    return new Date(milliseconde).toLocaleTimeString(navigator.language, {
+      timeZone: "UTC",
+    });
+  };
+
   const GetOpenPositions = async () => {
     try {
       if (!$online) {
@@ -239,25 +245,15 @@
       volume: 0,
       trades: 0,
     };
-    candleSeries.update(candle);
-    lastCandle = candle;
+
+    if (candle && candleSeries) {
+      console.log(candleSeries);
+      if (candle.time >= lastCandle.time) {
+        candleSeries.update(candle);
+        lastCandle = candle;
+      }
+    }
   };
-
-  /**
-   * onMount
-   ************************/
-  onMount(() => {
-    isMounted = true;
-    getChartHistoryDatas();
-    GetOpenPositions();
-  });
-
-  /**
-   * onDestroy
-   ************************/
-  onDestroy(() => {
-    isMounted = false;
-  });
 
   /**
    * formatCandelTick
@@ -267,7 +263,9 @@
 
     if (!candelFirst && candleCount != -1) {
       candleCount++;
-      candleSeries.update(candle);
+      if (candle.time >= lastCandle.time) {
+        candleSeries.update(candle);
+      }
     } else {
       candelFirst = false;
       candleCount = 0;
@@ -696,6 +694,22 @@
     });
   };
 
+  /**
+   * onMount
+   ************************/
+  onMount(() => {
+    isMounted = true;
+    getChartHistoryDatas();
+    GetOpenPositions();
+  });
+
+  /**
+   * onDestroy
+   ************************/
+  onDestroy(() => {
+    isMounted = false;
+  });
+
   const optionsChart = {
     height: 300,
     layout: {
@@ -841,6 +855,11 @@
       candleCount = 0;
     }, $interval * 60 * 1000);
   }
+
+  setInterval(() => {
+    timeRemaining =
+      timeRemaining === 0 ? $interval * 60 * 1000 - 1000 : timeRemaining - 1000;
+  }, 1000);
 </script>
 
 {#if $ohlcchart}
@@ -950,7 +969,20 @@
         <HistogramSeries data={$volumechart} {...HistogramSeriesOpts} />
       {/if}
     </Chart>
-    <div class="legend">{@html legend}</div>
+    <div class="legend">
+      {@html legend}
+      <span class="time">
+        {$_("home.chart.nextCandle")} :
+        {#if timeRemaining}
+          {cmtt(timeRemaining)}
+        {:else}
+          {cmtt($interval * 60 * 1000)}
+        {/if}
+      </span>
+      <span class="realtrade">
+        TRADE: {candleCount}
+      </span>
+    </div>
     <div class="floating-tooltip {type}" />
     <div id="rightclickmenu">
       <a
@@ -1184,6 +1216,30 @@
     color: #e5e5e5;
     left: 75px;
     top: 13px;
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 18px;
+    font-weight: 300;
+    width: 98%;
+  }
+  .chart-block .legend .time {
+    position: absolute;
+    color: #997000;
+    right: 130px;
+    top: 0;
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 18px;
+    font-weight: 300;
+  }
+
+  .chart-block .legend .realtrade {
+    position: absolute;
+    color: #007936;
+    right: 70px;
+    top: 0;
     z-index: 1;
     font-size: 12px;
     font-weight: bold;
