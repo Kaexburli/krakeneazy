@@ -117,18 +117,6 @@
   };
 
   /**
-   * WSOpenOrders
-   *********************/
-  $: if ($WSOpenOrders) checkStatusDatas($WSOpenOrders);
-
-  /**
-   * onDestroy
-   *********************/
-  onDestroy(() => {
-    unsubscribe;
-  });
-
-  /**
    * GetOpenOrders
    *********************/
   const GetOpenOrders = async () => {
@@ -185,9 +173,27 @@
     }
   };
 
+  /**
+   * onDestroy
+   *********************/
+  onMount(() => {
+    GetOpenOrders();
+  });
+
+  /**
+   * onDestroy
+   *********************/
+  onMount(() => {
+    unsubscribe;
+  });
+
+  /**
+   * WSOpenOrders
+   *********************/
+  $: if ($WSOpenOrders) checkStatusDatas($WSOpenOrders);
+
   // Si aucune données n'existe on appel
   // l'api REST pour récupérer les datas
-  $: if (!$WSOpenOrders && !$openordersdata) GetOpenOrders();
   $: isLoading = !!$openordersdata;
 </script>
 
