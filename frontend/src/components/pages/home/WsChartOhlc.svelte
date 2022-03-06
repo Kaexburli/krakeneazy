@@ -247,7 +247,6 @@
     };
 
     if (candle && candleSeries) {
-      console.log(candleSeries);
       if (candle.time >= lastCandle.time) {
         candleSeries.update(candle);
         lastCandle = candle;
@@ -264,6 +263,8 @@
     if (!candelFirst && candleCount != -1) {
       candleCount++;
       if (candle.time >= lastCandle.time) {
+        $ohlcchart = [...$ohlcchart, candle];
+        chartApi.timeScale().scrollToRealTime();
         candleSeries.update(candle);
       }
     } else {
@@ -695,6 +696,73 @@
   };
 
   /**
+   * calculateHighLowPrice
+   ************************/
+  const calculateHighLowPrice = (newVisibleLogicalRange) => {
+    if (newVisibleLogicalRange === null) return false;
+
+    // handle new logical range
+
+    if (candleSeries && chartApi) {
+      const barsInfo = candleSeries.barsInLogicalRange(
+        chartApi.timeScale().getVisibleLogicalRange()
+      );
+
+      // Calculate high / low value
+      let high = Math.max.apply(
+        Math,
+        $ohlcchart.map(function (o) {
+          if (o.time >= barsInfo.from && o.time <= barsInfo.to) return o.high;
+          else return 0;
+        })
+      );
+
+      let low = Math.min.apply(
+        Math,
+        $ohlcchart.map(function (o) {
+          if (o.time >= barsInfo.from && o.time <= barsInfo.to) return o.low;
+          else return Infinity;
+        })
+      );
+
+      // Filter in datas
+      let highPoint = $ohlcchart.filter(
+        (data) =>
+          data.high == high &&
+          data.time >= barsInfo.from &&
+          data.time <= barsInfo.to
+      );
+      let lowPoint = $ohlcchart.filter(
+        (data) =>
+          data.low == low &&
+          data.time >= barsInfo.from &&
+          data.time <= barsInfo.to
+      );
+
+      // Set in array
+      let highLowMarkers = [];
+      highLowMarkers.push({
+        time: highPoint[0].time,
+        position: "aboveBar",
+        color: "#FFFFFF",
+        text: highPoint[0].high,
+        size: 1,
+      });
+
+      highLowMarkers.push({
+        time: lowPoint[0].time,
+        position: "belowBar",
+        color: "#FFFFFF",
+        text: lowPoint[0].low,
+        size: 1,
+      });
+
+      // Set markers
+      candleSeries.setMarkers(highLowMarkers);
+    }
+  };
+
+  /**
    * onMount
    ************************/
   onMount(() => {
@@ -825,7 +893,16 @@
         candleSeries.setMarkers(markers);
     } else {
       if (typeof candleSeries !== "undefined" && isMounted)
-        candleSeries.setMarkers([]);
+        calculateHighLowPrice();
+    }
+  }
+
+  // Mise a jour du prix haut et bas
+  $: {
+    if (chartApi) {
+      chartApi
+        .timeScale()
+        .subscribeVisibleLogicalRangeChange(calculateHighLowPrice);
     }
   }
 
