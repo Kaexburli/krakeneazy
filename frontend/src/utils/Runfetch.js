@@ -5,10 +5,11 @@ import Fetch, { hasBackground } from "svelte-fetch"
 
 let background = 0;
 let timeout = false;
+let response = null;
 hasBackground.subscribe((v) => background = v)
 fetchTimeout.subscribe((v) => timeout = v)
 
-const fetch = new Fetch()
+const fetchSvelte = new Fetch()
 
 /**
  *  *****************
@@ -17,7 +18,13 @@ const fetch = new Fetch()
  */
 
 
-const callApiFetch = async (url, endpoint, token = false) => {
+const callApiFetch = async (params) => {
+
+  const url = params.url || false;
+  const method = params.method || "GET";
+  const endpoint = params.endpoint || false;
+  const token = params.token || false;
+  const body = params.body || false;
 
   try {
 
@@ -25,14 +32,14 @@ const callApiFetch = async (url, endpoint, token = false) => {
       let end = parseInt(timeout.started + timeout.timeout)
       let now = Date.now()
       if (now < end) {
-        console.log("Timeout:", parseInt(end - now) / 60000)
+        console.debug("Timeout:", parseInt(end - now) / 60000)
         return false
       }
     }
 
 
-    const checkratecount = checkRateCount(endpoint);
-    if (!checkratecount) return false;
+    // const checkratecount = checkRateCount(endpoint);
+    // if (!checkratecount) return false;
 
     // console.log('[Fetch Background]:', background, endpoint)
 
@@ -45,9 +52,24 @@ const callApiFetch = async (url, endpoint, token = false) => {
       }
     }
 
-    let response = await fetch.background.expect(JSON).get(url, options);
+    if (method === "GET")
+      response = await fetchSvelte.background.expect(JSON).get(url, options);
+    else if (method === "POST" && body) {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: options.headers,
+        body: JSON.stringify(body),
+      });
 
-    // console.log(`[RUNFECTH] ${endpoint}`, response)
+      if (response.status >= 200 && response.status < 300) {
+        return response.json ? response.json() : response;
+      }
+      return parseJSON(response).then((response) => {
+        throw response;
+      });
+    }
+
+    // console.debug(`[RUNFECTH] ${endpoint}`, response)
 
 
     if (response.hasOwnProperty("error")) {
@@ -66,7 +88,7 @@ const callApiFetch = async (url, endpoint, token = false) => {
       response.statusCode === 401
     ) {
       User.signout();
-      location.reload()
+      location.reload();
       return false;
     }
     else return response

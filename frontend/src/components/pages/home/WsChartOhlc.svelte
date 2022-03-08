@@ -141,7 +141,7 @@
 
     try {
       let url = [fetchUrl, $pair, $interval].join("/");
-      let res = await Fetch(url, "ohlc");
+      let res = await Fetch({ url, endpoint: "ohlc" });
 
       if (res.hasOwnProperty("error")) {
         console.error(`${res.message} ${res.error} (${res.statusCode})`);

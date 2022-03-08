@@ -8,7 +8,7 @@
   const token = $User.token || false;
 
   const getAssets = async () => {
-    let res = await Fetch(fetchUrl, "assets", token);
+    let res = await Fetch({ url: fetchUrl, endpoint: "assets", token });
 
     if (typeof res !== "undefined" && res.hasOwnProperty("error"))
       console.error("[ERROR] : " + res.statusCode + " " + res.message);

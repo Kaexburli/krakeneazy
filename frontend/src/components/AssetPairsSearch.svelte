@@ -27,7 +27,7 @@
 
   const getAssetPairs = async () => {
     try {
-      let res = await Fetch(fetchUrl, "assetpairs", token);
+      let res = await Fetch({ url: fetchUrl, endpoint: "assetpairs", token });
       if (typeof res !== "undefined") {
         if (res.error) console.error(res);
         else assetpairs.set(res);
