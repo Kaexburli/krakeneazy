@@ -73,6 +73,8 @@
     candleCount = -1,
     clearTimer = null,
     candelFirst = true,
+    markers = [],
+    highLowMarkers = [],
     chartConfigInterval = {
       "1": { offset: 10, spacing: 6 },
       "5": { offset: 10, spacing: 9 },
@@ -740,7 +742,7 @@
       );
 
       // Set in array
-      let highLowMarkers = [];
+      highLowMarkers = [];
       highLowMarkers.push({
         time: highPoint[0].time,
         position: "aboveBar",
@@ -758,7 +760,7 @@
       });
 
       // Set markers
-      candleSeries.setMarkers(highLowMarkers);
+      candleSeries.setMarkers([...markers, ...highLowMarkers]);
     }
   };
 
@@ -888,7 +890,7 @@
       if (activePositions) getPositionsMarker(openpositions);
       else markers_positions = [];
 
-      let markers = [...markers_orders, ...markers_positions];
+      markers = [...markers_orders, ...markers_positions, ...highLowMarkers];
       if (typeof candleSeries !== "undefined" && isMounted)
         candleSeries.setMarkers(markers);
     } else {
