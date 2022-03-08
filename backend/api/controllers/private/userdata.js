@@ -113,7 +113,7 @@ const getSystemStatus = async (req, reply) => {
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
-    let response = await apiKraken.systemStatus()
+    const response = await apiKraken.systemStatus()
     return response
   } catch (error) {
     return handleError(error, "getSystemStatus")
@@ -128,7 +128,7 @@ const getBalance = async (req, reply) => {
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
-    let response = await apiKraken.balance()
+    const response = await apiKraken.balance()
     return response
   } catch (error) {
     return handleError(error, "getBalance")
@@ -145,7 +145,7 @@ const getTradeBalance = async (req, reply) => {
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
-    let response = await apiKraken.tradeBalance({ asset: asset })
+    const response = await apiKraken.tradeBalance({ asset: asset })
     return response
   } catch (error) {
     return handleError(error, "getTradeBalance")
@@ -171,7 +171,7 @@ const getOpenOrders = async (req, reply) => {
   }
 
   try {
-    let response = await apiKraken.openOrders(params)
+    const response = await apiKraken.openOrders(params)
     return response
   } catch (error) {
     return handleError(error, "getOpenOrders")
@@ -197,7 +197,7 @@ const getClosedOrders = async (req, reply) => {
   }
 
   try {
-    let response = await apiKraken.closedOrders(params)
+    const response = await apiKraken.closedOrders(params)
     return response
   } catch (error) {
     return handleError(error, "getClosedOrders")
@@ -218,7 +218,7 @@ const getTradeVolume = async (req, reply) => {
   }
 
   try {
-    let response = await apiKraken.tradeVolume({ pair })
+    const response = await apiKraken.tradeVolume({ pair })
     return response
   } catch (error) {
     return handleError(error, "getTradeVolume")
@@ -233,7 +233,7 @@ const getLedgers = async (req, reply) => {
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
-    let response = await apiKraken.ledgers()
+    const response = await apiKraken.ledgers()
     return response
   } catch (error) {
     return handleError(error, "getLedgers")
@@ -249,7 +249,7 @@ const getTradesHistory = async (req, reply) => {
 
 
   try {
-    let response = await apiKraken.tradesHistory()
+    const response = await apiKraken.tradesHistory()
     return response
   } catch (error) {
     return handleError(error, "getTradesHistory")
@@ -264,7 +264,7 @@ const getOpenPositions = async (req, reply) => {
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
-    let response = await apiKraken.openPositions({ docalcs: true })
+    const response = await apiKraken.openPositions({ docalcs: true })
     return response
   } catch (error) {
     return handleError(error, "getOpenPositions")
@@ -489,7 +489,7 @@ const getWsTradeBalance = async (connection, req, reply) => {
 
 
   let timer = null;
-  let interval = 30000;
+  let interval = 15000;
 
   // Strat interval
   const startInterval = () => {
@@ -502,7 +502,7 @@ const getWsTradeBalance = async (connection, req, reply) => {
   const getWsTradeBalanceData = async (req, reply) => {
     try {
 
-      let response = await getTradeBalance(req, reply)
+      const response = await getTradeBalance(req, reply)
       checkAndSendResult(response)
     } catch (error) {
       handleError(error, "getWsTradeBalance")
@@ -567,7 +567,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
   // Envoie la requête api
   const getWsSystemStatusData = async () => {
     try {
-      let response = await getSystemStatus(req, reply)
+      const response = await getSystemStatus(req, reply)
       checkAndSendResult(response)
     } catch (error) {
       handleError(error, "getWsSystemStatus")
