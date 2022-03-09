@@ -156,7 +156,6 @@
       <div id="offline">
         <i class="fa fa-exclamation-triangle" />
         {$_("online.errorMessage")}&nbsp;
-        <span class="errno">[{error}]</span>
       </div>
     </div>
   {/if}
@@ -234,9 +233,9 @@
     color: red;
     font-size: 0.8em;
   }
-  .errno {
+  /* .errno {
     color: #f15353;
-  }
+  } */
   #offline {
     background-color: #270000;
     color: #e9e9e9;
