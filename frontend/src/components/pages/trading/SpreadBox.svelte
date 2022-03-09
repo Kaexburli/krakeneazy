@@ -11,7 +11,7 @@
     : $assetpair.quote;
 
   let tickerdata = false;
-  let tradedata = false;
+  let tradedata = [];
   let spreaddata = false;
   let bid_spread;
   let ask_spread;
@@ -31,7 +31,7 @@
     second: "2-digit",
   });
 
-  $: if ($WSTrade) tradedata = $WSTrade;
+  $: if ($WSTrade) tradedata = [...$WSTrade, ...tradedata];
   $: if ($WSSpread) spreaddata = $WSSpread;
   $: if ($WSTicker) tickerdata = $WSTicker;
 
@@ -142,17 +142,17 @@
       </div>
     {/if}
 
-    {#if typeof tradedata !== "undefined" && tradedata.length >= 1}
+    {#if tradedata && tradedata.length >= 1}
       <div class="recent-trade">
         <h5>{$_("trading.spreadBox.lastTrade")}</h5>
         {#each tradedata as td}
-          <div class={td[3]}>
-            <span class="date">{formatter.format(parseInt(td[2]) * 1000)}</span>
+          <div class="{td[3]} vol{parseInt(td[1] * td[0]).toString().length}">
             <span class="badge">
               {#if td[4] === "l"}{$_(
                   "trading.spreadBox.limit"
                 )}{:else if td[4] === "m"}{$_("trading.spreadBox.market")}{/if}
             </span>
+            <span class="date">{formatter.format(parseInt(td[2]) * 1000)}</span>
             <span class="price">
               {$_("trading.spreadBox.price")}
               {#if td[3] === "b"}
@@ -160,7 +160,7 @@
               {:else if td[3] === "s"}
                 {$_("trading.spreadBox.priceAsk")}
               {/if}:
-              {Number(td[0]).toFixed(decimals)}&nbsp;{quote}
+              {Number(td[0]).toFixed(decimals)}&nbsp;{$assetpair.quote}
             </span>
             <span class="volume"
               >{$_("trading.spreadBox.volume")}: ({td[1]})</span
@@ -168,7 +168,7 @@
             <span class="amount">
               {$_("trading.spreadBox.totalCost")}: {Number(
                 td[1] * td[0]
-              ).toFixed(decimals)}&nbsp;{quote}
+              ).toFixed(decimals)}&nbsp;{$assetpair.quote}
             </span>
           </div>
         {/each}
@@ -259,7 +259,6 @@
     padding-top: 4px;
     padding-left: 5px;
     background-color: #1b1b1b;
-    border-bottom: 1px dashed #444;
     border-top: 1px solid #000;
     font-size: 0.8em;
   }
@@ -277,40 +276,81 @@
     display: inline-block;
   }
   .recent-trade {
+    font-size: 0.9em;
     margin: 0 5px;
     padding: 5px 0;
+    max-height: 200px;
+    overflow: auto;
   }
   .recent-trade .date {
-    color: #555555;
-    margin-right: 20px;
-    font-weight: bold;
+    /* color: #555555;
+    font-weight: bold; */
+    margin-right: 10px;
+    float: right;
   }
   .recent-trade .price,
   .recent-trade .volume,
   .recent-trade .amount {
-    margin-right: 20px;
+    margin-right: 10px;
   }
   .recent-trade .badge {
-    font-size: 0.7em;
-    border: 1px solid #333333;
-    background-color: #343434;
-    color: #cbcbcb;
-    margin-right: 20px;
-    padding: 1px 5px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+    font-size: 0.9em;
+    background-color: #6d6d6d;
+    color: #000000;
+    margin-right: 10px;
+    padding: 2px 0 0px 1px;
+    width: 65px;
+    display: inline-block;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
   }
   .ask-tick,
   .ask-spread,
   .s {
     color: firebrick;
+    border-top: 1px solid #000000;
   }
   .bid-tick,
   .bid-spread,
   .b {
     color: darkgreen;
+    border-top: 1px solid #000000;
   }
+
+  .s.vol3 {
+    background-color: #352424;
+    color: #cccccc;
+  }
+  .b.vol3 {
+    background-color: #2b3d2a;
+    color: #cccccc;
+  }
+  .s.vol4 {
+    background-color: #530000;
+    color: #cccccc;
+  }
+  .b.vol4 {
+    background-color: #085f00;
+    color: #cccccc;
+  }
+  .s.vol5 {
+    background-color: #860000;
+    color: #cccccc;
+  }
+  .b.vol5 {
+    background-color: #0b8800;
+    color: #cccccc;
+  }
+  .s.vol6 {
+    background-color: #af0000;
+    color: #cccccc;
+  }
+  .b.vol6 {
+    background-color: #0fb100;
+    color: #cccccc;
+  }
+
   .bid-spread-vol,
   .ask-spread-vol {
     font-size: 0.8em;
