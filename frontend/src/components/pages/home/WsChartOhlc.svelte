@@ -70,6 +70,7 @@
     current_day,
     modulo,
     day,
+    nbTrades = 0,
     candleCount = -1,
     clearTimer = null,
     candelFirst = true,
@@ -79,8 +80,8 @@
       "1": { offset: 10, spacing: 6 },
       "5": { offset: 10, spacing: 9 },
       "15": { offset: 7, spacing: 18 },
-      "30": { offset: 6, spacing: 27 },
-      "60": { offset: 6, spacing: 30 },
+      "30": { offset: 7, spacing: 16 },
+      "60": { offset: 6, spacing: 16 },
       "240": { offset: 6, spacing: 33 },
       "1440": { offset: 3, spacing: 36 },
       "10080": { offset: 3, spacing: 40 },
@@ -161,6 +162,7 @@
           !isNaN($ohlcchart.length - 1)
         ) {
           ohlcLastItemhistory = $ohlcchart[$ohlcchart.length - 1];
+          nbTrades = ohlcLastItemhistory.trades;
           setTimerInterval();
         }
       }
@@ -261,6 +263,7 @@
    ************************/
   const formatCandelTick = (tick) => {
     let candle = ohlcFormat(tick);
+    nbTrades = candle.trades;
 
     if (!candelFirst && candleCount != -1) {
       candleCount++;
@@ -1059,7 +1062,7 @@
         {/if}
       </span>
       <span class="realtrade">
-        TRADE: {candleCount}
+        TRADE: {nbTrades}
       </span>
     </div>
     <div class="floating-tooltip {type}" />
@@ -1305,7 +1308,7 @@
   .chart-block .legend .time {
     position: absolute;
     color: #997000;
-    right: 130px;
+    right: 140px;
     top: 0;
     z-index: 1;
     font-size: 12px;
