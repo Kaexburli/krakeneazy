@@ -155,8 +155,8 @@
     <div id="error-network">
       <div id="offline">
         <i class="fa fa-exclamation-triangle" />
-        <span class="errno">[{error}]</span>&nbsp;
-        {$_("online.errorMessage")}
+        {$_("online.errorMessage")}&nbsp;
+        <span class="errno">[{error}]</span>
       </div>
     </div>
   {/if}
@@ -238,7 +238,7 @@
     color: #f15353;
   }
   #offline {
-    background-color: #5a2828;
+    background-color: #270000;
     color: #e9e9e9;
     border: 1px solid #262626;
     display: block;

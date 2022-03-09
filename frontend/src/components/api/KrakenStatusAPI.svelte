@@ -11,7 +11,7 @@
   let hasData = krakenIncidents && krakenIncidents.length ? true : false;
   let hasProcess =
     krakenMaintenances && krakenMaintenances.length ? true : false;
-  let hasDegraded = krakenStatus ? true : false;
+  let hasDegraded = krakenStatus !== "false" ? true : false;
 
   let medium = {
     hour12: false,
@@ -151,7 +151,7 @@
         class:isVisible
         class:hasDegraded
       />
-      {#if krakenStatus}
+      {#if krakenStatus !== "false"}
         <Tooltip xPos="start">
           <Content style="color: #fff;font-size:0.9em;">
             {krakenStatus}
@@ -280,9 +280,14 @@
   #krakenStatusAPIBtn #toogle.hasDegraded {
     color: #d11c1c;
   }
-  #krakenStatusAPIBtn #toogle:hover,
   #krakenStatusAPIBtn #toogle.isVisible {
     border: 1px solid #222222;
     color: #cdeeee;
+  }
+  #krakenStatusAPIBtn #toogle.hasData:hover {
+    color: #856800;
+  }
+  #krakenStatusAPIBtn #toogle.hasDegraded:hover {
+    color: #6e0000;
   }
 </style>
