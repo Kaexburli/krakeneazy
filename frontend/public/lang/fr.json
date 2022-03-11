@@ -5,7 +5,7 @@
     "addApiKey": "Veuillez ajouter une clé api dans les paramètres de votre compte."
   },
   "online": {
-    "errorMessage": "Problème réseaux, veuillez vérifier votre connection internet.",
+    "errorMessage": "La connectivité internet a été perdue",
     "online": "En ligne",
     "offline": "Hors ligne",
     "cancel_only": "Annulation seul",
@@ -372,7 +372,8 @@
       "closeCond": "Fermeture conditionnelle",
       "fees": "Frais",
       "reset": "Réinitialiser",
-      "confirm": "Confirmer"
+      "confirm": "Confirmer",
+      "and": "et"
     }
   },
   "settings": {

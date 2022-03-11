@@ -5,7 +5,7 @@
     "addApiKey": "Please add an api key in your account settings."
   },
   "online": {
-    "errorMessage": "Network problem, please check your internet connection.",
+    "errorMessage": "Internet connectivity has been lost",
     "online": "Online",
     "offline": "Offline",
     "cancel_only": "Cancel only",
@@ -372,7 +372,8 @@
       "closeCond": "Conditional close",
       "fees": "Fees",
       "reset": "Reset",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "and": "and"
     }
   },
   "settings": {
