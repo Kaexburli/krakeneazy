@@ -11,6 +11,7 @@
   import OrderBooksWs from "components/pages/home/WsOrderBooks.svelte";
   import { hasApikeysStore } from "store/userStore.js";
   import Paper, { Content } from "@smui/paper";
+  import LinearProgress from "@smui/linear-progress";
 
   let loading = false;
   export let User;
@@ -35,8 +36,13 @@
           <Moon size="30" color="#e8e8e8" unit="px" duration="0.5s" />
         </div>
       {/if}
-      Kraken {$assetpair.wsname}
+      {$assetpair.wsname} <span class="exchange"> KRAKEN </span>
     </h1>
+    {#if !loading}
+      <div class="loader">
+        <LinearProgress indeterminate />
+      </div>
+    {/if}
     <div id="home-wrapper">
       <div id="ChartCtrl">
         <ChartCtrl />
@@ -44,14 +50,14 @@
       <div id="BlockChartOhlc">
         <ChartOhlc {User} on:loading={handleLoading} />
       </div>
+      <div id="BlockOrderBooks">
+        <OrderBooksWs on:loading={handleLoading} />
+      </div>
       <div id="SpreadBox">
         <SpreadBox />
       </div>
       <div id="BlockTicker">
         <TickerWs on:loading={handleLoading} />
-      </div>
-      <div id="BlockOrderBooks">
-        <OrderBooksWs on:loading={handleLoading} />
       </div>
     </div>
   {:else}
@@ -72,27 +78,30 @@
     grid-template-columns: repeat(2, 1fr);
   }
   #ChartCtrl {
-    grid-column: 1 / 3;
+    grid-column: 1 / 6;
     grid-row: 1;
   }
   #BlockChartOhlc {
-    grid-column: 1 / 3;
-    grid-row: 2;
+    grid-column: 1 / 6;
+    grid-row: 1;
   }
   #SpreadBox {
-    grid-column: 1 / 3;
+    grid-column: 1 / 7;
     grid-row: 3;
   }
   #BlockTicker {
-    grid-column: 1;
+    grid-column: 1 / 7;
     grid-row: 4;
   }
   #BlockOrderBooks {
-    grid-column: 2;
-    grid-row: 4;
+    grid-row: 1;
   }
   #clockloader {
     float: right;
     margin-top: 3px;
+  }
+  .exchange {
+    font-size: 0.5em;
+    color: #787878;
   }
 </style>

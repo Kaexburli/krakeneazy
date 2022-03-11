@@ -6,7 +6,6 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { openModal, closeModal } from "svelte-modals";
   import ConfirmModal from "components/modal/ConfirmModal.svelte";
-  import LinearProgress from "@smui/linear-progress";
 
   import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
@@ -58,6 +57,8 @@
     legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
     backUrl = __env["BACKEND_URI"],
     fetchUrl = backUrl + "/api/ohlc",
+    chartHeight = 400,
+    chartWidth = 600,
     error = false,
     openpositions = false,
     currentPriceWay,
@@ -79,12 +80,12 @@
     chartConfigInterval = {
       "1": { offset: 10, spacing: 6 },
       "5": { offset: 10, spacing: 9 },
-      "15": { offset: 7, spacing: 18 },
-      "30": { offset: 7, spacing: 16 },
+      "15": { offset: 8, spacing: 12 },
+      "30": { offset: 8, spacing: 16 },
       "60": { offset: 6, spacing: 16 },
-      "240": { offset: 6, spacing: 33 },
-      "1440": { offset: 3, spacing: 36 },
-      "10080": { offset: 3, spacing: 40 },
+      "240": { offset: 6, spacing: 16 },
+      "1440": { offset: 4, spacing: 16 },
+      "10080": { offset: 4, spacing: 16 },
     };
 
   const ud = new UserData();
@@ -250,11 +251,15 @@
       trades: 0,
     };
 
-    if (candle && candleSeries) {
-      if (candle.time >= lastCandle.time) {
-        candleSeries.update(candle);
-        lastCandle = candle;
+    try {
+      if (candle && candleSeries) {
+        if (candle.time >= lastCandle.time) {
+          candleSeries.update(candle);
+          lastCandle = candle;
+        }
       }
+    } catch (error) {
+      console.log("updateNoActivity", error);
     }
   };
 
@@ -262,22 +267,26 @@
    * formatCandelTick
    ************************/
   const formatCandelTick = (tick) => {
-    let candle = ohlcFormat(tick);
-    nbTrades = candle.trades;
+    try {
+      let candle = ohlcFormat(tick);
+      nbTrades = candle.trades;
 
-    if (!candelFirst && candleCount != -1) {
-      candleCount++;
-      if (candle.time >= lastCandle.time) {
-        $ohlcchart = [...$ohlcchart, candle];
-        chartApi.timeScale().scrollToRealTime();
-        candleSeries.update(candle);
+      if (!candelFirst && candleCount != -1) {
+        candleCount++;
+        if (candle.time >= lastCandle.time) {
+          $ohlcchart = [...$ohlcchart, candle];
+          chartApi.timeScale().scrollToRealTime();
+          candleSeries.update(candle);
+        }
+      } else {
+        candelFirst = false;
+        candleCount = 0;
       }
-    } else {
-      candelFirst = false;
-      candleCount = 0;
-    }
 
-    lastCandle = candle;
+      lastCandle = candle;
+    } catch (error) {
+      console.log("formatCandelTick", error);
+    }
   };
 
   /**
@@ -784,7 +793,7 @@
   });
 
   const optionsChart = {
-    height: 300,
+    height: chartHeight,
     layout: {
       backgroundColor: "#212121",
       textColor: "#fcfcfc",
@@ -865,9 +874,8 @@
     window.addEventListener("resize", () => {
       if (!isMounted) return false;
       let chartblock = document.querySelector(".chart-block");
-      if (typeof chartblock !== ("undefined" || null)) {
-        let chartHeight = 300; // chartblock.clientHeight
-        let chartWidth = chartblock.clientWidth || 600;
+      if (chartblock) {
+        chartWidth = chartblock.clientWidth || chartWidth;
         chartApi.resize(chartWidth, chartHeight);
       }
     });
@@ -1083,16 +1091,9 @@
       {/if}
     </div>
   </div>
-{:else}
-  <div class="loader">
-    <LinearProgress indeterminate />
-  </div>
 {/if}
 
 <style>
-  .loader {
-    margin-bottom: 10px;
-  }
   #rightclickmenu {
     visibility: hidden;
     z-index: 999;
@@ -1146,6 +1147,7 @@
     background-color: #212121;
     border: 1px solid #181818;
     padding: 10px;
+    height: 45px;
   }
   .chartctrl-block .current-price {
     float: right;
@@ -1285,7 +1287,7 @@
     position: relative;
     background-color: #212121;
     border: 1px solid #181818;
-    padding: 10px;
+    padding: 9px;
   }
   .chart-block .interval {
     outline: none;

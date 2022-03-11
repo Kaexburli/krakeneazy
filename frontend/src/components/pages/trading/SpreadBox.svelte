@@ -144,7 +144,6 @@
 
     {#if tradedata && tradedata.length >= 1}
       <div class="recent-trade">
-        <h5>{$_("trading.spreadBox.lastTrade")}</h5>
         {#each tradedata as td}
           <div class="{td[3]} vol{parseInt(td[1] * td[0]).toString().length}">
             <span class="badge">
