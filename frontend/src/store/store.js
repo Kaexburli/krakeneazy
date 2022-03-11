@@ -13,7 +13,7 @@ const asset_replace = {
   XXBT: { name: 'Bitcoin', icon: 'btc', symbol: '₿' },
   XXDG: { name: 'Dogecoin', icon: 'doge', symbol: 'DOGE' },
   XXRP: { name: 'Ripple', icon: 'xrp', symbol: 'XRP' },
-  ZEUR: { name: 'Euro', icon: 'eur', symbol: '€' },
+  ZEUR: { name: 'EUR', icon: 'eur', symbol: '€' },
   ZUSD: { name: 'Dollar US', icon: 'usd', symbol: '$' }
 }
 
