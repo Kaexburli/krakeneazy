@@ -6,6 +6,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { openModal, closeModal } from "svelte-modals";
   import ConfirmModal from "components/modal/ConfirmModal.svelte";
+  import { Jumper } from "svelte-loading-spinners";
 
   import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
@@ -166,6 +167,7 @@
           nbTrades = ohlcLastItemhistory.trades;
           setTimerInterval();
         }
+        return res;
       }
     } catch (error) {
       console.error("[ERROR]:", error);
@@ -259,7 +261,7 @@
         }
       }
     } catch (error) {
-      console.log("updateNoActivity", error);
+      console.error(error);
     }
   };
 
@@ -271,7 +273,7 @@
       let candle = ohlcFormat(tick);
       nbTrades = candle.trades;
 
-      if (!candelFirst && candleCount != -1) {
+      if (chartApi && !candelFirst && candleCount != -1) {
         candleCount++;
         if (candle.time >= lastCandle.time) {
           $ohlcchart = [...$ohlcchart, candle];
@@ -285,7 +287,7 @@
 
       lastCandle = candle;
     } catch (error) {
-      console.log("formatCandelTick", error);
+      console.error(error);
     }
   };
 
@@ -454,7 +456,7 @@
 
     if (typeof param.point !== "undefined") {
       let price = candleSeries.coordinateToPrice(param.point.y);
-      pricealert = price.toFixed($assetpair.pair_decimals);
+      if (price) pricealert = price.toFixed($assetpair.pair_decimals);
     }
 
     if (chartblock.addEventListener) {
@@ -777,6 +779,15 @@
   };
 
   /**
+   * changeChartInterval
+   ************************/
+  const changeChartInterval = async () => {
+    $ohlcchart = false;
+    let newSeries = await getChartHistoryDatas();
+    candleSeries.setData(newSeries);
+  };
+
+  /**
    * onMount
    ************************/
   onMount(() => {
@@ -790,6 +801,7 @@
    ************************/
   onDestroy(() => {
     isMounted = false;
+    $ohlcchart = false;
   });
 
   const optionsChart = {
@@ -952,99 +964,98 @@
   }, 1000);
 </script>
 
-{#if $ohlcchart}
-  <div class="chartctrl-block clearfix">
-    <input
-      type="checkbox"
-      name="active-tooltip"
-      id="active-tooltip"
-      bind:checked={activetooltip}
-    />
-    <label class="label-checkbox" for="active-tooltip"
-      >{$_("home.chart.checkbox.tooltip")}</label
-    >
-    <input
-      type="checkbox"
-      name="active-positions"
-      id="active-positions"
-      bind:checked={activePositions}
-    />
-    <label
-      class="label-checkbox"
-      for="active-positions"
-      id="label-active-positions">{$_("home.chart.checkbox.position")}</label
-    >
-    <input
-      type="checkbox"
-      name="active-orders"
-      id="active-orders"
-      bind:checked={activeOrders}
-    />
-    <label class="label-checkbox" for="active-orders" id="label-active-orders"
-      >{$_("home.chart.checkbox.orders")}</label
-    >
-    <input
-      type="checkbox"
-      name="crosshair-mode"
-      id="crosshair-mode"
-      bind:checked={crosshairMode}
-      on:change={handleCrosshairMode}
-    />
-    <label class="label-checkbox" for="crosshair-mode"
-      >{$_("home.chart.checkbox.magnet")}</label
-    >
-    <input
-      type="checkbox"
-      name="pricescale-mode"
-      id="pricescale-mode"
-      bind:checked={rightPriceScaleMode}
-      on:change={handleRightPriceScaleMode}
-    />
-    <label class="label-checkbox" for="pricescale-mode"
-      >{$_("home.chart.checkbox.loga")}</label
-    >
-    <input
-      type="checkbox"
-      name="volume-chart"
-      id="volume-chart"
-      bind:checked={volumeDisplaying}
-      on:change={(n) => !volumeDisplaying}
-    />
-    <label class="label-checkbox" for="volume-chart"
-      >{$_("home.chart.checkbox.volume")}</label
-    >
-    {#if currentPrice}
-      <div class="current-price {currentPriceWay}">
-        <span class="icon">
-          {#if currentPriceWay}
-            <i class="fa-solid fa-arrow-trend-{currentPriceWay}" />
-          {:else}
-            <i class="fa-solid fa-circle-arrow-right" />
-          {/if}
-        </span>
-        {parseFloat(currentPrice).toFixed($assetpair.pair_decimals)}
-        {$assetpair.quote}
-      </div>
-    {/if}
-  </div>
-  <div class="chart-block">
-    <select
-      name="interval"
-      id="interval"
-      class="interval"
-      bind:value={$interval}
-      on:change={() => location.reload()}
-    >
-      <option value="1">1M</option>
-      <option value="5">5M</option>
-      <option value="15">15M</option>
-      <option value="30">30M</option>
-      <option value="60">1H</option>
-      <option value="240">4H</option>
-      <option value="1440">1D</option>
-      <option value="10080">1W</option>
-    </select>
-
+<div class="chartctrl-block clearfix">
+  <input
+    type="checkbox"
+    name="active-tooltip"
+    id="active-tooltip"
+    bind:checked={activetooltip}
+  />
+  <label class="label-checkbox" for="active-tooltip"
+    >{$_("home.chart.checkbox.tooltip")}</label
+  >
+  <input
+    type="checkbox"
+    name="active-positions"
+    id="active-positions"
+    bind:checked={activePositions}
+  />
+  <label
+    class="label-checkbox"
+    for="active-positions"
+    id="label-active-positions">{$_("home.chart.checkbox.position")}</label
+  >
+  <input
+    type="checkbox"
+    name="active-orders"
+    id="active-orders"
+    bind:checked={activeOrders}
+  />
+  <label class="label-checkbox" for="active-orders" id="label-active-orders"
+    >{$_("home.chart.checkbox.orders")}</label
+  >
+  <input
+    type="checkbox"
+    name="crosshair-mode"
+    id="crosshair-mode"
+    bind:checked={crosshairMode}
+    on:change={handleCrosshairMode}
+  />
+  <label class="label-checkbox" for="crosshair-mode"
+    >{$_("home.chart.checkbox.magnet")}</label
+  >
+  <input
+    type="checkbox"
+    name="pricescale-mode"
+    id="pricescale-mode"
+    bind:checked={rightPriceScaleMode}
+    on:change={handleRightPriceScaleMode}
+  />
+  <label class="label-checkbox" for="pricescale-mode"
+    >{$_("home.chart.checkbox.loga")}</label
+  >
+  <input
+    type="checkbox"
+    name="volume-chart"
+    id="volume-chart"
+    bind:checked={volumeDisplaying}
+    on:change={(n) => !volumeDisplaying}
+  />
+  <label class="label-checkbox" for="volume-chart"
+    >{$_("home.chart.checkbox.volume")}</label
+  >
+  {#if currentPrice}
+    <div class="current-price {currentPriceWay}">
+      <span class="icon">
+        {#if currentPriceWay}
+          <i class="fa-solid fa-arrow-trend-{currentPriceWay}" />
+        {:else}
+          <i class="fa-solid fa-circle-arrow-right" />
+        {/if}
+      </span>
+      {parseFloat(currentPrice).toFixed($assetpair.pair_decimals)}
+      {$assetpair.quote}
+    </div>
+  {/if}
+</div>
+<div class="chart-block">
+  <select
+    name="interval"
+    id="interval"
+    class="interval"
+    bind:value={$interval}
+    on:change={changeChartInterval}
+  >
+    <option value="1">1M</option>
+    <option value="5">5M</option>
+    <option value="15">15M</option>
+    <option value="30">30M</option>
+    <option value="60">1H</option>
+    <option value="240">4H</option>
+    <option value="1440">1D</option>
+    <option value="10080">1W</option>
+  </select>
+  {#if $ohlcchart}
     <Chart
       {...optionsChart}
       on:crosshairMove={handleCrosshairMove}
@@ -1059,39 +1070,49 @@
         <HistogramSeries data={$volumechart} {...HistogramSeriesOpts} />
       {/if}
     </Chart>
-    <div class="legend">
-      {@html legend}
-      <span class="time">
-        {$_("home.chart.nextCandle")} :
-        {#if timeRemaining}
-          {cmtt(timeRemaining)}
-        {:else}
-          {cmtt($interval * 60 * 1000)}
-        {/if}
-      </span>
-      <span class="realtrade">
-        TRADE: {nbTrades}
-      </span>
-    </div>
-    <div class="floating-tooltip {type}" />
-    <div id="rightclickmenu">
-      <a
-        href={"#"}
-        on:click={createAlertPrice(pricealert, $assetpair.wsname, currentPrice)}
+  {:else}
+    <div
+      style="width:{chartWidth}px;height:{chartHeight}px;position: relative;"
+    >
+      <div
+        style="width:300px;height:300px;margin:auto;left:0;right:0;top:0;bottom:0;position:absolute;"
       >
-        <i class="fa fa-bell">&nbsp;</i>
-        {$_("home.chart.alert.createAlert")}
-        <span id="pricealert">@{pricealert}</span>
-      </a>
-      {#if hasAlertForPair}
-        <a href={"#"} on:click={removeAllAlertPrice($assetpair.wsname)}>
-          <i class="fa fa-trash">&nbsp;</i>
-          {$_("home.chart.alert.delAlerts")}
-        </a>
-      {/if}
+        <Jumper size="300" color="#444444" unit="px" duration="1s" />
+      </div>
     </div>
+  {/if}
+  <div class="legend">
+    {@html legend}
+    <span class="time">
+      {$_("home.chart.nextCandle")} :
+      {#if timeRemaining}
+        {cmtt(timeRemaining)}
+      {:else}
+        {cmtt($interval * 60 * 1000)}
+      {/if}
+    </span>
+    <span class="realtrade">
+      TRADE: {nbTrades}
+    </span>
   </div>
-{/if}
+  <div class="floating-tooltip {type}" />
+  <div id="rightclickmenu">
+    <a
+      href={"#"}
+      on:click={createAlertPrice(pricealert, $assetpair.wsname, currentPrice)}
+    >
+      <i class="fa fa-bell">&nbsp;</i>
+      {$_("home.chart.alert.createAlert")}
+      <span id="pricealert">@{pricealert}</span>
+    </a>
+    {#if hasAlertForPair}
+      <a href={"#"} on:click={removeAllAlertPrice($assetpair.wsname)}>
+        <i class="fa fa-trash">&nbsp;</i>
+        {$_("home.chart.alert.delAlerts")}
+      </a>
+    {/if}
+  </div>
+</div>
 
 <style>
   #rightclickmenu {
