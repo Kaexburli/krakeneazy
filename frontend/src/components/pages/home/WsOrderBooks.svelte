@@ -36,15 +36,15 @@
   // Écoute l'api websocket Order Book
   const getBook = (data) => {
     if (data.hasOwnProperty("snapshot")) {
-      asks = data.snapshot.as;
+      asks = data.snapshot.as.reverse();
       bids = data.snapshot.bs;
     }
     if (data.hasOwnProperty("mirror")) {
-      asks = data.mirror.as;
+      asks = data.mirror.as.reverse();
       bids = data.mirror.bs;
     }
     if (data.hasOwnProperty("ask")) {
-      ask = data.ask.a[0];
+      ask = data.ask.a[0].reverse();
     }
     if (data.hasOwnProperty("bid")) {
       bid = data.bid.b[0];
@@ -63,18 +63,6 @@
     dispatch("loading", { loading: true });
   }
 
-  // Convertie le timestamp en heure lisible
-  const FDate = (timestamp) => {
-    var date = new Date(timestamp * 1000);
-    return (
-      ("0" + date.getHours()).slice(-2) +
-      ":" +
-      ("0" + date.getMinutes()).slice(-2) +
-      ":" +
-      ("0" + date.getSeconds()).slice(-2)
-    );
-  };
-
   const totalVolAsk = (volume, i) => {
     if (i === 0) totalVask = 0;
     totalVask = Number(Number(volume) + Number(totalVask));
@@ -89,78 +77,48 @@
 </script>
 
 <div class="order-book-block">
-  {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
+  {#if tickerdata && tickerdata.hasOwnProperty("a")}
     <div class="tick close-tick clearfix">
-      <div id="current-price" class={priceway}>
-        {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
-      </div>
       <div id="current-infos">
-        <div id="current-volume">
+        <span id="current-volume">
           <span class="label">
             {$_("home.book.totalVolume")} :
           </span>{tickerdata["c"][1]}
-        </div>
-        <div id="current-spread">
+        </span>
+        <span id="current-spread">
           <span class="label">
             {$_("home.book.spread")} :
           </span>{spread_calcul}
-        </div>
+        </span>
       </div>
     </div>
   {/if}
   <div class="order-book-section clearfix">
-    <ul class="order-book asks-section">
-      {#each asks as a, i}
-        {#if i === 0}
-          <li class="ask ask-label" id="ask-{i}">
-            <span class="time-label">{$_("home.book.time")}</span>
-            <span class="vol-total-label">{$_("home.book.totalVolume")}</span>
-            <span class="volume-label">{$_("home.book.volume")}</span>
-            <span class="price-label">{$_("home.book.price")}</span>
+    <div class="order-book-vertical">
+      <ul class="asks-section">
+        {#each asks as a, i}
+          <li class="ask" id="ask-{i}">
+            <span class="ask-price">{Number(a[0]).toFixed(decimals)}</span>
+            <span class="volume">{a[1]}</span>
+            <span class="vol-total">{totalVolAsk(a[1], i)} </span>
           </li>
-        {/if}
-        {#if ask && i == 0}
-          <li class="ask" id="ask-realtime">
-            <span class="time">{FDate(ask[2])}</span>
-            <span class="vol-total">{ask[1]} </span>
-            <span class="volume">{ask[1]}</span>
-            <span class="ask-price">{Number(ask[0]).toFixed(decimals)}</span>
+        {/each}
+      </ul>
+      {#if tickerdata && tickerdata.hasOwnProperty("a")}
+        <div id="current-price" class={priceway}>
+          {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
+        </div>
+      {/if}
+      <ul class="bids-section">
+        {#each bids as b, i}
+          <li class="bid" id="bid-{i}">
+            <span class="bid-price">{Number(b[0]).toFixed(decimals)}</span>
+            <span class="volume">{b[1]}</span>
+            <span class="vol-total">{totalVolBid(b[1], i)}</span>
           </li>
-        {/if}
-        <li class="ask" id="ask-{i}">
-          <span class="time">{FDate(a[2])}</span>
-          <span class="vol-total">{totalVolAsk(a[1], i)} </span>
-          <span class="volume">{a[1]}</span>
-          <span class="ask-price">{Number(a[0]).toFixed(decimals)}</span>
-        </li>
-      {/each}
-    </ul>
-    <ul class="order-book bids-section">
-      {#each bids as b, i}
-        {#if i === 0}
-          <li class="bid bid-label" id="bid-{i}">
-            <span class="price-label">{$_("home.book.price")}</span>
-            <span class="volume-label">{$_("home.book.volume")}</span>
-            <span class="vol-total-label">{$_("home.book.totalVolume")}</span>
-            <span class="time-label">{$_("home.book.time")}</span>
-          </li>
-        {/if}
-        {#if bid && i == 0}
-          <li class="bid" id="bid-realtime">
-            <span class="bid-price">{Number(bid[0]).toFixed(decimals)}</span>
-            <span class="volume">{bid[1]}</span>
-            <span class="vol-total">{bid[1]}</span>
-            <span class="time">{FDate(bid[2])}</span>
-          </li>
-        {/if}
-        <li class="bid" id="bid-{i}">
-          <span class="bid-price">{Number(b[0]).toFixed(decimals)}</span>
-          <span class="volume">{b[1]}</span>
-          <span class="vol-total">{totalVolBid(b[1], i)}</span>
-          <span class="time">{FDate(b[2])}</span>
-        </li>
-      {/each}
-    </ul>
+        {/each}
+      </ul>
+    </div>
   </div>
 </div>
 
@@ -175,6 +133,7 @@
     padding: 0;
     border: 1px solid #181818;
     clear: both;
+    width: 260px;
   }
   .order-book {
     background-color: #212121;
@@ -186,25 +145,41 @@
     width: 50%;
     float: left;
   }
-  .order-book li {
+  .order-book-vertical {
     background-color: #212121;
+    padding: 2px;
+    color: white;
+    text-shadow: 1px 1px #212121;
+    font-size: 0.7em;
+    display: block;
+    /* border: 1px solid #181818; */
   }
-  .order-book li:hover {
+  .order-book-vertical li {
+    background-color: #212121;
+    padding: 1px;
+    margin-bottom: 1px;
+    margin-left: 5px;
+    margin-top: 1px;
+  }
+  .order-book-vertical li:hover {
     background-color: #181818;
   }
   .order-book-section {
     border: none;
+    margin-left: 5px;
   }
+  .order-book-section .asks-section,
   .order-book-section .asks-section {
     text-align: left;
   }
+  .order-book-section .bids-section,
   .order-book-section .bids-section {
-    text-align: right;
+    text-align: left;
   }
-  .order-book .time-label,
-  .order-book .vol-total-label,
-  .order-book .volume-label,
-  .order-book .price-label {
+  .order-book-vertical .time-label,
+  .order-book-vertical .vol-total-label,
+  .order-book-vertical .volume-label,
+  .order-book-vertical .price-label {
     color: white;
     font-size: 1.1em;
     /* background-color: #555555; */
@@ -213,63 +188,65 @@
     text-transform: uppercase;
     border: none;
   }
-  .order-book .ask .price-label {
-    text-align: right;
-  }
-  .order-book .bid .price-label {
+  .order-book-vertical .ask .price-label {
     text-align: left;
   }
-  .order-book .ask {
-    padding: 2px 5px;
-    color: #ff2e2e;
+  .order-book-vertical .bid .price-label {
+    text-align: left;
   }
-  .order-book .bid {
-    padding: 2px 5px;
-    color: #b5ff83;
-  }
+  .order-book-vertical .ask span,
+  .order-book-vertical .bid span,
   .order-book .ask span,
   .order-book .bid span {
     display: inline-block;
     min-width: 78px;
   }
+  .order-book-vertical .ask .ask-price,
   .order-book .ask .ask-price {
     color: #ff0000;
     text-shadow: none;
     font-size: 1.1em;
   }
+  .order-book-vertical .bid .bid-price,
   .order-book .bid .bid-price {
     color: greenyellow;
     text-shadow: none;
     font-size: 1.1em;
   }
-  .order-book .ask .time {
+  .order-book-vertical .ask .time {
     text-align: left;
     color: white;
   }
-  .order-book .bid .time {
-    text-align: right;
+  .order-book-vertical .bid .time {
+    text-align: left;
     color: white;
   }
+  .order-book-vertical .ask .ask-price,
   .order-book .ask .ask-price {
-    text-align: right;
+    text-align: left;
   }
+  .order-book-vertical .bid .bid-price,
   .order-book .bid .bid-price {
     text-align: left;
   }
+  .order-book-vertical .ask .volume,
   .order-book .ask .volume {
     text-align: left;
   }
+  .order-book-vertical .bid .volume,
   .order-book .bid .volume {
-    text-align: right;
+    text-align: left;
   }
+  .order-book-vertical .ask .vol-total,
   .order-book .ask .vol-total {
     text-align: left;
   }
+  .order-book-vertical .bid .vol-total,
   .order-book .bid .vol-total {
-    text-align: right;
+    text-align: left;
   }
-  .order-book .ask-label,
-  .order-book .bid-label {
+  .order-book-vertical .ask-label,
+  .order-book-vertical .bid-label {
     padding: 5px 0;
   }
   #ask-realtime,
@@ -280,35 +257,43 @@
   }
 
   .order-book-block .tick {
-    padding: 2px;
-    background-color: #1c1c1c;
-    display: block;
+    /* padding: 2px; */
+    background-color: #212121;
+    border-bottom: 2px solid #181818;
+    padding: 10px;
+    height: 45px;
   }
   .order-book-block .tick #current-price {
     text-align: left;
-    font-size: 1.5em;
+    font-size: 2em;
     padding: 5px;
     border-radius: 10px;
     float: left;
   }
+  .order-book-vertical #current-price {
+    text-align: center;
+    font-size: 1.8em;
+    padding: 5px;
+    background-color: #1b1b1b;
+    border: 1px solid #141414;
+  }
   .order-book-block .tick #current-infos {
-    margin-left: 20px;
     font-size: 0.9em;
-    margin-top: 5px;
-    float: right;
+    color: #747474;
   }
   .order-book-block .tick #current-volume {
     text-align: left;
     align-items: flex-end;
   }
   .order-book-block .tick #current-spread {
-    text-align: left;
+    float: right;
+    text-align: right;
     align-items: flex-end;
   }
   .order-book-block .tick #current-volume span.label,
   .order-book-block .tick #current-spread span.label {
-    color: #cecece;
-    font-weight: normal;
+    color: #747474;
+    font-weight: bold;
   }
 
   :global(.price-down) {

@@ -97,7 +97,7 @@
       "nextCandle": "Next"
     },
     "book": {
-      "totalVolume": "Volume total",
+      "totalVolume": "Vol",
       "spread": "Spread",
       "time": "Temps",
       "volume": "Volume",
@@ -345,7 +345,7 @@
       "price": "Prix",
       "lastTrade": "Dernier(s) trade(s)",
       "limit": "Limite",
-      "market": "Marché",
+      "market": "Marche",
       "priceAsk": "de vente",
       "priceBid": "d'achat",
       "volume": "Volume",
