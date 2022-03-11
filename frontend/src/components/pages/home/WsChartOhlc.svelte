@@ -285,7 +285,7 @@
         candleCount = 0;
       }
 
-      lastCandle = candle;
+      lastCandle = $ohlcchart[$ohlcchart.length - 1];
     } catch (error) {
       console.error(error);
     }
@@ -784,7 +784,7 @@
   const changeChartInterval = async () => {
     $ohlcchart = false;
     let newSeries = await getChartHistoryDatas();
-    candleSeries.setData(newSeries);
+    if (newSeries) candleSeries.setData(newSeries);
   };
 
   /**
@@ -914,7 +914,7 @@
       else markers_positions = [];
 
       markers = [...markers_orders, ...markers_positions, ...highLowMarkers];
-      if (typeof candleSeries !== "undefined" && isMounted)
+      if (typeof candleSeries !== "undefined" && isMounted && markers)
         candleSeries.setMarkers(markers);
     } else {
       if (typeof candleSeries !== "undefined" && isMounted)
@@ -965,6 +965,10 @@
 </script>
 
 <div class="chartctrl-block clearfix">
+  <div class="chart-title">
+    <span class="chart-exchange">KRAKEN</span>
+    <span class="chart-asset">{$assetpair.wsname}</span>
+  </div>
   <input
     type="checkbox"
     name="active-tooltip"
@@ -1070,6 +1074,14 @@
         <HistogramSeries data={$volumechart} {...HistogramSeriesOpts} />
       {/if}
     </Chart>
+    <span class="time">
+      {$_("home.chart.nextCandle")} :
+      {#if timeRemaining}
+        {cmtt(timeRemaining)}
+      {:else}
+        {cmtt($interval * 60 * 1000)}
+      {/if}
+    </span>
   {:else}
     <div
       style="width:{chartWidth}px;height:{chartHeight}px;position: relative;"
@@ -1083,14 +1095,6 @@
   {/if}
   <div class="legend">
     {@html legend}
-    <span class="time">
-      {$_("home.chart.nextCandle")} :
-      {#if timeRemaining}
-        {cmtt(timeRemaining)}
-      {:else}
-        {cmtt($interval * 60 * 1000)}
-      {/if}
-    </span>
     <span class="realtrade">
       TRADE: {nbTrades}
     </span>
@@ -1308,7 +1312,7 @@
     position: relative;
     background-color: #212121;
     border: 1px solid #181818;
-    padding: 9px;
+    padding: 10px 10px 2px 10px;
   }
   .chart-block .interval {
     outline: none;
@@ -1320,7 +1324,7 @@
     position: absolute;
     color: #e5e5e5;
     left: 75px;
-    top: 13px;
+    top: 10px;
     z-index: 1;
     font-size: 12px;
     font-weight: bold;
@@ -1328,28 +1332,41 @@
     font-weight: 300;
     width: 98%;
   }
-  .chart-block .legend .time {
+  .chart-block .time {
     position: absolute;
-    color: #997000;
-    right: 140px;
-    top: 0;
+    color: #ffffff;
+    right: 15px;
+    bottom: 5px;
+    z-index: 1;
+    font-size: 0.7em;
+    line-height: 18px;
+  }
+  .chart-block .legend .realtrade {
+    position: absolute;
+    color: #969696;
+    right: 70px;
+    top: 0px;
     z-index: 1;
     font-size: 12px;
     font-weight: bold;
     line-height: 18px;
     font-weight: 300;
   }
-
-  .chart-block .legend .realtrade {
-    position: absolute;
-    color: #007936;
-    right: 70px;
-    top: 0;
-    z-index: 1;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 18px;
-    font-weight: 300;
+  .chart-title {
+    float: left;
+    margin-right: 10px;
+    margin-top: -5px;
+    border-right: 1px solid #000000;
+    padding-right: 10px;
+  }
+  .chart-asset {
+    display: block;
+    font-size: 0.8em;
+  }
+  .chart-exchange {
+    font-size: 0.5em;
+    color: #787878;
+    display: block;
   }
   :global(.ohlc) {
     margin-left: 10px;
