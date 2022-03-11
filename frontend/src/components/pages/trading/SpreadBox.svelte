@@ -5,10 +5,10 @@
 
   let base = $asymbole.hasOwnProperty($assetpair.base)
     ? $asymbole[$assetpair.base].name
-    : $assetpair.base;
+    : $assetpair.wsname.split("/")[0];
   let quote = $asymbole.hasOwnProperty($assetpair.quote)
     ? $asymbole[$assetpair.quote].name
-    : $assetpair.quote;
+    : $assetpair.wsname.split("/")[1];
 
   let tickerdata = false;
   let tradedata = [];
@@ -159,7 +159,7 @@
               {:else if td[3] === "s"}
                 {$_("trading.spreadBox.priceAsk")}
               {/if}:
-              {Number(td[0]).toFixed(decimals)}&nbsp;{$assetpair.quote}
+              {Number(td[0]).toFixed(decimals)}&nbsp;{quote}
             </span>
             <span class="volume"
               >{$_("trading.spreadBox.volume")}: ({td[1]})</span
@@ -167,7 +167,7 @@
             <span class="amount">
               {$_("trading.spreadBox.totalCost")}: {Number(
                 td[1] * td[0]
-              ).toFixed(decimals)}&nbsp;{$assetpair.quote}
+              ).toFixed(decimals)}&nbsp;{quote}
             </span>
           </div>
         {/each}
