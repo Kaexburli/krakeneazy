@@ -56,12 +56,12 @@ pre, code {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #292929; 
+  background: #222222; 
 }
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #222222; 
+  background: #292929; 
 }
 
 /* Handle on hover */
