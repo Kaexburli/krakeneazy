@@ -46,6 +46,8 @@
     ohlcLastItemhistory = null,
     lastCandle = null,
     timeZoneOffset = new Date().getTimezoneOffset() / -60,
+    base = $assetpair.wsname.split("/")[0],
+    quote = $assetpair.wsname.split("/")[1],
     intvalSeconde = $interval * 60,
     isMounted = false,
     pricealert = "0.00",
@@ -1038,7 +1040,7 @@
         {/if}
       </span>
       {parseFloat(currentPrice).toFixed($assetpair.pair_decimals)}
-      {$assetpair.quote}
+      {quote}
     </div>
   {/if}
 </div>
@@ -1312,7 +1314,7 @@
     position: relative;
     background-color: #212121;
     border: 1px solid #181818;
-    padding: 10px 10px 2px 10px;
+    padding: 10px 10px 8px 10px;
   }
   .chart-block .interval {
     outline: none;
