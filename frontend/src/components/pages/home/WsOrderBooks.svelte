@@ -19,8 +19,10 @@
     totalVbid = 0,
     priceway = "",
     pricetmp = 0,
-    quote = $assetpair.quote,
-    decimals = $assetpair.pair_decimals;
+    base = $assetpair.wsname.split("/")[0],
+    quote = $assetpair.wsname.split("/")[1],
+    decimals = $assetpair.pair_decimals,
+    lot_decimals = $assetpair.lot_decimals;
 
   const updatePriceClass = (tick) => {
     if (typeof tick !== "undefined" && tick && tick.hasOwnProperty("a")) {
@@ -66,13 +68,13 @@
   const totalVolAsk = (volume, i) => {
     if (i === 0) totalVask = 0;
     totalVask = Number(Number(volume) + Number(totalVask));
-    return totalVask.toFixed(8);
+    return totalVask.toFixed(lot_decimals);
   };
 
   const totalVolBid = (volume, i) => {
     if (i === 0) totalVbid = 0;
     totalVbid = Number(Number(volume) + Number(totalVbid));
-    return totalVbid.toFixed(8);
+    return totalVbid.toFixed(lot_decimals);
   };
 </script>
 
@@ -99,7 +101,7 @@
         {#each asks as a, i}
           <li class="ask" id="ask-{i}">
             <span class="ask-price">{Number(a[0]).toFixed(decimals)}</span>
-            <span class="volume">{a[1]}</span>
+            <span class="volume">{Number(a[1]).toFixed(lot_decimals)}</span>
             <span class="vol-total">{totalVolAsk(a[1], i)} </span>
           </li>
         {/each}
@@ -113,7 +115,7 @@
         {#each bids as b, i}
           <li class="bid" id="bid-{i}">
             <span class="bid-price">{Number(b[0]).toFixed(decimals)}</span>
-            <span class="volume">{b[1]}</span>
+            <span class="volume">{Number(b[1]).toFixed(lot_decimals)}</span>
             <span class="vol-total">{totalVolBid(b[1], i)}</span>
           </li>
         {/each}
@@ -138,7 +140,7 @@
   .order-book {
     background-color: #212121;
     padding: 2px;
-    color: white;
+    color: #bbbbbb;
     text-shadow: 1px 1px #212121;
     font-size: 0.7em;
     display: block;
@@ -148,11 +150,10 @@
   .order-book-vertical {
     background-color: #212121;
     padding: 2px;
-    color: white;
+    color: #bbbbbb;
     text-shadow: 1px 1px #212121;
     font-size: 0.7em;
     display: block;
-    /* border: 1px solid #181818; */
   }
   .order-book-vertical li {
     background-color: #212121;
@@ -231,19 +232,19 @@
   }
   .order-book-vertical .ask .volume,
   .order-book .ask .volume {
-    text-align: left;
+    text-align: right;
   }
   .order-book-vertical .bid .volume,
   .order-book .bid .volume {
-    text-align: left;
+    text-align: right;
   }
   .order-book-vertical .ask .vol-total,
   .order-book .ask .vol-total {
-    text-align: left;
+    text-align: right;
   }
   .order-book-vertical .bid .vol-total,
   .order-book .bid .vol-total {
-    text-align: left;
+    text-align: right;
   }
   .order-book-vertical .ask-label,
   .order-book-vertical .bid-label {
@@ -257,7 +258,6 @@
   }
 
   .order-book-block .tick {
-    /* padding: 2px; */
     background-color: #212121;
     border-bottom: 2px solid #181818;
     padding: 10px;
@@ -278,7 +278,7 @@
     border: 1px solid #141414;
   }
   .order-book-block .tick #current-infos {
-    font-size: 0.9em;
+    font-size: 0.8em;
     color: #747474;
   }
   .order-book-block .tick #current-volume {
