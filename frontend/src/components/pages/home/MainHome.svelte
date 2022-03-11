@@ -36,7 +36,6 @@
           <Moon size="30" color="#e8e8e8" unit="px" duration="0.5s" />
         </div>
       {/if}
-      {$assetpair.wsname} <span class="exchange"> KRAKEN </span>
     </h1>
     {#if !loading}
       <div class="loader">
@@ -53,11 +52,11 @@
       <div id="BlockOrderBooks">
         <OrderBooksWs on:loading={handleLoading} />
       </div>
-      <div id="SpreadBox">
-        <SpreadBox />
-      </div>
       <div id="BlockTicker">
         <TickerWs on:loading={handleLoading} />
+      </div>
+      <div id="SpreadBox">
+        <SpreadBox />
       </div>
     </div>
   {:else}
@@ -86,12 +85,11 @@
     grid-row: 1;
   }
   #SpreadBox {
-    grid-column: 1 / 7;
+    grid-column: 1 / 8;
     grid-row: 3;
   }
   #BlockTicker {
-    grid-column: 1 / 7;
-    grid-row: 4;
+    grid-row: 1;
   }
   #BlockOrderBooks {
     grid-row: 1;
@@ -99,9 +97,5 @@
   #clockloader {
     float: right;
     margin-top: 3px;
-  }
-  .exchange {
-    font-size: 0.5em;
-    color: #787878;
   }
 </style>
