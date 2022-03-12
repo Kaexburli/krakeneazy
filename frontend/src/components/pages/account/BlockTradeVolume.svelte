@@ -41,9 +41,9 @@
       const res = await ud.getTradeVolume({ pair: $assetpair.altname });
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
-        // setInterval(() => {
-        //   GetTradeVolume();
-        // }, res.timeout);
+        setTimeout(() => {
+          GetTradeVolume();
+        }, res.timeout);
       } else {
         tradevolume = res;
         error = false;

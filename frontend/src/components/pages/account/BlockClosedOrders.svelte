@@ -62,6 +62,9 @@
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
         isLoading = true;
+        setTimeout(() => {
+          GetClosedOrders();
+        }, res.timeout);
       } else {
         let json = {
           data: Object.entries(res.closed),

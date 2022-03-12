@@ -63,6 +63,9 @@
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
+        setTimeout(() => {
+          GetTradesHistory();
+        }, res.timeout);
       } else {
         let json = {
           data: Object.entries(res.trades),

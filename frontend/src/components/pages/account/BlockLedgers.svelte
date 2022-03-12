@@ -72,6 +72,9 @@
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
+        setTimeout(() => {
+          GetLedgers();
+        }, res.timeout);
       } else {
         if (res && typeof res !== "undefined") {
           let json = {

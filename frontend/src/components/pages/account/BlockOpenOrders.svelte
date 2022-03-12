@@ -137,6 +137,9 @@
       const res = await ud.getOpenOrders({ trade: true });
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
+        setTimeout(() => {
+          GetOpenOrders();
+        }, res.timeout);
         isLoading = false;
       } else {
         if (typeof res !== "undefined" && res.hasOwnProperty("open")) {

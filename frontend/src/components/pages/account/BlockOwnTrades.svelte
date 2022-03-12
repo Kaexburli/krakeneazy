@@ -18,8 +18,7 @@
 
   let error = false,
     owntradesdata = false,
-    isLoading = false,
-    unsubscribe = false;
+    isLoading = false;
 
   /**
    * WSOwnTrades
@@ -28,13 +27,6 @@
     owntradesdata = $WSOwnTrades;
     isLoading = true;
   }
-
-  /**
-   * onDestroy
-   *********************/
-  onDestroy(() => {
-    unsubscribe;
-  });
 
   /**
    * Pagination

@@ -21,6 +21,9 @@
       const res = await ud.getBalance();
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
+        setTimeout(() => {
+          GetBalance();
+        }, res.timeout);
       } else {
         balance = res;
         error = false;

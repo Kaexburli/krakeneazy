@@ -75,6 +75,9 @@
 
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
+        setTimeout(() => {
+          GetTradeBalance();
+        }, res.timeout);
       } else {
         tradebalancedata = res;
         error = false;
