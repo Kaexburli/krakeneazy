@@ -8,7 +8,6 @@
   import BlockTradeBalance from "components/pages/account/BlockTradeBalance.svelte";
   import BlockOpenOrders from "components/pages/account/BlockOpenOrders.svelte";
   import BlockClosedOrders from "components/pages/account/BlockClosedOrders.svelte";
-  import BlockOwnTrades from "components/pages/account/BlockOwnTrades.svelte";
   import BlockTradeVolume from "components/pages/account/BlockTradeVolume.svelte";
   import BlockLedgers from "components/pages/account/BlockLedgers.svelte";
   import BlockTradesHistory from "components/pages/account/BlockTradesHistory.svelte";
@@ -24,7 +23,6 @@
     $_("account.tabs.openOrders"),
     $_("account.tabs.closedOrders"),
     $_("account.tabs.transaction"),
-    $_("account.tabs.trades"),
     $_("account.tabs.register"),
   ];
 
@@ -61,8 +59,6 @@
         {:else if active === $_("account.tabs.closedOrders")}
           <BlockClosedOrders />
         {:else if active === $_("account.tabs.transaction")}
-          <BlockOwnTrades />
-        {:else if active === $_("account.tabs.trades")}
           <BlockTradesHistory />
         {:else if active === $_("account.tabs.register")}
           <BlockLedgers />
