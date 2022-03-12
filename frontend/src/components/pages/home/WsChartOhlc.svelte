@@ -123,7 +123,6 @@
    * formatVolumeSeries
    ************************/
   const formatVolumeSeries = () => {
-    console.log("formatVolumeSeries");
     // volumechart
     if ($ohlcchart) {
       let volume_tmp = [];
@@ -146,7 +145,6 @@
    * getChartHistoryDatas
    ************************/
   const getChartHistoryDatas = async () => {
-    console.log("getChartHistoryDatas");
     if (!$online) return false;
 
     try {
@@ -246,7 +244,7 @@
    * updateNoActivity
    ************************/
   const updateNoActivity = () => {
-    console.log("updateNoActivity");
+    if (!lastCandle.endtime) return false;
     let candle = {
       time: lastCandle.endtime,
       endtime: lastCandle.endtime + intvalSeconde,
@@ -276,7 +274,6 @@
    * formatCandelTick
    ************************/
   const formatCandelTick = (tick) => {
-    console.log("formatCandelTick");
     try {
       let candle = ohlcFormat(tick);
       nbTrades = candle.trades;
@@ -804,9 +801,9 @@
    * changeChartInterval
    ************************/
   const changeChartInterval = async () => {
-    console.log("changeChartInterval");
     $ohlcchart = false;
     clearTimeout(clearTimer);
+    clearTimer = null;
     await getChartHistoryDatas();
   };
 
