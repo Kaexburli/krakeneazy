@@ -202,6 +202,9 @@
     border-left: 1px solid #2f2f2f;
     border-right: 1px solid #2f2f2f;
   }
+  .slideBtn:hover {
+    background-color: #303030;
+  }
   .tick-block {
     float: left;
 
