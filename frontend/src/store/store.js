@@ -19,6 +19,7 @@ const asset_replace = {
 
 
 
+export const setResizeChart = writable(false);
 export const candleTimeout = writable(false);
 export const asymbole = writable(asset_replace);
 export const ledgersdata = writable(false);
@@ -95,8 +96,10 @@ page.subscribe(value => {
 
 // Storage interval (STRING)
 const storedInterval = localStorage.getItem("interval") || "60";
+let availableInterval = ['1', '5', '15', '30', '60', '240', '1440', '10080'];
 export const interval = writable(storedInterval);
 interval.subscribe(value => {
+  if (!availableInterval.includes(value)) value = "60"
   localStorage.setItem("interval", (value !== "60") ? value : "60");
 });
 

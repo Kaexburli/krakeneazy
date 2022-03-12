@@ -29,6 +29,7 @@
     volumechart,
     pricealertlist,
     candleTimeout,
+    setResizeChart,
   } from "store/store.js";
 
   let type,
@@ -81,9 +82,9 @@
     markers = [],
     highLowMarkers = [],
     chartConfigInterval = {
-      "1": { offset: 10, spacing: 6 },
-      "5": { offset: 10, spacing: 9 },
-      "15": { offset: 8, spacing: 12 },
+      "1": { offset: 10, spacing: 5 },
+      "5": { offset: 10, spacing: 7 },
+      "15": { offset: 8, spacing: 8 },
       "30": { offset: 8, spacing: 16 },
       "60": { offset: 6, spacing: 16 },
       "240": { offset: 6, spacing: 16 },
@@ -122,6 +123,7 @@
    * formatVolumeSeries
    ************************/
   const formatVolumeSeries = () => {
+    console.log("formatVolumeSeries");
     // volumechart
     if ($ohlcchart) {
       let volume_tmp = [];
@@ -144,6 +146,7 @@
    * getChartHistoryDatas
    ************************/
   const getChartHistoryDatas = async () => {
+    console.log("getChartHistoryDatas");
     if (!$online) return false;
 
     try {
@@ -243,6 +246,7 @@
    * updateNoActivity
    ************************/
   const updateNoActivity = () => {
+    console.log("updateNoActivity");
     let candle = {
       time: lastCandle.endtime,
       endtime: lastCandle.endtime + intvalSeconde,
@@ -272,6 +276,7 @@
    * formatCandelTick
    ************************/
   const formatCandelTick = (tick) => {
+    console.log("formatCandelTick");
     try {
       let candle = ohlcFormat(tick);
       nbTrades = candle.trades;
@@ -783,9 +788,23 @@
   };
 
   /**
+   * resizeChart
+   ************************/
+  const resizeChart = () => {
+    if (!isMounted) return false;
+    let chartblock = document.querySelector(".chart-block");
+    if (chartblock) {
+      chartWidth = chartblock.clientWidth || chartWidth;
+      chartApi.resize(chartWidth, chartHeight);
+      $setResizeChart = false;
+    }
+  };
+
+  /**
    * changeChartInterval
    ************************/
   const changeChartInterval = async () => {
+    console.log("changeChartInterval");
     $ohlcchart = false;
     clearTimeout(clearTimer);
     await getChartHistoryDatas();
@@ -885,15 +904,12 @@
     },
   };
 
+  $: if ($setResizeChart) resizeChart();
+
   $: {
     // Auto resizing chart
     window.addEventListener("resize", () => {
-      if (!isMounted) return false;
-      let chartblock = document.querySelector(".chart-block");
-      if (chartblock) {
-        chartWidth = chartblock.clientWidth || chartWidth;
-        chartApi.resize(chartWidth, chartHeight);
-      }
+      resizeChart();
     });
 
     if ($pricealertlist.hasOwnProperty($assetpair.wsname)) {
@@ -1091,9 +1107,9 @@
       style="width:{chartWidth}px;height:{chartHeight}px;position: relative;"
     >
       <div
-        style="width:300px;height:300px;margin:auto;left:0;right:0;top:0;bottom:0;position:absolute;"
+        style="width:200px;height:300px;margin:auto;left:0;right:0;top:0;bottom:0;position:absolute;"
       >
-        <Jumper size="300" color="#444444" unit="px" duration="1s" />
+        <Jumper size="300" color="#444444" unit="px" duration="0.5s" />
       </div>
     </div>
   {/if}

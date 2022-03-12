@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { createEventDispatcher } from "svelte";
   import { WSTicker } from "store/wsstore.js";
-  import { assetpair } from "store/store.js";
+  import { assetpair, setResizeChart } from "store/store.js";
 
   const dispatch = createEventDispatcher();
 
@@ -10,7 +10,15 @@
     spread,
     base = $assetpair.wsname.split("/")[0],
     quote = $assetpair.wsname.split("/")[1],
-    decimals = $assetpair.pair_decimals;
+    decimals = $assetpair.pair_decimals,
+    toogleBox = "close",
+    slideWay = toogleBox === "open" ? "right" : "left";
+
+  const toogleTicker = () => {
+    toogleBox = toogleBox === "open" ? "close" : "open";
+    slideWay = toogleBox === "open" ? "right" : "left";
+    $setResizeChart = true;
+  };
 
   $: if ($WSTicker) {
     tickerdata = $WSTicker;
@@ -22,7 +30,10 @@
   }
 </script>
 
-<div class="tick-block">
+<div class="slideBtn" on:click={toogleTicker} on:resizeChart>
+  <i class="fa fa-caret-{slideWay}" />
+</div>
+<div class="tick-block {toogleBox}">
   {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
     <div class="tick close-tick">
       <h3>&#x58D;&nbsp;{$_("home.ticker.currentPrice")}</h3>
@@ -176,16 +187,47 @@
 </div>
 
 <style>
+  .slideBtn {
+    font-size: 0.6em;
+    padding: 241px 0;
+    width: 10px;
+    height: 482px;
+    color: #ffffff;
+    background-color: #212121;
+    float: left;
+    text-align: center;
+    vertical-align: middle;
+    margin: 0 auto;
+    cursor: pointer;
+    border-left: 1px solid #2f2f2f;
+    border-right: 1px solid #2f2f2f;
+  }
   .tick-block {
+    float: left;
+
     background-color: #212121;
     border: 1px solid #181818;
 
     display: flex;
     flex-wrap: wrap;
 
-    width: 220px;
+    width: 210px;
     height: 482px;
     overflow: auto;
+  }
+  .tick-block.close {
+    transition: all 0s ease-out;
+    visibility: hidden;
+    opacity: 0;
+    right: -210px;
+    position: absolute;
+  }
+  .tick-block.open {
+    transition: all 0.2s ease-out;
+    visibility: visible;
+    opacity: 1;
+    right: 0;
+    position: relative;
   }
   .tick-block .content {
     color: #bbbbbb;
