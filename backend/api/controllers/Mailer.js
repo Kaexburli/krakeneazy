@@ -30,12 +30,12 @@ export const sendRegisterEmail = async (user) => {
     const replacements = {
       site_name: process.env.SITE_NAME,
       site_url: process.env.FRONTEND_URI,
-      preview_text: "Confirmer votre inscription sur Kurlitrade",
+      preview_text: "Confirmer votre inscription sur krakeneazy",
       line_1: "Confirmer mon email",
       line_2: "Cliquez sur le lien pour valider votre email et finaliser votre inscription.",
       confirm_link: process.env.BACKEND_URI + "/email-confirm/" + confirmationToken,
       btn_label: "Valider mon email",
-      footer: "Vous avez reçu ce message car votre adresse email à été utilisée pour s'incrire sur kurlitrade, si vous n'avez pas fait d'inscription veuillez ne pas tenir compte de cet email!"
+      footer: "Vous avez reçu ce message car votre adresse email à été utilisée pour s'incrire sur krakeneazy, si vous n'avez pas fait d'inscription veuillez ne pas tenir compte de cet email!"
     };
 
     let info = await transporter.sendMail({
@@ -71,7 +71,7 @@ export const sendForgotPasswordEmail = async (user) => {
       line_2: "Pour pouvoir réinitialiser votre mot de passe veuillez cliquer sur le lien suivant:",
       forgot_link: process.env.BACKEND_URI + "/forgot-password-confirm/" + resetPasswordToken,
       btn_label: "Réinitialiser mon mot de passe",
-      footer: "Vous avez reçu ce message car votre adresse email à été utilisée pour faire une demande de réinitialisation de mot de passe sur kurlitrade, si vous n'avez pas fait cette demande veuillez ne pas tenir compte de cet email!"
+      footer: "Vous avez reçu ce message car votre adresse email à été utilisée pour faire une demande de réinitialisation de mot de passe sur krakeneazy, si vous n'avez pas fait cette demande veuillez ne pas tenir compte de cet email!"
     };
 
     let info = await transporter.sendMail({
@@ -107,7 +107,7 @@ export const sendNewPasswordEmail = async (data) => {
       line_2: "Veuillez vous connecter avec ce mot de passe et le modifier une fois connecté.",
       line_3: "Voici votre nouveau mot de passe:",
       newPassword,
-      footer: "Vous avez reçu ce message car votre mot de passe à été réinitialisé sur kurlitrade, si vous n'avez pas fait cette demande veuillez nous contacter et changer votre mot de passe dans les plus bref délais"
+      footer: "Vous avez reçu ce message car votre mot de passe à été réinitialisé sur krakeneazy, si vous n'avez pas fait cette demande veuillez nous contacter et changer votre mot de passe dans les plus bref délais"
     };
 
     let info = await transporter.sendMail({

@@ -36,7 +36,7 @@ export const StatusExport = async (type, id) => {
     // Retourne le résultat
     return res.filter((val) => (
       val.report === type &&
-      val.descr === 'walltrade'
+      val.descr === __env["SITE_NAME"]
     ));
   } catch (error) {
     return { error: error };
@@ -59,7 +59,7 @@ export const AddExport = async (type, starttm) => {
     const ud = new UserData();
     const res = await ud.addExport({
       report: report,
-      description: "walltrade",
+      description: __env["SITE_NAME"],
       starttm: starttm,
     });
 
@@ -189,8 +189,9 @@ export const getListExport = async (ctx, _event) => {
   ));
 
   for (const ex of [...datasTradesNoDeletedNoQueued, ...datasLedgersNoDeletedNoQueued]) {
-
+    const checkFolder = await CheckExportExistFolder(ex.id, ex.report, ctx.userId);
     if (
+      !checkFolder ||
       checkTimeExpired(ex.completedtm, ex.id) ||
       ex.hasOwnProperty('cancel') ||
       ex.flags !== '0'
@@ -199,7 +200,6 @@ export const getListExport = async (ctx, _event) => {
         expiredIds.push(ex.id)
     }
 
-    const checkFolder = await CheckExportExistFolder(ex.id, ex.report, ctx.userId);
     if (!checkFolder) missingFolder.push({ id: ex.id, type: ex.report })
   }
 

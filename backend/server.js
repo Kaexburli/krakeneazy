@@ -62,7 +62,7 @@ fastify
 
 // Declare a route
 fastify.get('/', async (request, reply) => {
-  return { hello: 'KURLITRADE' }
+  return { hello: 'Site under construction' }
 })
 fastify.register(Autoload, {
   dir: './api/routes/'
