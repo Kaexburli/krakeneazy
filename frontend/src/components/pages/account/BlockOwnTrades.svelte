@@ -1,6 +1,5 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onDestroy, onMount } from "svelte";
   import { WSOwnTrades } from "store/wsstore.js";
   import formatDate from "utils/formatDate.js";
   import DataTable, {

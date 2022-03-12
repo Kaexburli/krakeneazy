@@ -2,6 +2,7 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
+  import { WSOwnTrades } from "store/wsstore.js";
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
   import { online, tradeshistorydata, assetpairs } from "store/store.js";
@@ -16,7 +17,7 @@
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
   import LinearProgress from "@smui/linear-progress";
-  import Paper, { Title, Content } from "@smui/paper";
+  import Paper, { Content } from "@smui/paper";
 
   const ud = new UserData();
 
@@ -48,7 +49,7 @@
 
       tradeshistory_store = get__store(tradeshistorydata);
 
-      if (tradeshistory_store) {
+      if (tradeshistory_store.time) {
         let expired =
           parseInt(Date.now() / 1000) - tradeshistory_store.time > life;
         if (!expired) return (tradeshistory = tradeshistory_store.data);
@@ -92,6 +93,18 @@
       console.error("[ERROR]:", error);
     }
   });
+
+  /**
+   * WSOwnTrades
+   *********************/
+  $: if ($WSOwnTrades) {
+    let newData = [];
+    $WSOwnTrades.map((data) =>
+      newData.push([...Object.keys(data), ...Object.values(data)])
+    );
+    tradeshistory = newData;
+    isLoading = true;
+  }
 
   /**
    * Pagination
@@ -188,7 +201,9 @@
               <div class="cost">
                 <span class="block">{trade[1]["cost"]}</span>
                 <span class="currency">
-                  {$assetpairs[trade[1]["pair"]]["wsname"].split("/")[1]}
+                  {$assetpairs[trade[1]["pair"]]
+                    ? $assetpairs[trade[1]["pair"]]["wsname"].split("/")[1]
+                    : trade[1]["pair"].split("/")[1]}
                 </span>
               </div>
             </Cell>
@@ -196,7 +211,9 @@
               <div class="price">
                 <span class="block">{trade[1]["price"]}</span>
                 <span class="currency">
-                  {$assetpairs[trade[1]["pair"]]["wsname"].split("/")[1]}
+                  {$assetpairs[trade[1]["pair"]]
+                    ? $assetpairs[trade[1]["pair"]]["wsname"].split("/")[1]
+                    : trade[1]["pair"].split("/")[1]}
                 </span>
               </div>
             </Cell>
@@ -204,7 +221,9 @@
               <div class="volume">
                 <span class="block">{trade[1]["vol"]}</span>
                 <span class="currency">
-                  {$assetpairs[trade[1]["pair"]]["wsname"].split("/")[1]}
+                  {$assetpairs[trade[1]["pair"]]
+                    ? $assetpairs[trade[1]["pair"]]["wsname"].split("/")[0]
+                    : trade[1]["pair"].split("/")[0]}
                 </span>
               </div>
             </Cell>
