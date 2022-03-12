@@ -72,7 +72,7 @@
         <span class="label">
           {$_("home.ticker.today")} :
         </span>
-        <span class={tickerdata["l"][0] > tickerdata["l"][1] ? "green" : ""}>
+        <span class={tickerdata["l"][0] < tickerdata["l"][1] ? "green" : ""}>
           {Number(tickerdata["l"][0]).toFixed(decimals)}&nbsp;{quote}
         </span>
         <br />
@@ -97,7 +97,7 @@
         <span class="label">
           {$_("home.ticker.last24h")} :
         </span>
-        <span class={tickerdata["h"][0] > tickerdata["h"][1] ? "green" : ""}>
+        <span class={tickerdata["h"][0] < tickerdata["h"][1] ? "green" : ""}>
           {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
         </span>
       </div>
