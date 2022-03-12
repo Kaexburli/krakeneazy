@@ -259,6 +259,7 @@
       if (candle && candleSeries) {
         if (candle.time >= lastCandle.time) {
           candleSeries.update(candle);
+          formatVolumeSeries();
           lastCandle = candle;
         }
       }
@@ -281,6 +282,7 @@
           $ohlcchart = [...$ohlcchart, candle];
           chartApi.timeScale().scrollToRealTime();
           candleSeries.update(candle);
+          formatVolumeSeries();
         }
       } else {
         candelFirst = false;
@@ -785,8 +787,8 @@
    ************************/
   const changeChartInterval = async () => {
     $ohlcchart = false;
-    let newSeries = await getChartHistoryDatas();
-    if (newSeries) candleSeries.setData(newSeries);
+    clearTimeout(clearTimer);
+    await getChartHistoryDatas();
   };
 
   /**
