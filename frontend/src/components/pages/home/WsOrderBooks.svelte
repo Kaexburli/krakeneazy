@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { createEventDispatcher } from "svelte";
-  import { assetpair } from "store/store.js";
+  import { assetpair, depth } from "store/store.js";
   import { WSBook, WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
 
   const dispatch = createEventDispatcher();
@@ -13,8 +13,6 @@
     bid = [],
     bookdata = false,
     tickerdata = false,
-    tradedata = false,
-    spreaddata = false,
     totalVask = 0,
     totalVbid = 0,
     priceway = "",
@@ -51,10 +49,14 @@
     if (data.hasOwnProperty("bid")) {
       bid = data.bid.b[0];
     }
+
+    // A VOIR POUR LE GROUPEMENT
+    // if (($depth = 1000)) {
+    //   asks = asks.filter((d) => parseFloat(d[0]) % 0.5 === 0).slice(0, 10);
+    //   bids = bids.filter((d) => parseFloat(d[0]) % 0.5 === 0).slice(0, 10);
+    // }
   };
 
-  $: if ($WSTrade) tradedata = $WSTrade;
-  $: if ($WSSpread) spreaddata = $WSSpread;
   $: if ($WSTicker) {
     tickerdata = $WSTicker;
     updatePriceClass(tickerdata);
@@ -76,6 +78,15 @@
     totalVbid = Number(Number(volume) + Number(totalVbid));
     return totalVbid.toFixed(lot_decimals);
   };
+
+  // A VOIR POUR LE GROUPEMENT
+  const setDepthBook = (sens) => {
+    if (sens === "plus") {
+      $depth = 1000;
+    } else if (sens === "minus") {
+      $depth = 10;
+    }
+  };
 </script>
 
 <div class="order-book-block">
@@ -92,6 +103,20 @@
             {$_("home.book.spread")} :
           </span>{spread_calcul}
         </span>
+        <div id="depth-select">
+          <button
+            class="minusBtn"
+            on:click|preventDefault={() => setDepthBook("minus")}
+          >
+            <i class="fa fa-minus" />
+          </button>
+          <button
+            class="plusBtn"
+            on:click|preventDefault={() => setDepthBook("plus")}
+          >
+            <i class="fa fa-plus" />
+          </button>
+        </div>
       </div>
     </div>
   {/if}
@@ -260,7 +285,7 @@
   .order-book-block .tick {
     background-color: #212121;
     border-bottom: 2px solid #181818;
-    padding: 10px;
+    padding: 15px 10px;
     height: 45px;
   }
   .order-book-block .tick #current-price {
@@ -278,7 +303,7 @@
     border: 1px solid #141414;
   }
   .order-book-block .tick #current-infos {
-    font-size: 0.8em;
+    font-size: 0.7em;
     color: #747474;
   }
   .order-book-block .tick #current-volume {
@@ -286,9 +311,26 @@
     align-items: flex-end;
   }
   .order-book-block .tick #current-spread {
-    float: right;
     text-align: right;
     align-items: flex-end;
+    margin-left: 5px;
+  }
+  .order-book-block .tick #depth-select {
+    float: right;
+  }
+  .order-book-block .tick #depth-select button.plusBtn,
+  .order-book-block .tick #depth-select button.minusBtn {
+    font-size: 0.9em;
+    border: 1px solid #2b2b2b;
+    padding: 0px 3px;
+    background-color: #2c2c2c;
+    color: #999999;
+    cursor: pointer;
+  }
+  .order-book-block .tick #depth-select button.plusBtn:hover,
+  .order-book-block .tick #depth-select button.minusBtn:hover {
+    background-color: #333333;
+    color: white;
   }
   .order-book-block .tick #current-volume span.label,
   .order-book-block .tick #current-spread span.label {

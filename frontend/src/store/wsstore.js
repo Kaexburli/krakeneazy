@@ -1,10 +1,9 @@
 import { derived } from 'svelte/store';
-import { assetpair, interval, devise, pricealertlist } from "store/store.js";
+import { assetpair, interval, devise, pricealertlist, depth } from "store/store.js";
 import { User } from "store/userStore.js";
 import websocketStore from "svelte-websocket-store";
 const environment = __env["ENVIRONMENT"] === "development" ? true : false
 const server = __env["BACKEND_WS_URI"];
-const depth = 10;
 
 /**
  * Call Ticker Websocket
@@ -89,8 +88,8 @@ export const WSTickerAlert = derived([assetpair, pricealertlist, WSTicker], ([$a
 /**
  * Call Book Websocket
  *************************/
-export const WSBook = derived([assetpair], ([$assetpair], set) => {
-  const book_url = $assetpair ? `${server}/book/${$assetpair.wsname}/${depth}` : false;
+export const WSBook = derived([assetpair, depth], ([$assetpair, $depth], set) => {
+  const book_url = $assetpair ? `${server}/book/${$assetpair.wsname}/${$depth}` : false;
   const book_websocket = websocketStore(book_url);
   const stop = book_websocket.subscribe((tick) => {
     if (tick) {

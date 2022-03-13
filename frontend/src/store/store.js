@@ -22,6 +22,7 @@ const asset_replace = {
 export const setResizeChart = writable(false);
 export const candleTimeout = writable(false);
 export const asymbole = writable(asset_replace);
+export const depth = writable(10);
 export const ledgersdata = writable(false);
 export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
