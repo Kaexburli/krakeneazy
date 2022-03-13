@@ -11,7 +11,7 @@
     base = $assetpair.wsname.split("/")[0],
     quote = $assetpair.wsname.split("/")[1],
     decimals = $assetpair.pair_decimals,
-    toogleBox = "close",
+    toogleBox = "open",
     slideWay = toogleBox === "open" ? "right" : "left";
 
   const toogleTicker = () => {
