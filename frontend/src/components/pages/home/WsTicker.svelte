@@ -83,14 +83,22 @@
         <span class="label">
           {$_("home.ticker.today")} :
         </span>
-        <span class={tickerdata["l"][0] < tickerdata["l"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["l"][0]) < Number(tickerdata["l"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["l"][0]).toFixed(decimals)}&nbsp;{quote}
         </span>
         <br />
         <span class="label">
           {$_("home.ticker.last24h")} :
         </span>
-        <span class={tickerdata["l"][0] > tickerdata["l"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["l"][0]) > Number(tickerdata["l"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["l"][1]).toFixed(decimals)}&nbsp;{quote}
         </span>
       </div>
@@ -101,14 +109,22 @@
         <span class="label">
           {$_("home.ticker.today")} :
         </span>
-        <span class={tickerdata["h"][0] > tickerdata["h"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["h"][0]) > Number(tickerdata["h"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["h"][0]).toFixed(decimals)}&nbsp;{quote}
         </span>
         <br />
         <span class="label">
           {$_("home.ticker.last24h")} :
         </span>
-        <span class={tickerdata["h"][0] < tickerdata["h"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["h"][0]) < Number(tickerdata["h"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
         </span>
       </div>
@@ -119,13 +135,21 @@
         <span class="label">
           {$_("home.ticker.today")} :
         </span>
-        <span class={tickerdata["v"][0] > tickerdata["v"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["v"][0]) > Number(tickerdata["v"][1])
+            ? "green"
+            : ""}
+        >
           {tickerdata["v"][0]}
         </span><br />
         <span class="label">
           {$_("home.ticker.last24h")} :
         </span>
-        <span class={tickerdata["v"][0] < tickerdata["v"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["v"][0]) < Number(tickerdata["v"][1])
+            ? "green"
+            : ""}
+        >
           {tickerdata["v"][1]}
         </span>
       </div>
@@ -136,14 +160,22 @@
         <span class="label">
           {$_("home.ticker.today")} :
         </span>
-        <span class={tickerdata["p"][0] > tickerdata["p"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["p"][0]) > Number(tickerdata["p"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["p"][0]).toFixed(decimals)}&nbsp;{quote}
         </span>
         <br />
         <span class="label">
           {$_("home.ticker.last24h")} :
         </span>
-        <span class={tickerdata["p"][0] < tickerdata["p"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["p"][0]) < Number(tickerdata["p"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["p"][1]).toFixed(decimals)}&nbsp;{quote}
         </span>
       </div>
@@ -154,13 +186,21 @@
         <span class="label">
           {$_("home.ticker.today")} :
         </span>
-        <span class={tickerdata["t"][0] > tickerdata["t"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["t"][0]) > Number(tickerdata["t"][1])
+            ? "green"
+            : ""}
+        >
           {tickerdata["t"][0]}
         </span> <br />
         <span class="label">
           {$_("home.ticker.last24h")} :
         </span>
-        <span class={tickerdata["t"][0] < tickerdata["t"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["t"][0]) < Number(tickerdata["t"][1])
+            ? "green"
+            : ""}
+        >
           {tickerdata["t"][1]}
         </span>
       </div>
@@ -171,14 +211,22 @@
         <span class="label">
           {$_("home.ticker.today")} :
         </span>
-        <span class={tickerdata["o"][0] > tickerdata["h"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["o"][0]) > Number(tickerdata["h"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["o"][0]).toFixed(decimals)}&nbsp;{quote}
         </span>
         <br />
         <span class="label">
           {$_("home.ticker.last24h")} :
         </span>
-        <span class={tickerdata["o"][0] < tickerdata["h"][1] ? "green" : ""}>
+        <span
+          class={Number(tickerdata["o"][0]) < Number(tickerdata["h"][1])
+            ? "green"
+            : ""}
+        >
           {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
         </span>
       </div>
