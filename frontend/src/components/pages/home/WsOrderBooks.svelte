@@ -82,7 +82,7 @@
   // A VOIR POUR LE GROUPEMENT
   const setDepthBook = (sens) => {
     if (sens === "plus") {
-      $depth = 1000;
+      $depth = 10;
     } else if (sens === "minus") {
       $depth = 10;
     }
