@@ -133,7 +133,7 @@ userSchema.methods.generateToken = async function (remember, reset = false) {
     },
     process.env.JWT_STANDARD_SECRET,
     {
-      expiresIn: remember ? '1h' : '15m'
+      expiresIn: remember ? '2h' : '15m'
     }
   );
 

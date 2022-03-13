@@ -11,7 +11,7 @@ import {
   checkIfFolderExist
 } from '../controllers/private/userdata.js'
 
-export default function PrivateAddExportRoute(fastify, options, done) {
+export default function PrivateExportRoute(fastify, options, done) {
 
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
