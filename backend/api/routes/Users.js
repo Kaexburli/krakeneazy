@@ -18,7 +18,7 @@ import {
 } from '../controllers/private/userController.js'
 
 export default function usersRoutes(fastify, options, done) {
-  // Get Api Reset Password
+  // Get Api USER
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
     .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)

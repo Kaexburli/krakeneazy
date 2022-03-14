@@ -9,7 +9,7 @@ const getTicker = async (req, reply) => {
     let response = await api.ticker({ pair: pair })
     reply.send(response)
   } catch (error) {
-    console.log('######################" [ERROR:getTicker]', error)
+    console.error('######################" [ERROR:getTicker]', error)
   }
 }
 
