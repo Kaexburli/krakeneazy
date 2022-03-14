@@ -1,5 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
+  import Fetch from "utils/Runfetch.js";
   import { WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
   import { assetpair, asymbole } from "store/store.js";
 
@@ -10,16 +12,19 @@
     ? $asymbole[$assetpair.quote].name
     : $assetpair.wsname.split("/")[1];
 
-  let tickerdata = { a: [0, 0], b: [0, 0], c: [0, 0] };
-  let tradedata = [];
-  let spreaddata = Array(1).fill([0, 0, 0, 0, 0]);
-  let bid_spread = 0;
-  let ask_spread = 0;
-  let ask_bid_diff;
-  let ask_bid_spread_diff;
-  let spread_calcul = "0.00";
-  let decimals = $assetpair.pair_decimals;
-  let lot_decimals = $assetpair.lot_decimals;
+  let tickerdata = { a: [0, 0], b: [0, 0], c: [0, 0] },
+    tradedata = [],
+    spreaddata = Array(1).fill([0, 0, 0, 0, 0]),
+    bid_spread = 0,
+    ask_spread = 0,
+    ask_bid_diff,
+    ask_bid_spread_diff,
+    spread_calcul = "0.00",
+    decimals = $assetpair.pair_decimals,
+    lot_decimals = $assetpair.lot_decimals,
+    backUrl = __env["BACKEND_URI"],
+    fetchUrl = `${backUrl}/api/trades/${$assetpair.altname}`,
+    last = null;
 
   const formatter = new Intl.DateTimeFormat(navigator.language, {
     hour12: false,
@@ -30,6 +35,20 @@
     minute: "2-digit",
     second: "2-digit",
   });
+
+  const getAssetTrades = async () => {
+    let res = await Fetch({ url: fetchUrl, endpoint: "trades" });
+
+    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      console.error("[ERROR] : " + res.statusCode + " " + res.message);
+      return false;
+    }
+    let pair = Object.keys(res)[0] || false;
+    last = res.last;
+    if (pair) tradedata = res[pair].reverse().slice(0, 50);
+  };
+
+  onMount(() => getAssetTrades());
 
   $: if ($WSTrade) tradedata = [...$WSTrade, ...tradedata];
   $: if ($WSSpread) spreaddata = $WSSpread;
@@ -137,7 +156,7 @@
       </div>
     {/if}
 
-    {#if tradedata && tradedata.length >= 1}
+    {#if tradedata}
       <div class="recent-trade">
         {#each tradedata as td}
           <div class="{td[3]} vol{parseInt(td[1] * td[0]).toString().length}">

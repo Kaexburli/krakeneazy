@@ -5,7 +5,7 @@ const TradesOpts = {
 }
 
 export default function TradesRoute(fastify, options, done) {
-  // Get Api Trades
+  // Get Api Trades 
   fastify.get('/api/trades/:pair', TradesOpts)
 
   done()
