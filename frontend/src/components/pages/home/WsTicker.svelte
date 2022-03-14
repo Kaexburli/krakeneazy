@@ -15,7 +15,7 @@
 
   const toogleTicker = () => {
     $toogleBoxTicker = $toogleBoxTicker === "open" ? "close" : "open";
-    slideWay = toogleBoxTicker === "open" ? "right" : "left";
+    slideWay = $toogleBoxTicker === "open" ? "right" : "left";
     $setResizeChart = true;
   };
 
