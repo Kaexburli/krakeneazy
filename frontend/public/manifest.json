@@ -1,7 +1,7 @@
 {
   "name": "krakeneazy",
   "short_name": "krakeneazy",
-  "description": "Walltrade App for Kraken.com",
+  "description": "Krakeneazy App for Kraken.com",
   "theme_color": "#1b1b1b",
   "background_color": "#101010",
   "display": "standalone",

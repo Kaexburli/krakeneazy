@@ -1,5 +1,5 @@
 // Cache Name
-const CACHE_NAME = "WALLTRADE-V2";
+const CACHE_NAME = "APP_V1";
 // Cache Files
 const FILES_TO_CACHE = [
   "/offline.html",
