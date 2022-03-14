@@ -252,7 +252,7 @@
     padding-bottom: 4px;
     padding-top: 4px;
     padding-left: 5px;
-    background-color: #303030;
+    background-color: #1b1b1b;
     font-size: 0.9em;
   }
   .container-box {
