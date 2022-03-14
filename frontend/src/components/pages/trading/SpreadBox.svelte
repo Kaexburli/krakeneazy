@@ -45,7 +45,7 @@
     }
     let pair = Object.keys(res)[0] || false;
     last = res.last;
-    if (pair) tradedata = res[pair].reverse().slice(0, 50);
+    if (pair) tradedata = res[pair].reverse().slice(0, 100);
   };
 
   onMount(() => getAssetTrades());

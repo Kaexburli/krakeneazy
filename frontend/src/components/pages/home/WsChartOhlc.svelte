@@ -76,6 +76,7 @@
     modulo,
     day,
     nbTrades = 0,
+    nbTradesToday = 0,
     candleCount = -1,
     clearTimer = null,
     candelFirst = true,
@@ -951,6 +952,7 @@
   // Mise a jour de l'affichage du prix
   $: if ($WSTicker) {
     currentPrice = $WSTicker["c"][0];
+    nbTradesToday = $WSTicker["t"][0];
     if (currentPriceOld === 0) currentPriceWay = false;
     else if (parseFloat(currentPrice) > parseFloat(currentPriceOld))
       currentPriceWay = "up";
@@ -1113,7 +1115,8 @@
   <div class="legend">
     {@html legend}
     <span class="realtrade">
-      TRADE: {nbTrades}
+      <strong> TRADES: </strong>
+      {nbTrades}{#if $interval <= 1440}/{nbTradesToday}{/if}
     </span>
   </div>
   <div class="floating-tooltip {type}" />
