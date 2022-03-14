@@ -7,12 +7,12 @@
   const dispatch = createEventDispatcher();
 
   let spread_calcul = "0.0",
-    asks = [],
-    bids = [],
+    asks = Array(10).fill([0, 0, 0]),
+    bids = Array(10).fill([0, 0, 0]),
     ask = [],
     bid = [],
     bookdata = false,
-    tickerdata = false,
+    tickerdata = { c: [0, 0] },
     totalVask = 0,
     totalVbid = 0,
     priceway = "",
@@ -20,7 +20,8 @@
     base = $assetpair.wsname.split("/")[0],
     quote = $assetpair.wsname.split("/")[1],
     decimals = $assetpair.pair_decimals,
-    lot_decimals = $assetpair.lot_decimals;
+    lot_decimals = $assetpair.lot_decimals,
+    errorDisplay = '<span class="error">0.00</span>';
 
   const updatePriceClass = (tick) => {
     if (typeof tick !== "undefined" && tick && tick.hasOwnProperty("a")) {
@@ -125,23 +126,36 @@
       <ul class="asks-section">
         {#each asks as a, i}
           <li class="ask" id="ask-{i}">
-            <span class="ask-price">{Number(a[0]).toFixed(decimals)}</span>
-            <span class="volume">{Number(a[1]).toFixed(lot_decimals)}</span>
-            <span class="vol-total">{totalVolAsk(a[1], i)} </span>
+            <span class="ask-price">
+              {@html Number(a[0]).toFixed(decimals) || errorDisplay}
+            </span>
+            <span class="volume">
+              {@html Number(a[1]).toFixed(lot_decimals) || errorDisplay}
+            </span>
+            <span class="vol-total">
+              {@html totalVolAsk(a[1], i) || errorDisplay}
+            </span>
           </li>
         {/each}
       </ul>
-      {#if tickerdata && tickerdata.hasOwnProperty("a")}
+      {#if tickerdata && tickerdata.hasOwnProperty("c")}
         <div id="current-price" class={priceway}>
-          {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
+          {@html Number(tickerdata["c"][0]).toFixed(decimals) ||
+            errorDisplay}&nbsp;{quote}
         </div>
       {/if}
       <ul class="bids-section">
         {#each bids as b, i}
           <li class="bid" id="bid-{i}">
-            <span class="bid-price">{Number(b[0]).toFixed(decimals)}</span>
-            <span class="volume">{Number(b[1]).toFixed(lot_decimals)}</span>
-            <span class="vol-total">{totalVolBid(b[1], i)}</span>
+            <span class="bid-price">
+              {@html Number(b[0]).toFixed(decimals) || errorDisplay}
+            </span>
+            <span class="volume">
+              {@html Number(b[1]).toFixed(lot_decimals) || errorDisplay}
+            </span>
+            <span class="vol-total">
+              {@html totalVolBid(b[1], i) || errorDisplay}
+            </span>
           </li>
         {/each}
       </ul>
@@ -229,13 +243,13 @@
   }
   .order-book-vertical .ask .ask-price,
   .order-book .ask .ask-price {
-    color: #ff0000;
+    color: #fe1014;
     text-shadow: none;
     font-size: 1.1em;
   }
   .order-book-vertical .bid .bid-price,
   .order-book .bid .bid-price {
-    color: greenyellow;
+    color: #6ddc09;
     text-shadow: none;
     font-size: 1.1em;
   }

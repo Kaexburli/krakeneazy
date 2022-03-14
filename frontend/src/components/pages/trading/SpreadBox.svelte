@@ -10,11 +10,11 @@
     ? $asymbole[$assetpair.quote].name
     : $assetpair.wsname.split("/")[1];
 
-  let tickerdata = false;
+  let tickerdata = { a: [0, 0], b: [0, 0], c: [0, 0] };
   let tradedata = [];
-  let spreaddata = false;
-  let bid_spread;
-  let ask_spread;
+  let spreaddata = Array(1).fill([0, 0, 0, 0, 0]);
+  let bid_spread = 0;
+  let ask_spread = 0;
   let ask_bid_diff;
   let ask_bid_spread_diff;
   let spread_calcul = "0.00";
@@ -37,9 +37,9 @@
 
   $: {
     if (
-      typeof tickerdata !== "undefined" &&
+      tickerdata &&
       tickerdata.hasOwnProperty("c") &&
-      spreaddata !== "undefined" &&
+      spreaddata &&
       spreaddata.length > 0
     ) {
       spread_calcul = (tickerdata["a"][0] - tickerdata["b"][0]).toFixed(
@@ -56,12 +56,7 @@
       let spreadbid = document.querySelector(".spreadbid");
       let spreadask = document.querySelector(".spreadask");
 
-      if (
-        typeof spreadbid !== "undefined" &&
-        typeof spreadask !== "undefined" &&
-        spreadbid !== null &&
-        spreadask !== null
-      ) {
+      if (spreadbid && spreadask && spreadbid !== null && spreadask !== null) {
         spreadbid.style.width = bid_spread + "%";
         spreadask.style.width = ask_spread + "%";
       }
@@ -82,7 +77,7 @@
       <span class="spreadbid" />
       <span class="spread">{spread_calcul}</span>
     </div>
-    {#if typeof spreaddata !== "undefined" && spreaddata.length > 0}
+    {#if spreaddata && spreaddata.length > 0}
       <div class="spread-box right">
         <h5>
           <span class="left"
@@ -115,7 +110,7 @@
       </div>
     {/if}
 
-    {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("c")}
+    {#if tickerdata && tickerdata.hasOwnProperty("c")}
       <div class="ticker-box">
         <h5>
           <span class="left"
@@ -181,7 +176,7 @@
     position: relative;
     width: 100%;
     height: 15px;
-    background-color: #333333;
+    background-color: #292929;
   }
   #jaugespread .spreadbid {
     position: absolute;
@@ -192,14 +187,14 @@
     max-width: 50%;
     width: 0;
     height: 15px;
-    background-color: darkgreen;
+    background-color: #29a329;
     border-right: 1px solid #000000;
-    -webkit-border-top-right-radius: 5px;
-    -webkit-border-bottom-right-radius: 5px;
-    -moz-border-radius-topright: 5px;
-    -moz-border-radius-bottomright: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+    -webkit-border-top-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
   }
   #jaugespread .spreadask {
     position: absolute;
@@ -210,14 +205,14 @@
     width: 0;
     right: 50%;
     height: 15px;
-    background-color: firebrick;
+    background-color: #aa3333;
     border-left: 1px solid #000000;
-    -webkit-border-top-left-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
   }
   #jaugespread .spread {
     position: absolute;
@@ -257,21 +252,20 @@
     padding-bottom: 4px;
     padding-top: 4px;
     padding-left: 5px;
-    background-color: #1b1b1b;
-    border-top: 1px solid #000;
-    font-size: 0.8em;
+    background-color: #303030;
+    font-size: 0.9em;
   }
   .container-box {
     font-size: 0.9em;
-    background-color: #1b1b1b;
-    border: 1px solid #000000;
+    background-color: #212121;
+    border: 1px solid #181818;
+    margin-top: 5px;
   }
   .ticker-box,
   .spread-box {
     text-align: center;
-    padding: 5px;
-    margin-left: 5px;
-    width: 49%;
+    width: 50%;
+    padding: 3px;
     display: inline-block;
   }
   .recent-trade {
@@ -307,14 +301,12 @@
   .ask-tick,
   .ask-spread,
   .s {
-    color: firebrick;
-    border-top: 1px solid #000000;
+    color: #fe1014;
   }
   .bid-tick,
   .bid-spread,
   .b {
-    color: darkgreen;
-    border-top: 1px solid #000000;
+    color: #6ddc09;
   }
 
   .s.vol3 {

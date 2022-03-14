@@ -3,7 +3,9 @@
   import { User } from "store/userStore.js";
   import { slide } from "svelte/transition";
   import { assetpair } from "store/store.js";
+  import SpreadBox from "components/pages/trading/SpreadBox.svelte";
   import TradingOrder from "components/pages/trading/TradingOrder.svelte";
+  import BlockOpenOrders from "components/pages/account/BlockOpenOrders.svelte";
   import Paper, { Content } from "@smui/paper";
 
   const isLogged = User.isLogged();
@@ -13,8 +15,13 @@
   <div id="page-trading" in:slide out:slide>
     {#if $assetpair !== "false" && $assetpair}
       <h1>{$_("trading.title")} {$assetpair.wsname}</h1>
+      <div class="box">
+        <BlockOpenOrders />
+      </div>
       <div class="trading">
+        <h2>{$_("trading.subtitle")}</h2>
         <TradingOrder />
+        <SpreadBox />
       </div>
     {:else}
       <h1>{$_("trading.title")}</h1>
@@ -36,6 +43,9 @@
     background-color: #212121;
     padding: 5px 10px;
     border: 1px solid #2e2e2e;
+  }
+  .box {
+    margin: 10px 0;
   }
   :global(.trading div.block) {
     margin: 5px;

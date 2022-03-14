@@ -336,6 +336,7 @@
   },
   "trading": {
     "title": "Trading",
+    "subtitle": "Place an order",
     "spreadBox": {
       "askTitle": "Sale offer",
       "bidTitle": "Bid offer",
