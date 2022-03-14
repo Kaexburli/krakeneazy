@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { createEventDispatcher } from "svelte";
   import { WSTicker } from "store/wsstore.js";
-  import { assetpair, setResizeChart } from "store/store.js";
+  import { assetpair, toogleBoxTicker, setResizeChart } from "store/store.js";
 
   const dispatch = createEventDispatcher();
 
@@ -11,12 +11,11 @@
     base = $assetpair.wsname.split("/")[0],
     quote = $assetpair.wsname.split("/")[1],
     decimals = $assetpair.pair_decimals,
-    toogleBox = "open",
-    slideWay = toogleBox === "open" ? "right" : "left";
+    slideWay = $toogleBoxTicker === "open" ? "right" : "left";
 
   const toogleTicker = () => {
-    toogleBox = toogleBox === "open" ? "close" : "open";
-    slideWay = toogleBox === "open" ? "right" : "left";
+    $toogleBoxTicker = $toogleBoxTicker === "open" ? "close" : "open";
+    slideWay = toogleBoxTicker === "open" ? "right" : "left";
     $setResizeChart = true;
   };
 
@@ -33,7 +32,7 @@
 <div class="slideBtn" on:click={toogleTicker} on:resizeChart>
   <i class="fa fa-caret-{slideWay}" />
 </div>
-<div class="tick-block {toogleBox}">
+<div class="tick-block {$toogleBoxTicker}">
   {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
     <div class="tick close-tick">
       <h3>&#x58D;&nbsp;{$_("home.ticker.currentPrice")}</h3>
@@ -271,6 +270,7 @@
     transition: all 0s ease-out;
     visibility: hidden;
     opacity: 0;
+    display: none;
     right: -210px;
     position: absolute;
   }

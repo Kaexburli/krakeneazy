@@ -111,6 +111,12 @@ pair.subscribe(value => {
   localStorage.setItem("pair", (value !== "false") ? value : false);
 });
 
+// Storage toogleBoxTicker (STRING)
+const storedToogleBoxTicker = localStorage.getItem("toogleBoxTicker") || 'open';
+export const toogleBoxTicker = writable(storedToogleBoxTicker);
+toogleBoxTicker.subscribe(value => {
+  localStorage.setItem("toogleBoxTicker", (value !== false) ? value : 'open');
+});
 
 
 
