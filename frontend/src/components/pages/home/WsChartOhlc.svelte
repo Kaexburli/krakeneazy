@@ -34,6 +34,7 @@
 
   let type,
     candleSeries,
+    volumeSeries,
     volSeries,
     chartApi,
     activetooltip = false,
@@ -101,6 +102,9 @@
     });
   };
 
+  /**
+   * GetOpenPositions
+   ************************/
   const GetOpenPositions = async () => {
     try {
       if (!$online) {
@@ -121,19 +125,33 @@
   };
 
   /**
+   * formatVolumeSeriesUpdate
+   ************************/
+  const formatVolumeSeriesUpdate = (candle) => {
+    let color =
+      candle.close <= candle.open
+        ? "rgba(223, 0, 18, 0.8)"
+        : "rgba(91, 146, 8, 0.8)";
+    let v = new Object();
+    v = { time: candle.time, value: candle.volume, color };
+    $volumechart = [...$volumechart, v];
+    if (volumeSeries) volumeSeries.update(v);
+  };
+
+  /**
    * formatVolumeSeries
    ************************/
   const formatVolumeSeries = () => {
     // volumechart
     if ($ohlcchart) {
+      // Création d'un objet temporaire
+      let v = new Object();
       let volume_tmp = [];
       Object.values($ohlcchart).map((item) => {
         let color =
           item.close <= item.open
             ? "rgba(223, 0, 18, 0.8)"
             : "rgba(91, 146, 8, 0.8)";
-        // Création d'un objet temporaire
-        let v = new Object();
         v = { time: item.time, value: item.volume, color };
         volume_tmp.push(v);
       });
@@ -262,7 +280,7 @@
       if (candle && candleSeries) {
         if (candle.time >= lastCandle.time) {
           candleSeries.update(candle);
-          formatVolumeSeries();
+          formatVolumeSeriesUpdate(candle);
           lastCandle = candle;
         }
       }
@@ -285,7 +303,8 @@
           $ohlcchart = [...$ohlcchart, candle];
           chartApi.timeScale().scrollToRealTime();
           candleSeries.update(candle);
-          formatVolumeSeries();
+          formatVolumeSeriesUpdate(candle);
+          calculateHighLowPrice();
         }
       } else {
         candelFirst = false;
@@ -1091,7 +1110,11 @@
         {...CandlestickSeriesOpts}
       />
       {#if volumeDisplaying}
-        <HistogramSeries data={$volumechart} {...HistogramSeriesOpts} />
+        <HistogramSeries
+          data={$volumechart}
+          ref={(ref) => (volumeSeries = ref)}
+          {...HistogramSeriesOpts}
+        />
       {/if}
     </Chart>
     <span class="time">
