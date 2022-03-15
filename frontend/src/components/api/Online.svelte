@@ -41,7 +41,7 @@
 
     // Vérification des components
     const krakenComponents = datas.components;
-    if (krakenComponents.length) {
+    if ((krakenComponents || []).length) {
       components = [];
       for (const KKComponent of krakenComponents) {
         if (KKComponent.status !== "operational") {
@@ -58,7 +58,7 @@
 
     // Vérification des incidents
     krakenIncidentsDatas = datas.incidents;
-    if (krakenIncidentsDatas.length) {
+    if ((krakenIncidentsDatas || []).length) {
       krakenIncidents = [];
       for (const incident of krakenIncidentsDatas) {
         const updates = incident.incident_updates;
