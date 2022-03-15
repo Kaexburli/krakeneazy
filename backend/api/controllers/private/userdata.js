@@ -106,6 +106,44 @@ const handleError = (error, func) => {
   }
 }
 
+// checkApiKeyPermissions
+const checkApiKeyPermissions = async (apikeys) => {
+  const apiKraken = initApiKraken([apikeys], true)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
+  const payload = {
+    pair: 'XXBTZUSD',
+    type: "buy",
+    ordertype: 'limit',
+    price: '45000.1',
+    volume: '2.1234',
+    leverage: '2:1',
+    'close[ordertype]': 'stop-loss-limit',
+    'close[price]': '38000',
+    'close[price2]': '36000',
+    validate: true
+  }
+
+  try {
+    const response = {
+      status: await apiKraken.systemStatus(),
+      balance: await apiKraken.balance(),
+      openOrders: await apiKraken.openOrders(),
+      closedOrders: await apiKraken.closedOrders(),
+      ledgers: await apiKraken.ledgers(),
+      tradesHistory: await apiKraken.tradesHistory(),
+      openPositions: await apiKraken.openPositions(),
+      addOrder: await apiKraken.addOrder(payload),
+      exportStatus: await apiKraken.exportStatus({ report: 'trades' }),
+      token: await apiKraken.getWebSocketsToken()
+    }
+
+    return response
+  } catch (error) {
+    return handleError(error, "checkApiKeyPermissions")
+  }
+}
+
 // /SystemStatus
 const getSystemStatus = async (req, reply) => {
 
@@ -686,6 +724,8 @@ const getWsKrakenStatus = async (connection, req, reply) => {
  *  *****************
  */
 export {
+  checkApiKeyPermissions,
+
   // REST MEthod
   getBalance,
   getTradeBalance,

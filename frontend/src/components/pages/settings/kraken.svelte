@@ -4,6 +4,7 @@
   import { User } from "store/userStore.js";
   import { addApiKey, removeApiKey } from "utils/userApi.js";
   import { toast } from "@zerodevx/svelte-toast";
+  import Tooltip, { Wrapper, Content as TooltipContent } from "@smui/tooltip";
 
   import { Moon } from "svelte-loading-spinners";
   import Button, { Label, Icon } from "@smui/button";
@@ -165,7 +166,17 @@
 </script>
 
 <div class="margins mbot">
-  <h4>{$_("settings.kraken.form.title")}</h4>
+  <h4>
+    {$_("settings.kraken.form.title")}
+    <Wrapper>
+      <i id="toogle" class="fas fa-circle-info" />
+      <Tooltip xPos="start">
+        <TooltipContent style="color: #fff;font-size:0.9em;">
+          {$_("settings.kraken.form.info")}
+        </TooltipContent>
+      </Tooltip>
+    </Wrapper>
+  </h4>
 </div>
 <div class="margins mbot">
   <Textfield

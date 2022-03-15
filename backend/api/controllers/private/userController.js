@@ -4,6 +4,7 @@ import UserSettings from '../../models/userSettings';
 import UserKraken from '../../models/userKraken';
 import UserPriceAlerts from '../../models/UserPriceAlerts';
 import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../Mailer.js'
+import { checkApiKeyPermissions } from './userdata.js'
 
 
 export const websocketVerifyJWTCtrl = async (req, reply) => {
@@ -323,14 +324,20 @@ export const addApiKeyCtrl = async (req, reply) => {
       apiKeyPublic: publicKey,
       apiKeyPrivate: privateKey,
       user: req.user._id
-    })
+    });
 
-    const savedApikey = await apikey.save();
-    // save user
-    req.user.apikeys = req.user.apikeys.concat(savedApikey);
-    await req.user.save();
+    const verifyKeys = await checkApiKeyPermissions(apikey);
+    if (verifyKeys.hasOwnProperty('error')) {
+      reply.status(400).send({ ok: false, message: `Your api key return an error : ${verifyKeys.error}` })
+    }
+    else {
+      const savedApikey = await apikey.save();
+      // save user
+      req.user.apikeys = req.user.apikeys.concat(savedApikey);
+      await req.user.save();
 
-    reply.send({ ok: true, id: savedApikey._id });
+      reply.send({ ok: true, id: savedApikey._id });
+    }
   } catch (error) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0] || " apikey ";

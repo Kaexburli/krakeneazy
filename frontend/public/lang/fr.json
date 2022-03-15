@@ -439,6 +439,7 @@
       },
       "form": {
         "title": "Ajouter une clé",
+        "info": "Veuillez cocher toutes les cases disponible pour la clé API excepté le retrait",
         "publickey": "Clé publique",
         "publickeyHelper": "Veuillez ajouter ici la clé publique api généré par kraken",
         "privatekey": "Clé privée",
