@@ -878,8 +878,8 @@
   };
 
   let CandlestickSeriesOpts = {
-    upColor: "#6ddc09",
-    downColor: "#fe1014",
+    upColor: "transparent" || "#6ddc09",
+    downColor: "#fe1014" || "transparent",
     borderDownColor: "#fe1014",
     borderUpColor: "#6ddc09",
     wickDownColor: "#fe1014",
@@ -903,6 +903,7 @@
   };
 
   $: if ($setResizeChart) resizeChart();
+  $: if ($interval) intvalSeconde = $interval * 60;
 
   $: {
     // Auto resizing chart
