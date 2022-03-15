@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { createEventDispatcher } from "svelte";
   import { assetpair, depth } from "store/store.js";
-  import { WSBook, WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
+  import { WSBook, WSTicker } from "store/wsstore.js";
 
   const dispatch = createEventDispatcher();
 
@@ -34,22 +34,124 @@
     }
   };
 
+  const crc32_generate = () => {
+    let table = new Array();
+
+    for (let i = 0; i < 256; i++) {
+      let n = i;
+      for (let j = 8; j > 0; j--) {
+        if ((n & 1) == 1) {
+          n = (n >>> 1) ^ 0xedb88320;
+        } else {
+          n = n >>> 1;
+        }
+      }
+      table[i] = n;
+    }
+
+    return table;
+  };
+
+  const crc32_compute = (str) => {
+    let table = crc32_generate();
+    let crc = 0xffffffff;
+
+    for (let i = 0; i < str.length; i++)
+      crc = (crc >>> 8) ^ table[str.charCodeAt(i) ^ (crc & 0x000000ff)];
+
+    crc = ~crc;
+    crc = crc < 0 ? 0xffffffff + crc + 1 : crc;
+
+    return crc;
+  };
+
+  const orderbook_checksum = (orderbook_json) => {
+    let orderbook_ask = Object.keys(orderbook_json).includes("a")
+      ? orderbook_json["a"]
+      : orderbook_json["as"];
+    let orderbook_bid = Object.keys(orderbook_json).includes("b")
+      ? orderbook_json["b"]
+      : orderbook_json["bs"];
+
+    let checksum_string = "";
+
+    for (let count = 0; count < 10; count++) {
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_ask[count][0].replace(".", ""))
+      );
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_ask[count][1].replace(".", ""))
+      );
+    }
+
+    for (let count = 0; count < 10; count++) {
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_bid[count][0].replace(".", ""))
+      );
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_bid[count][1].replace(".", ""))
+      );
+    }
+
+    const checksum = crc32_compute(checksum_string);
+
+    return checksum;
+  };
+
+  // Updating Orderbook
+  const update_book = (arr, side, data) => {
+    if (data.length > 1) {
+      // If 2 sets of data are received then the first will be deleted and the second will be added
+      let index = arr.findIndex((o) => o[0] == data[0][0]); // Get position of first data
+      arr.splice(index, 1); // Delete data
+      arr.push([data[0], data[1]]); // Insert new data
+    } else {
+      let index = arr.findIndex((o) => o[0] == data[0]);
+      if (index > -1) {
+        // If the index matches a price in the list then it is an update message
+        arr[index] = [data[0], data[1]]; // Update matching position in the book
+      } else {
+        // If the index is -1 then it is a new price that came in
+        arr.push([data[0], data[1]]); // Insert new price
+        sort_book(arr, side); // Sort the book with the new price
+        // arr.splice(10, 1); // Delete the 11th entry
+      }
+    }
+    return sort_book(arr, side); // Sort the order book
+  };
+
+  // Sort Orderbook
+  const sort_book = (arr, side) => {
+    if (side == "bid") {
+      arr.sort((x, y) => parseFloat(y[0]) - parseFloat(x[0]));
+    } else if (side == "ask") {
+      arr.sort((x, y) => parseFloat(x[0]) - parseFloat(y[0]));
+    }
+    return arr;
+  };
+
   // Écoute l'api websocket Order Book
   const getBook = (data) => {
     if (data.hasOwnProperty("snapshot")) {
       asks = data.snapshot.as.reverse();
       bids = data.snapshot.bs;
+      // console.log(orderbook_checksum(data.snapshot));
     }
     if (data.hasOwnProperty("mirror")) {
       asks = data.mirror.as.reverse();
       bids = data.mirror.bs;
+      // console.log(orderbook_checksum(data.mirror));
     }
-    if (data.hasOwnProperty("ask")) {
-      ask = data.ask.a[0].reverse();
-    }
-    if (data.hasOwnProperty("bid")) {
-      bid = data.bid.b[0];
-    }
+    // if (data.hasOwnProperty("ask")) {
+    //   ask = data.ask.a[0];
+    //   // console.log(data.ask.c);
+    //   asks = update_book(asks, "ask", ask).reverse();
+    // }
+    // if (data.hasOwnProperty("bid")) {
+    //   bid = data.bid.b[0];
+    //   // console.log(data.bid.c);
+    //   bids = update_book(bids, "bid", bid);
+    // }
 
     // A VOIR POUR LE GROUPEMENT
     // if (($depth = 1000)) {
@@ -138,7 +240,7 @@
           </li>
         {/each}
       </ul>
-      {#if tickerdata && tickerdata.hasOwnProperty("c")}
+      {#if tickerdata}
         <div id="current-price" class={priceway}>
           {@html Number(tickerdata["c"][0]).toFixed(decimals) ||
             errorDisplay}&nbsp;{quote}
@@ -191,7 +293,7 @@
     padding: 2px;
     color: #bbbbbb;
     text-shadow: 1px 1px #212121;
-    font-size: 0.7em;
+    font-size: 0.8em;
     display: block;
   }
   .order-book-vertical li {
@@ -221,7 +323,7 @@
   .order-book-vertical .volume-label,
   .order-book-vertical .price-label {
     color: white;
-    font-size: 1.1em;
+    font-size: 1em;
     /* background-color: #555555; */
     padding: 2px 5px;
     text-shadow: none;
@@ -240,18 +342,20 @@
   .order-book .bid span {
     display: inline-block;
     min-width: 78px;
+    font-size: 1em;
+    font-family: "iosevka-etoile", monospace;
   }
   .order-book-vertical .ask .ask-price,
   .order-book .ask .ask-price {
     color: #fe1014;
     text-shadow: none;
-    font-size: 1.1em;
+    font-size: 1em;
   }
   .order-book-vertical .bid .bid-price,
   .order-book .bid .bid-price {
     color: #6ddc09;
     text-shadow: none;
-    font-size: 1.1em;
+    font-size: 1em;
   }
   .order-book-vertical .ask .time {
     text-align: left;
@@ -271,19 +375,19 @@
   }
   .order-book-vertical .ask .volume,
   .order-book .ask .volume {
-    text-align: right;
+    text-align: center;
   }
   .order-book-vertical .bid .volume,
   .order-book .bid .volume {
-    text-align: right;
+    text-align: center;
   }
   .order-book-vertical .ask .vol-total,
   .order-book .ask .vol-total {
-    text-align: right;
+    text-align: center;
   }
   .order-book-vertical .bid .vol-total,
   .order-book .bid .vol-total {
-    text-align: right;
+    text-align: center;
   }
   .order-book-vertical .ask-label,
   .order-book-vertical .bid-label {
@@ -308,6 +412,7 @@
     padding: 5px;
     border-radius: 10px;
     float: left;
+    font-family: "iosevka-etoile", monospace;
   }
   .order-book-vertical #current-price {
     text-align: center;
@@ -315,6 +420,7 @@
     padding: 5px;
     background-color: #1b1b1b;
     border: 1px solid #141414;
+    font-family: "iosevka-etoile", monospace;
   }
   .order-book-block .tick #current-infos {
     font-size: 0.7em;
