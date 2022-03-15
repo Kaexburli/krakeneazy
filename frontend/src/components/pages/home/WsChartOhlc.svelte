@@ -344,10 +344,14 @@
    * displayToolTipChart
    ************************/
   const displayToolTipChart = (param) => {
-    let toolTipWidth = 80;
-    let toolTipHeight = 80;
-    let toolTipMargin = 15;
-    let opentooltip, closetooltip, hightooltip, lowtooltip, volumetooltip;
+    let toolTipWidth = 80,
+      toolTipHeight = 80,
+      toolTipMargin = 15,
+      opentooltip,
+      closetooltip,
+      hightooltip,
+      lowtooltip,
+      volumetooltip;
 
     const seriesPriceValues = param.seriesPrices.values();
 
@@ -390,7 +394,7 @@
           : $interval + "M";
 
       let vol = "";
-      if (typeof volumetooltip !== "undefined")
+      if (volumetooltip)
         vol = `<br /><strong>Volume:</strong> ${volumetooltip}`;
 
       toolTip.innerHTML = `<div class="${type}">
