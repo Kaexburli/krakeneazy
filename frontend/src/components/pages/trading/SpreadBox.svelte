@@ -173,16 +173,14 @@
               {:else if td[3] === "s"}
                 {$_("trading.spreadBox.priceAsk")}
               {/if}:
-              <strong>{Number(td[0]).toFixed(decimals)}&nbsp;{quote}</strong>
+              {Number(td[0]).toFixed(decimals)}&nbsp;{quote}
             </span>
             <span class="volume">
-              {$_("trading.spreadBox.volume")}: (<strong>{td[1]}</strong>)
+              {$_("trading.spreadBox.volume")}: ({td[1]})
             </span>
             <span class="amount">
               {$_("trading.spreadBox.totalCost")}:
-              <strong
-                >{Number(td[1] * td[0]).toFixed(decimals)}&nbsp;{quote}</strong
-              >
+              {Number(td[1] * td[0]).toFixed(decimals)}&nbsp;{quote}
             </span>
           </div>
         {/each}
@@ -253,6 +251,7 @@
     left: 5px;
     font-size: 0.7em;
     color: #ffaa00;
+    font-family: "iosevka-etoile", monospace;
   }
   .spreadpercent-right {
     position: absolute;
@@ -261,6 +260,7 @@
     right: 5px;
     font-size: 0.7em;
     color: #ffaa00;
+    font-family: "iosevka-etoile", monospace;
   }
   .little {
     font-size: 0.8em;
@@ -300,11 +300,13 @@
     font-weight: bold; */
     margin-right: 10px;
     float: right;
+    font-family: "iosevka-etoile", monospace;
   }
   .recent-trade .price,
   .recent-trade .volume,
   .recent-trade .amount {
     margin-right: 10px;
+    font-family: "iosevka-etoile", monospace;
   }
   .recent-trade .badge {
     font-size: 0.9em;
