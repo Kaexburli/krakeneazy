@@ -37,12 +37,12 @@
     volumeSeries,
     volSeries,
     chartApi,
-    activetooltip = false,
+    activetooltip = true,
     activeOrders = false,
     activePositions = false,
     crosshairMode = false,
     rightPriceScaleMode = false,
-    volumeDisplaying = false,
+    volumeDisplaying = true,
     markers_orders = [],
     markers_positions = [],
     ohlcLastItemhistory = null,
@@ -84,9 +84,9 @@
     markers = [],
     highLowMarkers = [],
     chartConfigInterval = {
-      "1": { offset: 10, spacing: 5 },
-      "5": { offset: 10, spacing: 7 },
-      "15": { offset: 8, spacing: 8 },
+      "1": { offset: 10, spacing: 3 },
+      "5": { offset: 10, spacing: 5 },
+      "15": { offset: 8, spacing: 16 },
       "30": { offset: 8, spacing: 16 },
       "60": { offset: 6, spacing: 16 },
       "240": { offset: 6, spacing: 16 },
@@ -995,7 +995,7 @@
   $: if ($candleTimeout) {
     $candleTimeout = false;
     clearTimeout(clearTimer);
-    setInterval(() => {
+    clearTimer = setInterval(() => {
       if (!candleCount) updateNoActivity();
       candleCount = 0;
     }, $interval * 60 * 1000);
