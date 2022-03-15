@@ -173,15 +173,16 @@
               {:else if td[3] === "s"}
                 {$_("trading.spreadBox.priceAsk")}
               {/if}:
-              {Number(td[0]).toFixed(decimals)}&nbsp;{quote}
+              <strong>{Number(td[0]).toFixed(decimals)}&nbsp;{quote}</strong>
             </span>
-            <span class="volume"
-              >{$_("trading.spreadBox.volume")}: ({td[1]})</span
-            >
+            <span class="volume">
+              {$_("trading.spreadBox.volume")}: (<strong>{td[1]}</strong>)
+            </span>
             <span class="amount">
-              {$_("trading.spreadBox.totalCost")}: {Number(
-                td[1] * td[0]
-              ).toFixed(decimals)}&nbsp;{quote}
+              {$_("trading.spreadBox.totalCost")}:
+              <strong
+                >{Number(td[1] * td[0]).toFixed(decimals)}&nbsp;{quote}</strong
+              >
             </span>
           </div>
         {/each}
