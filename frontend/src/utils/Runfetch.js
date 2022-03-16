@@ -1,3 +1,4 @@
+import { _ } from "svelte-i18n";
 import { User } from "store/userStore.js";
 import { fetchTimeout } from "store/store.js";
 import checkRateCount from "utils/checkRateCount.js"
@@ -16,6 +17,8 @@ const fetchSvelte = new Fetch()
  *  FETCH METHOD
  *  *****************
  */
+
+const parseJSON = (resp) => (resp.json ? resp.json() : resp);
 
 
 const callApiFetch = async (params) => {
@@ -74,6 +77,7 @@ const callApiFetch = async (params) => {
 
     if (response.hasOwnProperty("error")) {
       errorTimeout = response.timeout
+      if (response.error === "Permission denied") alert($_("runfetch.permissionDenied"))
       console.error(`[HAS ERROR]: ${endpoint} = ${response.error}`)
     }
 

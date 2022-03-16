@@ -451,5 +451,8 @@
   },
   "userData": {
     "errorMessage": "Token was not found for"
+  },
+  "runfetch": {
+    "permissionDenied": "Please configure your api keys to access this feature in your Kraken settings"
   }
 }

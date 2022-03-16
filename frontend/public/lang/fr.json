@@ -451,5 +451,8 @@
   },
   "userData": {
     "errorMessage": "Jeton introuvable pour"
+  },
+  "runfetch": {
+    "permissionDenied": "Veuillez configurer vos clés api pour acceder a cette fonctionnalité dans vos paramètres Kraken"
   }
 }
