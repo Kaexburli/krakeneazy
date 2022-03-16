@@ -312,12 +312,13 @@
       "format": "Format",
       "canceled": "Annuler",
       "deleted": "Supprimer",
-      "initExport": "[{date}] Initialisation de l'export {type}",
-      "waitExport": "En attente de l'export {type}",
+      "wait": "Veuillez patienter, nous procédons à l'export de vos données...",
+      "initExport": "Initialisation de l'export {type}",
+      "waitExport": "Demande d'export {type} envoyé",
       "endExport": "Téléchargement terminé!",
       "extractExport": "Extraction du fichier...",
       "endExtractExport": "Extraction du fichier {filename} terminé!",
-      "downloadExport": "Téléchargement de l'export {id} en cours",
+      "downloadExport": "Génération de l'export {id} en cours",
       "apiError": "L'API Kraken ne répond pas correctement",
       "addError": "La demande d'exportation n'a pas été effectuée correctement!"
     }

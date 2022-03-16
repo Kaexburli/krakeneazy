@@ -56,7 +56,6 @@
   const addExport = (_ctx, event) => {
     message = $_("reports.export.initExport", {
       values: {
-        date: new Date().toLocaleString(),
         type: `<strong>${event.data.type}</strong><br />`,
       },
     });
@@ -77,11 +76,12 @@
       }
 
       if (res.id) {
-        message += $_("reports.export.waitExport", {
-          values: {
-            type: `<strong>${event.data.type}</strong><br />`,
-          },
-        });
+        message +=
+          $_("reports.export.waitExport", {
+            values: {
+              type: `<strong>${event.data.type}</strong>`,
+            },
+          }) + "<br />";
 
         return callback({
           type: "ADDED",
@@ -125,7 +125,6 @@
    */
   const retreiveExport = (ctx, event) => {
     message += `<br />${$_("reports.export.endExport")}<br />`;
-    progressBar = false;
     return async (callback, _onEvent) => {
       message += `${$_("reports.export.extractExport")}<br />`;
       const retreive = await RetreiveExport(
@@ -175,8 +174,6 @@
       if (message) message += string;
       else message = string;
     } else message += Array(ctx.count).join(".");
-
-    progressBar = true;
     ctx.count++;
   };
 
@@ -232,24 +229,30 @@
         ? true
         : false;
     datas = $state.context.data;
+
+    progressBar = !datas.length ? false : true;
   }
 </script>
 
+{#if !progressBar}
+  <div class="box">
+    <LinearProgress indeterminate bind:closed={progressBar} />
+    <pre class="console">
+      {#if isQueued}
+        {#if message}
+          {@html message}
+        {:else}
+          {$_("reports.export.wait")}
+        {/if}
+      {:else}
+        {$_("reports.export.wait")}
+      {/if}
+  </pre>
+  </div>
+{/if}
+
 {#if isError}
   <span class="error">{$_("reports.export.error")}: {errorMsg}</span>
-{/if}
-
-{#if isQueued}
-  <pre class="console">
-    {#if message}{@html message}{/if}
-    {#if progressBar}
-      <LinearProgress indeterminate />
-    {/if}
-    </pre>
-{/if}
-
-{#if isLoading && !isQueued}
-  <LinearProgress indeterminate />
 {/if}
 
 {#if datas.length >= 1}

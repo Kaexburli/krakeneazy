@@ -312,12 +312,13 @@
       "format": "Format",
       "canceled": "Canceled",
       "deleted": "Deleted",
-      "initExport": "[{date}] Export initialization {type}",
-      "waitExport": "Waiting for export {type}",
+      "wait": "Please wait, we are exporting your data...",
+      "initExport": "Export initialization {type}",
+      "waitExport": "Export request {type} sent",
       "endExport": "Download complete!",
       "extractExport": "Extracting the file...",
       "endExtractExport": "Extracting the file {filename} complete!",
-      "downloadExport": "Export Download {id} in progress",
+      "downloadExport": "Generate Export {id} in progress",
       "apiError": "Kraken API not responding properly",
       "addError": "The export request was not made correctly!"
     }
