@@ -145,7 +145,7 @@ const checkApiKeyPermissions = async (apikeys) => {
 }
 
 // /SystemStatus
-const getSystemStatus = async (req, reply) => {
+const getSystemStatus = async (req, _reply) => {
 
   const apiKraken = initApiKraken()
   if (!apiKraken) return { error: true, message: "API Key error!" };
@@ -159,7 +159,7 @@ const getSystemStatus = async (req, reply) => {
 }
 
 // /private/Balance
-const getBalance = async (req, reply) => {
+const getBalance = async (req, _reply) => {
 
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
@@ -174,7 +174,7 @@ const getBalance = async (req, reply) => {
 }
 
 // /private/TradeBalance
-const getTradeBalance = async (req, reply) => {
+const getTradeBalance = async (req, _reply) => {
 
   const { asset } = req.params
 
@@ -191,7 +191,7 @@ const getTradeBalance = async (req, reply) => {
 }
 
 // /private/OpenOrders
-const getOpenOrders = async (req, reply) => {
+const getOpenOrders = async (req, _reply) => {
 
   const { trades, userref } = req.params
 
@@ -217,7 +217,7 @@ const getOpenOrders = async (req, reply) => {
 }
 
 // /private/ClosedOrders
-const getClosedOrders = async (req, reply) => {
+const getClosedOrders = async (req, _reply) => {
 
   const { trades, ofs, start, end, userref, closetime } = req.params
 
@@ -243,7 +243,7 @@ const getClosedOrders = async (req, reply) => {
 }
 
 // /private/TradeVolume
-const getTradeVolume = async (req, reply) => {
+const getTradeVolume = async (req, _reply) => {
 
   const { pair } = req.params
 
@@ -264,7 +264,7 @@ const getTradeVolume = async (req, reply) => {
 }
 
 // /private/Ledgers
-const getLedgers = async (req, reply) => {
+const getLedgers = async (req, _reply) => {
 
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
@@ -279,7 +279,7 @@ const getLedgers = async (req, reply) => {
 }
 
 // /private/TradesHistory
-const getTradesHistory = async (req, reply) => {
+const getTradesHistory = async (req, _reply) => {
 
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
@@ -295,7 +295,7 @@ const getTradesHistory = async (req, reply) => {
 }
 
 // /private/OpenPositions
-const getOpenPositions = async (req, reply) => {
+const getOpenPositions = async (req, _reply) => {
 
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
@@ -310,7 +310,7 @@ const getOpenPositions = async (req, reply) => {
 }
 
 // /private/AddExport
-const addExport = async (req, reply) => {
+const addExport = async (req, _reply) => {
 
   const { report, description, starttm } = req.params
 
@@ -327,7 +327,7 @@ const addExport = async (req, reply) => {
 }
 
 // /private/statusExport
-const statusExport = async (req, reply) => {
+const statusExport = async (req, _reply) => {
 
   const { report } = req.params
 
@@ -344,7 +344,7 @@ const statusExport = async (req, reply) => {
 }
 
 // /private/retrieveExport
-const retrieveExport = async (req, reply) => {
+const retrieveExport = async (req, _reply) => {
   const { id, type, userId } = req.params
 
   const { apikeys } = req.user || false;
@@ -386,7 +386,7 @@ const retrieveExport = async (req, reply) => {
 }
 
 // /private/rmOldExport
-const rmOldExport = async (req, reply) => {
+const rmOldExport = async (req, _reply) => {
 
   const { id, userId } = req.params
 
@@ -406,7 +406,7 @@ const rmOldExport = async (req, reply) => {
 }
 
 // /private/readExport
-const readExport = async (req, reply) => {
+const readExport = async (req, _reply) => {
 
   const { id, type, userId } = req.params
   try {
@@ -425,7 +425,7 @@ const readExport = async (req, reply) => {
 }
 
 // Verifie que le dossier de destination existe
-const checkIfFolderExist = async (req, reply) => {
+const checkIfFolderExist = async (req, _reply) => {
   const { id, type, userId } = req.params
   const destPath = `${__base}/${userId}/${id}/${type}.csv`
   return existsSync(destPath)
@@ -447,7 +447,7 @@ const extractZip = async (source, target) => {
  */
 
 // /private/OpenOrders
-const getWsOpenOrders = async (connection, req, reply) => {
+const getWsOpenOrders = async (connection, req, _reply) => {
 
 
   const { apikeys } = req.user || false;
@@ -485,7 +485,7 @@ const getWsOpenOrders = async (connection, req, reply) => {
 }
 
 // /private/OwnTrades
-const getWsOwnTrades = async (connection, req, reply) => {
+const getWsOwnTrades = async (connection, req, _reply) => {
 
 
   const { apikeys } = req.user || false;
@@ -653,7 +653,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
 }
 
 // /getWsKrakenStatus WS
-const getWsKrakenStatus = async (connection, req, reply) => {
+const getWsKrakenStatus = async (connection, _req, _reply) => {
 
   let timer = null,
     interval = 10000;
@@ -735,6 +735,7 @@ export {
   getLedgers,
   getTradesHistory,
   getOpenPositions,
+  AddOrder,
   addExport,
   statusExport,
   retrieveExport,
