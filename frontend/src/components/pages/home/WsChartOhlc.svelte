@@ -68,7 +68,7 @@
     openpositions = false,
     currentPriceWay,
     currentPriceOld = 0,
-    currentPrice = false,
+    currentPrice = 0,
     timeRemaining,
     current_second,
     current_minute,
@@ -84,8 +84,8 @@
     markers = [],
     highLowMarkers = [],
     chartConfigInterval = {
-      "1": { offset: 10, spacing: 3 },
-      "5": { offset: 10, spacing: 5 },
+      "1": { offset: 10, spacing: 2 },
+      "5": { offset: 10, spacing: 7 },
       "15": { offset: 8, spacing: 16 },
       "30": { offset: 8, spacing: 16 },
       "60": { offset: 6, spacing: 16 },
@@ -975,8 +975,8 @@
 
   // Mise a jour de l'affichage du prix
   $: if ($WSTicker) {
-    currentPrice = $WSTicker["c"][0];
-    nbTradesToday = $WSTicker["t"][0];
+    currentPrice = $WSTicker["c"][0] || 0;
+    nbTradesToday = $WSTicker["t"][0] || 0;
     if (currentPriceOld === 0) currentPriceWay = false;
     else if (parseFloat(currentPrice) > parseFloat(currentPriceOld))
       currentPriceWay = "up";
