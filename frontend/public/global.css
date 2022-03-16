@@ -13,6 +13,7 @@
 
 body {
   background-color: #1e1e1e;
+  overflow: hidden;
 }
 
 /* body.active .layout .header, 
@@ -25,9 +26,13 @@ body.active .layout .footer {
 
 body.active .layout .main
 {
+  margin-top: 0px;
   margin-left: 70px;
-  margin-right: 100px;
-  width: 94%;
+  margin-right: 10px;
+  padding-bottom: 50px;
+  overflow: auto;
+  height: 750px;
+  width: auto;
 }
 body.active .layout .header .top_navbar {
 	padding:15px;
@@ -56,17 +61,23 @@ pre, code {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #222222; 
+  background: #222222;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #292929; 
+  background: #1a1a1a;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #131313; 
+  background: #414141;
 }
 
 /* Felx Table */ 

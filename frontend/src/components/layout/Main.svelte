@@ -385,7 +385,7 @@
     width: calc(100% - 175px);
     margin-left: 175px;
     transition: all 0.5s ease;
-    padding: 60px 10px;
+    padding: 60px 5px 10px 5px;
     width: auto;
     min-height: 100%;
     flex: 1 0 auto;
