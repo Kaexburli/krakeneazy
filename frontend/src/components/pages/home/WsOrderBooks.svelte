@@ -7,24 +7,29 @@
   const dispatch = createEventDispatcher();
 
   let spread_calcul = "0.0",
-    asks = Array(10).fill([0, 0, 0]),
-    bids = Array(10).fill([0, 0, 0]),
+    bookNbItem = 15,
+    order_book = {
+      as: Array(bookNbItem).fill([0, 0, 0, 0]),
+      bs: Array(bookNbItem).fill([0, 0, 0, 0]),
+    },
+    asks = Array(bookNbItem).fill([0, 0, 0, 0]),
+    bids = Array(bookNbItem).fill([0, 0, 0, 0]),
     ask = [],
     bid = [],
     bookdata = false,
     tickerdata = { c: [0, 0] },
-    totalVask = 0,
-    totalVbid = 0,
     priceway = "",
     pricetmp = 0,
-    base = $assetpair.wsname.split("/")[0],
     quote = $assetpair.wsname.split("/")[1],
     decimals = $assetpair.pair_decimals,
     lot_decimals = $assetpair.lot_decimals,
-    errorDisplay = '<span class="error">0.00</span>';
+    errorDisplay = "<span>---</span>";
 
+  /**
+   * updatePriceClass
+   ************************/
   const updatePriceClass = (tick) => {
-    if (typeof tick !== "undefined" && tick && tick.hasOwnProperty("a")) {
+    if (tick) {
       spread_calcul = (tick["a"][0] - tick["b"][0]).toFixed(decimals);
 
       if (tick["c"][0] > pricetmp) priceway = "price-up";
@@ -34,7 +39,10 @@
     }
   };
 
-  const crc32_generate = () => {
+  /**
+   * crc32Generate
+   ************************/
+  const crc32Generate = () => {
     let table = new Array();
 
     for (let i = 0; i < 256; i++) {
@@ -52,8 +60,11 @@
     return table;
   };
 
-  const crc32_compute = (str) => {
-    let table = crc32_generate();
+  /**
+   * crc32Compute
+   ************************/
+  const crc32Compute = (str) => {
+    let table = crc32Generate();
     let crc = 0xffffffff;
 
     for (let i = 0; i < str.length; i++)
@@ -65,17 +76,24 @@
     return crc;
   };
 
-  const orderbook_checksum = (orderbook_json) => {
+  /**
+   * orderbookChecksum
+   ************************/
+  const orderbookChecksum = (orderbook_json) => {
     let orderbook_ask = Object.keys(orderbook_json).includes("a")
       ? orderbook_json["a"]
-      : orderbook_json["as"];
+      : Object.keys(orderbook_json).includes("as")
+      ? orderbook_json["as"]
+      : orderbook_json;
     let orderbook_bid = Object.keys(orderbook_json).includes("b")
       ? orderbook_json["b"]
-      : orderbook_json["bs"];
+      : Object.keys(orderbook_json).includes("bs")
+      ? orderbook_json["bs"]
+      : orderbook_json;
 
     let checksum_string = "";
 
-    for (let count = 0; count < 10; count++) {
+    for (let count = 0; count < 5; count++) {
       checksum_string = checksum_string.concat(
         parseInt(orderbook_ask[count][0].replace(".", ""))
       );
@@ -84,7 +102,7 @@
       );
     }
 
-    for (let count = 0; count < 10; count++) {
+    for (let count = 0; count < 5; count++) {
       checksum_string = checksum_string.concat(
         parseInt(orderbook_bid[count][0].replace(".", ""))
       );
@@ -93,71 +111,103 @@
       );
     }
 
-    const checksum = crc32_compute(checksum_string);
-
-    return checksum;
+    return crc32Compute(checksum_string);
   };
 
-  // Updating Orderbook
-  const update_book = (arr, side, data) => {
-    if (data.length > 1) {
-      // If 2 sets of data are received then the first will be deleted and the second will be added
-      let index = arr.findIndex((o) => o[0] == data[0][0]); // Get position of first data
-      arr.splice(index, 1); // Delete data
-      arr.push([data[0], data[1]]); // Insert new data
-    } else {
-      let index = arr.findIndex((o) => o[0] == data[0]);
-      if (index > -1) {
-        // If the index matches a price in the list then it is an update message
-        arr[index] = [data[0], data[1]]; // Update matching position in the book
+  /**
+   * updateBook
+   ************************/
+  const updateBook = (side, data, checksumOrigine) => {
+    data.forEach((item) => {
+      let index = order_book[side].findIndex((o) => o && o[0] === item[0]);
+      if (index === -1) {
+        // index n'existe pas on l'ajoute
+        order_book[side].push([item[0], item[1], item[2]]);
       } else {
-        // If the index is -1 then it is a new price that came in
-        arr.push([data[0], data[1]]); // Insert new price
-        sort_book(arr, side); // Sort the book with the new price
-        // arr.splice(10, 1); // Delete the 11th entry
+        if (item[1] == 0) {
+          // index existe mais le volume est vide on supprime
+          order_book[side].splice(index, 1);
+        } else {
+          // index existe et le volume change on met à jour
+          order_book[side][index] = [item[0], item[1], item[2]];
+        }
       }
-    }
-    return sort_book(arr, side); // Sort the order book
+    });
+    order_book = sortBook(order_book, side);
+
+    // let checksum = orderbookChecksum(order_book);
+    // console.log(checksum == checksumOrigine, checksum, checksumOrigine);
   };
 
-  // Sort Orderbook
-  const sort_book = (arr, side) => {
-    if (side == "bid") {
-      arr.sort((x, y) => parseFloat(y[0]) - parseFloat(x[0]));
-    } else if (side == "ask") {
-      arr.sort((x, y) => parseFloat(x[0]) - parseFloat(y[0]));
+  /**
+   * sortBook
+   ************************/
+  const sortBook = (arr, side) => {
+    if (side == "bs") {
+      arr[side].sort((x, y) => parseFloat(y[0]) - parseFloat(x[0]));
+    } else if (side == "as") {
+      arr[side].sort((x, y) => parseFloat(x[0]) - parseFloat(y[0]));
     }
     return arr;
   };
 
-  // Écoute l'api websocket Order Book
+  /**
+   * getBook
+   ************************/
   const getBook = (data) => {
     if (data.hasOwnProperty("snapshot")) {
-      asks = data.snapshot.as.reverse();
-      bids = data.snapshot.bs;
-      // console.log(orderbook_checksum(data.snapshot));
+      order_book = data.snapshot;
+    } else if (data.hasOwnProperty("mirror")) {
+      let checksum = orderbookChecksum(order_book);
+    } else if (data.hasOwnProperty("ask")) {
+      ask = data.ask.a || false;
+      if (ask) updateBook("as", ask, data.ask.c);
+    } else if (data.hasOwnProperty("bid")) {
+      bid = data.bid.b || false;
+      if (bid) updateBook("bs", bid, data.bid.c);
     }
-    if (data.hasOwnProperty("mirror")) {
-      asks = data.mirror.as.reverse();
-      bids = data.mirror.bs;
-      // console.log(orderbook_checksum(data.mirror));
-    }
-    // if (data.hasOwnProperty("ask")) {
-    //   ask = data.ask.a[0];
-    //   // console.log(data.ask.c);
-    //   asks = update_book(asks, "ask", ask).reverse();
-    // }
-    // if (data.hasOwnProperty("bid")) {
-    //   bid = data.bid.b[0];
-    //   // console.log(data.bid.c);
-    //   bids = update_book(bids, "bid", bid);
-    // }
+
+    updateBookOrder();
 
     // A VOIR POUR LE GROUPEMENT
     // if (($depth = 1000)) {
     //   asks = asks.filter((d) => parseFloat(d[0]) % 0.5 === 0).slice(0, 10);
     //   bids = bids.filter((d) => parseFloat(d[0]) % 0.5 === 0).slice(0, 10);
     // }
+  };
+
+  /**
+   * updateBookOrder
+   ************************/
+  const updateBookOrder = () => {
+    asks = updateTotal(order_book.as);
+    bids = updateTotal(order_book.bs);
+    asks = asks.slice(0, bookNbItem).reverse();
+    bids = bids.slice(0, bookNbItem);
+  };
+
+  /**
+   * toogleTicker
+   ************************/
+  const updateTotal = (data) => {
+    let total = 0;
+    data.forEach((item, k) => {
+      total = Number(Number(item[1]) + Number(total));
+      item[3] = total;
+    });
+    return data;
+  };
+
+  /**
+   * setDepthBook
+   ************************/
+  // A VOIR POUR LE GROUPEMENT
+  const setDepthBook = (sens) => {
+    if (sens === "plus") {
+      $depth = 10;
+    } else if (sens === "minus") {
+      $depth = 10;
+    }
   };
 
   $: if ($WSTicker) {
@@ -169,31 +219,10 @@
     getBook(bookdata);
     dispatch("loading", { loading: true });
   }
-
-  const totalVolAsk = (volume, i) => {
-    if (i === 0) totalVask = 0;
-    totalVask = Number(Number(volume) + Number(totalVask));
-    return totalVask.toFixed(lot_decimals);
-  };
-
-  const totalVolBid = (volume, i) => {
-    if (i === 0) totalVbid = 0;
-    totalVbid = Number(Number(volume) + Number(totalVbid));
-    return totalVbid.toFixed(lot_decimals);
-  };
-
-  // A VOIR POUR LE GROUPEMENT
-  const setDepthBook = (sens) => {
-    if (sens === "plus") {
-      $depth = 10;
-    } else if (sens === "minus") {
-      $depth = 10;
-    }
-  };
 </script>
 
 <div class="order-book-block">
-  {#if tickerdata && tickerdata.hasOwnProperty("a")}
+  {#if tickerdata}
     <div class="tick close-tick clearfix">
       <div id="current-infos">
         <span id="current-volume">
@@ -229,13 +258,33 @@
         {#each asks as a, i}
           <li class="ask" id="ask-{i}">
             <span class="ask-price">
-              {@html Number(a[0]).toFixed(decimals) || errorDisplay}
+              {#if Number(a[0]) > 0}
+                {@html Number(a[0]).toFixed(decimals) || errorDisplay}
+              {:else}
+                {@html errorDisplay}
+              {/if}
             </span>
             <span class="volume">
-              {@html Number(a[1]).toFixed(lot_decimals) || errorDisplay}
+              {#if Number(a[1]) > 0}
+                {@html `<span style="color:white;font-size:0.9em;">${
+                  String(a[1]).split(".")[0]
+                }</span>.${
+                  String(Number(a[1]).toFixed(lot_decimals)).split(".")[1]
+                }`}
+              {:else}
+                {@html errorDisplay}
+              {/if}
             </span>
             <span class="vol-total">
-              {@html totalVolAsk(a[1], i) || errorDisplay}
+              {#if Number(a[3]) > 0}
+                {@html `${
+                  String(a[3]).split(".")[0]
+                }.<span style="color:white;font-size:0.9em;">${
+                  String(Number(a[3]).toFixed(lot_decimals)).split(".")[1]
+                }</span>`}
+              {:else}
+                {@html errorDisplay}
+              {/if}
             </span>
           </li>
         {/each}
@@ -250,13 +299,33 @@
         {#each bids as b, i}
           <li class="bid" id="bid-{i}">
             <span class="bid-price">
-              {@html Number(b[0]).toFixed(decimals) || errorDisplay}
+              {#if Number(b[0]) > 0}
+                {@html Number(b[0]).toFixed(decimals) || errorDisplay}
+              {:else}
+                {@html errorDisplay}
+              {/if}
             </span>
             <span class="volume">
-              {@html Number(b[1]).toFixed(lot_decimals) || errorDisplay}
+              {#if Number(b[1]) > 0}
+                {@html `<span style="color:white;font-size:0.9em;">${
+                  String(b[1]).split(".")[0]
+                }</span>.${
+                  String(Number(b[1]).toFixed(lot_decimals)).split(".")[1]
+                }`}
+              {:else}
+                {@html errorDisplay}
+              {/if}
             </span>
             <span class="vol-total">
-              {@html totalVolBid(b[1], i) || errorDisplay}
+              {#if Number(b[3]) > 0}
+                {@html `${
+                  String(b[3]).split(".")[0]
+                }.<span style="color:white;font-size:0.9em;">${
+                  String(Number(b[3]).toFixed(lot_decimals)).split(".")[1]
+                }</span>`}
+              {:else}
+                {@html errorDisplay}
+              {/if}
             </span>
           </li>
         {/each}
@@ -298,10 +367,12 @@
   }
   .order-book-vertical li {
     background-color: #212121;
-    padding: 1px;
-    margin-bottom: 1px;
+    padding: 0;
+    margin-bottom: 0;
     margin-left: 5px;
-    margin-top: 1px;
+    margin-top: 0;
+    height: 14px;
+    color: #a8a8a8;
   }
   .order-book-vertical li:hover {
     background-color: #181818;
@@ -393,6 +464,10 @@
   .order-book-vertical .bid-label {
     padding: 5px 0;
   }
+  .order-book-vertical .ask .volume .intiger,
+  .order-book-vertical .bid .volume .intiger {
+    color: white;
+  }
   #ask-realtime,
   #bid-realtime {
     border-top: 1px solid #333333;
@@ -409,7 +484,8 @@
   .order-book-block .tick #current-price {
     text-align: left;
     font-size: 2em;
-    padding: 5px;
+    padding: 2px;
+    margin: 5px 0 3px 0;
     border-radius: 10px;
     float: left;
     font-family: "iosevka-etoile", monospace;
@@ -417,9 +493,10 @@
   .order-book-vertical #current-price {
     text-align: center;
     font-size: 1.8em;
-    padding: 5px;
-    background-color: #1b1b1b;
-    border: 1px solid #141414;
+    padding: 2px;
+    margin: 5px 0 3px 0;
+    background-color: #3c3c3c;
+    border: 1px solid #3b3b3b;
     font-family: "iosevka-etoile", monospace;
   }
   .order-book-block .tick #current-infos {
