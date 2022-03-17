@@ -33,7 +33,7 @@
   <i class="fa fa-caret-{slideWay}" />
 </div>
 <div class="tick-block {$toogleBoxTicker}">
-  {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
+  {#if tickerdata}
     <div class="tick close-tick">
       <h3>&#x58D;&nbsp;{$_("home.ticker.currentPrice")}</h3>
       <div class="content">
@@ -55,7 +55,7 @@
         ).toFixed(decimals)}&nbsp;{quote}
         <br />
         <span class="label">
-          {$_("home.ticker.totalVolume")} :
+          {$_("home.ticker.wholeLotVolume")} :
         </span>{tickerdata["a"][1]} <br />
         <span class="label">
           {$_("home.ticker.lotVolume")} :
@@ -69,7 +69,7 @@
           tickerdata["b"][0]
         ).toFixed(decimals)}&nbsp;{quote} <br />
         <span class="label">
-          {$_("home.ticker.totalVolume")} :
+          {$_("home.ticker.wholeLotVolume")} :
         </span>{tickerdata["b"][1]} <br />
         <span class="label">
           {$_("home.ticker.lotVolume")} :
@@ -97,8 +97,8 @@
           </span>
           <span
             class={Number(tickerdata["l"][0]) > Number(tickerdata["l"][1])
-              ? "low"
-              : "high"}
+              ? "high"
+              : "low"}
           >
             {Number(tickerdata["l"][1]).toFixed(decimals)}&nbsp;{quote}
           </span>
@@ -126,8 +126,8 @@
           </span>
           <span
             class={Number(tickerdata["h"][0]) < Number(tickerdata["h"][1])
-              ? "low"
-              : "high"}
+              ? "high"
+              : "low"}
           >
             {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
           </span>

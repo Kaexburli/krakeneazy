@@ -117,6 +117,7 @@
       "askValue": "Sell offer",
       "bidValue": "Bid to Buy",
       "totalVolume": "Total Volume",
+      "wholeLotVolume": "Whole Volume",
       "lotVolume": "Total Volume",
       "price": "Price",
       "spread": "Spread",
