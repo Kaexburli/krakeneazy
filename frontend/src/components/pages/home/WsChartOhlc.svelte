@@ -68,12 +68,13 @@
     openpositions = false,
     currentPriceWay,
     currentPriceOld = 0,
-    currentPrice = 0,
+    currentPrice = Number(0.0).toFixed($assetpair.pair_decimals),
     timeRemaining,
     current_second,
     current_minute,
     current_hour,
     current_day,
+    num = 0.1,
     modulo,
     day,
     nbTrades = 0,
@@ -848,6 +849,10 @@
     $ohlcchart = false;
   });
 
+  // Calcul du minMove CandelSeries
+  for (let index = 0; index < $assetpair.pair_decimals - 1; index++)
+    num = parseFloat(num / 10).toFixed($assetpair.pair_decimals);
+
   const optionsChart = {
     height: chartHeight,
     layout: {
@@ -870,6 +875,7 @@
       },
     },
     rightPriceScale: {
+      color: "#00ff00",
       borderColor: "rgba(197, 203, 206, 0.8)",
       mode: rightPriceScaleMode
         ? PriceScaleMode.Logarithmic
@@ -901,15 +907,15 @@
   };
 
   let CandlestickSeriesOpts = {
-    upColor: "transparent" || "#6ddc09",
-    downColor: "#fe1014" || "transparent",
+    upColor: "#6ddc09",
+    downColor: "#fe1014",
     borderDownColor: "#fe1014",
     borderUpColor: "#6ddc09",
     wickDownColor: "#fe1014",
     wickUpColor: "#6ddc09",
     priceFormat: {
       precision: $assetpair.pair_decimals,
-      minMove: 0.00000001,
+      minMove: Number(num),
     },
   };
 
@@ -917,10 +923,11 @@
     priceFormat: {
       type: "volume",
     },
+    priceLineVisible: false,
     color: "#26a69a",
     priceScaleId: "",
     scaleMargins: {
-      top: 0.9,
+      top: 0.85,
       bottom: 0,
     },
   };
@@ -1001,6 +1008,7 @@
     }, $interval * 60 * 1000);
   }
 
+  // SetInterval pour l'affichage du temps restant
   setInterval(() => {
     timeRemaining =
       timeRemaining === 0 ? $interval * 60 * 1000 - 1000 : timeRemaining - 1000;
