@@ -62,7 +62,7 @@
     legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
     backUrl = __env["BACKEND_URI"],
     fetchUrl = backUrl + "/api/ohlc",
-    chartHeight = 400,
+    chartHeight = 424,
     chartWidth = 600,
     error = false,
     openpositions = false,

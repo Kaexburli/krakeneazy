@@ -259,7 +259,7 @@
     font-size: 0.6em;
     padding: 241px 0;
     width: 10px;
-    height: 488px;
+    height: 511px;
     color: #ffffff;
     background-color: #212121;
     float: left;
@@ -270,6 +270,7 @@
     border-left: 1px solid #212121;
     border-right: 1px solid #212121;
     border-top: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
   }
   .slideBtn:hover {
     background-color: #303030;
@@ -284,7 +285,7 @@
     flex-wrap: wrap;
 
     width: 210px;
-    height: 488px;
+    height: 511px;
     overflow: auto;
   }
   .tick-block.close {
