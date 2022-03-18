@@ -8,11 +8,13 @@
 
   let tickerdata,
     spread,
-    base = $assetpair.wsname.split("/")[0],
     quote = $assetpair.wsname.split("/")[1],
     decimals = $assetpair.pair_decimals,
     slideWay = $toogleBoxTicker === "open" ? "right" : "left";
 
+  /**
+   * toogleTicker
+   ************************/
   const toogleTicker = () => {
     $toogleBoxTicker = $toogleBoxTicker === "open" ? "close" : "open";
     slideWay = $toogleBoxTicker === "open" ? "right" : "left";
@@ -259,7 +261,7 @@
     font-size: 0.6em;
     padding: 241px 0;
     width: 10px;
-    height: 511px;
+    height: 575px;
     color: #ffffff;
     background-color: #212121;
     float: left;
@@ -285,7 +287,7 @@
     flex-wrap: wrap;
 
     width: 210px;
-    height: 511px;
+    height: 575px;
     overflow: auto;
   }
   .tick-block.close {

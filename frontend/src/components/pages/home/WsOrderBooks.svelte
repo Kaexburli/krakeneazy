@@ -6,8 +6,11 @@
 
   const dispatch = createEventDispatcher();
 
-  let spread_calcul = "0.0",
-    bookNbItem = 15,
+  let pad,
+    spread_calcul = "0.0",
+    bookNbItem = 13,
+    bookMultiplier = 1000,
+    bookDiviser = 10,
     order_book = {
       as: Array(bookNbItem).fill([0, 0, 0, 0]),
       bs: Array(bookNbItem).fill([0, 0, 0, 0]),
@@ -16,6 +19,7 @@
     bids = Array(bookNbItem).fill([0, 0, 0, 0]),
     ask = [],
     bid = [],
+    bookTotal = { as: { total: 0, count: 0 }, bs: { total: 0, count: 0 } },
     bookdata = false,
     tickerdata = { c: [0, 0] },
     priceway = "",
@@ -158,7 +162,7 @@
     if (data.hasOwnProperty("snapshot")) {
       order_book = data.snapshot;
     } else if (data.hasOwnProperty("mirror")) {
-      let checksum = orderbookChecksum(order_book);
+      // let checksum = orderbookChecksum(order_book);
     } else if (data.hasOwnProperty("ask")) {
       ask = data.ask.a || false;
       if (ask) updateBook("as", ask, data.ask.c);
@@ -180,21 +184,28 @@
    * updateBookOrder
    ************************/
   const updateBookOrder = () => {
-    asks = updateTotal(order_book.as);
-    bids = updateTotal(order_book.bs);
+    asks = updateTotal(order_book.as, "as");
+    bids = updateTotal(order_book.bs, "bs");
     asks = asks.slice(0, bookNbItem).reverse();
     bids = bids.slice(0, bookNbItem);
+    // pad = 10 - String(parseInt(asks[0][1])).length;
+    // pad = pad > lot_decimals + 1 ? lot_decimals : 4;
+    pad = lot_decimals;
   };
 
   /**
    * toogleTicker
    ************************/
-  const updateTotal = (data) => {
+  const updateTotal = (data, side) => {
     let total = 0;
-    data.forEach((item, k) => {
+    data.forEach((item) => {
       total = Number(Number(item[1]) + Number(total));
       item[3] = total;
     });
+    bookTotal[side] = {
+      total: parseFloat(total / bookDiviser).toFixed(2),
+      count: data.length,
+    };
     return data;
   };
 
@@ -257,6 +268,11 @@
       <ul class="asks-section">
         {#each asks as a, i}
           <li class="ask" id="ask-{i}">
+            <div
+              class="ask-line"
+              style="width:{(Number(a[3]).toFixed(pad) / bookTotal.as.total) *
+                bookMultiplier}%;"
+            />
             <span class="ask-price">
               {#if Number(a[0]) > 0}
                 {@html Number(a[0]).toFixed(decimals) || errorDisplay}
@@ -268,9 +284,7 @@
               {#if Number(a[1]) > 0}
                 {@html `<span style="color:white;font-size:0.9em;">${
                   String(a[1]).split(".")[0]
-                }</span>.${
-                  String(Number(a[1]).toFixed(lot_decimals)).split(".")[1]
-                }`}
+                }</span>.${String(Number(a[1]).toFixed(pad)).split(".")[1]}`}
               {:else}
                 {@html errorDisplay}
               {/if}
@@ -280,7 +294,7 @@
                 {@html `${
                   String(a[3]).split(".")[0]
                 }.<span style="color:white;font-size:0.9em;">${
-                  String(Number(a[3]).toFixed(lot_decimals)).split(".")[1]
+                  String(Number(a[3]).toFixed(pad)).split(".")[1]
                 }</span>`}
               {:else}
                 {@html errorDisplay}
@@ -298,6 +312,11 @@
       <ul class="bids-section">
         {#each bids as b, i}
           <li class="bid" id="bid-{i}">
+            <div
+              class="bid-line"
+              style="width:{(Number(b[3]).toFixed(pad) / bookTotal.bs.total) *
+                bookMultiplier}%;"
+            />
             <span class="bid-price">
               {#if Number(b[0]) > 0}
                 {@html Number(b[0]).toFixed(decimals) || errorDisplay}
@@ -309,9 +328,7 @@
               {#if Number(b[1]) > 0}
                 {@html `<span style="color:white;font-size:0.9em;">${
                   String(b[1]).split(".")[0]
-                }</span>.${
-                  String(Number(b[1]).toFixed(lot_decimals)).split(".")[1]
-                }`}
+                }</span>.${String(Number(b[1]).toFixed(pad)).split(".")[1]}`}
               {:else}
                 {@html errorDisplay}
               {/if}
@@ -321,7 +338,7 @@
                 {@html `${
                   String(b[3]).split(".")[0]
                 }.<span style="color:white;font-size:0.9em;">${
-                  String(Number(b[3]).toFixed(lot_decimals)).split(".")[1]
+                  String(Number(b[3]).toFixed(pad)).split(".")[1]
                 }</span>`}
               {:else}
                 {@html errorDisplay}
@@ -351,7 +368,6 @@
     background-color: #212121;
     padding: 2px;
     color: #bbbbbb;
-    text-shadow: 1px 1px #212121;
     font-size: 0.7em;
     display: block;
     width: 50%;
@@ -361,17 +377,17 @@
     background-color: #212121;
     padding: 2px;
     color: #bbbbbb;
-    text-shadow: 1px 1px #212121;
     font-size: 0.8em;
     display: block;
   }
   .order-book-vertical li {
+    position: relative;
     background-color: #212121;
     padding: 0;
     margin-bottom: 0;
     margin-left: 5px;
     margin-top: 0;
-    height: 14px;
+    padding-bottom: 1px;
     color: #a8a8a8;
   }
   .order-book-vertical li:hover {
@@ -380,6 +396,7 @@
   .order-book-section {
     border: none;
     margin-left: 5px;
+    overflow: hidden;
   }
   .order-book-section .asks-section,
   .order-book-section .asks-section {
@@ -397,9 +414,26 @@
     font-size: 1em;
     /* background-color: #555555; */
     padding: 2px 5px;
-    text-shadow: none;
     text-transform: uppercase;
     border: none;
+  }
+  .order-book-vertical .ask .ask-line {
+    position: absolute;
+    z-index: 1;
+    background-color: #672324;
+    border: 1px solid #222;
+    top: 0;
+    bottom: 0;
+    right: 0;
+  }
+  .order-book-vertical .bid .bid-line {
+    position: absolute;
+    z-index: 1;
+    background-color: #375d28;
+    border: 1px solid #222;
+    top: 0;
+    bottom: 0;
+    right: 0;
   }
   .order-book-vertical .ask .price-label {
     text-align: left;
@@ -411,6 +445,8 @@
   .order-book-vertical .bid span,
   .order-book .ask span,
   .order-book .bid span {
+    position: relative;
+    z-index: 9;
     display: inline-block;
     min-width: 78px;
     font-size: 1em;
@@ -419,13 +455,11 @@
   .order-book-vertical .ask .ask-price,
   .order-book .ask .ask-price {
     color: #fe1014;
-    text-shadow: none;
     font-size: 1em;
   }
   .order-book-vertical .bid .bid-price,
   .order-book .bid .bid-price {
     color: #6ddc09;
-    text-shadow: none;
     font-size: 1em;
   }
   .order-book-vertical .ask .time {
@@ -446,19 +480,19 @@
   }
   .order-book-vertical .ask .volume,
   .order-book .ask .volume {
-    text-align: center;
+    text-align: right;
   }
   .order-book-vertical .bid .volume,
   .order-book .bid .volume {
-    text-align: center;
+    text-align: right;
   }
   .order-book-vertical .ask .vol-total,
   .order-book .ask .vol-total {
-    text-align: center;
+    text-align: right;
   }
   .order-book-vertical .bid .vol-total,
   .order-book .bid .vol-total {
-    text-align: center;
+    text-align: right;
   }
   .order-book-vertical .ask-label,
   .order-book-vertical .bid-label {
