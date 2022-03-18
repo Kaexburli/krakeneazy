@@ -160,7 +160,7 @@
       <div class="recent-trade">
         {#each tradedata as td}
           <div class="{td[3]} vol{parseInt(td[1] * td[0]).toString().length}">
-            <span class="badge">
+            <span class="badge {td[4]}">
               {#if td[4] === "l"}{$_(
                   "trading.spreadBox.limit"
                 )}{:else if td[4] === "m"}{$_("trading.spreadBox.market")}{/if}
@@ -319,6 +319,12 @@
     text-align: center;
     text-transform: uppercase;
     font-weight: bold;
+  }
+  .recent-trade .badge.l {
+    background-color: ghostwhite;
+  }
+  .recent-trade .badge.m {
+    background-color: grey;
   }
   .ask-tick,
   .ask-spread,
