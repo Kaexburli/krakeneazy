@@ -46,7 +46,7 @@
         <span class="label">
           {$_("home.ticker.totalVolume")} :
         </span>{tickerdata["c"][1]} <br />
-        <span class="label">{$_("home.ticker.spread")} : </span>{spread}
+        <!-- <span class="label">{$_("home.ticker.spread")} : </span>{spread} -->
       </div>
     </div>
     <div class="tick ask-tick">
@@ -56,9 +56,9 @@
           tickerdata["a"][0]
         ).toFixed(decimals)}&nbsp;{quote}
         <br />
-        <span class="label">
+        <!-- <span class="label">
           {$_("home.ticker.wholeLotVolume")} :
-        </span>{tickerdata["a"][1]} <br />
+        </span>{tickerdata["a"][1]} <br /> -->
         <span class="label">
           {$_("home.ticker.lotVolume")} :
         </span>{tickerdata["a"][2]}
@@ -70,9 +70,9 @@
         <span class="label">{$_("home.ticker.bidValue")} : </span>{Number(
           tickerdata["b"][0]
         ).toFixed(decimals)}&nbsp;{quote} <br />
-        <span class="label">
+        <!-- <span class="label">
           {$_("home.ticker.wholeLotVolume")} :
-        </span>{tickerdata["b"][1]} <br />
+        </span>{tickerdata["b"][1]} <br /> -->
         <span class="label">
           {$_("home.ticker.lotVolume")} :
         </span>{tickerdata["b"][2]}
@@ -335,13 +335,12 @@
     width: 50%;
     float: left;
     text-align: center;
-    color: #212121;
-    font-weight: bold;
+    color: #bbbbbb;
   }
   .high {
-    background-color: #29a329;
+    background-color: #375d28;
   }
   .low {
-    background-color: #aa3333;
+    background-color: #672324;
   }
 </style>
