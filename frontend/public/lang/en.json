@@ -101,7 +101,8 @@
       "spread": "Spread",
       "time": "Time",
       "volume": "Volume",
-      "price": "Price"
+      "price": "Price",
+      "group": "Group"
     },
     "ticker": {
       "ask": "Ask",

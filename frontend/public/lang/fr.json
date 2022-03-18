@@ -101,7 +101,8 @@
       "spread": "Spread",
       "time": "Temps",
       "volume": "Volume",
-      "price": "Prix"
+      "price": "Prix",
+      "group": "Grouper"
     },
     "ticker": {
       "ask": "Vente",
@@ -348,7 +349,7 @@
       "price": "Prix",
       "lastTrade": "Dernier(s) trade(s)",
       "limit": "Limite",
-      "market": "Marche",
+      "market": "Market",
       "priceAsk": "de vente",
       "priceBid": "d'achat",
       "volume": "Volume",
@@ -359,7 +360,7 @@
       "buy": "Acheter",
       "sell": "Vendre",
       "type": "Type",
-      "market": "Marché",
+      "market": "Market",
       "limit": "Limite",
       "setPosition": "Régler la position",
       "stopLoss": "Stop loss",

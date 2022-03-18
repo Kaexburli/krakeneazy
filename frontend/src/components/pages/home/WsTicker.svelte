@@ -259,7 +259,7 @@
 <style>
   .slideBtn {
     font-size: 0.6em;
-    padding: 241px 0;
+    padding: 281px 0;
     width: 10px;
     height: 575px;
     color: #ffffff;

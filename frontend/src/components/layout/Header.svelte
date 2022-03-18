@@ -34,7 +34,7 @@
     transition: all 0.5s ease;
 
     position: fixed;
-    z-index: 7;
+    z-index: 10;
     top: 0;
     right: 0;
   }
