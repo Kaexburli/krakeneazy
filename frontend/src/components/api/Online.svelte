@@ -237,7 +237,7 @@
     color: #f15353;
   } */
   #offline {
-    background-color: #270000;
+    background-color: #b30000;
     color: #e9e9e9;
     border: 1px solid #262626;
     display: block;
