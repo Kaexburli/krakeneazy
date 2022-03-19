@@ -344,7 +344,7 @@
               </span>
               <span class="volume">
                 {#if Number(a[1]) > 0}
-                  {@html `<span style="color:white;font-size:0.9em;">${
+                  {@html `<span class="loip">${
                     String(a[1]).split(".")[0]
                   }</span>.${String(Number(a[1]).toFixed(pad)).split(".")[1]}`}
                 {:else}
@@ -353,9 +353,7 @@
               </span>
               <span class="vol-total">
                 {#if Number(a[3]) > 0}
-                  {@html `${
-                    String(a[3]).split(".")[0]
-                  }.<span style="color:white;font-size:0.9em;">${
+                  {@html `${String(a[3]).split(".")[0]}.<span class="loip">${
                     String(Number(a[3]).toFixed(pad)).split(".")[1]
                   }</span>`}
                 {:else}
@@ -390,7 +388,7 @@
               </span>
               <span class="volume">
                 {#if Number(b[1]) > 0}
-                  {@html `<span style="color:white;font-size:0.9em;">${
+                  {@html `<span class="loip">${
                     String(b[1]).split(".")[0]
                   }</span>.${String(Number(b[1]).toFixed(pad)).split(".")[1]}`}
                 {:else}
@@ -399,9 +397,7 @@
               </span>
               <span class="vol-total">
                 {#if Number(b[3]) > 0}
-                  {@html `${
-                    String(b[3]).split(".")[0]
-                  }.<span style="color:white;font-size:0.9em;">${
+                  {@html `${String(b[3]).split(".")[0]}.<span class="loip">${
                     String(Number(b[3]).toFixed(pad)).split(".")[1]
                   }</span>`}
                 {:else}
@@ -417,6 +413,11 @@
 </div>
 
 <style>
+  :global(.loip) {
+    color: white;
+    font-size: 0.9em;
+    font-family: "iosevka-etoile", monospace;
+  }
   .clearfix:after {
     content: "";
     display: block;
