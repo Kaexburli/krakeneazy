@@ -303,6 +303,18 @@ const getOpenPositions = async (req, _reply) => {
 
   try {
     const response = await apiKraken.openPositions({ docalcs: true })
+
+    if (response) {
+      let txids = Object.keys(response)
+      const trades = await apiKraken.queryTrades({ txid: txids, trades: true })
+      if (trades) {
+        for (const id of txids) {
+          response[id]['price'] = trades[id].price
+          response[id]['postxid'] = trades[id].postxid
+        }
+      }
+    }
+
     return response
   } catch (error) {
     return handleError(error, "getOpenPositions")
@@ -656,7 +668,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
 const getWsKrakenStatus = async (connection, _req, _reply) => {
 
   let timer = null,
-    interval = 10000;
+    interval = 60000;
 
   // Strat interval
   const startInterval = () => {

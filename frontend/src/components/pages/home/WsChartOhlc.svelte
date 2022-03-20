@@ -42,6 +42,8 @@
     volumeDisplaying = false,
     markers_orders = [],
     markers_positions = [],
+    price_line_positions = [],
+    price_line_positions_display = [],
     ohlcLastItemhistory = null,
     lastCandle = null,
     timeZoneOffset = new Date().getTimezoneOffset() / -60,
@@ -79,6 +81,7 @@
     candleFirst = true,
     markers = [],
     highLowMarkers = [],
+    changeInterval = false,
     chartConfigInterval = {
       "1": { offset: 10, spacing: 2 },
       "5": { offset: 10, spacing: 7 },
@@ -561,6 +564,7 @@
     const marker_pos_values = Object.values(markers_positions);
     marker_pos_values.forEach((pos) => {
       if ($assetpair.altname === pos.pair) {
+        // Ajout des marqueurs positions
         let color = pos.type === "sell" ? "#ff9d9d" : "#aeff9d";
         let shape = pos.type === "sell" ? "arrowDown" : "arrowUp";
         let position = pos.type === "sell" ? "aboveBar" : "belowBar";
@@ -577,18 +581,30 @@
             "\n" +
             pos.ordertype +
             "@" +
-            parseFloat(pos.net).toFixed($assetpair.lot_decimals),
+            parseFloat(pos.net).toFixed(2),
           size: 1,
         });
+
+        // Ajout des PriceLine positions
+        if (!price_line_positions_display.hasOwnProperty(pos.postxid)) {
+          price_line_positions[pos.postxid] = {
+            postxid: pos.postxid,
+            price: pos.price,
+            type: pos.type,
+            ordertype: pos.ordertype,
+            vol: pos.vol,
+            net: pos.net,
+          };
+        }
       }
     });
 
     // Définit la couleur du label en rouge si aucune positions pour cette pair
     let label = document.getElementById("label-active-positions");
-    if (markers_positions.length === 0) {
+    if (label != null && markers_positions.length === 0) {
       label.style.color = "#cd0000";
       label.style["text-decoration"] = "line-through";
-    } else label.style.color = "#747474";
+    } else if (label != null) label.style.color = "#747474";
   };
 
   /**
@@ -707,6 +723,7 @@
     clearTimeout(clearTimer);
     clearTimer = null;
     await getChartHistoryDatas();
+    changeInterval = true;
   };
 
   /**
@@ -716,6 +733,10 @@
     isMounted = true;
     getChartHistoryDatas();
     GetOpenPositions();
+
+    // Calcul du minMove CandleSeries
+    for (let index = 0; index < $assetpair.pair_decimals - 1; index++)
+      num = parseFloat(num / 10).toFixed($assetpair.pair_decimals);
   });
 
   /**
@@ -725,10 +746,6 @@
     isMounted = false;
     $ohlcchart = false;
   });
-
-  // Calcul du minMove CandleSeries
-  for (let index = 0; index < $assetpair.pair_decimals - 1; index++)
-    num = parseFloat(num / 10).toFixed($assetpair.pair_decimals);
 
   const optionsChart = {
     height: chartHeight,
@@ -834,8 +851,33 @@
       else markers_positions = [];
 
       markers = [...markers_orders, ...markers_positions, ...highLowMarkers];
-      if (typeof candleSeries !== "undefined" && isMounted && markers)
-        candleSeries.setMarkers(markers);
+      if (candleSeries && isMounted) {
+        if (markers) candleSeries.setMarkers(markers);
+
+        if (price_line_positions) {
+          console.log(price_line_positions_display);
+          Object.values(price_line_positions).map((pos) => {
+            if (
+              !price_line_positions_display.hasOwnProperty(pos.postxid) ||
+              changeInterval
+            ) {
+              let priceLine = candleSeries.createPriceLine({
+                price: pos.price,
+                color: pos.type === "buy" ? "green" : "red",
+                lineWidth: 1,
+                axisLabelVisible: true,
+                title: `[${pos.type.toUpperCase()}|${pos.ordertype.toUpperCase()}] ${parseFloat(
+                  pos.vol
+                ).toFixed($assetpair.lot_decimals)}${base} P/L:${parseFloat(
+                  pos.net
+                ).toFixed(2)}${quote} `,
+              });
+              price_line_positions_display[pos.postxid] = priceLine;
+              changeInterval = false;
+            }
+          });
+        }
+      }
     } else {
       if (typeof candleSeries !== "undefined" && isMounted)
         calculateHighLowPrice();
