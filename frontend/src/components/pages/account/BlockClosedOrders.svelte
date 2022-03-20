@@ -196,7 +196,7 @@
               {/if}
             </Cell>
             <Cell
-              style="width:5%;"
+              style="width:5%;padding-right: 0;"
               data-label={$_("account.closedOrders.statut")}
             >
               <span class="badge badge-{order[1]['status']}">

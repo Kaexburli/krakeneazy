@@ -290,7 +290,7 @@
               {el[Object.keys(el)]["cost"]}
             </Cell>
             <Cell
-              style="width:5%;"
+              style="width:5%;padding-right: 0;"
               data-label={$_("account.openOrders.statut")}
             >
               <span class="badge">
