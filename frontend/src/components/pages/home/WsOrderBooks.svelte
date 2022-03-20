@@ -269,9 +269,10 @@
       priceGroupingSelect--;
       priceGroupingSelect = priceGroupingSelect < 0 ? 0 : priceGroupingSelect;
     }
-    priceGrouping = parseFloat(
-      groupRange[priceGroupingSelect] / diviser
-    ).toFixed(decimals);
+    let group = groupRange[priceGroupingSelect];
+    priceGrouping = parseFloat(group / diviser).toFixed(decimals);
+
+    bookMultiplier = group > 2.5 ? 100 : group > 5 ? 10 : 1000;
   };
 
   $: if ($WSTicker) {
@@ -516,7 +517,7 @@
   .order-book .ask span,
   .order-book .bid span {
     position: relative;
-    z-index: 9;
+    z-index: 1;
     display: inline-block;
     min-width: 85px;
     font-size: 1em;
