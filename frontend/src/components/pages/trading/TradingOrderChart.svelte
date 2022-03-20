@@ -119,22 +119,20 @@
     volume = 0;
   };
 
-  const closeHandler = (e) => {
+  const closeOrderDialogHandler = () => {
+    openOrderDialog = false;
+  };
+
+  export const openOrderDialogParent = () => {
+    openOrderDialog = true;
+  };
+
+  const closeOrderConfirmHandler = (e) => {
     let action = e.detail.action;
-    switch (action) {
-      case "cancel":
-        break;
-      case "confirm":
-        addOrder(params);
-        break;
-      default:
-        console.log("NO ACTION");
-        break;
-    }
+    if (action === "confirm") addOrder(params);
     openOrderConfirm = false;
   };
 
-  const openODialog = () => (openOrderDialog = true);
   const handleMouseenter = () => (displayMore = true);
   const handleMouseleave = () => (displayMore = false);
 
@@ -155,7 +153,11 @@
   on:mouseenter={handleMouseenter}
   on:mouseleave={handleMouseleave}
 >
-  <div class="more-params" class:displayMore on:click={openODialog}>
+  <div
+    class="more-params"
+    class:displayMore
+    on:click={() => (openOrderDialog = true)}
+  >
     <i class="fa fa-plus" />
     {$_("trading.chartOrder.more")}
   </div>
@@ -182,10 +184,10 @@
   open={openOrderDialog}
   aria-labelledby="large-scroll-title"
   aria-describedby="large-scroll-content"
-  surface$style="width: 1000px; max-width: calc(100vw - 32px); "
-  surface$content="padding : 0;"
+  surface$style="width: 1000px; max-width: calc(100vw - 32px);"
+  on:SMUIDialog:closed={closeOrderDialogHandler}
 >
-  <Content id="mandatory-content">
+  <Content id="mandatory-content" style="padding : 10px;">
     <TradingOrder modal="true" />
   </Content>
 </Dialog>
@@ -194,13 +196,17 @@
   open={openOrderConfirm}
   aria-labelledby="mandatory-title"
   aria-describedby="mandatory-content"
-  on:SMUIDialog:closed={closeHandler}
+  on:SMUIDialog:closed={closeOrderConfirmHandler}
 >
-  <Title id="event-title"
-    >{$_("trading.chartOrder.dialog.confirmOrderTitle")}</Title
-  >
+  <Title id="event-title" class={oType}
+    >[{String(oType).toUpperCase()}] {$_(
+      "trading.chartOrder.dialog.confirmOrderTitle"
+    )}
+  </Title>
   <Content id="mandatory-content">
-    {$_("trading.chartOrder.dialog.confirmOrder")}:
+    <strong class="white"
+      >{$_("trading.chartOrder.dialog.confirmOrder")}:</strong
+    >
     {#if oType}{$_(`trading.chartOrder.dialog.${oType}`)}{/if}
     {parseFloat(volume).toFixed($assetpair.lot_decimals)}{base}
     {ordertype}?
@@ -229,7 +235,7 @@
     cursor: pointer;
     padding: 10px;
     margin: 0;
-    background-color: #5a8237;
+    background-color: #3d8300;
     border: 1px solid #4d4d4d;
     -webkit-border-top-left-radius: 5px;
     -webkit-border-bottom-left-radius: 5px;
@@ -237,7 +243,7 @@
     -moz-border-radius-bottomleft: 5px;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
-    color: #1f1f1f;
+    color: #cacaca;
   }
   #trading-order-modal .add-order-sell {
     font-weight: bold;
@@ -246,7 +252,7 @@
     cursor: pointer;
     padding: 10px;
     margin: 0;
-    background-color: #642e2e;
+    background-color: #640000;
     border: 1px solid #4d4d4d;
     -webkit-border-top-right-radius: 5px;
     -webkit-border-bottom-right-radius: 5px;
@@ -254,13 +260,13 @@
     -moz-border-radius-bottomright: 5px;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-    color: #1f1f1f;
+    color: #cacaca;
   }
   #trading-order-modal .add-order-sell:hover {
-    background-color: #640000;
+    background-color: #642e2e;
   }
   #trading-order-modal .add-order-buy:hover {
-    background-color: #3d8300;
+    background-color: #5a8237;
   }
   #trading-order-modal input.add-order-volume {
     float: left;
@@ -293,6 +299,23 @@
     width: 100%;
     cursor: move;
     background-color: transparent;
+  }
+
+  /* Modification boite de dialog */
+  :global(.mdc-dialog__title.sell) {
+    color: #fe1014 !important;
+  }
+  :global(.mdc-dialog__title.buy) {
+    color: #6ddc09 !important;
+  }
+  :global(.mdc-dialog__title::before) {
+    display: inline !important;
+  }
+  :global(.mdc-dialog .mdc-dialog__content) {
+    padding-top: 10px !important;
+  }
+  .white {
+    color: #dcdcdc;
   }
 
   .clearfix:after {
