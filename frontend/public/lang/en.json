@@ -378,6 +378,19 @@
       "reset": "Reset",
       "confirm": "Confirm",
       "and": "and"
+    },
+    "chartOrder": {
+      "more": "MORE",
+      "buy": "BUY",
+      "sell": "SELL",
+      "dialog": {
+        "confirmOrderTitle": "Order Confirmation",
+        "confirmOrder": "Confirm you order",
+        "buy": "Buy",
+        "sell": "Sell",
+        "canceled": "Canceled",
+        "confirmed": "Confirmed"
+      }
     }
   },
   "settings": {

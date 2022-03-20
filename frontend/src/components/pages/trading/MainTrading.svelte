@@ -19,8 +19,7 @@
         <BlockOpenOrders />
       </div>
       <div class="trading">
-        <h2>{$_("trading.subtitle")}</h2>
-        <TradingOrder />
+        <TradingOrder modal="false" />
         <SpreadBox />
       </div>
     {:else}

@@ -321,6 +321,32 @@ const getOpenPositions = async (req, _reply) => {
   }
 }
 
+// /AddOrder
+const AddOrder = async (req, _reply) => {
+
+  const { body } = req || false;
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
+  try {
+    const payload = {
+      pair: body.pair,
+      type: body.type,
+      ordertype: body.ordertype,
+      price: body.price,
+      volume: body.volume,
+      validate: true
+    }
+    console.log(payload, body)
+    const response = await apiKraken.addOrder(payload);
+    return response
+  } catch (error) {
+    return handleError(error, "AddOrder")
+  }
+}
+
 // /private/AddExport
 const addExport = async (req, _reply) => {
 

@@ -4,6 +4,7 @@
   import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import RightClickMenu from "components/pages/home/RightClickMenu.svelte";
+  import TradingOrderChart from "components/pages/trading/TradingOrderChart.svelte";
   import { Jumper } from "svelte-loading-spinners";
 
   import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
@@ -1068,8 +1069,9 @@
       {nbTrades}{#if $interval <= 1440}/{nbTradesToday}{/if}
     </span>
   </div>
-  <div class="floating-tooltip {type}" />
+  <div class="floating-tooltip {type || ''}" />
   <RightClickMenu {User} {currentPrice} bind:this={callRCM} />
+  <TradingOrderChart {candleSeries} />
 </div>
 
 <style>
