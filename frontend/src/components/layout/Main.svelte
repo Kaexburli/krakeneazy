@@ -64,6 +64,8 @@
 <Dialog
   bind:open
   fullscreen
+  scrimClickAction=""
+  escapeKeyAction=""
   aria-labelledby="fullscreen-title"
   aria-describedby="fullscreen-content"
   on:SMUIDialog:closed={closeHandler}
