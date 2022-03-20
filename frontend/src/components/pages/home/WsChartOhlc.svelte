@@ -11,13 +11,22 @@
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
   import HistogramSeries from "svelte-lightweight-charts/components/histogram-series.svelte";
+  import Wrapper from "@smui/touch-target";
+  import IconButton from "@smui/icon-button";
+  import FormField from "@smui/form-field";
+  import Switch from "@smui/switch";
+  import { mdiPlusCircle, mdiCog } from "@mdi/js";
+  import { Svg } from "@smui/common/elements";
+  import { Icon } from "@smui/common";
+  import MenuSurface from "@smui/menu-surface";
+  import List, { Item, Separator, Text } from "@smui/list";
   import Fetch from "utils/Runfetch.js";
   import UserData from "classes/UserData.js";
 
   const dispatch = createEventDispatcher();
 
   export let User;
-  let callRCM;
+  let callRCM, callTOC;
 
   import {
     online,
@@ -38,6 +47,9 @@
     activetooltip = false,
     activeOrders = false,
     activePositions = false,
+    disbledPositions = false,
+    disbledOrders = false,
+    displayChartSettingMenu = false,
     crosshairMode = false,
     rightPriceScaleMode = false,
     volumeDisplaying = false,
@@ -528,11 +540,7 @@
     });
 
     // Définit la couleur du label en rouge si aucune positions pour cette pair
-    let label = document.getElementById("label-active-orders");
-    if (markers_orders.length === 0) {
-      label.style.color = "#cd0000";
-      label.style["text-decoration"] = "line-through";
-    } else label.style.color = "#747474";
+    if (markers_orders.length === 0) disbledOrders = true;
   };
 
   /**
@@ -601,17 +609,14 @@
     });
 
     // Définit la couleur du label en rouge si aucune positions pour cette pair
-    let label = document.getElementById("label-active-positions");
-    if (label != null && markers_positions.length === 0) {
-      label.style.color = "#cd0000";
-      label.style["text-decoration"] = "line-through";
-    } else if (label != null) label.style.color = "#747474";
+    if (markers_positions.length === 0) disbledPositions = true;
   };
 
   /**
    * handleCrosshairMode
    ************************/
   const handleCrosshairMode = (event) => {
+    if (typeof event === "boolean") crosshairMode = !crosshairMode;
     if (typeof chartApi !== "undefined") {
       chartApi.applyOptions({
         crosshair: {
@@ -625,6 +630,7 @@
    * handleRightPriceScaleMode
    ************************/
   const handleRightPriceScaleMode = (event) => {
+    if (typeof event === "boolean") rightPriceScaleMode = !rightPriceScaleMode;
     if (typeof chartApi !== "undefined") {
       chartApi.applyOptions({
         rightPriceScale: {
@@ -856,7 +862,6 @@
         if (markers) candleSeries.setMarkers(markers);
 
         if (price_line_positions) {
-          console.log(price_line_positions_display);
           Object.values(price_line_positions).map((pos) => {
             if (
               !price_line_positions_display.hasOwnProperty(pos.postxid) ||
@@ -930,69 +935,115 @@
 </script>
 
 <div class="chartctrl-block clearfix">
+  <!-- Add Order -->
+  <Wrapper>
+    <div class="settings-chart-btn">
+      <IconButton
+        class="material-icons"
+        on:click={() => (displayChartSettingMenu = !displayChartSettingMenu)}
+        size="button"
+      >
+        <Icon component={Svg} viewBox="0 0 24 24">
+          <path fill="currentColor" d={mdiCog} />
+        </Icon>
+      </IconButton>
+    </div>
+  </Wrapper>
+
   <div class="chart-title">
     <span class="chart-exchange">KRAKEN</span>
     <span class="chart-asset">{$assetpair.wsname}</span>
   </div>
-  <input
-    type="checkbox"
-    name="active-tooltip"
-    id="active-tooltip"
-    bind:checked={activetooltip}
-  />
-  <label class="label-checkbox" for="active-tooltip"
-    >{$_("home.chart.checkbox.tooltip")}</label
-  >
-  <input
-    type="checkbox"
-    name="active-positions"
-    id="active-positions"
-    bind:checked={activePositions}
-  />
-  <label
-    class="label-checkbox"
-    for="active-positions"
-    id="label-active-positions">{$_("home.chart.checkbox.position")}</label
-  >
-  <input
-    type="checkbox"
-    name="active-orders"
-    id="active-orders"
-    bind:checked={activeOrders}
-  />
-  <label class="label-checkbox" for="active-orders" id="label-active-orders"
-    >{$_("home.chart.checkbox.orders")}</label
-  >
-  <input
-    type="checkbox"
-    name="crosshair-mode"
-    id="crosshair-mode"
-    bind:checked={crosshairMode}
-    on:change={handleCrosshairMode}
-  />
-  <label class="label-checkbox" for="crosshair-mode"
-    >{$_("home.chart.checkbox.magnet")}</label
-  >
-  <input
-    type="checkbox"
-    name="pricescale-mode"
-    id="pricescale-mode"
-    bind:checked={rightPriceScaleMode}
-    on:change={handleRightPriceScaleMode}
-  />
-  <label class="label-checkbox" for="pricescale-mode"
-    >{$_("home.chart.checkbox.loga")}</label
-  >
-  <input
-    type="checkbox"
-    name="volume-chart"
-    id="volume-chart"
-    bind:checked={volumeDisplaying}
-    on:change={(n) => !volumeDisplaying}
-  />
-  <label class="label-checkbox" for="volume-chart"
-    >{$_("home.chart.checkbox.volume")}</label
-  >
+
+  <!-- Chart Settings -->
+  <Wrapper>
+    <div class="addorder-chart-btn">
+      <IconButton
+        class="material-icons"
+        on:click={() => callTOC.openOrderDialogParent()}
+        size="button"
+      >
+        <Icon component={Svg} viewBox="0 0 24 24">
+          <path fill="currentColor" d={mdiPlusCircle} />
+        </Icon>
+      </IconButton>
+    </div>
+  </Wrapper>
+  {#if displayChartSettingMenu}
+    <MenuSurface static>
+      <List>
+        <Item on:SMUI:action={() => (activetooltip = !activetooltip)}>
+          <!-- Tooltip -->
+          <Wrapper>
+            <FormField>
+              <Switch bind:checked={activetooltip} />
+              <span slot="label">{$_("home.chart.checkbox.tooltip")}</span>
+            </FormField>
+          </Wrapper>
+        </Item>
+        <Separator />
+        <Item on:SMUI:action={() => (activePositions = !activePositions)}>
+          <!-- Positions -->
+          <Wrapper>
+            <FormField>
+              <Switch
+                bind:checked={activePositions}
+                disabled={disbledPositions}
+              />
+              <span slot="label">{$_("home.chart.checkbox.position")}</span>
+            </FormField>
+          </Wrapper>
+        </Item>
+        <Separator />
+        <Item on:SMUI:action={() => (activeOrders = !activeOrders)}>
+          <!-- Orders -->
+          <Wrapper>
+            <FormField>
+              <Switch bind:checked={activeOrders} disabled={disbledOrders} />
+              <span slot="label">{$_("home.chart.checkbox.orders")}</span>
+            </FormField>
+          </Wrapper>
+        </Item>
+        <Separator />
+        <Item on:SMUI:action={() => handleCrosshairMode(true)}>
+          <!-- Magnet -->
+          <Wrapper>
+            <FormField>
+              <Switch
+                bind:checked={crosshairMode}
+                on:SMUISwitch:change={handleCrosshairMode}
+              />
+              <span slot="label">{$_("home.chart.checkbox.magnet")}</span>
+            </FormField>
+          </Wrapper>
+        </Item>
+        <Separator />
+        <Item on:SMUI:action={() => handleRightPriceScaleMode(true)}>
+          <!-- Logarythmique -->
+          <Wrapper>
+            <FormField>
+              <Switch
+                bind:checked={rightPriceScaleMode}
+                on:SMUISwitch:change={handleRightPriceScaleMode}
+              />
+              <span slot="label">{$_("home.chart.checkbox.loga")}</span>
+            </FormField>
+          </Wrapper>
+        </Item>
+        <Separator />
+        <Item on:SMUI:action={() => (volumeDisplaying = !volumeDisplaying)}>
+          <!-- Volume -->
+          <Wrapper>
+            <FormField>
+              <Switch bind:checked={volumeDisplaying} />
+              <span slot="label">{$_("home.chart.checkbox.volume")}</span>
+            </FormField>
+          </Wrapper>
+        </Item>
+      </List>
+    </MenuSurface>
+  {/if}
+
   {#if currentPrice}
     <div class="current-price {currentPriceWay}">
       <span class="icon">
@@ -1071,7 +1122,7 @@
   </div>
   <div class="floating-tooltip {type || ''}" />
   <RightClickMenu {User} {currentPrice} bind:this={callRCM} />
-  <TradingOrderChart {candleSeries} />
+  <TradingOrderChart {candleSeries} bind:this={callTOC} />
 </div>
 
 <style>
@@ -1110,7 +1161,7 @@
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
   }
-  input[type="checkbox"] {
+  /* input[type="checkbox"] {
     width: 12px;
     height: 12px;
     top: -5px;
@@ -1148,7 +1199,7 @@
     text-align: center;
     vertical-align: middle;
     cursor: pointer;
-  }
+  } */
   .floating-tooltip {
     position: absolute;
     display: none;
@@ -1260,11 +1311,22 @@
     line-height: 18px;
     font-weight: 300;
   }
+  .addorder-chart-btn {
+    float: right;
+    margin-left: 10px;
+    border-left: 1px solid #000000;
+    padding-left: 10px;
+  }
+  .settings-chart-btn {
+    float: left;
+    margin-right: 10px;
+    border-right: 1px solid #000000;
+    padding-right: 10px;
+  }
   .chart-title {
     float: left;
     margin-right: 10px;
-    margin-top: -5px;
-    border-right: 1px solid #000000;
+    margin-top: -2px;
     padding-right: 10px;
   }
   .chart-asset {
@@ -1304,5 +1366,19 @@
   }
   :global(.tv-lightweight-charts table) {
     width: auto !important;
+  }
+
+  :global(.mdc-switch) {
+    margin: 5px !important;
+  }
+  :global(.smui-menu-surface--static) {
+    position: absolute !important;
+    z-index: 9 !important;
+    left: 0px !important;
+    top: 45px !important;
+  }
+  :global(.mdc-icon-button.smui-icon-button--size-button) {
+    margin-top: -5px !important;
+    padding: 2px !important;
   }
 </style>
