@@ -78,6 +78,11 @@
   "home": {
     "title": "Accueil",
     "chart": {
+      "tooltip": {
+        "settings": "Paramètres du graphique",
+        "addorder": "Placer un ordre",
+        "addalert": "Ajouter une alerte"
+      },
       "alert": {
         "succcess": "Une alert à été mise en place",
         "error": "Le prix doit être positif",

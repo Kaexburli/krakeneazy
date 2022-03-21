@@ -78,6 +78,11 @@
   "home": {
     "title": "Home",
     "chart": {
+      "tooltip": {
+        "settings": "Chart Parameters",
+        "addorder": "Add order",
+        "addalert": "Add alert"
+      },
       "alert": {
         "succcess": "An alert has been set up",
         "error": "The price must be po,sitive",
