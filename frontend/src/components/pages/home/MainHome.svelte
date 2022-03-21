@@ -4,7 +4,6 @@
   import { slide } from "svelte/transition";
   import { Moon } from "svelte-loading-spinners";
 
-  import ChartCtrl from "components/pages/home/ChartCtrl.svelte";
   import ChartOhlc from "components/pages/home/WsChartOhlc.svelte";
   import SpreadBox from "components/pages/trading/SpreadBox.svelte";
   import TickerWs from "components/pages/home/WsTicker.svelte";
@@ -43,9 +42,6 @@
       </div>
     {/if}
     <div id="home-wrapper">
-      <div id="ChartCtrl">
-        <ChartCtrl />
-      </div>
       <div id="BlockChartOhlc">
         <ChartOhlc {User} on:loading={handleLoading} />
       </div>
@@ -75,10 +71,6 @@
   #home-wrapper {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-  }
-  #ChartCtrl {
-    grid-column: 1 / 6;
-    grid-row: 1;
   }
   #BlockChartOhlc {
     grid-column: 1 / 6;
