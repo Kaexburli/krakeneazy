@@ -10,6 +10,7 @@
   import Authentification from "components/pages/auth/Authentification.svelte";
   import { Modals, closeModal } from "svelte-modals";
   import { User, hasApikeysStore } from "store/userStore.js";
+  import { SvelteToast } from "@zerodevx/svelte-toast";
 
   /** I18n */
   import { addMessages, init, getLocaleFromNavigator } from "svelte-i18n";
@@ -67,9 +68,13 @@
     <Sidebar {isLoggedIn} />
     <Main {User} />
     <Footer />
-    <PriceAlert display="true" />
   </div>
 {/if}
+
+<SvelteToast />
+<div class="wrap">
+  <SvelteToast target="new" />
+</div>
 
 <style>
   .layout {
@@ -86,5 +91,24 @@
     right: 0;
     left: 0;
     background: rgba(0, 0, 0, 0.5);
+  }
+
+  /* SvelteToast */
+  .wrap {
+    --toastContainerTop: 0.2rem;
+    --toastContainerRight: 0.5rem;
+    --toastContainerBottom: auto;
+    --toastContainerLeft: 0.5rem;
+    --toastWidth: 50%;
+    --toastMinHeight: 2rem;
+    --toastPadding: 0 0.5rem;
+    font-size: 0.875rem;
+  }
+  @media (min-width: 40rem) {
+    .wrap {
+      --toastContainerRight: auto;
+      --toastContainerLeft: calc(50vw - 20rem);
+      --toastWidth: 40rem;
+    }
   }
 </style>

@@ -7,7 +7,7 @@
     userForgotPassword,
     resendConfirmEmail,
   } from "utils/userApi.js";
-  import { SvelteToast, toast } from "@zerodevx/svelte-toast";
+  import { toast } from "@zerodevx/svelte-toast";
   import { Moon } from "svelte-loading-spinners";
   import { User } from "store/userStore.js";
 
@@ -569,11 +569,6 @@
   {/if}
 </form>
 
-<SvelteToast />
-<div class="wrap">
-  <SvelteToast target="new" />
-</div>
-
 <style>
   @import url(http://weloveiconfonts.com/api/?family=entypo) all;
   @import url(https://fonts.googleapis.com/css?family=Roboto) all;
@@ -861,25 +856,6 @@
   }
   .input-error {
     border: 2px solid red;
-  }
-
-  /* Toast alert */
-  .wrap {
-    --toastContainerTop: 0.2rem;
-    --toastContainerRight: 0.5rem;
-    --toastContainerBottom: auto;
-    --toastContainerLeft: 0.5rem;
-    --toastWidth: 50%;
-    --toastMinHeight: 2rem;
-    --toastPadding: 0 0.5rem;
-    font-size: 0.875rem;
-  }
-  @media (min-width: 40rem) {
-    .wrap {
-      --toastContainerRight: auto;
-      --toastContainerLeft: calc(50vw - 20rem);
-      --toastWidth: 40rem;
-    }
   }
   #clockloader {
     float: right;

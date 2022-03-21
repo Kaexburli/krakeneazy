@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { pricealertlist } from "store/store.js";
   import { WSTickerAlert } from "store/wsstore.js";
-  import { SvelteToast, toast } from "@zerodevx/svelte-toast";
+  import { toast } from "@zerodevx/svelte-toast";
 
   export let display = false;
   let isActive = false;
@@ -282,10 +282,7 @@
     </div>
   </div>
 {:else}
-  <SvelteToast />
-  <div class="wrap">
-    <SvelteToast target="new" />
-  </div>
+  test
 {/if}
 
 <style>
@@ -424,22 +421,5 @@
     :global(input[type="number"]:hover) {
     border: 1px solid #5f5f5f;
     background: #2b2b2b;
-  }
-  .wrap {
-    --toastContainerTop: 0.2rem;
-    --toastContainerRight: 0.5rem;
-    --toastContainerBottom: auto;
-    --toastContainerLeft: 0.5rem;
-    --toastWidth: 50%;
-    --toastMinHeight: 2rem;
-    --toastPadding: 0 0.5rem;
-    font-size: 0.875rem;
-  }
-  @media (min-width: 40rem) {
-    .wrap {
-      --toastContainerRight: auto;
-      --toastContainerLeft: calc(50vw - 20rem);
-      --toastWidth: 40rem;
-    }
   }
 </style>
