@@ -11,11 +11,12 @@
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
   import HistogramSeries from "svelte-lightweight-charts/components/histogram-series.svelte";
+  import Tooltip, { Wrapper as WrapperTooltip } from "@smui/tooltip";
   import Wrapper from "@smui/touch-target";
   import IconButton from "@smui/icon-button";
   import FormField from "@smui/form-field";
   import Switch from "@smui/switch";
-  import { mdiPlusCircle, mdiCog } from "@mdi/js";
+  import { mdiPlusCircle, mdiCog, mdiBell } from "@mdi/js";
   import { Svg } from "@smui/common/elements";
   import { Icon } from "@smui/common";
   import MenuSurface from "@smui/menu-surface";
@@ -935,40 +936,72 @@
 </script>
 
 <div class="chartctrl-block clearfix">
-  <!-- Add Order -->
+  <!-- Chart Settings -->
   <Wrapper>
     <div class="settings-chart-btn">
-      <IconButton
-        class="material-icons"
-        on:click={() => (displayChartSettingMenu = !displayChartSettingMenu)}
-        size="button"
-      >
-        <Icon component={Svg} viewBox="0 0 24 24">
-          <path fill="currentColor" d={mdiCog} />
-        </Icon>
-      </IconButton>
+      <WrapperTooltip>
+        <IconButton
+          class="material-icons"
+          on:click={() => (displayChartSettingMenu = !displayChartSettingMenu)}
+          size="button"
+        >
+          <Icon component={Svg} viewBox="0 0 24 24">
+            <path fill="currentColor" d={mdiCog} />
+          </Icon>
+        </IconButton>
+        <Tooltip xPos="start" yPos="below">
+          {$_("home.chart.tooltip.settings")}
+        </Tooltip>
+      </WrapperTooltip>
     </div>
   </Wrapper>
 
+  <!-- Title -->
   <div class="chart-title">
     <span class="chart-exchange">KRAKEN</span>
     <span class="chart-asset">{$assetpair.wsname}</span>
   </div>
 
-  <!-- Chart Settings -->
+  <!-- Add Alert -->
   <Wrapper>
     <div class="addorder-chart-btn">
-      <IconButton
-        class="material-icons"
-        on:click={() => callTOC.openOrderDialogParent()}
-        size="button"
-      >
-        <Icon component={Svg} viewBox="0 0 24 24">
-          <path fill="currentColor" d={mdiPlusCircle} />
-        </Icon>
-      </IconButton>
+      <WrapperTooltip>
+        <IconButton
+          class="material-icons"
+          on:click={() => console.log("add alert")}
+          size="button"
+        >
+          <Icon component={Svg} viewBox="0 0 24 24">
+            <path fill="currentColor" d={mdiBell} />
+          </Icon>
+        </IconButton>
+        <Tooltip xPos="end">
+          {$_("home.chart.tooltip.addalert")}
+        </Tooltip>
+      </WrapperTooltip>
     </div>
   </Wrapper>
+
+  <!-- Add Order -->
+  <Wrapper>
+    <div class="addorder-chart-btn">
+      <WrapperTooltip>
+        <IconButton
+          class="material-icons"
+          on:click={() => callTOC.openOrderDialogParent()}
+          size="button"
+        >
+          <Icon component={Svg} viewBox="0 0 24 24">
+            <path fill="currentColor" d={mdiPlusCircle} />
+          </Icon>
+        </IconButton>
+        <Tooltip xPos="end">
+          {$_("home.chart.tooltip.addorder")}
+        </Tooltip>
+      </WrapperTooltip>
+    </div>
+  </Wrapper>
+  <!-- Settings Chart -->
   {#if displayChartSettingMenu}
     <MenuSurface static>
       <List>
