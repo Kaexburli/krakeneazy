@@ -329,7 +329,6 @@ const AddOrder = async (req, _reply) => {
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
   if (!apiKraken) return { error: true, message: "API Key error!" };
-
   try {
     const payload = {
       pair: body.pair,
@@ -337,9 +336,13 @@ const AddOrder = async (req, _reply) => {
       ordertype: body.ordertype,
       price: body.price,
       volume: body.volume,
-      validate: true
+      leverage: body.leverage === "0" ? "none" : body.leverage,
+      oflags: body.type === 'sell' ? body.devise === 'quote' ? 'fciq' : 'fcib' : body.devise === 'base' ? 'fcib' : 'fciq',
+      validate: body.dry === 'true' ? true : false
     }
-    console.log(payload, body)
+
+    if (body.postonly) payload.oflags = [payload.oflags, "post"].join(',');
+    console.log(body, payload)
     const response = await apiKraken.addOrder(payload);
     return response
   } catch (error) {

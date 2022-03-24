@@ -127,6 +127,10 @@
     openOrderDialog = true;
   };
 
+  const closeOrderDialogParent = (e) => {
+    if (e.detail.closeDialogOrder) openOrderDialog = false;
+  };
+
   const closeOrderConfirmHandler = (e) => {
     let action = e.detail.action;
     if (action === "confirm") addOrder(params);
@@ -136,15 +140,19 @@
   const handleMouseenter = () => (displayMore = true);
   const handleMouseleave = () => (displayMore = false);
 
-  $: if ($WSTicker) {
-    // console.log("WSTicker", $WSTicker);
-  }
-
   $: if ($WSSpread) {
-    // console.log("WSSpread", $WSSpread);
     marketPrice.bid = $WSSpread[0];
     marketPrice.ask = $WSSpread[1];
   }
+
+  // window.addEventListener("load", () => {
+  //   let chartblock = document.querySelector(".chart-block");
+  //   let modal = document.getElementById("trading-order-modal");
+  //   let modalWidth = modal.clientWidth || 232;
+  //   let chartWidth = chartblock.clientWidth || chartWidth;
+  //   let leftModal = chartWidth / 2 - modalWidth / 2;
+  //   modal.style.left = `${leftModal}px`;
+  // });
 </script>
 
 <div
@@ -188,7 +196,7 @@
   on:SMUIDialog:closed={closeOrderDialogHandler}
 >
   <Content id="mandatory-content" style="padding : 10px;">
-    <TradingOrder modal="true" />
+    <TradingOrder on:closedialogorder={closeOrderDialogParent} {candleSeries} />
   </Content>
 </Dialog>
 
@@ -224,7 +232,8 @@
 <style>
   #trading-order-modal {
     position: absolute;
-    bottom: 430px;
+    width: 25%;
+    bottom: 50px;
     left: 20px;
     z-index: 4;
   }
