@@ -23,9 +23,9 @@
     "scheduledUntil": "jusqu'au : "
   },
   "pricealert": {
-    "title": "Alert!",
-    "alertUp": "Alert prix au dessus de:",
-    "alertDown": "Alert prix en dessous de:",
+    "title": "Alertes actives!",
+    "alertUp": "Prix au dessus de:",
+    "alertDown": "Prix en dessous de:",
     "modal": {
       "title": "Alerte de prix !",
       "price": "Prix",
@@ -378,11 +378,15 @@
       "price": "Prix",
       "total": "Total",
       "postOnly": "Post only",
-      "closeCond": "Fermeture conditionnelle",
+      "closeCond": "Ferm cond.",
+      "closeConditionnal": "Fermeture conditionnelle",
       "fees": "Frais",
       "reset": "Réinitialiser",
       "confirm": "Confirmer",
-      "and": "et"
+      "and": "et",
+      "slippage": "Slippage",
+      "favorableSlippage": "Slippage favorable",
+      "unfavorableSlippage": "Slippage défavorable"
     },
     "chartOrder": {
       "more": "PLUS",

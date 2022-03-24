@@ -130,12 +130,6 @@
     el.opacity = "1";
   };
 
-  const round = (value, step) => {
-    step || (step = 1.0);
-    let inv = 1.0 / step;
-    return Math.round(value * inv) / inv;
-  };
-
   $: {
     if ($pricealertlist.hasOwnProperty($assetpair.wsname)) {
       hasAlertForPair =
@@ -151,15 +145,11 @@
 <div id="rightclickmenu">
   <a
     href={"#"}
-    on:click={createAlertPrice(
-      round(pricealert, 1),
-      $assetpair.wsname,
-      currentPrice
-    )}
+    on:click={createAlertPrice(pricealert, $assetpair.wsname, currentPrice)}
   >
     <i class="fa fa-bell">&nbsp;</i>
     {$_("home.chart.alert.createAlert")}
-    <span id="pricealert">@{round(pricealert, 1)}</span>
+    <span id="pricealert">@{pricealert}</span>
   </a>
   {#if hasAlertForPair}
     <a href={"#"} on:click={removeAllAlertPrice($assetpair.wsname)}>

@@ -23,9 +23,9 @@
     "scheduledUntil": "jusqu'au : "
   },
   "pricealert": {
-    "title": "Alert!",
-    "alertUp": "Alert price above:",
-    "alertDown": "Alert price below:",
+    "title": "Active Alerts!",
+    "alertUp": "Price above:",
+    "alertDown": "Price below:",
     "modal": {
       "title": "Price Alert!",
       "price": "Price",
@@ -378,11 +378,15 @@
       "price": "Price",
       "total": "Total",
       "postOnly": "Post only",
-      "closeCond": "Conditional close",
+      "closeCond": "Close Cond.",
+      "closeConditionnal": "Conditional close",
       "fees": "Fees",
       "reset": "Reset",
       "confirm": "Confirm",
-      "and": "and"
+      "and": "and",
+      "slippage": "Slippage",
+      "favorableSlippage": "Favorable Slippage",
+      "unfavorableSlippage": "Unfavorable Slippage"
     },
     "chartOrder": {
       "more": "MORE",

@@ -5,8 +5,8 @@
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import RightClickMenu from "components/pages/home/RightClickMenu.svelte";
   import TradingOrderChart from "components/pages/trading/TradingOrderChart.svelte";
+  import PriceAlert from "components/api/PriceAlert.svelte";
   import { Jumper } from "svelte-loading-spinners";
-
   import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
   import CandlestickSeries from "svelte-lightweight-charts/components/candlestick-series.svelte";
@@ -20,7 +20,7 @@
   import { Svg } from "@smui/common/elements";
   import { Icon } from "@smui/common";
   import MenuSurface from "@smui/menu-surface";
-  import List, { Item, Separator, Text } from "@smui/list";
+  import List, { Group, Subheader, Item, Separator, Text } from "@smui/list";
   import Fetch from "utils/Runfetch.js";
   import UserData from "classes/UserData.js";
 
@@ -43,7 +43,6 @@
   let type,
     candleSeries,
     volumeSeries,
-    volSeries,
     chartApi,
     activetooltip = false,
     activeOrders = false,
@@ -51,9 +50,10 @@
     disbledPositions = false,
     disbledOrders = false,
     displayChartSettingMenu = false,
+    displayAlertMenu = false,
     crosshairMode = false,
     rightPriceScaleMode = false,
-    volumeDisplaying = false,
+    volumeDisplaying = true,
     markers_orders = [],
     markers_positions = [],
     price_line_positions = [],
@@ -85,7 +85,6 @@
     current_minute,
     current_hour,
     current_day,
-    num = 0.1,
     modulo,
     day,
     nbTrades = 0,
@@ -97,11 +96,11 @@
     highLowMarkers = [],
     changeInterval = false,
     chartConfigInterval = {
-      "1": { offset: 10, spacing: 2 },
-      "5": { offset: 10, spacing: 7 },
-      "15": { offset: 8, spacing: 16 },
-      "30": { offset: 8, spacing: 16 },
-      "60": { offset: 6, spacing: 16 },
+      "1": { offset: 10, spacing: 5 },
+      "5": { offset: 10, spacing: 9 },
+      "15": { offset: 10, spacing: 12 },
+      "30": { offset: 8, spacing: 14 },
+      "60": { offset: 5, spacing: 16 },
       "240": { offset: 6, spacing: 16 },
       "1440": { offset: 4, spacing: 16 },
       "10080": { offset: 4, spacing: 16 },
@@ -741,10 +740,6 @@
     isMounted = true;
     getChartHistoryDatas();
     GetOpenPositions();
-
-    // Calcul du minMove CandleSeries
-    for (let index = 0; index < $assetpair.pair_decimals - 1; index++)
-      num = parseFloat(num / 10).toFixed($assetpair.pair_decimals);
   });
 
   /**
@@ -785,6 +780,10 @@
       mode: rightPriceScaleMode
         ? PriceScaleMode.Logarithmic
         : PriceScaleMode.Normal,
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
     },
     timeScale: {
       timeVisible: true,
@@ -819,20 +818,21 @@
     wickDownColor: "#fe1014",
     wickUpColor: "#6ddc09",
     priceFormat: {
+      type: "price",
       precision: $assetpair.pair_decimals,
-      minMove: Number(num),
+      minMove: Number("0." + String(1).padStart($assetpair.pair_decimals, "0")),
     },
   };
 
   let HistogramSeriesOpts = {
+    color: "#26a69a",
     priceFormat: {
       type: "volume",
     },
-    priceLineVisible: false,
-    color: "#26a69a",
+    priceLineVisible: true,
     priceScaleId: "",
     scaleMargins: {
-      top: 0.85,
+      top: 0.95,
       bottom: 0,
     },
   };
@@ -902,7 +902,7 @@
 
   // Mise a jour de l'affichage du prix
   $: if ($WSTicker) {
-    currentPrice = $WSTicker["c"][0] || 0;
+    currentPrice = $WSTicker["c"][0] || currentPrice;
     nbTradesToday = $WSTicker["t"][0] || 0;
     if (currentPriceOld === 0) currentPriceWay = false;
     else if (parseFloat(currentPrice) > parseFloat(currentPriceOld))
@@ -968,7 +968,7 @@
       <WrapperTooltip>
         <IconButton
           class="material-icons"
-          on:click={() => console.log("add alert")}
+          on:click={() => (displayAlertMenu = !displayAlertMenu)}
           size="button"
         >
           <Icon component={Svg} viewBox="0 0 24 24">
@@ -1001,80 +1001,93 @@
       </WrapperTooltip>
     </div>
   </Wrapper>
-  <!-- Settings Chart -->
+  <!-- Display Settings Chart Menu -->
   {#if displayChartSettingMenu}
-    <MenuSurface static>
-      <List>
-        <Item on:SMUI:action={() => (activetooltip = !activetooltip)}>
-          <!-- Tooltip -->
-          <Wrapper>
-            <FormField>
-              <Switch bind:checked={activetooltip} />
-              <span slot="label">{$_("home.chart.checkbox.tooltip")}</span>
-            </FormField>
-          </Wrapper>
-        </Item>
-        <Separator />
-        <Item on:SMUI:action={() => (activePositions = !activePositions)}>
-          <!-- Positions -->
-          <Wrapper>
-            <FormField>
-              <Switch
-                bind:checked={activePositions}
-                disabled={disbledPositions}
-              />
-              <span slot="label">{$_("home.chart.checkbox.position")}</span>
-            </FormField>
-          </Wrapper>
-        </Item>
-        <Separator />
-        <Item on:SMUI:action={() => (activeOrders = !activeOrders)}>
-          <!-- Orders -->
-          <Wrapper>
-            <FormField>
-              <Switch bind:checked={activeOrders} disabled={disbledOrders} />
-              <span slot="label">{$_("home.chart.checkbox.orders")}</span>
-            </FormField>
-          </Wrapper>
-        </Item>
-        <Separator />
-        <Item on:SMUI:action={() => handleCrosshairMode(true)}>
-          <!-- Magnet -->
-          <Wrapper>
-            <FormField>
-              <Switch
-                bind:checked={crosshairMode}
-                on:SMUISwitch:change={handleCrosshairMode}
-              />
-              <span slot="label">{$_("home.chart.checkbox.magnet")}</span>
-            </FormField>
-          </Wrapper>
-        </Item>
-        <Separator />
-        <Item on:SMUI:action={() => handleRightPriceScaleMode(true)}>
-          <!-- Logarythmique -->
-          <Wrapper>
-            <FormField>
-              <Switch
-                bind:checked={rightPriceScaleMode}
-                on:SMUISwitch:change={handleRightPriceScaleMode}
-              />
-              <span slot="label">{$_("home.chart.checkbox.loga")}</span>
-            </FormField>
-          </Wrapper>
-        </Item>
-        <Separator />
-        <Item on:SMUI:action={() => (volumeDisplaying = !volumeDisplaying)}>
-          <!-- Volume -->
-          <Wrapper>
-            <FormField>
-              <Switch bind:checked={volumeDisplaying} />
-              <span slot="label">{$_("home.chart.checkbox.volume")}</span>
-            </FormField>
-          </Wrapper>
-        </Item>
-      </List>
-    </MenuSurface>
+    <div id="displayChartSettingMenu">
+      <MenuSurface static>
+        <Group>
+          <Subheader
+            >{$_("home.chart.tooltip.settings").toUpperCase()}</Subheader
+          >
+          <Separator />
+          <List class="settings-list">
+            <Item on:SMUI:action={() => (activetooltip = !activetooltip)}>
+              <!-- Tooltip -->
+              <Wrapper>
+                <FormField>
+                  <Switch bind:checked={activetooltip} />
+                  <span slot="label">{$_("home.chart.checkbox.tooltip")}</span>
+                </FormField>
+              </Wrapper>
+            </Item>
+            <Item on:SMUI:action={() => (activePositions = !activePositions)}>
+              <!-- Positions -->
+              <Wrapper>
+                <FormField>
+                  <Switch
+                    bind:checked={activePositions}
+                    disabled={disbledPositions}
+                  />
+                  <span slot="label">{$_("home.chart.checkbox.position")}</span>
+                </FormField>
+              </Wrapper>
+            </Item>
+            <Item on:SMUI:action={() => (activeOrders = !activeOrders)}>
+              <!-- Orders -->
+              <Wrapper>
+                <FormField>
+                  <Switch
+                    bind:checked={activeOrders}
+                    disabled={disbledOrders}
+                  />
+                  <span slot="label">{$_("home.chart.checkbox.orders")}</span>
+                </FormField>
+              </Wrapper>
+            </Item>
+            <Item on:SMUI:action={() => handleCrosshairMode(true)}>
+              <!-- Magnet -->
+              <Wrapper>
+                <FormField>
+                  <Switch
+                    bind:checked={crosshairMode}
+                    on:SMUISwitch:change={handleCrosshairMode}
+                  />
+                  <span slot="label">{$_("home.chart.checkbox.magnet")}</span>
+                </FormField>
+              </Wrapper>
+            </Item>
+            <Item on:SMUI:action={() => handleRightPriceScaleMode(true)}>
+              <!-- Logarythmique -->
+              <Wrapper>
+                <FormField>
+                  <Switch
+                    bind:checked={rightPriceScaleMode}
+                    on:SMUISwitch:change={handleRightPriceScaleMode}
+                  />
+                  <span slot="label">{$_("home.chart.checkbox.loga")}</span>
+                </FormField>
+              </Wrapper>
+            </Item>
+            <Item on:SMUI:action={() => (volumeDisplaying = !volumeDisplaying)}>
+              <!-- Volume -->
+              <Wrapper>
+                <FormField>
+                  <Switch bind:checked={volumeDisplaying} />
+                  <span slot="label">{$_("home.chart.checkbox.volume")}</span>
+                </FormField>
+              </Wrapper>
+            </Item>
+          </List>
+        </Group>
+      </MenuSurface>
+    </div>
+  {/if}
+
+  <!-- Display ALert Menu -->
+  {#if displayAlertMenu}
+    <div id="displayAlertMenu">
+      <PriceAlert />
+    </div>
   {/if}
 
   {#if currentPrice}
@@ -1371,6 +1384,19 @@
     color: #787878;
     display: block;
   }
+  #displayChartSettingMenu {
+    position: absolute !important;
+    z-index: 9 !important;
+    left: 0px !important;
+    top: 45px !important;
+  }
+  #displayAlertMenu {
+    position: absolute !important;
+    z-index: 9 !important;
+    right: 0px !important;
+    top: 45px !important;
+  }
+
   :global(.ohlc) {
     margin-left: 10px;
     color: #8f8f8f;
@@ -1404,14 +1430,12 @@
   :global(.mdc-switch) {
     margin: 5px !important;
   }
-  :global(.smui-menu-surface--static) {
-    position: absolute !important;
-    z-index: 9 !important;
-    left: 0px !important;
-    top: 45px !important;
-  }
   :global(.mdc-icon-button.smui-icon-button--size-button) {
     margin-top: -5px !important;
     padding: 2px !important;
+  }
+  :global(.settings-list) {
+    max-width: 300px;
+    border-left: 3px solid #6b3b00;
   }
 </style>

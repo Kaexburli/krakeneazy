@@ -4,6 +4,12 @@
   import { WSTickerAlert } from "store/wsstore.js";
   import { toast } from "@zerodevx/svelte-toast";
 
+  import MenuSurface from "@smui/menu-surface";
+  import List, { Group, Subheader, Item, Separator, Text } from "@smui/list";
+  import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
+  import Textfield from "@smui/textfield";
+  import Icon from "@smui/textfield/icon";
+
   export let display = false;
   let isActive = false;
   let icon = isActive ? "fa-angle-double-right" : "fa-bell";
@@ -47,8 +53,7 @@
   $: if (
     $WSTickerAlert &&
     typeof $WSTickerAlert !== "undefined" &&
-    typeof $pricealertlist !== "undefined" &&
-    display
+    typeof $pricealertlist !== "undefined"
   ) {
     let pairs = Object.keys($pricealertlist);
     pairs.forEach((pair) => {
@@ -282,7 +287,81 @@
     </div>
   </div>
 {:else}
-  test
+  <MenuSurface static>
+    <Group>
+      <Subheader>{$_("pricealert.title").toUpperCase()}</Subheader>
+      <Accordion class="alerts-list">
+        {#each Object.entries($pricealertlist) as list}
+          {#if Object.values(list[1]["up"]).length}
+            <Panel>
+              <Header>{list[0]}</Header>
+              <Content>
+                {#if Object.values(list[1]["up"]).length !== 1}
+                  <List>
+                    {#each list[1]["up"] as up}
+                      <Item class="alert-up">
+                        <Text>
+                          <span class="alert-label"
+                            >{$_("pricealert.alertUp")}</span
+                          >
+                          <Textfield bind:value={up} type="number">
+                            <Icon class="material-icons" slot="leadingIcon">
+                              trending_up
+                            </Icon>
+                            <Icon
+                              class="material-icons"
+                              slot="trailingIcon"
+                              on:click={handleRemoveClick(
+                                "up",
+                                list[1]["up"].indexOf(up),
+                                list[0]
+                              )}
+                            >
+                              delete
+                            </Icon>
+                          </Textfield>
+                        </Text>
+                      </Item>
+                    {/each}
+                  </List>
+                {/if}
+                {#if Object.values(list[1]["down"]).length !== 1}
+                  <Separator />
+                  <List>
+                    {#each list[1]["down"] as down}
+                      <Item class="alert-down">
+                        <Text>
+                          <span class="alert-label"
+                            >{$_("pricealert.alertDown")}</span
+                          >
+                          <Textfield bind:value={down} type="number">
+                            <Icon class="material-icons" slot="leadingIcon">
+                              trending_down
+                            </Icon>
+                            <Icon
+                              class="material-icons"
+                              slot="trailingIcon"
+                              on:click={handleRemoveClick(
+                                "down",
+                                list[1]["down"].indexOf(down),
+                                list[0]
+                              )}
+                            >
+                              delete
+                            </Icon>
+                          </Textfield>
+                        </Text>
+                      </Item>
+                    {/each}
+                  </List>
+                {/if}
+              </Content>
+            </Panel>
+          {/if}
+        {/each}
+      </Accordion>
+    </Group>
+  </MenuSurface>
 {/if}
 
 <style>
@@ -421,5 +500,30 @@
     :global(input[type="number"]:hover) {
     border: 1px solid #5f5f5f;
     background: #2b2b2b;
+  }
+  :global(.alerts-list) {
+    max-width: 500px;
+    min-width: 100px;
+    border-right: 1px solid #ff0000;
+  }
+  :global(.alert-up) {
+    color: #50b300;
+  }
+  :global(.alert-down) {
+    color: #b30000;
+  }
+  :global(.smui-accordion .mdc-deprecated-list-item) {
+    height: 30px !important;
+  }
+  :global(.smui-accordion .smui-paper__content) {
+    padding: 0 !important;
+  }
+  :global(.smui-accordion .mdc-text-field__input) {
+    min-width: 70px;
+    max-width: 85px;
+  }
+  :global(.alert-label) {
+    min-width: 150px;
+    display: inline-block;
   }
 </style>
