@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { page } from "store/store.js";
   import Home from "components/pages/Home/MainHome.svelte";
   import Account from "components/pages/account/MainAccount.svelte";
