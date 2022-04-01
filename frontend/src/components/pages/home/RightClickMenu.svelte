@@ -162,7 +162,7 @@
 <style>
   #rightclickmenu {
     visibility: hidden;
-    z-index: 999;
+    z-index: 2;
     opacity: 0;
     position: fixed;
     background: #222222;
