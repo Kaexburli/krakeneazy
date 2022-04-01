@@ -23,17 +23,17 @@
     "fastify-env": "^2.1.1",
     "fastify-plugin": "^3.0.1",
     "fastify-swagger": "^4.17.1",
-    "fastify-websocket": "^4.2.0",
+    "fastify-websocket": "^4.2.1",
     "handlebars": "^4.7.7",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.2.7",
+    "mongoose": "^6.2.9",
     "node-fetch": "^3.2.3",
     "node-kraken-api": "^2.2.0",
-    "nodemailer": "^6.7.2",
+    "nodemailer": "^6.7.3",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.15",
-    "pino-pretty": "^7.5.4"
+    "pino-pretty": "^7.6.0"
   }
 }
