@@ -9,8 +9,8 @@
   let pad,
     spread_calcul = "0.0",
     displayDepth = true,
-    bookNbItem = 13,
-    bookMultiplier = 1000,
+    bookNbItem = 15,
+    bookMultiplier = 100,
     bookDiviser = 10,
     order_book = {
       as: Array(bookNbItem).fill([0, 0, 0, 0]),
@@ -23,7 +23,7 @@
     bookTotal = { as: { total: 0, count: 0 }, bs: { total: 0, count: 0 } },
     bookdata = false,
     tickerdata = { c: [0, 0] },
-    priceway = "",
+    priceway = null,
     pricetmp = 0,
     quote = $assetpair.wsname.split("/")[1],
     decimals = $assetpair.pair_decimals,
@@ -201,14 +201,13 @@
       let indexVal = round(data[0], val);
       let indexOf = acc.findIndex((o) => o && o[0] === indexVal);
 
-      if (indexOf !== -1) {
-        acc[indexOf][0] = parseFloat(indexVal);
-        acc[indexOf][1] = parseFloat(acc[indexOf][1] + data[1]).toFixed(pad);
-        acc[indexOf][2] = parseFloat(acc[indexOf][2] + data[2]).toFixed(pad);
-        acc[indexOf][3] = parseFloat(acc[indexOf][3] + data[3]).toFixed(pad);
-      } else {
+      if (indexOf === -1) {
         let tmp = [indexVal, data[1], data[2], data[3]];
         acc.push(tmp);
+      } else {
+        acc[indexOf][1] = parseFloat(
+          Number(acc[indexOf][1]) + Number(data[1])
+        ).toFixed(pad);
       }
     }
 
@@ -272,7 +271,7 @@
     let group = groupRange[priceGroupingSelect];
     priceGrouping = parseFloat(group / diviser).toFixed(decimals);
 
-    bookMultiplier = group > 2.5 ? 100 : group > 5 ? 10 : 1000;
+    // bookMultiplier = group > 2.5 ? 100 : group > 5 ? 10 : 1000;
   };
 
   $: if ($WSTicker) {
