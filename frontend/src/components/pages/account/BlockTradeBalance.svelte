@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
@@ -9,6 +12,9 @@
   import LinearProgress from "@smui/linear-progress";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let error = false,
     tradebalancedata,
     balance_way = "down",
@@ -16,13 +22,6 @@
     played = false,
     trading_percent,
     asset = $devise;
-
-  const playSound = (track) => {
-    let audio = new Audio("../sound/" + track + ".wav");
-    let playPromise = audio.play();
-    playPromise;
-    played = false;
-  };
 
   let tbLabel = {
     eb: {
@@ -61,6 +60,16 @@
       label: $_("account.tradeBalance.ml.label"),
       info: $_("account.tradeBalance.ml.info"),
     },
+  };
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const playSound = (track) => {
+    let audio = new Audio("../sound/" + track + ".wav");
+    let playPromise = audio.play();
+    playPromise;
+    played = false;
   };
 
   const GetTradeBalance = async () => {
