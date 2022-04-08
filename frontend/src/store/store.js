@@ -24,6 +24,7 @@ export const candleTimeout = writable(false);
 export const asymbole = writable(asset_replace);
 export const depth = writable(1000);
 export const ledgersdata = writable(false);
+export const tradedata = writable(false);
 export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
 export const openordersdata = writable(false);

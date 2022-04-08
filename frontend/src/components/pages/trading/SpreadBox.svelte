@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
   import Fetch from "utils/Runfetch.js";
   import { WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
-  import { assetpair, asymbole } from "store/store.js";
+  import { assetpair, asymbole, tradedata } from "store/store.js";
 
   let base = $asymbole.hasOwnProperty($assetpair.base)
     ? $asymbole[$assetpair.base].name
@@ -13,7 +13,6 @@
     : $assetpair.wsname.split("/")[1];
 
   let tickerdata = { a: [0, 0], b: [0, 0], c: [0, 0] },
-    tradedata = [],
     spreaddata = Array(1).fill([0, 0, 0, 0, 0]),
     bid_spread = 0,
     ask_spread = 0,
@@ -45,12 +44,12 @@
     }
     let pair = Object.keys(res)[0] || false;
     last = res.last;
-    if (pair) tradedata = res[pair].reverse().slice(0, 500);
+    if (pair) tradedata.set(res[pair].reverse().slice(0, 500));
   };
 
   onMount(() => getAssetTrades());
 
-  $: if ($WSTrade) tradedata = [...$WSTrade, ...tradedata];
+  $: if ($WSTrade) $tradedata = [...$WSTrade, ...$tradedata];
   $: if ($WSSpread) spreaddata = $WSSpread;
   $: if ($WSTicker) tickerdata = $WSTicker;
 
@@ -156,9 +155,9 @@
       </div>
     {/if}
 
-    {#if tradedata}
+    {#if $tradedata}
       <div class="recent-trade">
-        {#each tradedata as td}
+        {#each $tradedata as td}
           <div class="{td[3]} vol{parseInt(td[1] * td[0]).toString().length}">
             <span class="badge {td[4]}">
               {#if td[4] === "l"}{$_(
