@@ -1,6 +1,8 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import { page } from "store/store.js";
+  import LinearProgress from "@smui/linear-progress";
   import ChartItem from "components/pages/statistics/ChartItem.svelte";
 
   import { assign, createMachine } from "xstate";
@@ -8,13 +10,11 @@
   import { statisticsService } from "machin/statistics/Service.js";
 
   import { FetchExport, ProcessingData } from "machin/statistics/Method.js";
-  import { log } from "xstate/lib/actions";
-  import { mapValues } from "xstate/lib/utils";
 
-  let errorMsg;
-  let datas = [];
-  let isError = false;
-  let isLoading = false;
+  let errorMsg,
+    datas = [],
+    isError = false,
+    isLoading = false;
 
   /**
    * displayError
@@ -23,7 +23,7 @@
    * @param { Object } event Evenement
    */
   const displayError = async (ctx, event) => {
-    console.error("[displayError]:", ctx, event);
+    console.error("[ERROR]:", ctx, event);
     await wait(30000);
     send({ type: "FETCH" });
   };
@@ -82,26 +82,26 @@
     isError = $state.matches("error");
     isLoading = !$state.matches("displaying");
     datas = $state.context.dataformat;
+    if (datas.hasOwnProperty("chartDatas") && datas.chartDatas.length == 0) {
+      $page = "reports";
+    }
   }
 </script>
 
 {#if isError}
-  <span class="error">[ERREUR]: {errorMsg}</span>
+  <span class="error">{errorMsg}</span>
 {/if}
 
 <div class="block">
-  <h3>Statistiques</h3>
-  {#if isLoading}<SyncLoader
-      size="30"
-      color="#e8e8e8"
-      unit="px"
-      duration="1s"
-    />{/if}
+  <h3>{$_("statistics.title")}</h3>
+  {#if isLoading}
+    <LinearProgress indeterminate />
+  {/if}
   <div class="chart-block">
     {#if datas.hasOwnProperty("chartDatas")}
       {#each Object.keys(datas.chartDatas) as ledg}
         <div class="chart">
-          <h4>{ledg}</h4>
+          <h4>{$_(`statistics.${ledg}`)}</h4>
           <ChartItem
             data={Object.assign({}, datas.chartDatas[ledg])}
             chartLayout="pie"

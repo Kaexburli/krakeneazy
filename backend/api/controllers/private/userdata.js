@@ -1,11 +1,14 @@
-import { existsSync, rmSync, writeFileSync } from "fs";
+import fetch from "node-fetch";
+import { existsSync, rmSync, writeFileSync, mkdirSync } from "fs";
 import * as path from 'path';
 
 import { Kraken } from 'node-kraken-api'
 import extract from 'extract-zip'
 import CSVToJSON from 'csvtojson'
-// const __base = path.resolve('../export/.');
+const __base = path.resolve('../export/.');
+const now = new Date().toLocaleTimeString();
 let debug = false
+let apiError = false;
 
 /**
  *  *****************
@@ -13,19 +16,12 @@ let debug = false
  *  *****************
  */
 
-// Instanciation du module kraken API
-import KRAKEN from '../../../kraken.env.js'
-
-const randomApiKey = () => {
-  return Math.floor(Math.random() * (10 - 1 + 1)) + 1;
+// randomApiKey
+const randomApiKey = (num) => {
+  return Math.floor(Math.random() * num);
 }
 
-let shuffle = randomApiKey();
-const API_KEY = KRAKEN['key_' + shuffle]['key']
-const API_PRIV = KRAKEN['key_' + shuffle]['secret']
-
-console.log('################### Chargement des clés API [N°:' + shuffle + '] ###################')
-
+// NonceGenerator
 const NonceGenerator = (() => {
   let prev = -1;
   let next = -1;
@@ -37,52 +33,171 @@ const NonceGenerator = (() => {
   });
 })();
 
-const api = new Kraken({
-  key: API_KEY,
-  secret: API_PRIV,
-  gennonce: () => NonceGenerator()
-})
+// Instanciation du module kraken API
+const initApiKraken = (apikeys = false) => {
+
+  if (!apikeys || typeof apikeys === ("undefined" || null) || !apikeys.length) {
+    return new Kraken({ gennonce: () => NonceGenerator() })
+  }
+
+  let shuffle = randomApiKey(apikeys.length);
+  if (typeof apikeys[shuffle] === "undefined") {
+    return new Kraken({ gennonce: () => NonceGenerator() })
+  }
+
+  const pubKey = apikeys[shuffle].apiKeyPublic || false;
+  const privKey = apikeys[shuffle].apiKeyPrivate || false;
+
+  if (!pubKey || !privKey) {
+    return new Kraken({ gennonce: () => NonceGenerator() })
+  }
+
+  if (pubKey && privKey) {
+    return new Kraken({
+      key: pubKey,
+      secret: privKey,
+      gennonce: () => NonceGenerator()
+    })
+  }
+}
+
+const krakenErrorsList = {
+  EGeneral: { "Temporary lockout": 900000, "Internal error": 60000, "Too many requests": 60000 },
+  EAPI: { "Invalid nonce": 100, "Rate limit exceeded": 60000 },
+  EQuery: {},
+  ESession: {},
+  EOrder: { "Rate limit exceeded": 60000, },
+  EService: {},
+  EService: { "Busy": 60000 },
+  ETrade: {}
+}
 
 /**
  *  *****************
  *  API REST METHOD
  *  *****************
  */
+const logError = (error, func) => {
+  console.log(
+    `\x1b[35m%s\x1b[0m`, `[${now}]`,
+    '\x1b[33m[ERROR]\x1b[0m',
+    `\x1b[0m${func}:\x1b[0m\x1b[33m${error}\x1b[0m`
+  );
+}
+const handleError = (error, func) => {
+  if (error) {
+    if (error.hasOwnProperty('body')) {
+      logError(error.body.error[0], func)
+      apiError = error.body.error[0].split(':') || false;
+      if (apiError && typeof krakenErrorsList[apiError[0]] !== "undefined") {
+        return {
+          error: apiError[1],
+          timeout: krakenErrorsList[apiError[0]][apiError[1]],
+          response: { error, name: apiError[0] },
+          func
+        }
+      }
+      else {
+        logError(error, func)
+        return { error: apiError[1], timeout: false, response: { error, name: apiError[0] }, func }
+      }
+    }
+    return error;
+  }
+}
 
-// /SystemStatus
-const getSystemStatus = async (req, reply) => {
+// checkApiKeyPermissions
+const checkApiKeyPermissions = async (apikeys) => {
+  const apiKraken = initApiKraken([apikeys], true)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
+  const payload = {
+    pair: 'XXBTZUSD',
+    type: "buy",
+    ordertype: 'limit',
+    price: '45000.1',
+    volume: '2.1234',
+    leverage: '2:1',
+    'close[ordertype]': 'stop-loss-limit',
+    'close[price]': '38000',
+    'close[price2]': '36000',
+    validate: true
+  }
+
   try {
-    let response = await api.systemStatus()
+    const response = {
+      status: await apiKraken.systemStatus(),
+      balance: await apiKraken.balance(),
+      openOrders: await apiKraken.openOrders(),
+      closedOrders: await apiKraken.closedOrders(),
+      ledgers: await apiKraken.ledgers(),
+      tradesHistory: await apiKraken.tradesHistory(),
+      openPositions: await apiKraken.openPositions(),
+      addOrder: await apiKraken.addOrder(payload),
+      exportStatus: await apiKraken.exportStatus({ report: 'trades' }),
+      token: await apiKraken.getWebSocketsToken()
+    }
+
     return response
   } catch (error) {
-    return error
+    return handleError(error, "checkApiKeyPermissions")
+  }
+}
+
+// /SystemStatus
+const getSystemStatus = async (req, _reply) => {
+
+  const apiKraken = initApiKraken()
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
+  try {
+    const response = await apiKraken.systemStatus()
+    return response
+  } catch (error) {
+    return handleError(error, "getSystemStatus")
   }
 }
 
 // /private/Balance
-const getBalance = async (req, reply) => {
+const getBalance = async (req, _reply) => {
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   try {
-    let response = await api.balance()
+    const response = await apiKraken.balance()
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getBalance")
   }
 }
 
 // /private/TradeBalance
-const getTradeBalance = async (req, reply) => {
+const getTradeBalance = async (req, _reply) => {
+
   const { asset } = req.params
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   try {
-    let response = await api.tradeBalance({ asset: asset })
+    const response = await apiKraken.tradeBalance({ asset: asset })
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getTradeBalance")
   }
 }
 
 // /private/OpenOrders
-const getOpenOrders = async (req, reply) => {
+const getOpenOrders = async (req, _reply) => {
+
   const { trades, userref } = req.params
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
 
   let params
 
@@ -94,16 +209,21 @@ const getOpenOrders = async (req, reply) => {
   }
 
   try {
-    let response = await api.openOrders(params)
+    const response = await apiKraken.openOrders(params)
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getOpenOrders")
   }
 }
 
 // /private/ClosedOrders
-const getClosedOrders = async (req, reply) => {
+const getClosedOrders = async (req, _reply) => {
+
   const { trades, ofs, start, end, userref, closetime } = req.params
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
 
   let params
 
@@ -115,98 +235,186 @@ const getClosedOrders = async (req, reply) => {
   }
 
   try {
-    let response = await api.closedOrders(params)
+    const response = await apiKraken.closedOrders(params)
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getClosedOrders")
   }
 }
 
 // /private/TradeVolume
-const getTradeVolume = async (req, reply) => {
+const getTradeVolume = async (req, _reply) => {
+
   const { pair } = req.params
 
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   if (typeof pair === undefined && !pair) {
-    pair = "XBTUSD"
+    return { error: true, message: "Asset Pair error!" };
   }
 
   try {
-    let response = await api.tradeVolume({ pair })
+    const response = await apiKraken.tradeVolume({ pair })
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getTradeVolume")
   }
 }
 
 // /private/Ledgers
-const getLedgers = async (req, reply) => {
+const getLedgers = async (req, _reply) => {
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   try {
-    let response = await api.ledgers()
+    const response = await apiKraken.ledgers()
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getLedgers")
   }
 }
 
 // /private/TradesHistory
-const getTradesHistory = async (req, reply) => {
+const getTradesHistory = async (req, _reply) => {
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
+
   try {
-    let response = await api.tradesHistory()
+    const response = await apiKraken.tradesHistory()
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getTradesHistory")
   }
 }
 
 // /private/OpenPositions
-const getOpenPositions = async (req, reply) => {
+const getOpenPositions = async (req, _reply) => {
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   try {
-    let response = await api.openPositions({ docalcs: true })
+    const response = await apiKraken.openPositions({ docalcs: true })
+
+    if (response) {
+      let txids = Object.keys(response)
+      const trades = await apiKraken.queryTrades({ txid: txids, trades: true })
+      if (trades) {
+        for (const id of txids) {
+          response[id]['price'] = trades[id].price
+          response[id]['postxid'] = trades[id].postxid
+        }
+      }
+    }
+
     return response
   } catch (error) {
-    return error
+    return handleError(error, "getOpenPositions")
+  }
+}
+
+// /AddOrder
+const AddOrder = async (req, _reply) => {
+
+  const { body } = req || false;
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+  try {
+    const payload = {
+      pair: body.pair,
+      type: body.type,
+      ordertype: body.ordertype,
+      price: body.price,
+      volume: body.volume,
+      leverage: body.leverage === "0" ? "none" : body.leverage,
+      oflags: body.type === 'sell' ? body.devise === 'quote' ? 'fciq' : 'fcib' : body.devise === 'base' ? 'fcib' : 'fciq',
+      validate: body.dry
+    }
+
+    if (body.postonly) payload.oflags = [payload.oflags, "post"].join(',');
+    if (body.condtype) {
+      payload['close[ordertype]'] = body.condtype || false
+      payload['close[price]'] = body.condprice || false
+      payload['close[price2]'] = body.condtotal || false
+    }
+
+    console.log(body, payload)
+    const response = await apiKraken.addOrder(payload);
+    return response
+  } catch (error) {
+    return handleError(error, "AddOrder")
   }
 }
 
 // /private/AddExport
-const addExport = async (req, reply) => {
+const addExport = async (req, _reply) => {
+
   const { report, description, starttm } = req.params
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   try {
-    let add = await api.addExport({ report, description, starttm })
+    let add = await apiKraken.addExport({ report, description, starttm })
     return add
   } catch (error) {
-    return error
+    return handleError(error, "addExport")
   }
 }
 
 // /private/statusExport
-const statusExport = async (req, reply) => {
+const statusExport = async (req, _reply) => {
+
   const { report } = req.params
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   try {
-    let status = await api.exportStatus({ report })
+    let status = await apiKraken.exportStatus({ report })
     return status
   } catch (error) {
-    return error
+    return handleError(error, "statusExport")
   }
 }
 
 // /private/retrieveExport
-const retrieveExport = async (req, reply) => {
-  const { id, type } = req.params
+const retrieveExport = async (req, _reply) => {
+  const { id, type, userId } = req.params
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
+
   try {
 
     let res = true;
     const filename = `${id}_${type}.zip`;
-    const __base = path.resolve('../export/.');
-    const fullPath = __base + '/' + filename
-    const destPath = __base + '/' + id
+    const fullPath = `${__base}/${userId}/${id}/${filename}`
+    const destPath = `${__base}/${userId}/${id}`
 
-    let data = await api.retrieveExport({ id });
+    let data = await apiKraken.retrieveExport({ id });
     const writeOpts = {
       encoding: "utf8",
       flag: "w",
       mode: 0o666
     };
+
+    if (!existsSync(destPath)) {
+      mkdirSync(destPath, { recursive: true })
+    }
 
     writeFileSync(fullPath, data, writeOpts);
 
@@ -220,35 +428,38 @@ const retrieveExport = async (req, reply) => {
     return { filename, res, data }
 
   } catch (error) {
-    return { error }
+    return handleError(error, "retrieveExport")
   }
 }
 
 // /private/rmOldExport
-const rmOldExport = async (req, reply) => {
-  const { id } = req.params
+const rmOldExport = async (req, _reply) => {
+
+  const { id, userId } = req.params
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
-    const __base = path.resolve('../export/.');
-    const fullPath = path.join(__base, id)
+    const fullPath = path.join(__base, userId, id)
     if (existsSync(fullPath)) rmSync(fullPath, { recursive: true })
-    const res = await api.removeExport({ id, type: 'delete' });
+    const res = await apiKraken.removeExport({ id, type: 'delete' });
     return res;
 
   } catch (error) {
-    return { error }
+    return handleError(error, "rmOldExport")
   }
 }
 
 // /private/readExport
-const readExport = async (req, reply) => {
-  const { id, type } = req.params
+const readExport = async (req, _reply) => {
+
+  const { id, type, userId } = req.params
   try {
     let data;
-    let fileExist = false;
-    const filename = id + '\\' + type + '.csv';
-    const __base = path.resolve('../export/.');
-    const fullPath = __base + '\\' + filename
+
+    const fullPath = `${__base}/${userId}/${id}/${type}.csv`
 
     if (existsSync(fullPath)) data = await CSVToJSON().fromFile(fullPath)
     else data = false;
@@ -256,15 +467,14 @@ const readExport = async (req, reply) => {
     return data
 
   } catch (error) {
-    return { error }
+    return handleError(error, "readExport")
   }
 }
 
 // Verifie que le dossier de destination existe
-const checkIfFolderExist = async (req, reply) => {
-  const { id, type } = req.params
-  const __base = path.resolve('../export/.')
-  const destPath = __base + '/' + id + '/' + type + '.csv'
+const checkIfFolderExist = async (req, _reply) => {
+  const { id, type, userId } = req.params
+  const destPath = `${__base}/${userId}/${id}/${type}.csv`
   return existsSync(destPath)
 }
 
@@ -272,8 +482,8 @@ const checkIfFolderExist = async (req, reply) => {
 const extractZip = async (source, target) => {
   try {
     return await extract(source, { dir: target });
-  } catch (err) {
-    console.log("Oops: extractZip failed", err);
+  } catch (error) {
+    return handleError(error, "checkIfFolderExist")
   }
 }
 
@@ -284,13 +494,18 @@ const extractZip = async (source, target) => {
  */
 
 // /private/OpenOrders
-const getWsOpenOrders = async (connection, reply, req) => {
+const getWsOpenOrders = async (connection, req, _reply) => {
+
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
 
-    const { token } = await api.getWebSocketsToken();
+    const { token } = await apiKraken.getWebSocketsToken();
 
-    const openorders = await api.ws.openOrders({ token: token, ratecounter: true })
+    const openorders = await apiKraken.ws.openOrders({ token: token, ratecounter: true })
       .on("update", (update, sequence) => {
         if (debug) console.log('[UPDATE OPEN-ORDERS]: ', update, sequence)
         connection.socket.send(JSON.stringify({ service: 'OpenOrders', data: update, sequence }))
@@ -303,9 +518,6 @@ const getWsOpenOrders = async (connection, reply, req) => {
       .on('error', (error, sequence) => {
         if (debug) console.log('[ERROR OPEN-ORDERS]: ', error, sequence, openorders)
         connection.socket.send(JSON.stringify(error))
-        // openorders.unsubscribe()
-        // openorders.close()
-        // connection.socket.open()
       })
       .subscribe();
 
@@ -314,18 +526,24 @@ const getWsOpenOrders = async (connection, reply, req) => {
     })
 
   } catch (error) {
+    handleError(error, "getWsOpenOrders")
     return error
   }
 }
 
 // /private/OwnTrades
-const getWsOwnTrades = async (connection, reply, req) => {
+const getWsOwnTrades = async (connection, req, _reply) => {
+
+
+  const { apikeys } = req.user || false;
+  const apiKraken = initApiKraken(apikeys)
+  if (!apiKraken) return { error: true, message: "API Key error!" };
 
   try {
 
-    const { token } = await api.getWebSocketsToken();
+    const { token } = await apiKraken.getWebSocketsToken();
 
-    const owntrades = await api.ws.ownTrades({ token: token, ratecounter: true })
+    const owntrades = await apiKraken.ws.ownTrades({ token: token, ratecounter: true })
       .on("update", (update, sequence) => {
         if (debug) console.log('[UPDATE OWN-TRADES]: ', update, sequence)
         connection.socket.send(JSON.stringify({ service: 'OwnTrades', data: update, sequence }))
@@ -338,41 +556,41 @@ const getWsOwnTrades = async (connection, reply, req) => {
       .on('error', (error, sequence) => {
         if (debug) console.log('[ERROR OWN-TRADES]: ', error, sequence, owntrades)
         connection.socket.send(JSON.stringify(error))
-        // owntrades.unsubscribe()
-        // owntrades.close()
-        // connection.socket.open()
       })
       .subscribe();
 
-    connection.socket.on('close', async (message) => {
+    connection.socket.on('close', async (_message) => {
       owntrades.unsubscribe()
     })
 
   } catch (error) {
+    handleError(error, "getWsOwnTrades")
     return error
   }
 }
 
 // /private/TradeBalance WS
-const getWsTradeBalance = async (connection, reply, req) => {
+const getWsTradeBalance = async (connection, req, reply) => {
+
 
   let timer = null;
-  let interval = 30000;
+  let interval = 15000;
 
   // Strat interval
   const startInterval = () => {
     timer = setInterval(() => {
-      getWsTradeBalanceData()
+      getWsTradeBalanceData(req, reply)
     }, interval);
   }
 
   // Envoie la requête api
-  const getWsTradeBalanceData = async () => {
+  const getWsTradeBalanceData = async (req, reply) => {
     try {
-      let response = await getTradeBalance(reply, req)
+
+      const response = await getTradeBalance(req, reply)
       checkAndSendResult(response)
     } catch (error) {
-      console.log('######################" [ERROR:getWsTradeBalanceData]', error)
+      handleError(error, "getWsTradeBalance")
     }
   }
 
@@ -382,17 +600,29 @@ const getWsTradeBalance = async (connection, reply, req) => {
       data.hasOwnProperty('body') &&
       data.body.hasOwnProperty('error')
     ) {
-      connection.socket.send(JSON.stringify({ service: 'WsTradeBalance', data: { error: data.body.error } }))
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsTradeBalance',
+          error: true,
+          message: data.body.error
+        })
+      )
       stopInterval()
 
       setTimeout(() => {
         timer = startInterval()
-      }, (interval * 4));
+      }, 60000);
 
     }
     else {
-      data.rate = Date.now()
-      connection.socket.send(JSON.stringify({ service: 'WsTradeBalance', error: false, data }))
+      data['rate'] = Date.now()
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsTradeBalance',
+          error: false,
+          data
+        })
+      )
     }
   }
 
@@ -407,7 +637,7 @@ const getWsTradeBalance = async (connection, reply, req) => {
 }
 
 // /SystemStatus WS
-const getWsSystemStatus = async (connection, reply, req) => {
+const getWsSystemStatus = async (connection, req, reply) => {
 
   let timer = null,
     interval = 2000;
@@ -422,10 +652,10 @@ const getWsSystemStatus = async (connection, reply, req) => {
   // Envoie la requête api
   const getWsSystemStatusData = async () => {
     try {
-      let response = await getSystemStatus(reply, req)
+      const response = await getSystemStatus(req, reply)
       checkAndSendResult(response)
     } catch (error) {
-      console.log('######################" [ERROR:getWsSystemStatusData]', error)
+      handleError(error, "getWsSystemStatus")
     }
   }
 
@@ -435,16 +665,27 @@ const getWsSystemStatus = async (connection, reply, req) => {
       data.hasOwnProperty('body') &&
       data.body.hasOwnProperty('error')
     ) {
-      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', data: { error: data.body.error } }))
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsSystemStatus',
+          data: { error: data.body.error }
+        })
+      )
       stopInterval()
 
       setTimeout(() => {
         timer = startInterval()
-      }, (interval * 300));
+      }, 60000);
 
     }
     else {
-      connection.socket.send(JSON.stringify({ service: 'WsSystemStatus', error: false, data }))
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsSystemStatus',
+          error: false,
+          data
+        })
+      )
     }
   }
 
@@ -458,6 +699,71 @@ const getWsSystemStatus = async (connection, reply, req) => {
   startInterval()
 }
 
+// /getWsKrakenStatus WS
+const getWsKrakenStatus = async (connection, _req, _reply) => {
+
+  let timer = null,
+    interval = 60000;
+
+  // Strat interval
+  const startInterval = () => {
+    timer = setInterval(() => {
+      getWsKrakenStatusData()
+    }, interval);
+  }
+
+  // Envoie la requête api
+  const getWsKrakenStatusData = async () => {
+    try {
+      try {
+        const statusKraken = await fetch(process.env.KRAKEN_STATUS_API_URL);
+        let body = await statusKraken.json();
+        checkAndSendResult(body)
+      } catch (error) {
+        console.error("[ERROR]:", error);
+      }
+
+    } catch (error) {
+      handleError(error, "getWsKrakenStatus")
+    }
+  }
+
+  // Verifie la réponse si erreur
+  const checkAndSendResult = async (data) => {
+    if (!data) {
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsKrakenStatus',
+          data: { error: true, response: data }
+        })
+      )
+      stopInterval()
+
+      setTimeout(() => {
+        timer = startInterval()
+      }, 60000);
+
+    }
+    else {
+      connection.socket.send(
+        JSON.stringify({
+          service: 'WsKrakenStatus',
+          error: false,
+          data
+        })
+      )
+    }
+  }
+
+  // Stop l'interval
+  const stopInterval = () => {
+    clearInterval(timer)
+    timer = null
+  }
+
+  // Lancement de l'interval 
+  startInterval()
+}
 
 /**
  *  *****************
@@ -465,6 +771,8 @@ const getWsSystemStatus = async (connection, reply, req) => {
  *  *****************
  */
 export {
+  checkApiKeyPermissions,
+
   // REST MEthod
   getBalance,
   getTradeBalance,
@@ -474,6 +782,7 @@ export {
   getLedgers,
   getTradesHistory,
   getOpenPositions,
+  AddOrder,
   addExport,
   statusExport,
   retrieveExport,
@@ -486,4 +795,5 @@ export {
   getWsOwnTrades,
   getWsTradeBalance,
   getWsSystemStatus,
+  getWsKrakenStatus
 };

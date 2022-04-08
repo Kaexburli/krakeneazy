@@ -1,28 +1,47 @@
 <script>
-  import { onMount, createEventDispatcher } from "svelte";
-  import { assetpair } from "store/store.js";
-  import { book, ticker, spread, trade } from "store/wsstore.js";
+  import { _ } from "svelte-i18n";
+  import { createEventDispatcher } from "svelte";
+  import { assetpair, depth } from "store/store.js";
+  import { WSBook, WSTicker } from "store/wsstore.js";
 
   const dispatch = createEventDispatcher();
 
-  let spread_calcul = "0.0";
-  let asks = [];
-  let bids = [];
-  let ask = [];
-  let bid = [];
-  let bookdata = false;
-  let tickerdata = false;
-  let tradedata = false;
-  let spreaddata = false;
-  let totalVask = 0;
-  let totalVbid = 0;
-  let priceway = "";
-  let pricetmp = 0;
-  let quote = $assetpair.quote;
-  let decimals = $assetpair.pair_decimals;
+  let pad,
+    spread_calcul = "0.0",
+    displayDepth = true,
+    bookNbItem = 15,
+    bookMultiplier = 100,
+    bookDiviser = 10,
+    order_book = {
+      as: Array(bookNbItem).fill([0, 0, 0, 0]),
+      bs: Array(bookNbItem).fill([0, 0, 0, 0]),
+    },
+    asks = Array(bookNbItem).fill([0, 0, 0, 0]),
+    bids = Array(bookNbItem).fill([0, 0, 0, 0]),
+    ask = [],
+    bid = [],
+    bookTotal = { as: { total: 0, count: 0 }, bs: { total: 0, count: 0 } },
+    bookdata = false,
+    tickerdata = { c: [0, 0] },
+    priceway = null,
+    pricetmp = 0,
+    quote = $assetpair.wsname.split("/")[1],
+    decimals = $assetpair.pair_decimals,
+    lot_decimals = $assetpair.lot_decimals,
+    errorDisplay = "<span>---</span>";
 
+  let groupRange = [
+    0, 0.5, 1.0, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000,
+  ];
+  let priceGroupingSelect = groupRange[0];
+  let priceGrouping = groupRange[0];
+  let diviser = "1".padEnd(decimals, "0");
+
+  /**
+   * updatePriceClass
+   ************************/
   const updatePriceClass = (tick) => {
-    if (typeof tick !== "undefined" && tick.hasOwnProperty("a")) {
+    if (tick) {
       spread_calcul = (tick["a"][0] - tick["b"][0]).toFixed(decimals);
 
       if (tick["c"][0] > pricetmp) priceway = "price-up";
@@ -32,153 +51,373 @@
     }
   };
 
-  // Écoute l'api websocket Order Book
+  /**
+   * crc32Generate
+   ************************/
+  const crc32Generate = () => {
+    let table = new Array();
+
+    for (let i = 0; i < 256; i++) {
+      let n = i;
+      for (let j = 8; j > 0; j--) {
+        if ((n & 1) == 1) {
+          n = (n >>> 1) ^ 0xedb88320;
+        } else {
+          n = n >>> 1;
+        }
+      }
+      table[i] = n;
+    }
+
+    return table;
+  };
+
+  /**
+   * crc32Compute
+   ************************/
+  const crc32Compute = (str) => {
+    let table = crc32Generate();
+    let crc = 0xffffffff;
+
+    for (let i = 0; i < str.length; i++)
+      crc = (crc >>> 8) ^ table[str.charCodeAt(i) ^ (crc & 0x000000ff)];
+
+    crc = ~crc;
+    crc = crc < 0 ? 0xffffffff + crc + 1 : crc;
+
+    return crc;
+  };
+
+  /**
+   * orderbookChecksum
+   ************************/
+  const orderbookChecksum = (orderbook_json) => {
+    let orderbook_ask = Object.keys(orderbook_json).includes("a")
+      ? orderbook_json["a"]
+      : Object.keys(orderbook_json).includes("as")
+      ? orderbook_json["as"]
+      : orderbook_json;
+    let orderbook_bid = Object.keys(orderbook_json).includes("b")
+      ? orderbook_json["b"]
+      : Object.keys(orderbook_json).includes("bs")
+      ? orderbook_json["bs"]
+      : orderbook_json;
+
+    let checksum_string = "";
+
+    for (let count = 0; count < 5; count++) {
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_ask[count][0].replace(".", ""))
+      );
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_ask[count][1].replace(".", ""))
+      );
+    }
+
+    for (let count = 0; count < 5; count++) {
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_bid[count][0].replace(".", ""))
+      );
+      checksum_string = checksum_string.concat(
+        parseInt(orderbook_bid[count][1].replace(".", ""))
+      );
+    }
+
+    return crc32Compute(checksum_string);
+  };
+
+  /**
+   * updateBook
+   ************************/
+  const updateBook = (side, data, checksumOrigine) => {
+    data.forEach((item) => {
+      let index = order_book[side].findIndex((o) => o && o[0] === item[0]);
+      if (index === -1) {
+        // index n'existe pas on l'ajoute
+        order_book[side].push([item[0], item[1], item[2]]);
+      } else {
+        if (item[1] == 0) {
+          // index existe mais le volume est vide on supprime
+          order_book[side].splice(index, 1);
+        } else {
+          // index existe et le volume change on met à jour
+          order_book[side][index] = [item[0], item[1], item[2]];
+        }
+      }
+    });
+    order_book = sortBook(order_book, side);
+
+    // let checksum = orderbookChecksum(order_book);
+    // console.log(checksum == checksumOrigine, checksum, checksumOrigine);
+  };
+
+  /**
+   * sortBook
+   ************************/
+  const sortBook = (arr, side) => {
+    if (side == "bs") {
+      arr[side].sort((x, y) => parseFloat(y[0]) - parseFloat(x[0]));
+    } else if (side == "as") {
+      arr[side].sort((x, y) => parseFloat(x[0]) - parseFloat(y[0]));
+    }
+    return arr;
+  };
+
+  /**
+   * getBook
+   ************************/
   const getBook = (data) => {
     if (data.hasOwnProperty("snapshot")) {
-      asks = data.snapshot.as;
-      bids = data.snapshot.bs;
+      order_book = data.snapshot;
+    } else if (data.hasOwnProperty("mirror")) {
+      // let checksum = orderbookChecksum(order_book);
+    } else if (data.hasOwnProperty("ask")) {
+      ask = data.ask.a || false;
+      if (ask) updateBook("as", ask, data.ask.c);
+    } else if (data.hasOwnProperty("bid")) {
+      bid = data.bid.b || false;
+      if (bid) updateBook("bs", bid, data.bid.c);
     }
-    if (data.hasOwnProperty("mirror")) {
-      asks = data.mirror.as;
-      bids = data.mirror.bs;
-    }
-    if (data.hasOwnProperty("ask")) {
-      ask = data.ask.a[0];
-    }
-    if (data.hasOwnProperty("bid")) {
-      bid = data.bid.b[0];
-    }
+
+    // UpdateBookOrder
+    updateBookOrder();
   };
 
-  onMount(() => {
-    trade.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        if (tick.service === "Trade" && tick.data) tradedata = tick.data;
-    });
+  /**
+   * groupBy
+   ************************/
+  const groupBy = (obook, val) => {
+    let acc = [];
 
-    spread.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1)
-        if (tick.service === "Spread" && tick.data) spreaddata = tick.data;
-    });
+    const round = (value, step) => {
+      step || (step = 1.0);
+      let inv = 1.0 / step;
+      return Math.round(value * inv) / inv;
+    };
 
-    ticker.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (tick.service === "Ticker" && tick.data) {
-          tickerdata = tick.data;
-          updatePriceClass(tickerdata);
-        }
+    for (let i = 0; i < obook.length; i++) {
+      const data = obook[i];
+
+      let indexVal = round(data[0], val);
+      let indexOf = acc.findIndex((o) => o && o[0] === indexVal);
+
+      if (indexOf === -1) {
+        let tmp = [indexVal, data[1], data[2], data[3]];
+        acc.push(tmp);
+      } else {
+        acc[indexOf][1] = parseFloat(
+          Number(acc[indexOf][1]) + Number(data[1])
+        ).toFixed(pad);
       }
+    }
+
+    // Return acc
+    return acc;
+  };
+
+  /**
+   * updateBookOrder
+   ************************/
+  const updateBookOrder = () => {
+    // Update du prix total
+    asks = updateTotal(order_book.as, "as");
+    bids = updateTotal(order_book.bs, "bs");
+
+    // Groupe si valeur selectionné
+    if (priceGrouping > 0) {
+      asks = groupBy(asks, priceGrouping);
+      bids = groupBy(bids, priceGrouping);
+    }
+
+    // Slice par bookNbItem
+    asks = asks.slice(0, bookNbItem).reverse();
+    bids = bids.slice(0, bookNbItem);
+
+    // pad = 10 - String(parseInt(asks[0][1])).length;
+    // pad = pad > lot_decimals + 1 ? lot_decimals : 4;
+    pad = diviser >= 1000 ? 4 : lot_decimals;
+  };
+
+  /**
+   * toogleTicker
+   ************************/
+  const updateTotal = (data, side) => {
+    let total = 0;
+    data.forEach((item) => {
+      total = Number(Number(item[1]) + Number(total));
+      item[3] = total;
     });
-
-    book.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length) {
-        if (tick.service === "OrderBook" && tick.data) {
-          bookdata = tick.data;
-          getBook(bookdata);
-          dispatch("loading", { loading: true });
-        }
-      }
-    });
-  });
-
-  // Convertie le timestamp en heure lisible
-  const FDate = (timestamp) => {
-    var date = new Date(timestamp * 1000);
-    return (
-      ("0" + date.getHours()).slice(-2) +
-      ":" +
-      ("0" + date.getMinutes()).slice(-2) +
-      ":" +
-      ("0" + date.getSeconds()).slice(-2)
-    );
+    bookTotal[side] = {
+      total: parseFloat(total / bookDiviser).toFixed(2),
+      count: data.length,
+    };
+    return data;
   };
 
-  const totalVolAsk = (volume, i) => {
-    if (i === 0) totalVask = 0;
-    totalVask = Number(Number(volume) + Number(totalVask));
-    return totalVask.toFixed(8);
+  /**
+   * setDepthBook
+   ************************/
+  // A VOIR POUR LE GROUPEMENT
+  const setDepthBook = (sens) => {
+    let length = groupRange.length - 1;
+    if (sens === "plus") {
+      priceGroupingSelect++;
+      priceGroupingSelect =
+        priceGroupingSelect > length ? length : priceGroupingSelect;
+    } else if (sens === "minus") {
+      priceGroupingSelect--;
+      priceGroupingSelect = priceGroupingSelect < 0 ? 0 : priceGroupingSelect;
+    }
+    let group = groupRange[priceGroupingSelect];
+    priceGrouping = parseFloat(group / diviser).toFixed(decimals);
+
+    // bookMultiplier = group > 2.5 ? 100 : group > 5 ? 10 : 1000;
   };
 
-  const totalVolBid = (volume, i) => {
-    if (i === 0) totalVbid = 0;
-    totalVbid = Number(Number(volume) + Number(totalVbid));
-    return totalVbid.toFixed(8);
-  };
+  $: if ($WSTicker) {
+    tickerdata = $WSTicker;
+    updatePriceClass(tickerdata);
+  }
+  $: if ($WSBook) {
+    bookdata = $WSBook;
+    getBook(bookdata);
+    dispatch("loading", { loading: true });
+  }
 </script>
 
 <div class="order-book-block">
-  {#if typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")}
+  {#if tickerdata}
     <div class="tick close-tick clearfix">
-      <div id="current-price" class={priceway}>
-        {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
-      </div>
       <div id="current-infos">
-        <div id="current-volume">
-          <span class="label">Volume total : </span>{tickerdata["c"][1]}
-        </div>
-        <div id="current-spread">
-          <span class="label">Spread : </span>{spread_calcul}
-        </div>
+        <span id="current-volume">
+          <span class="label">
+            {$_("home.book.totalVolume")} :
+          </span>{tickerdata["c"][1]}
+        </span>
+        <br />
+        <span id="current-spread">
+          <span class="label">
+            {$_("home.book.spread")} :
+          </span>{spread_calcul}
+        </span>
+        {#if displayDepth}
+          <div id="depth-select">
+            {#if priceGrouping > 0}
+              <span class="grouping">
+                {$_("home.book.group")} :{priceGrouping}
+              </span>
+            {/if}
+            <button
+              class="minusBtn"
+              on:click|preventDefault={() => setDepthBook("minus")}
+            >
+              <i class="fa fa-minus" />
+            </button>
+            <button
+              class="plusBtn"
+              on:click|preventDefault={() => setDepthBook("plus")}
+            >
+              <i class="fa fa-plus" />
+            </button>
+          </div>
+        {/if}
       </div>
     </div>
   {/if}
   <div class="order-book-section clearfix">
-    <ul class="order-book asks-section">
-      {#each asks as a, i}
-        {#if i === 0}
-          <li class="ask ask-label" id="ask-{i}">
-            <span class="time-label">Time</span>
-            <span class="vol-total-label">Total Volume</span>
-            <span class="volume-label">Volume</span>
-            <span class="price-label">Price</span>
-          </li>
-        {/if}
-        {#if ask && i == 0}
-          <li class="ask" id="ask-realtime">
-            <span class="time">{FDate(ask[2])}</span>
-            <span class="vol-total">{ask[1]} </span>
-            <span class="volume">{ask[1]}</span>
-            <span class="ask-price">{Number(ask[0]).toFixed(decimals)}</span>
-          </li>
-        {/if}
-        <li class="ask" id="ask-{i}">
-          <span class="time">{FDate(a[2])}</span>
-          <span class="vol-total">{totalVolAsk(a[1], i)} </span>
-          <span class="volume">{a[1]}</span>
-          <span class="ask-price">{Number(a[0]).toFixed(decimals)}</span>
-        </li>
-      {/each}
-    </ul>
-    <ul class="order-book bids-section">
-      {#each bids as b, i}
-        {#if i === 0}
-          <li class="bid bid-label" id="bid-{i}">
-            <span class="price-label">Price</span>
-            <span class="volume-label">Volume</span>
-            <span class="vol-total-label">Total Volume</span>
-            <span class="time-label">Time</span>
-          </li>
-        {/if}
-        {#if bid && i == 0}
-          <li class="bid" id="bid-realtime">
-            <span class="bid-price">{Number(bid[0]).toFixed(decimals)}</span>
-            <span class="volume">{bid[1]}</span>
-            <span class="vol-total">{bid[1]}</span>
-            <span class="time">{FDate(bid[2])}</span>
-          </li>
-        {/if}
-        <li class="bid" id="bid-{i}">
-          <span class="bid-price">{Number(b[0]).toFixed(decimals)}</span>
-          <span class="volume">{b[1]}</span>
-          <span class="vol-total">{totalVolBid(b[1], i)}</span>
-          <span class="time">{FDate(b[2])}</span>
-        </li>
-      {/each}
-    </ul>
+    <div class="order-book-vertical">
+      <div class="block">
+        <ul class="asks-section">
+          {#each asks as a, i}
+            <li class="ask" id="ask-{i}">
+              <div
+                class="ask-line"
+                style="width:{(Number(a[3]).toFixed(pad) / bookTotal.as.total) *
+                  bookMultiplier}%;"
+              />
+              <span class="ask-price">
+                {#if Number(a[0]) > 0}
+                  {@html Number(a[0]).toFixed(decimals) || errorDisplay}
+                {:else}
+                  {@html errorDisplay}
+                {/if}
+              </span>
+              <span class="volume">
+                {#if Number(a[1]) > 0}
+                  {@html `<span class="loip">${
+                    String(a[1]).split(".")[0]
+                  }</span>.${String(Number(a[1]).toFixed(pad)).split(".")[1]}`}
+                {:else}
+                  {@html errorDisplay}
+                {/if}
+              </span>
+              <span class="vol-total">
+                {#if Number(a[3]) > 0}
+                  {@html `${String(a[3]).split(".")[0]}.<span class="loip">${
+                    String(Number(a[3]).toFixed(pad)).split(".")[1]
+                  }</span>`}
+                {:else}
+                  {@html errorDisplay}
+                {/if}
+              </span>
+            </li>
+          {/each}
+        </ul>
+      </div>
+      {#if tickerdata}
+        <div id="current-price" class={priceway}>
+          {@html Number(tickerdata["c"][0]).toFixed(decimals) ||
+            errorDisplay}&nbsp;{quote}
+        </div>
+      {/if}
+      <div class="block">
+        <ul class="bids-section">
+          {#each bids as b, i}
+            <li class="bid" id="bid-{i}">
+              <div
+                class="bid-line"
+                style="width:{(Number(b[3]).toFixed(pad) / bookTotal.bs.total) *
+                  bookMultiplier}%;"
+              />
+              <span class="bid-price">
+                {#if Number(b[0]) > 0}
+                  {@html Number(b[0]).toFixed(decimals) || errorDisplay}
+                {:else}
+                  {@html errorDisplay}
+                {/if}
+              </span>
+              <span class="volume">
+                {#if Number(b[1]) > 0}
+                  {@html `<span class="loip">${
+                    String(b[1]).split(".")[0]
+                  }</span>.${String(Number(b[1]).toFixed(pad)).split(".")[1]}`}
+                {:else}
+                  {@html errorDisplay}
+                {/if}
+              </span>
+              <span class="vol-total">
+                {#if Number(b[3]) > 0}
+                  {@html `${String(b[3]).split(".")[0]}.<span class="loip">${
+                    String(Number(b[3]).toFixed(pad)).split(".")[1]
+                  }</span>`}
+                {:else}
+                  {@html errorDisplay}
+                {/if}
+              </span>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 
 <style>
+  :global(.loip) {
+    color: white;
+    font-size: 0.9em;
+    font-family: "iosevka-etoile", monospace;
+  }
   .clearfix:after {
     content: "";
     display: block;
@@ -189,102 +428,149 @@
     padding: 0;
     border: 1px solid #181818;
     clear: both;
+    width: 270px;
   }
   .order-book {
     background-color: #212121;
     padding: 2px;
-    color: white;
-    text-shadow: 1px 1px #212121;
+    color: #bbbbbb;
     font-size: 0.7em;
     display: block;
     width: 50%;
     float: left;
   }
-  .order-book li {
-    background-color: #212121;
+  .order-book-vertical {
+    font-size: 0.8em;
+    display: block;
   }
-  .order-book li:hover {
+  .order-book-vertical li {
+    position: relative;
+    color: #a8a8a8;
+    height: 19px;
+    line-height: 19px;
+  }
+  .order-book-vertical li:hover {
     background-color: #181818;
   }
   .order-book-section {
     border: none;
+    margin-left: 5px;
+    overflow: hidden;
   }
+  .order-book-section .block {
+    height: 246px;
+    margin: 1px 0px;
+    position: relative;
+  }
+  .order-book-section .asks-section,
   .order-book-section .asks-section {
+    width: 100%;
     text-align: left;
+    position: absolute;
+    bottom: 0;
   }
+  .order-book-section .bids-section,
   .order-book-section .bids-section {
-    text-align: right;
+    width: 100%;
+    text-align: left;
+    position: absolute;
+    top: 0;
   }
-  .order-book .time-label,
-  .order-book .vol-total-label,
-  .order-book .volume-label,
-  .order-book .price-label {
+  .order-book-vertical .time-label,
+  .order-book-vertical .vol-total-label,
+  .order-book-vertical .volume-label,
+  .order-book-vertical .price-label {
     color: white;
-    font-size: 1.1em;
+    font-size: 1em;
     /* background-color: #555555; */
     padding: 2px 5px;
-    text-shadow: none;
     text-transform: uppercase;
     border: none;
   }
-  .order-book .ask .price-label {
-    text-align: right;
+  .order-book-vertical .ask .ask-line {
+    position: absolute;
+    z-index: 1;
+    background-color: #672324;
+    border: 1px solid #222;
+    top: 0;
+    bottom: 0;
+    right: 0;
   }
-  .order-book .bid .price-label {
+  .order-book-vertical .bid .bid-line {
+    position: absolute;
+    z-index: 1;
+    background-color: #375d28;
+    border: 1px solid #222;
+    top: 0;
+    bottom: 0;
+    right: 0;
+  }
+  .order-book-vertical .ask .price-label {
     text-align: left;
   }
-  .order-book .ask {
-    padding: 2px 5px;
-    color: #ff2e2e;
+  .order-book-vertical .bid .price-label {
+    text-align: left;
   }
-  .order-book .bid {
-    padding: 2px 5px;
-    color: #b5ff83;
-  }
+  .order-book-vertical .ask span,
+  .order-book-vertical .bid span,
   .order-book .ask span,
   .order-book .bid span {
+    position: relative;
+    z-index: 1;
     display: inline-block;
-    min-width: 78px;
+    min-width: 85px;
+    font-size: 1em;
+    font-family: "iosevka-etoile", monospace;
   }
+  .order-book-vertical .ask .ask-price,
   .order-book .ask .ask-price {
-    color: #ff0000;
-    text-shadow: none;
-    font-size: 1.1em;
+    color: #fe1014;
+    font-size: 1em;
   }
+  .order-book-vertical .bid .bid-price,
   .order-book .bid .bid-price {
-    color: greenyellow;
-    text-shadow: none;
-    font-size: 1.1em;
+    color: #6ddc09;
+    font-size: 1em;
   }
-  .order-book .ask .time {
+  .order-book-vertical .ask .time {
     text-align: left;
     color: white;
   }
-  .order-book .bid .time {
-    text-align: right;
+  .order-book-vertical .bid .time {
+    text-align: left;
     color: white;
   }
+  .order-book-vertical .ask .ask-price,
   .order-book .ask .ask-price {
-    text-align: right;
+    text-align: left;
   }
+  .order-book-vertical .bid .bid-price,
   .order-book .bid .bid-price {
     text-align: left;
   }
+  .order-book-vertical .ask .volume,
   .order-book .ask .volume {
-    text-align: left;
+    text-align: right;
   }
+  .order-book-vertical .bid .volume,
   .order-book .bid .volume {
     text-align: right;
   }
+  .order-book-vertical .ask .vol-total,
   .order-book .ask .vol-total {
-    text-align: left;
+    text-align: right;
   }
+  .order-book-vertical .bid .vol-total,
   .order-book .bid .vol-total {
     text-align: right;
   }
-  .order-book .ask-label,
-  .order-book .bid-label {
+  .order-book-vertical .ask-label,
+  .order-book-vertical .bid-label {
     padding: 5px 0;
+  }
+  .order-book-vertical .ask .volume .intiger,
+  .order-book-vertical .bid .volume .intiger {
+    color: white;
   }
   #ask-realtime,
   #bid-realtime {
@@ -294,35 +580,69 @@
   }
 
   .order-book-block .tick {
-    padding: 2px;
-    background-color: #1c1c1c;
-    display: block;
+    background-color: #212121;
+    border-bottom: 2px solid #181818;
+    padding: 5px 10px;
+    height: 45px;
   }
   .order-book-block .tick #current-price {
     text-align: left;
-    font-size: 1.5em;
-    padding: 5px;
+    font-size: 2em;
+    padding: 2px;
+    margin: 5px 0 3px 0;
     border-radius: 10px;
     float: left;
+    font-family: "iosevka-etoile", monospace;
+  }
+  .order-book-vertical #current-price {
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    font-size: 1.8em;
+    padding: 0;
+    margin: 0;
+    background-color: #272727;
+    border: 1px solid #131313;
+    font-family: "iosevka-etoile", monospace;
   }
   .order-book-block .tick #current-infos {
-    margin-left: 20px;
-    font-size: 0.9em;
-    margin-top: 5px;
-    float: right;
+    font-size: 0.7em;
+    color: #747474;
   }
   .order-book-block .tick #current-volume {
     text-align: left;
     align-items: flex-end;
   }
   .order-book-block .tick #current-spread {
-    text-align: left;
+    text-align: right;
     align-items: flex-end;
+  }
+  .order-book-block .tick #depth-select {
+    float: right;
+    margin-top: -5px;
+  }
+  .order-book-block .tick #depth-select button.plusBtn,
+  .order-book-block .tick #depth-select button.minusBtn {
+    font-size: 0.9em;
+    border: 1px solid #2b2b2b;
+    padding: 0px 3px;
+    background-color: #2c2c2c;
+    color: #999999;
+    cursor: pointer;
+  }
+  .order-book-block .tick #depth-select button.plusBtn:hover,
+  .order-book-block .tick #depth-select button.minusBtn:hover {
+    background-color: #333333;
+    color: white;
   }
   .order-book-block .tick #current-volume span.label,
   .order-book-block .tick #current-spread span.label {
-    color: #cecece;
-    font-weight: normal;
+    color: #747474;
+    font-weight: bold;
+  }
+
+  .order-book-block .tick .grouping {
+    color: darkcyan;
   }
 
   :global(.price-down) {

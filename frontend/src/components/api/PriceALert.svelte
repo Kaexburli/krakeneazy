@@ -1,7 +1,14 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { pricealertlist } from "store/store.js";
-  import { tickeralert } from "store/wsstore.js";
-  import { SvelteToast, toast } from "@zerodevx/svelte-toast";
+  import { WSTickerAlert } from "store/wsstore.js";
+  import { toast } from "@zerodevx/svelte-toast";
+
+  import MenuSurface from "@smui/menu-surface";
+  import List, { Group, Subheader, Item, Separator, Text } from "@smui/list";
+  import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
+  import Textfield from "@smui/textfield";
+  import Icon from "@smui/textfield/icon";
 
   export let display = false;
   let isActive = false;
@@ -17,9 +24,11 @@
   const sendAlertPrice = (pair, price, way) => {
     let phraseAlert = `<div style="background: #333333;margin:-5px 0 5px 0;padding:3px;font-size:0.8em;color:${
       way === "up" ? "#5b9208" : "#ff8e8e"
-    }">Alerte de prix ! </div><div style="padding:0 5px;><h3 style="font-size:1em;color:#999999;">${pair}</h3><div style="font-size:0.8em;"> Prix ${
-      way === "up" ? "au dessus de :" : "en dessous de :"
-    }
+    }">${$_(
+      "pricealert.modal.title"
+    )}</div><div style="padding:0 5px;><h3 style="font-size:1em;color:#999999;">${pair}</h3><div style="font-size:0.8em;"> ${$_(
+      "pricealert.modal.price"
+    )} ${way === "up" ? $_("pricealert.modal.up") : $_("pricealert.modal.down")}
     ${
       way === "up"
         ? '<strong style="color:#5b9208;">' +
@@ -38,23 +47,22 @@
       initial: 0,
       next: 0,
       dismissable: true,
-      // target: "new",
     });
   };
 
   $: if (
-    typeof $tickeralert !== "undefined" &&
-    typeof $pricealertlist !== "undefined" &&
-    display
+    $WSTickerAlert &&
+    typeof $WSTickerAlert !== "undefined" &&
+    typeof $pricealertlist !== "undefined"
   ) {
     let pairs = Object.keys($pricealertlist);
     pairs.forEach((pair) => {
       if (
-        typeof $tickeralert[pair] !== "undefined" &&
-        $tickeralert[pair].hasOwnProperty("data")
+        typeof $WSTickerAlert[pair] !== "undefined" &&
+        $WSTickerAlert[pair] !== null
       ) {
-        if ($tickeralert[pair].data.hasOwnProperty("a")) {
-          let tickerPrice = $tickeralert[pair].data["a"][0];
+        if ($WSTickerAlert[pair].hasOwnProperty("a")) {
+          let tickerPrice = $WSTickerAlert[pair]["a"][0];
           let upList = $pricealertlist[pair]["up"];
           let downList = $pricealertlist[pair]["down"];
 
@@ -178,7 +186,7 @@
       <span><i class="fa {icon}" /></span>
     </div>
     <div class="overflow">
-      <h3>Alerts</h3>
+      <h3>{$_("pricealert.title")}</h3>
       <div class="pricealert-container">
         {#each Object.entries($pricealertlist) as list}
           <div id="alert-{list[0].replace('/', '-')}">
@@ -197,7 +205,7 @@
                     {#each list[1]["up"] as up}
                       <li data-index={list[1]["up"].indexOf(up)}>
                         <i class="fa fa-level-up-alt" />
-                        Alert prix au dessus de:
+                        {$_("pricealert.alertUp")}
                         <span class="alert-price">
                           <span class="alert-price-input">
                             <input
@@ -237,7 +245,7 @@
                     {#each list[1]["down"] as down}
                       <li data-index={list[1]["down"].indexOf(down)}>
                         <i class="fa fa-level-down-alt" />
-                        Alert prix en dessous de:
+                        {$_("pricealert.alertDown")}
                         <span class="alert-price">
                           <span class="alert-price-input">
                             <input
@@ -279,10 +287,81 @@
     </div>
   </div>
 {:else}
-  <SvelteToast />
-  <div class="wrap">
-    <SvelteToast target="new" />
-  </div>
+  <MenuSurface static>
+    <Group>
+      <Subheader>{$_("pricealert.title").toUpperCase()}</Subheader>
+      <Accordion class="alerts-list">
+        {#each Object.entries($pricealertlist) as list}
+          {#if Object.values(list[1]["up"]).length}
+            <Panel>
+              <Header>{list[0]}</Header>
+              <Content>
+                {#if Object.values(list[1]["up"]).length !== 1}
+                  <List>
+                    {#each list[1]["up"] as up}
+                      <Item class="alert-up">
+                        <Text>
+                          <span class="alert-label"
+                            >{$_("pricealert.alertUp")}</span
+                          >
+                          <Textfield bind:value={up} type="number">
+                            <Icon class="material-icons" slot="leadingIcon">
+                              trending_up
+                            </Icon>
+                            <Icon
+                              class="material-icons"
+                              slot="trailingIcon"
+                              on:click={handleRemoveClick(
+                                "up",
+                                list[1]["up"].indexOf(up),
+                                list[0]
+                              )}
+                            >
+                              delete
+                            </Icon>
+                          </Textfield>
+                        </Text>
+                      </Item>
+                    {/each}
+                  </List>
+                {/if}
+                {#if Object.values(list[1]["down"]).length !== 1}
+                  <Separator />
+                  <List>
+                    {#each list[1]["down"] as down}
+                      <Item class="alert-down">
+                        <Text>
+                          <span class="alert-label"
+                            >{$_("pricealert.alertDown")}</span
+                          >
+                          <Textfield bind:value={down} type="number">
+                            <Icon class="material-icons" slot="leadingIcon">
+                              trending_down
+                            </Icon>
+                            <Icon
+                              class="material-icons"
+                              slot="trailingIcon"
+                              on:click={handleRemoveClick(
+                                "down",
+                                list[1]["down"].indexOf(down),
+                                list[0]
+                              )}
+                            >
+                              delete
+                            </Icon>
+                          </Textfield>
+                        </Text>
+                      </Item>
+                    {/each}
+                  </List>
+                {/if}
+              </Content>
+            </Panel>
+          {/if}
+        {/each}
+      </Accordion>
+    </Group>
+  </MenuSurface>
 {/if}
 
 <style>
@@ -422,21 +501,29 @@
     border: 1px solid #5f5f5f;
     background: #2b2b2b;
   }
-  .wrap {
-    --toastContainerTop: 0.2rem;
-    --toastContainerRight: 0.5rem;
-    --toastContainerBottom: auto;
-    --toastContainerLeft: 0.5rem;
-    --toastWidth: 50%;
-    --toastMinHeight: 2rem;
-    --toastPadding: 0 0.5rem;
-    font-size: 0.875rem;
+  :global(.alerts-list) {
+    max-width: 500px;
+    min-width: 100px;
+    border-right: 1px solid #ff0000;
   }
-  @media (min-width: 40rem) {
-    .wrap {
-      --toastContainerRight: auto;
-      --toastContainerLeft: calc(50vw - 20rem);
-      --toastWidth: 40rem;
-    }
+  :global(.alert-up) {
+    color: #50b300;
+  }
+  :global(.alert-down) {
+    color: #b30000;
+  }
+  :global(.smui-accordion .mdc-deprecated-list-item) {
+    height: 30px !important;
+  }
+  :global(.smui-accordion .smui-paper__content) {
+    padding: 0 !important;
+  }
+  :global(.smui-accordion .mdc-text-field__input) {
+    min-width: 70px;
+    max-width: 85px;
+  }
+  :global(.alert-label) {
+    min-width: 150px;
+    display: inline-block;
   }
 </style>

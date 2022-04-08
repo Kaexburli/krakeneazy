@@ -1,7 +1,9 @@
 <script>
+  import { _ } from "svelte-i18n";
+  import Button, { Label } from "@smui/button";
+
   // provided by Modals
   export let isOpen;
-
   export let title;
   export let message;
   export let confirm;
@@ -14,8 +16,12 @@
       <h3>{title}</h3>
       <p>{message}</p>
       <div class="actions">
-        <button class="left" on:click={cancel}>Annuler</button>
-        <button class="right" on:click={confirm}>Confirmer</button>
+        <Button color="secondary" on:click={cancel}>
+          <Label>{$_("modal.confirmation.cancel")}</Label>
+        </Button>&nbsp;
+        <Button on:click={confirm} variant="outlined">
+          <Label>{$_("modal.confirmation.confirm")}</Label>
+        </Button>
       </div>
     </div>
   </div>
@@ -58,22 +64,6 @@
   p {
     text-align: center;
     margin-top: 16px;
-  }
-
-  button {
-    padding: 5px;
-    margin: 0 10px;
-    background-color: #333333;
-    border: 2px solid #444444;
-    cursor: pointer;
-    color: #a7a7a7;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-  }
-
-  button:hover {
-    background-color: #555555;
   }
 
   .actions {

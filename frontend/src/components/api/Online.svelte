@@ -1,29 +1,107 @@
 <script>
-  import { onMount } from "svelte";
-  import { wssurl, online } from "store/store.js";
+  import { _ } from "svelte-i18n";
+  import { onMount, onDestroy, tick } from "svelte";
+  import { online } from "store/store.js";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
+  import KrakenStatusAPI from "components/api/KrakenStatusAPI.svelte";
 
   // Appel Websocket
-  let wss_systemstatus;
-  wssurl.subscribe((server) => (wss_systemstatus = server + "/systemstatus"));
+  const server = __env["BACKEND_WS_URI"];
+  const wss_systemstatus = server + "/systemstatus";
+  const wss_krakenstatus = server + "/krakenstatus";
   const wsSystemStatus = websocketStore(wss_systemstatus);
+  const wsKrakenStatus = websocketStore(wss_krakenstatus);
   // Appel Websocket
 
-  let count = 0;
-  let background = "#FF0000";
-  let color = "#FFFFFF";
-
-  let error = false;
-  let status = "online";
-  let interval = Date.now();
+  let count = 0,
+    background = "#FF0000",
+    color = "#FFFFFF",
+    error = false,
+    status = "online",
+    interval = Date.now(),
+    krakenIncidentsDatas = false,
+    krakenMaintenances = false,
+    krakenStatus = false,
+    krakenIncidents = [],
+    components = [];
 
   export let display;
 
-  onMount(() => {
+  /**
+   * initKrakenStatusApi
+   * @description Initialise les appels du status KRAKEN
+   */
+  const initKrakenStatusApi = async (datas) => {
+    // Vérification des maintenances programmées
+    krakenMaintenances = datas.scheduled_maintenances;
+    if (datas && datas.status.indicator !== "none") {
+      krakenStatus = datas.status.description;
+    }
+
+    // Vérification des components
+    const krakenComponents = datas.components;
+    if ((krakenComponents || []).length) {
+      components = [];
+      for (const KKComponent of krakenComponents) {
+        if (KKComponent.status !== "operational") {
+          const status = KKComponent.status;
+          const name = KKComponent.name;
+          const description =
+            KKComponent.description !== null ? KKComponent.description : "";
+          const errMsg = `[${status}] ${name} ${description}`;
+          components.push(errMsg);
+        }
+      }
+      krakenStatus += components.map((v) => `\n ${v}`);
+    }
+
+    // Vérification des incidents
+    krakenIncidentsDatas = datas.incidents;
+    if ((krakenIncidentsDatas || []).length) {
+      krakenIncidents = [];
+      for (const incident of krakenIncidentsDatas) {
+        const updates = incident.incident_updates;
+        for (const update of updates) {
+          krakenIncidents.push({
+            name: incident.name,
+            resolved_at: incident.resolved_at,
+            started_at: incident.started_at,
+            updated_at: incident.updated_at,
+            impact: incident.impact,
+            status: incident.status,
+            affected: update.affected_components,
+            body: update.body,
+          });
+        }
+      }
+    }
+  };
+
+  /**
+   * onMount
+   * @description Svelte function native
+   */
+  onMount(async () => {
+    wsKrakenStatus.subscribe((tick) => {
+      if (
+        !tick ||
+        typeof tick === "undefined" ||
+        tick.service !== "WsKrakenStatus" ||
+        !tick.hasOwnProperty("data")
+      )
+        return false;
+
+      initKrakenStatusApi(tick.data);
+    });
+
     wsSystemStatus.subscribe((tick) => {
-      if (typeof tick === "undefined") return false;
-      if (tick.service !== "WsSystemStatus") return false;
+      if (
+        !tick ||
+        typeof tick === "undefined" ||
+        tick.service !== "WsSystemStatus"
+      )
+        return false;
 
       if (tick.data.hasOwnProperty("errno")) {
         count = 1;
@@ -61,6 +139,14 @@
       }
     });
   });
+
+  /**
+   * onDestroy
+   * @description Svelte function native
+   */
+  onDestroy(() => {
+    display = false;
+  });
 </script>
 
 {#if display === "header"}
@@ -69,12 +155,14 @@
     <div id="error-network">
       <div id="offline">
         <i class="fa fa-exclamation-triangle" />
-        <span class="errno">[{error}]</span>&nbsp; Problème réseaux, veuillez
-        vérifier votre connection internet.
+        {$_("online.errorMessage")}&nbsp;
       </div>
     </div>
   {/if}
 {:else if display === "footer"}
+  {#if krakenIncidents.length}
+    <KrakenStatusAPI {krakenIncidents} {krakenStatus} {krakenMaintenances} />
+  {/if}
   <div class="online-api">
     {#if error}
       <span class="error_status">{error}</span>
@@ -83,11 +171,14 @@
     {#if status === undefined}
       <span class="dot" />
     {:else if status === "online"}
-      {status}&nbsp;<span class="dot dot-green" />
+      <span class="status-green">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
+      <span class="dot dot-green" />
     {:else if status === "offline"}
-      {status}&nbsp;<span class="dot dot-red" />
+      <span class="status-red">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
+      <span class="dot dot-red" />
     {:else}
-      <span class="dot" />
+      <span class="status-orange">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
+      <span class="dot dot-orange" />
     {/if}
   </div>
 {/if}
@@ -116,15 +207,37 @@
     background-color: red;
     vertical-align: inherit;
   }
+  .dot-orange {
+    background-color: orange;
+    vertical-align: inherit;
+  }
+  .status-green {
+    color: chartreuse;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
+  .status-red {
+    color: red;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
+  .status-orange {
+    color: orange;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
   .error_status {
     color: red;
     font-size: 0.8em;
   }
-  .errno {
+  /* .errno {
     color: #f15353;
-  }
+  } */
   #offline {
-    background-color: #5a2828;
+    background-color: #b30000;
     color: #e9e9e9;
     border: 1px solid #262626;
     display: block;

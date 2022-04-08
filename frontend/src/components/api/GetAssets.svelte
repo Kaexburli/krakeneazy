@@ -1,16 +1,17 @@
 <script>
   import Fetch from "utils/Runfetch.js";
-  import { fetchurl, assets } from "store/store.js";
+  import { User } from "store/userStore.js";
+  import { assets } from "store/store.js";
 
-  let fetchUrl = $fetchurl + "/api/assets";
+  let backUrl = __env["BACKEND_URI"],
+    fetchUrl = backUrl + "/api/assets";
+  const token = $User.token || false;
 
   const getAssets = async () => {
-    let res = await Fetch(fetchUrl, "assets");
+    let res = await Fetch({ url: fetchUrl, endpoint: "assets", token });
 
     if (typeof res !== "undefined" && res.hasOwnProperty("error"))
-      console.error(
-        "[GET ASSETS] ERROR: " + res.statusCode + " " + res.message
-      );
+      console.error("[ERROR] : " + res.statusCode + " " + res.message);
 
     assets.set(res);
   };

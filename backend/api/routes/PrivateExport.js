@@ -1,4 +1,8 @@
 import {
+  asyncVerifyJWTCtrl,
+} from '../controllers/private/userController.js'
+
+import {
   addExport,
   statusExport,
   retrieveExport,
@@ -7,21 +11,62 @@ import {
   checkIfFolderExist
 } from '../controllers/private/userdata.js'
 
-const AddExportOpts = { handler: addExport }
-const StatusExportOpts = { handler: statusExport }
-const RetrieveExportOpts = { handler: retrieveExport }
-const ReadExportOpts = { handler: readExport }
-const RmOldExportOpts = { handler: rmOldExport }
-const CheckIfFolderExistOpts = { handler: checkIfFolderExist }
+export default function PrivateExportRoute(fastify, options, done) {
 
-export default function PrivateAddExportRoute(fastify, options, done) {
-  // Get Api AddExport - private
-  fastify.get('/api/private/addexport/:report/:description/:starttm', AddExportOpts)
-  fastify.get('/api/private/statusexport/:report', StatusExportOpts)
-  fastify.get('/api/private/retrieveexport/:id/:type', RetrieveExportOpts)
-  fastify.get('/api/private/readexport/:id/:type', ReadExportOpts)
-  fastify.get('/api/private/removeoldexport/:id', RmOldExportOpts)
-  fastify.get('/api/private/checkexport/:id/:type', CheckIfFolderExistOpts)
+  fastify
+    .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
+    .after(() => {
+
+      // Get Api AddExport - private
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/addexport/:report/:description/:starttm',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: addExport
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/statusexport/:report',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: statusExport
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/retrieveexport/:id/:type/:userId',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: retrieveExport
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/readexport/:id/:type/:userId',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: readExport
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/removeoldexport/:id/:userId',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: rmOldExport
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/checkexport/:id/:type/:userId',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: checkIfFolderExist
+      });
+
+    });
 
   done()
 }

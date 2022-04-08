@@ -1,12 +1,16 @@
 <script>
+  import { _ } from "svelte-i18n";
   import Fetch from "utils/Runfetch.js";
-  import { fetchurl, pair, assetpair, assetpairs } from "store/store.js";
+  import { User } from "store/userStore.js";
+  import { pair, assetpair, assetpairs } from "store/store.js";
   import { DoubleBounce } from "svelte-loading-spinners";
 
-  let fetchUrl = $fetchurl + "/api/assetpairs";
-  let assetpairVal;
-  let spinner = false;
-  let isFocused = false;
+  let backUrl = __env["BACKEND_URI"],
+    fetchUrl = backUrl + "/api/assetpairs",
+    assetpairVal,
+    spinner = false,
+    isFocused = false;
+
   const onFocus = () => (isFocused = true);
   const onBlur = () => {
     assetpairVal.value = "";
@@ -19,11 +23,14 @@
     }, 1000);
   };
 
+  const token = $User.token || false;
+
   const getAssetPairs = async () => {
     try {
-      let res = await Fetch(fetchUrl, "assetpairs");
+      let res = await Fetch({ url: fetchUrl, endpoint: "assetpairs", token });
       if (typeof res !== "undefined") {
-        assetpairs.set(res);
+        if (res.error) console.error(res);
+        else assetpairs.set(res);
       } else {
         console.error("getAssetPairs", res);
       }
@@ -89,7 +96,7 @@
     <input
       id="inputsearchassetpair"
       type="text"
-      placeholder="Rechercher une paire..."
+      placeholder={$_("header.assetPairSearch.placeholder")}
       bind:this={assetpairVal}
       on:blur={onBlur}
       on:focus={onFocus}

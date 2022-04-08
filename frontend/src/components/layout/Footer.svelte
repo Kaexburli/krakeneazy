@@ -1,12 +1,10 @@
 <script>
   import Clock from "components/Clock.svelte";
   import OnlineApi from "components/api/Online.svelte";
-  import DebugToolbar from "components/DebugToolbar/DebugToolbar.svelte";
 </script>
 
 <div class="footer">
   <Clock />
-  <DebugToolbar />
   <OnlineApi display="footer" />
 </div>
 

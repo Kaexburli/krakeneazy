@@ -13,17 +13,18 @@ const asset_replace = {
   XXBT: { name: 'Bitcoin', icon: 'btc', symbol: '₿' },
   XXDG: { name: 'Dogecoin', icon: 'doge', symbol: 'DOGE' },
   XXRP: { name: 'Ripple', icon: 'xrp', symbol: 'XRP' },
-  ZEUR: { name: 'Euro', icon: 'eur', symbol: '€' },
+  ZEUR: { name: 'EUR', icon: 'eur', symbol: '€' },
   ZUSD: { name: 'Dollar US', icon: 'usd', symbol: '$' }
 }
 
 
 
-
+export const setResizeChart = writable(false);
+export const candleTimeout = writable(false);
 export const asymbole = writable(asset_replace);
-export const wssurl = writable("ws://localhost:9000/api/ws");
-export const fetchurl = writable("http://localhost:9000");
+export const depth = writable(1000);
 export const ledgersdata = writable(false);
+export const tradedata = writable(false);
 export const closedordersdata = writable(false);
 export const tradeshistorydata = writable(false);
 export const openordersdata = writable(false);
@@ -97,8 +98,10 @@ page.subscribe(value => {
 
 // Storage interval (STRING)
 const storedInterval = localStorage.getItem("interval") || "60";
+let availableInterval = ['1', '5', '15', '30', '60', '240', '1440', '10080'];
 export const interval = writable(storedInterval);
 interval.subscribe(value => {
+  if (!availableInterval.includes(value)) value = "60"
   localStorage.setItem("interval", (value !== "60") ? value : "60");
 });
 
@@ -109,9 +112,12 @@ pair.subscribe(value => {
   localStorage.setItem("pair", (value !== "false") ? value : false);
 });
 
-
-
-
+// Storage toogleBoxTicker (STRING)
+const storedToogleBoxTicker = localStorage.getItem("toogleBoxTicker") || 'open';
+export const toogleBoxTicker = writable(storedToogleBoxTicker);
+toogleBoxTicker.subscribe(value => {
+  localStorage.setItem("toogleBoxTicker", (value !== false) ? value : 'open');
+});
 
 
 
@@ -171,4 +177,13 @@ export const exportcsv = writable(storedExportCSV);
 exportcsv.subscribe(value => {
   value = (typeof value === 'object') ? JSON.stringify(value) : defaultStoredExportCSV
   localStorage.setItem("exportcsv", (value !== "false") ? value : defaultStoredExportCSV);
+});
+
+// Storage fetchTimeout (STRING)
+const storedFetchTimeoutDataDefault = JSON.stringify({ timeout: false, started: Date.now() })
+const storedFetchTimeout = JSON.parse(localStorage.getItem("fetchTimeout") || storedFetchTimeoutDataDefault);
+export const fetchTimeout = writable(storedFetchTimeout);
+fetchTimeout.subscribe(value => {
+  value = (typeof value === 'object') ? JSON.stringify(value) : value
+  localStorage.setItem("fetchTimeout", (value !== false) ? value : storedFetchTimeoutDataDefault);
 });

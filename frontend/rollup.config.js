@@ -1,3 +1,4 @@
+import { config } from 'dotenv';
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -6,6 +7,7 @@ import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import alias from '@rollup/plugin-alias';
 import replace from '@rollup/plugin-replace';
+import json from '@rollup/plugin-json';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -17,6 +19,7 @@ const aliases = alias({
     { find: 'store', replacement: 'src/store' },
     { find: 'utils', replacement: 'src/utils' },
     { find: 'machin', replacement: 'src/xstate' },
+    { find: 'lang', replacement: 'public/lang' },
   ]
 });
 
@@ -71,9 +74,12 @@ export default {
     }),
     commonjs(),
 
+    json(),
+
     replace({
       preventAssignment: true,
-      'process.env.NODE_ENV': process.env.NODE_ENV
+      __env: JSON.stringify({ ...config({ path: __dirname + "/../.env" }).parsed }),
+      'process.env.NODE_ENV': process.env.NODE_ENV,
     }),
 
     // In dev mode, call `npm run start` once

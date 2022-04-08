@@ -1,7 +1,16 @@
+import { _ } from "svelte-i18n";
+import { User } from "store/userStore.js";
+import { fetchTimeout } from "store/store.js";
 import checkRateCount from "utils/checkRateCount.js"
 import Fetch, { hasBackground } from "svelte-fetch"
 
-const fetch = new Fetch()
+let background = 0;
+let timeout = false;
+let response = null;
+hasBackground.subscribe((v) => background = v)
+fetchTimeout.subscribe((v) => timeout = v)
+
+const fetchSvelte = new Fetch()
 
 /**
  *  *****************
@@ -9,35 +18,88 @@ const fetch = new Fetch()
  *  *****************
  */
 
+const parseJSON = (resp) => (resp.json ? resp.json() : resp);
 
-const callApiFetch = async (url, endpoint) => {
+
+const callApiFetch = async (params) => {
+
+  const url = params.url || false;
+  const method = params.method || "GET";
+  const endpoint = params.endpoint || false;
+  const token = params.token || false;
+  const body = params.body || false;
 
   try {
 
-    const checkratecount = checkRateCount(endpoint);
-    if (!checkratecount) return false;
-
-    // hasBackground.subscribe((background) => {
-    //   console.log('[Fetch Background]:', background, endpoint)
-    // })
-
-    let response = await fetch.background.expect(JSON).get(url);
-
-    if (response.hasOwnProperty('error')) {
-      let errmsg = `[${response.statusCode}] ${response.error} ${response.message}`;
-      if (response.message === ('[\"EAPI:Invalid nonce\"]' || '["EAPI:Invalid nonce"]')) {
-        throw errmsg
-      }
-      if (response.message === ('[\"EAPI:Rate limit exceeded\"]' || '["EAPI:Rate limit exceeded"]')) {
-        throw errmsg
+    if (timeout.timeout) {
+      let end = parseInt(timeout.started + timeout.timeout)
+      let now = Date.now()
+      if (now < end) {
+        console.debug("Timeout:", parseInt(end - now) / 60000)
+        return false
       }
     }
-    else
-      return response
+
+
+    // const checkratecount = checkRateCount(endpoint);
+    // if (!checkratecount) return false;
+
+    // console.log('[Fetch Background]:', background, endpoint)
+
+    let errorTimeout = false;
+    let options = {}
+
+    if (token) {
+      options = {
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+      }
+    }
+
+    if (method === "GET")
+      response = await fetchSvelte.background.expect(JSON).get(url, options);
+    else if (method === "POST" && body) {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: options.headers,
+        body: JSON.stringify(body),
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        return response.json ? response.json() : response;
+      }
+      return parseJSON(response).then((response) => {
+        throw response;
+      });
+    }
+
+    // console.debug(`[RUNFECTH] ${endpoint}`, response)
+
+
+    if (response.hasOwnProperty("error")) {
+      errorTimeout = response.timeout
+      if (response.error === "Permission denied") alert($_("runfetch.permissionDenied"))
+      console.error(`[HAS ERROR]: ${endpoint} = ${response.error}`)
+    }
+
+    fetchTimeout.update((n) => {
+      n['timeout'] = errorTimeout;
+      n['started'] = Date.now();
+      return n
+    });
+
+    if (
+      response.hasOwnProperty("statusCode") &&
+      response.statusCode === 401
+    ) {
+      User.signout();
+      location.reload();
+      return false;
+    }
+    else return response
   }
   catch (error) {
-    const err = "[" + endpoint + "]" + (typeof error !== 'undefined' ? error : 'unknown error')
-    return { error: err };
+    console.error("CATCH ERROR RUNFECTH:", error)
+    return { error, endpoint };
   }
 }
 

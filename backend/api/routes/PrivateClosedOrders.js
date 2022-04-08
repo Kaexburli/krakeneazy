@@ -1,18 +1,73 @@
+import {
+  asyncVerifyJWTCtrl,
+} from '../controllers/private/userController.js'
+
 import { getClosedOrders } from '../controllers/private/userdata.js'
 
-const ClosedOrdersOpts = {
-  handler: getClosedOrders,
-}
-
 export default function PrivateClosedOrdersRoute(fastify, options, done) {
-  // Get Api ClosedOrders - private
-  fastify.get('/api/private/closedorders', ClosedOrdersOpts)
-  fastify.get('/api/private/closedorders/:trades', ClosedOrdersOpts)
-  fastify.get('/api/private/closedorders/:trades/:ofs', ClosedOrdersOpts)
-  fastify.get('/api/private/closedorders/:trades/:ofs/:start', ClosedOrdersOpts)
-  fastify.get('/api/private/closedorders/:trades/:ofs/:start/:end', ClosedOrdersOpts)
-  fastify.get('/api/private/closedorders/:trades/:ofs/:start/:end/:userref', ClosedOrdersOpts)
-  fastify.get('/api/private/closedorders/:trades/:ofs/:start/:end/:userref/:closetime', ClosedOrdersOpts)
+
+  fastify
+    .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
+    .after(() => {
+
+      // Get Api ClosedOrders - private
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/closedorders',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getClosedOrders
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/closedorders/:trades',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getClosedOrders
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/closedorders/:trades/:ofs',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getClosedOrders
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/closedorders/:trades/:ofs/:start',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getClosedOrders
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/closedorders/:trades/:ofs/:start/:end',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getClosedOrders
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/closedorders/:trades/:ofs/:start/:end/:userref',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getClosedOrders
+      });
+
+      fastify.route({
+        method: ['GET', 'HEAD'],
+        url: '/api/private/closedorders/:trades/:ofs/:start/:end/:userref/:closetime',
+        logLevel: 'warn',
+        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
+        handler: getClosedOrders
+      });
+
+    });
 
   done()
 }

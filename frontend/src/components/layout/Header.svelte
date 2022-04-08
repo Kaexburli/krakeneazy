@@ -1,6 +1,7 @@
 <script>
   import SelectDevises from "components/SelectDevises.svelte";
   import AssetPairsSearch from "components/AssetPairsSearch.svelte";
+  import Logout from "components/Logout.svelte";
 
   const handleClickMenu = (e) => {
     document.body.classList.toggle("active");
@@ -16,12 +17,13 @@
 <div class="header">
   <div class="top_navbar">
     <div class="toggle-menu">
-      <a href="/" on:click|preventDefault={handleClickMenu}>
+      <a href={"#"} on:click|preventDefault={handleClickMenu}>
         <i class="fas fa-bars" />
       </a>
     </div>
     <AssetPairsSearch />
     <SelectDevises />
+    <Logout />
   </div>
 </div>
 
@@ -32,7 +34,7 @@
     transition: all 0.5s ease;
 
     position: fixed;
-    z-index: 99;
+    z-index: 10;
     top: 0;
     right: 0;
   }

@@ -1,15 +1,21 @@
 <script>
+  import { _ } from "svelte-i18n";
+  import { User } from "store/userStore.js";
   import { slide } from "svelte/transition";
   import ExportData from "components/pages/reports/Export.svelte";
+
+  const isLogged = User.isLogged();
 </script>
 
-<div id="page-reports" in:slide out:slide>
-  <h1>Exports de données</h1>
+{#if isLogged}
+  <div id="page-reports" in:slide out:slide>
+    <h1>{$_("reports.main.title")}</h1>
 
-  <div class="reports">
-    <ExportData />
+    <div class="reports">
+      <ExportData />
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   .reports {

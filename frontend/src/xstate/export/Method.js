@@ -17,15 +17,15 @@ export const StatusExport = async (type, id) => {
     });
 
     // La requête à disfonctionné
-    if (typeof res === "undefined") {
-      return { error: "L'api Kraken ne répond pas correctement" };
+    if (typeof res === "undefined" || !res) {
+      return { error: 'apiError' };
     }
     // Affiche les erreurs
     else if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
       return { error: res.error };
     }
     // Retourne 1 élément du tableau
-    else if (typeof res !== "undefined" && typeof id !== "undefined") {
+    else if (typeof res !== "undefined" && typeof id !== "undefined" && typeof res.filter === 'function') {
       return res.filter((v) => v.id === id)
     }
     // Le tableau est vide
@@ -36,7 +36,7 @@ export const StatusExport = async (type, id) => {
     // Retourne le résultat
     return res.filter((val) => (
       val.report === type &&
-      val.descr === 'walltrade'
+      val.descr === __env["SITE_NAME"]
     ));
   } catch (error) {
     return { error: error };
@@ -59,12 +59,12 @@ export const AddExport = async (type, starttm) => {
     const ud = new UserData();
     const res = await ud.addExport({
       report: report,
-      description: "walltrade",
+      description: __env["SITE_NAME"],
       starttm: starttm,
     });
 
     if (typeof res === "undefined" || !res.hasOwnProperty('id')) {
-      return { callback: { type: "ERROR", error: "La demande d'export n'a pas été effectué correctement!" } }
+      return { callback: { type: "ERROR_TRAD", error: "addError" } }
     }
 
     if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
@@ -85,10 +85,10 @@ export const AddExport = async (type, starttm) => {
  * @param { String } type 
  * @returns Renvoie un true si la commande est bien executé
  */
-export const RetreiveExport = async (id, type) => {
+export const RetreiveExport = async (id, type, userId) => {
   try {
     const ud = new UserData();
-    const res = await ud.retrieveExport({ id, type });
+    const res = await ud.retrieveExport({ id, type, userId });
     if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
       return { callback: { type: "ERROR", error: res.error } }
     }
@@ -109,10 +109,10 @@ export const RetreiveExport = async (id, type) => {
  * @param { Array } ids 
  * @returns Renvoie un objet { delete: true } si la commande est bien executé
  */
-export const RemoveExport = async (ids) => {
+export const RemoveExport = async (id, userId) => {
   try {
     const ud = new UserData();
-    const res = await ud.removeOldFile(ids);
+    const res = await ud.removeOldFile({ id, userId });
     return res;
   } catch (error) {
     console.error(error);
@@ -126,10 +126,10 @@ export const RemoveExport = async (ids) => {
  * @param { String } type 
  * @returns Renvoie true si le dossier existe
  */
-const CheckExportExistFolder = async (id, type) => {
+const CheckExportExistFolder = async (id, type, userId) => {
   try {
     const ud = new UserData();
-    return await ud.checkExportExist({ id, type });
+    return await ud.checkExportExist({ id, type, userId });
   } catch (error) {
     console.error(error);
   }
@@ -143,7 +143,7 @@ const CheckExportExistFolder = async (id, type) => {
  * @returns Renvoie true si l'export est expiré
  */
 const checkTimeExpired = (completedtm, id) => {
-  const expire_time = 3600000; // 3600000 // A changer selon le compte
+  const expire_time = 12 * 60 * 60 * 1000; // 12h // A changer selon le compte #settings
   const time_remaining = parseInt(Date.now() - parseInt(completedtm * 1000));
   const remaining = expire_time - time_remaining
   const check = (remaining <= 0)
@@ -159,8 +159,8 @@ const checkTimeExpired = (completedtm, id) => {
  * @returns Un tableau contenant les export ou un objet contenant la transition a effectuer
  */
 export const getListExport = async (ctx, _event) => {
-
   let expiredIds = []
+  let missingFolder = []
 
   const ledgers = await StatusExport('ledgers')
   const trades = await StatusExport('trades')
@@ -189,7 +189,7 @@ export const getListExport = async (ctx, _event) => {
   ));
 
   for (const ex of [...datasTradesNoDeletedNoQueued, ...datasLedgersNoDeletedNoQueued]) {
-    const checkFolder = await CheckExportExistFolder(ex.id, ex.report);
+    const checkFolder = await CheckExportExistFolder(ex.id, ex.report, ctx.userId);
     if (
       !checkFolder ||
       checkTimeExpired(ex.completedtm, ex.id) ||
@@ -199,6 +199,8 @@ export const getListExport = async (ctx, _event) => {
       if (!ctx.expired.includes(ex.id))
         expiredIds.push(ex.id)
     }
+
+    if (!checkFolder) missingFolder.push({ id: ex.id, type: ex.report })
   }
 
   if (expiredIds.length !== 0) {
@@ -206,6 +208,19 @@ export const getListExport = async (ctx, _event) => {
       callback: {
         type: "EXPIRED",
         data: { ids: expiredIds }
+      }
+    }
+  }
+
+  if (missingFolder.length !== 0) {
+    let data = false;
+    missingFolder.map((d) => data = d)
+    if (data) {
+      return {
+        callback: {
+          type: "RETREIVE",
+          data
+        }
       }
     }
   }
@@ -265,7 +280,7 @@ export const getListExport = async (ctx, _event) => {
       })
     }
     else {
-      console.log("[LEDGERS] une erreur inatendu c'est produite!")
+      console.log("[LEDGERS] an unexpected error has occurred!")
     }
   }
 
@@ -323,7 +338,7 @@ export const getListExport = async (ctx, _event) => {
       })
     }
     else {
-      console.log("[TRADES] une erreur inatendu c'est produite!")
+      console.log("[TRADES] an unexpected error has occurred!")
     }
   }
 

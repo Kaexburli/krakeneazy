@@ -2,6 +2,7 @@ const context = {
   type: 'ledgers',
   data: [],
   expired: [],
+  userId: false,
   count: 0
 }
 export const exportService = {
@@ -21,6 +22,9 @@ export const exportService = {
         EXPIRED: {
           target: 'loading',
           actions: 'assignExpired'
+        },
+        RETREIVE: {
+          target: 'retreive',
         },
         PROCESSED: {
           target: 'processed',

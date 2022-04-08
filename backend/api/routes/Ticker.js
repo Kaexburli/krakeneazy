@@ -5,7 +5,7 @@ const TickerOpts = {
 }
 
 export default function TickerRoute(fastify, options, done) {
-  // Get Api System Status
+  // Get Api Ticker
   fastify.get('/api/ticker/:pair', TickerOpts)
 
   done()

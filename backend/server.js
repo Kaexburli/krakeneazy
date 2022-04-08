@@ -1,13 +1,37 @@
 // Require the framework and instantiate it
-import Fastify from 'fastify'
-import FastifySwagger from 'fastify-swagger'
-import FastifyEnv from 'fastify-env'
-import FastifyCors from 'fastify-cors'
-import FastifyWs from 'fastify-websocket'
-import Autoload from 'fastify-autoload'
+import path from 'path';
+const __dirname = path.resolve(path.dirname(''));
 
-const fastify = Fastify({ logger: { level: 'trace' } })
-const PORT = process.env.PORT || '9000'
+import Fastify from 'fastify';
+import FastifySwagger from 'fastify-swagger';
+import FastifyEnv from 'fastify-env';
+import FastifyCors from 'fastify-cors';
+import FastifyWs from 'fastify-websocket';
+import Autoload from 'fastify-autoload';
+import FastifyAuth from 'fastify-auth';
+
+import db from './api/config/index';
+
+import env from 'dotenv';
+env.config({ path: __dirname + "/../.env" });
+
+const PORT = process.env.BACK_PORT || '9000'
+const uri = process.env.MONGODB_URI;
+
+const environment = 'development';
+const levels = ["fatal", "error", "warn", "info", "debug", "trace"]
+const fastify = Fastify({
+  logger: {
+    level: levels[2],
+    prettyPrint:
+      environment === 'development'
+        ? {
+          translateTime: 'HH:MM:ss Z',
+          ignore: 'pid,hostname'
+        }
+        : false
+  }
+})
 
 const options = {
   schema: {
@@ -28,14 +52,17 @@ fastify.register(FastifySwagger, {
   },
 })
 
-fastify.register(FastifyEnv, options)
-fastify.register(FastifyCors)
-fastify.register(FastifyWs)
+fastify
+  .register(db, { uri })
+  .register(FastifyEnv, options)
+  .register(FastifyCors)
+  .register(FastifyWs)
+  .register(FastifyAuth);
 
 
 // Declare a route
 fastify.get('/', async (request, reply) => {
-  return { hello: 'world' }
+  return { hello: 'Site under construction' }
 })
 fastify.register(Autoload, {
   dir: './api/routes/'
@@ -46,14 +73,15 @@ const start = async () => {
   try {
     await fastify.listen(PORT)
   } catch (err) {
-    fastify.log.error(err)
+    fastify.log.error("[SERVER START ERROR]:", err, typeof err)
     process.exit(1)
   }
 }
 start()
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.log('reason is', reason);
-  console.log('promise is', promise);
-  // Application specific logging, throwing an error, or other logic here
+  if (typeof reason !== "undefined" && typeof promise !== "undefined") {
+    console.log('[unhandledRejection]: reason is', reason);
+    console.log('[unhandledRejection]: promise is', promise);
+  }
 });
