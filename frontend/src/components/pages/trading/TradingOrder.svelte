@@ -4,6 +4,7 @@
   import { online, assetpair, asymbole } from "store/store.js";
   import { WSTicker, WSSpread, WSBook } from "store/wsstore.js";
   import UserData from "classes/UserData.js";
+  import { getSummuryInfos } from "components/pages/trading/trade.js";
 
   import SegmentedButton, { Segment } from "@smui/segmented-button";
   import Textfield from "@smui/textfield";
@@ -14,6 +15,7 @@
   import Select, { Option } from "@smui/select";
   import Checkbox from "@smui/checkbox";
   import Radio from "@smui/radio";
+  import Slider from "@smui/slider";
   import { toast } from "@zerodevx/svelte-toast";
 
   const dispatch = createEventDispatcher();
@@ -28,9 +30,9 @@
   let order = false;
   let type = "buy";
   let ordertype = "market";
-  let leverage = "0";
+  let leverage = 0;
   let buyorsell;
-  let amount;
+  let amount = null;
   let volume = null;
   let price = null;
   let total = null;
@@ -57,6 +59,13 @@
   let disabledBtnOrder = false;
   let actionPercentChoices = ["25%", "50%", "75%", "100%"];
   let actionPercentSelected = false;
+  let summuryInfos = null;
+  let summuryInfosOpen = false;
+  let summuryInfosAskSend = false;
+  let stoploss_percent_price = 0.003;
+  let profit_percent_price = 1;
+  let lastVolume = null;
+  let lastTotal = null;
 
   /**
    * Notification
@@ -118,18 +127,18 @@
     if (event) event.preventDefault();
     console.log("setActionWay");
     type = way;
-    // let btnBuy = document.querySelector(".action-buy");
-    // let btnSell = document.querySelector(".action-sell");
+    let btnBuy = document.querySelector(".btnBuy");
+    let btnSell = document.querySelector(".btnBuy");
 
-    // if (way === "buy") {
-    //   btnBuy.classList.add("active");
-    //   btnSell.classList.remove("active");
-    // }
+    if (way === "buy") {
+      btnBuy.classList.add("active");
+      btnSell.classList.remove("active");
+    }
 
-    // if (way === "sell") {
-    //   btnSell.classList.add("active");
-    //   btnBuy.classList.remove("active");
-    // }
+    if (way === "sell") {
+      btnSell.classList.add("active");
+      btnBuy.classList.remove("active");
+    }
 
     if (way === "buy") buyorsell = "quote";
     if (way === "sell") buyorsell = "base";
@@ -150,7 +159,7 @@
     console.log("resetForm");
     type;
     ordertype = "market";
-    leverage = "0";
+    leverage = 0;
     amount = "";
     volume = "";
     price = "";
@@ -164,17 +173,9 @@
     slippagePercent = 0;
   };
 
-  const setAttr = (node, val) => {
-    node.setAttribute("value", val);
-    return {
-      update: function (val) {
-        if (val) node.setAttribute("value", val);
-      },
-    };
-  };
-
-  const handleSubmit = async (e) => {
-    console.log("handleSubmit");
+  const handleSubmitOrder = async (e) => {
+    e.preventDefault();
+    console.log("handleSubmitOrder");
     // AddOrder
     try {
       if (!$online) {
@@ -182,34 +183,26 @@
         return false;
       }
 
-      const formData = new FormData(e.target);
-
-      const params = {};
-      for (let field of formData) {
-        const [key, value] = field;
-        params[key] = value;
-      }
-
-      console.log(params);
-
-      // let params = {
-      //   pair: $assetpair.altname,
-      //   action,
-      //   type,
-      //   leverage,
-      //   amount,
-      //   volume,
-      //   price,
-      //   total,
-      //   postonly,
-      //   devise,
-      //   condclose,
-      //   condtype,
-      //   condprice,
-      //   condtotal,
-      // };
+      let params = {
+        pair: $assetpair.altname,
+        type,
+        ordertype,
+        leverage,
+        amount,
+        volume,
+        price,
+        total,
+        postonly,
+        devise,
+        condclose,
+        condtype,
+        condprice,
+        condtotal,
+        dry,
+      };
 
       const res = await ud.addOrder(params);
+
       if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
         error = res.error;
       } else {
@@ -218,22 +211,31 @@
         dispatch("closedialogorder", { closeDialogOrder: true });
         resetForm();
 
-        if (candleSeries) {
-          const priceLine = candleSeries.createPriceLine({
-            price: params.price,
-            color: params.type === "buy" ? "green" : "red",
-            lineWidth: 1,
-            axisLabelVisible: true,
-            title: order.descr.order,
-          });
+        if (order.hasOwnProperty("descr")) {
+          for (const descr of Object.entries(order.descr)) {
+            console.log(descr[0], descr[1], params.condprice);
+            // // Add chart Line price
+            if (candleSeries) {
+              candleSeries.createPriceLine({
+                price: descr[0] === "close" ? params.condprice : params.price,
+                color: params.type === "buy" ? "green" : "red",
+                lineWidth: 1,
+                axisLabelVisible: true,
+                title: descr[1],
+              });
+            }
+            // // Notification
+            Notification(descr[1], params.type === "buy" ? "success" : "error");
+          }
         }
+
+        console.log("ORDER", order);
+        if (error) Notification(error, "error");
       }
     } catch (error) {
       console.log(error);
+      Notification(error, "error");
     }
-
-    console.log("ORDER", order);
-    if (order) Notification(order.descr.order, "success");
   };
 
   const calculAverageFilledForMarketOrder = (book, vol) => {
@@ -276,21 +278,61 @@
     return { price, percent };
   };
 
+  const calculateTradeFeeAndPnL = async () => {
+    console.log("calculateTradeFeeAndPnL");
+    try {
+      let calculator = {
+        assetPair: $assetpair,
+        pair: $assetpair.altname,
+        volume,
+        price,
+        type,
+        ordertype,
+        leverage,
+        profit_percent_price,
+        stoploss_percent_price,
+      };
+
+      summuryInfos = await getSummuryInfos(calculator, ud);
+
+      if (summuryInfos) {
+        summuryInfosAskSend = false;
+        condclose = true;
+        condtype = "stop-loss-limit";
+        condprice = summuryInfos.trade.stoploss.price;
+        condtotal = summuryInfos.trade.stoploss.price_total;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChangeVolumePriceTotal = (input) => {
+    switch (ordertype) {
+      case "limit":
+        if (volume && price)
+          total = parseFloat(volume * price).toFixed($assetpair.pair_decimals);
+        break;
+
+      case "stop-loss":
+      case "take-profit":
+      case "stop-loss-limit":
+      case "take-profit-limit":
+        if (["volume", "price"].includes(input) && volume && price)
+          total = parseFloat(volume * price).toFixed($assetpair.pair_decimals);
+        if (["total", "price"].includes(input) && total && price)
+          volume = parseFloat(total / price).toFixed($assetpair.pair_decimals);
+        break;
+
+      default:
+        break;
+    }
+  };
+
   onMount(() => {
     GetBalance();
     setActionWay(false, "buy");
   });
-
-  $: {
-    quote_balance =
-      buyorsell === "quote" && balance.hasOwnProperty($assetpair.quote)
-        ? balance[$assetpair.quote]
-        : buyorsell === "base" && balance.hasOwnProperty($assetpair.base)
-        ? balance[$assetpair.base]
-        : "";
-
-    fundDevise = buyorsell === "base" ? $assetpair.base : $assetpair.quote;
-  }
 
   // Prix actuel
   $: if ($WSTicker) {
@@ -308,58 +350,94 @@
     currentPriceOld = tickerPrice;
   }
 
-  $: if (volume && $WSTicker && $WSBook) {
-    // Modifie le prix en fonction du volume / slippage en type MARKET
-    if (ordertype === "market") {
-      // Calcul le prix moyen d'achat et le slippage en pourcentage
-      if (type === "buy") {
-        if (volume <= $WSTicker.a[2]) {
-          currentPrice = parseFloat($WSTicker.a[0]).toFixed(2);
-        } else {
-          if ($WSBook.hasOwnProperty("mirror")) {
-            let asks = $WSBook.mirror.as;
-            let s = calculSlippageForMarkerOrder(
-              asks,
-              volume,
-              $WSTicker.a[0],
-              type
+  $: {
+    // Order Type = Market
+    if (volume && $WSTicker && $WSBook) {
+      // Modifie le prix en fonction du volume / slippage en type MARKET
+      if (ordertype === "market") {
+        // Calcul le prix moyen d'achat et le slippage en pourcentage
+        if (type === "buy") {
+          if (volume <= $WSTicker.a[2]) {
+            currentPrice = parseFloat($WSTicker.a[0]).toFixed(
+              $assetpair.pair_decimals
             );
-            currentPrice = s.price;
-            slippagePercent = s.percent;
+          } else {
+            if ($WSBook.hasOwnProperty("mirror")) {
+              let asks = $WSBook.mirror.as;
+              let s = calculSlippageForMarkerOrder(
+                asks,
+                volume,
+                $WSTicker.a[0],
+                type
+              );
+              currentPrice = s.price;
+              slippagePercent = s.percent;
+            }
+          }
+        } else if (type === "sell") {
+          if (volume <= $WSTicker.b[2]) {
+            currentPrice = parseFloat($WSTicker.b[0]).toFixed(
+              $assetpair.pair_decimals
+            );
+          } else {
+            if ($WSBook.hasOwnProperty("mirror")) {
+              let bids = $WSBook.mirror.bs;
+              let s = calculSlippageForMarkerOrder(
+                bids,
+                volume,
+                $WSTicker.a[0],
+                type
+              );
+              currentPrice = s.price;
+              slippagePercent = s.percent;
+            }
           }
         }
-      } else if (type === "sell") {
-        if (volume <= $WSTicker.b[2]) {
-          currentPrice = parseFloat($WSTicker.b[0]).toFixed(2);
-        } else {
-          if ($WSBook.hasOwnProperty("mirror")) {
-            let bids = $WSBook.mirror.bs;
-            let s = calculSlippageForMarkerOrder(
-              bids,
-              volume,
-              $WSTicker.a[0],
-              type
-            );
-            currentPrice = s.price;
-            slippagePercent = s.percent;
-          }
-        }
+
+        // Vérifie le pourcentage de slippage et désactive le boutton
+        if (
+          (type === "buy" && slippagePercent >= 3) ||
+          (type === "sell" && slippagePercent <= -3)
+        )
+          disabledBtnOrder = true;
+        else disabledBtnOrder = false;
+
+        // Calcul du total
+        total = parseFloat(volume * currentPrice).toFixed(
+          $assetpair.pair_decimals
+        );
+        price = ordertype === "market" ? currentPrice : "";
       }
-
-      // Vérifie le pourcentage de slippage et désactive le boutton
-      if (
-        (type === "buy" && slippagePercent >= 3) ||
-        (type === "sell" && slippagePercent <= -3)
-      )
-        disabledBtnOrder = true;
-      else disabledBtnOrder = false;
-
-      // Calcul du total
-      total = parseFloat(volume * currentPrice).toFixed(2);
-      price = ordertype === "market" ? currentPrice : "";
-    } else if (ordertype === "limit") {
-      total = parseFloat(volume * price).toFixed(2);
     }
+
+    // Order Type = limit
+    if (volume && leverage && price && ordertype === "limit") {
+      if (!summuryInfos && !summuryInfosAskSend) {
+        summuryInfosAskSend = true;
+        calculateTradeFeeAndPnL();
+      } else if (
+        !summuryInfosAskSend &&
+        (volume !== summuryInfos.volume ||
+          leverage !== summuryInfos.leverage ||
+          price !== summuryInfos.price)
+      ) {
+        summuryInfosAskSend = true;
+        calculateTradeFeeAndPnL();
+      }
+    } else {
+      summuryInfos = null;
+      condtype = null;
+      condprice = null;
+      condtotal = null;
+    }
+
+    quote_balance =
+      buyorsell === "quote" && balance.hasOwnProperty($assetpair.quote)
+        ? balance[$assetpair.quote]
+        : buyorsell === "base" && balance.hasOwnProperty($assetpair.base)
+        ? balance[$assetpair.base]
+        : "";
+    fundDevise = buyorsell === "base" ? $assetpair.base : $assetpair.quote;
   }
 </script>
 
@@ -380,11 +458,134 @@
     <br class="clearfix" />
   {/if}
 </h2>
-<form id="placeorder" on:submit|preventDefault={handleSubmit}>
+{#if summuryInfos}
+  <div id="summuryInfos">
+    {#if type === "buy"}
+      <h3 class="green" on:click={() => (summuryInfosOpen = !summuryInfosOpen)}>
+        <strong>[LONG]</strong>
+        Récapitulatif du trade
+      </h3>
+    {:else if type === "sell"}
+      <h3 class="red" on:click={() => (summuryInfosOpen = !summuryInfosOpen)}>
+        <strong>[SHORT]</strong>
+        Récapitulatif du trade
+      </h3>
+    {/if}
+    {#if summuryInfosOpen}
+      <div style="float:left;display:inline-block;width:74.9%;">
+        - {#if type === "buy"}Acheter{:else if type === "sell"}Vendre{/if}
+        <strong>{volume} {$assetpair.base}</strong>@Limite
+        <strong
+          >{parseFloat(summuryInfos.price).toFixed($assetpair.pair_decimals)}
+          {$assetpair.quote}</strong
+        >
+        effet de levier <strong>{summuryInfos.leverage}:1</strong> pour un total
+        de: {@html parseFloat(summuryInfos.total).toFixed(
+          $assetpair.pair_decimals
+        ) +
+          $assetpair.quote +
+          (summuryInfos.leverage > 0
+            ? " <strong>(" +
+              parseFloat(summuryInfos.total / summuryInfos.leverage).toFixed(
+                $assetpair.pair_decimals
+              ) +
+              " " +
+              $assetpair.quote +
+              ")</strong>"
+            : "")}
+        <br />
+        - Frais d'entrées de :
+        <strong>{summuryInfos.trade.fees.first} {$assetpair.quote}</strong> / -
+        Frais de sortie en take profit de :
+        <strong>{summuryInfos.trade.fees.tp.two} {$assetpair.quote}</strong>
+        <br />
+        - Profit souhaité de <strong>{profit_percent_price}%</strong>, prix de
+        {#if type === "buy"}revente{:else if type === "sell"}rachat{/if} estimé à
+        <strong>
+          {summuryInfos.trade.take_profit.price}
+          {$assetpair.quote}
+        </strong>
+        pour un total de:
+        <strong
+          >{summuryInfos.trade.take_profit.price_total}
+          {$assetpair.quote}</strong
+        > <br />
+        - Gain estimé de
+        <strong
+          >{summuryInfos.trade.gain.tp.fees_total} {$assetpair.quote}</strong
+        >
+        (Gain:
+        <strong>{summuryInfos.trade.gain.tp.total} {$assetpair.quote}</strong>
+        - Frais entré/sortie:
+        <strong>{summuryInfos.trade.fees.tp.total} {$assetpair.quote}</strong
+        >)<br />
+        - Seuil de rentabilité à
+        <strong>{summuryInfos.trade.breakeven.price} {$assetpair.quote}</strong>
+        pour un total de:
+        <strong
+          >{summuryInfos.trade.breakeven.price_total} {$assetpair.quote}</strong
+        ><br />
+        - Ordre de Stop Loss à placer à
+        <strong>{summuryInfos.trade.stoploss.price} {$assetpair.quote}</strong>
+        pour un total de:
+        <strong
+          >{summuryInfos.trade.stoploss.price_total} {$assetpair.quote}</strong
+        ><br />
+        - Perte total estimé de
+        <strong
+          >{summuryInfos.trade.gain.sl.fees_total} {$assetpair.quote}</strong
+        >
+        (Perte:
+        <strong>{summuryInfos.trade.gain.sl.total} {$assetpair.quote}</strong>
+        / Frais:
+        <strong>{summuryInfos.trade.fees.sl.total} {$assetpair.quote}</strong
+        >)<br />
+      </div>
+      <div style="float:right;display:inline-block;width:24.9%;">
+        <table class="rolloverTable">
+          <thead>
+            <tr>
+              <td><strong>Rollover</strong></td>
+              <td><strong>Frais</strong></td>
+              <td><strong>P/L:</strong></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>4h</td>
+              <td>{summuryInfos.trade.rollover.h4.cost} {$assetpair.quote}</td>
+              <td>{summuryInfos.trade.rollover.h4.gain} {$assetpair.quote}</td>
+            </tr>
+            <tr>
+              <td>1 jour</td>
+              <td>{summuryInfos.trade.rollover.day.cost} {$assetpair.quote}</td>
+              <td>{summuryInfos.trade.rollover.day.gain} {$assetpair.quote}</td>
+            </tr>
+            <tr>
+              <td>1 semaine</td>
+              <td>{summuryInfos.trade.rollover.week.cost} {$assetpair.quote}</td
+              >
+              <td>{summuryInfos.trade.rollover.week.gain} {$assetpair.quote}</td
+              >
+            </tr>
+            <tr>
+              <td>1 mois</td>
+              <td
+                >{summuryInfos.trade.rollover.month.cost} {$assetpair.quote}</td
+              >
+              <td
+                >{summuryInfos.trade.rollover.month.gain} {$assetpair.quote}</td
+              >
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="clearfix">&nbsp;</div>
+    {/if}
+  </div>
+{/if}
+<form id="placeorder">
   <div id="trading-order">
-    <input type="hidden" name="pair" bind:value={$assetpair.altname} />
-    <input type="hidden" name="type" bind:value={type} />
-    <input type="hidden" name="dry" bind:value={dry} />
     <div>
       <fieldset>
         <div class="item">
@@ -430,37 +631,20 @@
         </div>
         <hr />
         <div class="item">
-          <label for="trading-o-leverage">
+          <label for="leverage">
             {$_("trading.order.margin")}:
           </label>
-          <div class="stepper">
-            <ul>
-              <li>
-                <label for="leverage-0">0</label>
-                <input
-                  type="radio"
-                  id="leverage-0"
-                  name="leverage"
-                  value="0"
-                  checked="checked"
-                  bind:group={leverage}
-                  use:setAttr={leverage}
-                />
-              </li>
-              {#each $assetpair.leverage_buy as lev}
-                <li>
-                  <label for="leverage-{lev}">{lev}x</label>
-                  <input
-                    type="radio"
-                    id="leverage-{lev}"
-                    name="leverage"
-                    value={lev}
-                    bind:group={leverage}
-                    use:setAttr={leverage}
-                  />
-                </li>
-              {/each}
-            </ul>
+          <div>
+            <Slider
+              bind:value={leverage}
+              min={0}
+              max={$assetpair.leverage_buy.length + 1}
+              step={1}
+              discrete
+              tickMarks
+              input$aria-label={$_("trading.order.margin")}
+              name="leverage"
+            />
           </div>
         </div>
         <hr />
@@ -471,6 +655,7 @@
               label={$_("trading.order.funds")}
               suffix={fundDevise}
               input$pattern="\d+"
+              type="number"
               name="trading-o-total"
               disabled
               style="width:100%;"
@@ -556,9 +741,11 @@
             label={$_("trading.order.quantity")}
             suffix={base}
             input$pattern="\d+"
+            type="number"
             name="volume"
             autocomplete="off"
             style="width:100%;"
+            on:keyup={() => handleChangeVolumePriceTotal("volume")}
           />
         </div>
         <div class="separator">
@@ -567,9 +754,11 @@
             label={$_("trading.order.price")}
             suffix={quote}
             input$pattern="\d+"
+            type="number"
             name="price"
             autocomplete="off"
             style="width:100%;"
+            on:keyup={() => handleChangeVolumePriceTotal("price")}
           />
         </div>
         <div class="separator">
@@ -578,9 +767,11 @@
             label={$_("trading.order.total")}
             suffix={quote}
             input$pattern="\d+"
+            type="number"
             name="total"
             autocomplete="off"
             style="width:100%;"
+            on:keyup={() => handleChangeVolumePriceTotal("total")}
           />
         </div>
         <div class="separator top">
@@ -615,7 +806,34 @@
             </FormField>
           </div>
         </div>
-        <hr />
+        {#if ordertype === "limit"}
+          <hr />
+          <div class="separator">
+            <Textfield
+              bind:value={profit_percent_price}
+              label={$_("trading.order.percentProfit")}
+              suffix="%"
+              input$pattern="\d+"
+              type="number"
+              name="percentProfit"
+              autocomplete="off"
+              style="width:45%;float: left;"
+            />
+            <Textfield
+              bind:value={stoploss_percent_price}
+              label={$_("trading.order.percentStoploss")}
+              suffix="%"
+              input$pattern="\d+"
+              type="number"
+              name="percentStoploss"
+              autocomplete="off"
+              style="width:45%;float:right;"
+            />
+          </div>
+          <div class="clearfix">&nbsp;</div>
+        {:else}
+          <hr />
+        {/if}
         <div class="confirmation">
           <Button
             class="reset"
@@ -630,6 +848,7 @@
             class={type}
             disabled={disabledBtnOrder}
             variant="outlined"
+            on:click={(e) => handleSubmitOrder(e)}
           >
             <Label>
               {$_("trading.order.confirm")}
@@ -672,6 +891,7 @@
             label={$_("trading.order.price")}
             suffix={quote}
             input$pattern="\d+"
+            type="number"
             name="condprice"
             autocomplete="off"
             style="width:100%;"
@@ -683,6 +903,7 @@
             label={$_("trading.order.total")}
             suffix={quote}
             input$pattern="\d+"
+            type="number"
             name="condtotal"
             autocomplete="off"
             style="width:100%;"
@@ -694,6 +915,27 @@
 </form>
 
 <style>
+  #summuryInfos {
+    font-size: 0.8em;
+    padding: 10px;
+    border: 1px dashed #555555;
+    background-color: #232323;
+  }
+  #summuryInfos h3 {
+    cursor: pointer;
+  }
+  #summuryInfos .rolloverTable {
+    background-color: #1b1b1b;
+    border: 1px solid #333333;
+  }
+  #summuryInfos .rolloverTable td {
+    border: 1px solid #333333;
+    padding: 3px;
+    border: 1px solid #333333;
+    white-space: nowrap;
+    font-size: 0.9em;
+  }
+
   #closed-conditionnaly {
     display: grid;
     grid-template-columns: repeat(auto-fit, 100%);
@@ -723,7 +965,16 @@
     border: none;
     height: 2px;
   }
-  :global(button) {
+  :global(.item button) {
+    border: 1px solid #323232;
+    /* padding: 5px; */
+    width: 35%;
+    background: #1c1c1c;
+    color: #747474;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  :global(.item button.action-buy, .item button.action-sell) {
     border: 1px solid #323232;
     padding: 5px;
     width: 35%;
@@ -732,36 +983,27 @@
     cursor: pointer;
     font-weight: bold;
   }
-  :global(button.action-buy, button.action-sell) {
-    border: 1px solid #323232;
-    padding: 5px;
-    width: 35%;
-    background: #1c1c1c;
-    color: #747474;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  :global(button.active).action-buy {
+  :global(.item button.active).action-buy {
     color: darkgreen;
     border: 1px solid #5f5f5f;
     background: #2b2b2b;
   }
-  :global(button.active).action-sell {
+  :global(.item button.active).action-sell {
     color: firebrick;
     border: 1px solid #5f5f5f;
     background: #2b2b2b;
   }
-  :global(button.buy) {
+  :global(.item button.buy) {
     background: darkgreen !important;
     border: 1px solid #2aff00 !important;
     color: #cccccc !important;
   }
-  :global(button.sell) {
+  :global(.item button.sell) {
     background: darkred !important;
     border: 1px solid #ff0000 !important;
     color: #cccccc !important;
   }
-  :global(button.action-percent) {
+  :global(.item button.action-percent) {
     border: 1px solid #323232;
     padding: 5px;
     width: 24%;
@@ -770,23 +1012,23 @@
     cursor: pointer;
     font-weight: bold;
   }
-  :global(button:hover) {
+  /* :global(.item button:hover) {
     border: 1px solid #000000;
-  }
-  :global(button.btnBuy) {
+  } */
+  :global(.item button.btnBuy) {
     color: #6ddc09 !important;
     background: rgb(30 30 30) !important;
     width: 49.5%;
   }
-  :global(button.btnSell) {
+  :global(.item button.btnSell) {
     color: #fe1014 !important;
     background: rgb(30 30 30) !important;
     width: 49.5%;
   }
-  :global(button.btnBuy:hover, button.btnBuy:active) {
+  :global(.item button.btnBuy:hover, button.btnBuy:active) {
     background: green !important;
   }
-  :global(button.btnSell:hover, button.btnSell:active) {
+  :global(.item button.btnSell:hover, button.btnSell:active) {
     background: red !important;
     color: white !important;
   }
@@ -862,6 +1104,7 @@
   :global(button.reset) {
     background-color: #1b1b1b;
   }
+  /*
   .stepper {
     display: inline-block;
     width: 71%;
@@ -981,7 +1224,7 @@
     border: 1px solid #333;
   }
 
-  /* input[type="checkbox"] {
+  input[type="checkbox"] {
     width: 12px;
     height: 12px;
     top: -5px;

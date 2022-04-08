@@ -16,7 +16,12 @@
   import IconButton from "@smui/icon-button";
   import FormField from "@smui/form-field";
   import Switch from "@smui/switch";
-  import { mdiPlusCircle, mdiCog, mdiBell } from "@mdi/js";
+  import {
+    mdiPlusCircle,
+    mdiCog,
+    mdiBell,
+    mdiChartTimelineVariant,
+  } from "@mdi/js";
   import { Svg } from "@smui/common/elements";
   import { Icon } from "@smui/common";
   import MenuSurface from "@smui/menu-surface";
@@ -525,6 +530,7 @@
             position: position,
             color: color,
             shape: "square",
+            price: datas[index][order_id].descr.price,
             text:
               datas[index][order_id].descr.type +
               " " +
@@ -851,14 +857,27 @@
   $: {
     if (activePositions || (activeOrders && $WSOpenOrders)) {
       if ($WSOpenOrders) {
-        if (activeOrders) getOrderMarker($WSOpenOrders);
-        else markers_orders = [];
+        if (activeOrders) {
+          getOrderMarker($WSOpenOrders);
+          console.log(markers_orders);
+          if (markers_orders.length) {
+            Object.values(markers_orders).map((pos) => {
+              candleSeries.createPriceLine({
+                price: pos.price,
+                color: pos.color,
+                lineWidth: 1,
+                axisLabelVisible: true,
+                title: pos.text,
+              });
+            });
+          }
+        } else markers_orders = [];
       }
 
       if (activePositions) getPositionsMarker(openpositions);
       else markers_positions = [];
 
-      markers = [...markers_orders, ...markers_positions, ...highLowMarkers];
+      markers = [...markers_positions, ...highLowMarkers];
       if (candleSeries && isMounted) {
         if (markers) candleSeries.setMarkers(markers);
 
@@ -1166,12 +1185,41 @@
       {nbTrades}{#if $interval <= 1440}/{nbTradesToday}{/if}
     </span>
   </div>
+  <div id="panel">
+    <IconButton
+      class="material-icons"
+      on:click={() => console.log("click")}
+      size="button"
+    >
+      <Icon component={Svg} viewBox="0 0 24 24">
+        <path fill="currentColor" d={mdiChartTimelineVariant} />
+      </Icon>
+    </IconButton>
+  </div>
   <div class="floating-tooltip {type || ''}" />
   <RightClickMenu {User} {currentPrice} bind:this={callRCM} />
-  <TradingOrderChart {candleSeries} bind:this={callTOC} />
 </div>
 
+<TradingOrderChart {candleSeries} bind:this={callTOC} />
+
 <style>
+  #panel {
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    width: auto;
+    height: auto;
+    background: rgb(0, 0, 0, 0.2);
+    border: 1px solid #404040;
+    z-index: 6;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  :global(#panel button) {
+    margin-top: 0 !important;
+  }
   .chartctrl-block {
     position: relative;
     background-color: #212121;
@@ -1314,6 +1362,7 @@
   .chart-block {
     /* display: flex;
     flex-wrap: wrap; */
+    cursor: crosshair;
     position: relative;
     background-color: #212121;
     border: 1px solid #181818;

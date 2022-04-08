@@ -233,8 +233,8 @@
   #trading-order-modal {
     position: absolute;
     width: 25%;
-    bottom: 50px;
-    left: 20px;
+    bottom: 550px;
+    left: 150px;
     z-index: 4;
   }
   #trading-order-modal .add-order-buy {

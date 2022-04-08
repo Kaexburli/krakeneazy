@@ -19,7 +19,7 @@
         <BlockOpenOrders />
       </div>
       <div class="trading">
-        <TradingOrder modal="false" />
+        <TradingOrder candleSeries="false" />
         <SpreadBox />
       </div>
     {:else}

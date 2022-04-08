@@ -338,10 +338,16 @@ const AddOrder = async (req, _reply) => {
       volume: body.volume,
       leverage: body.leverage === "0" ? "none" : body.leverage,
       oflags: body.type === 'sell' ? body.devise === 'quote' ? 'fciq' : 'fcib' : body.devise === 'base' ? 'fcib' : 'fciq',
-      validate: body.dry === 'true' ? true : false
+      validate: body.dry
     }
 
     if (body.postonly) payload.oflags = [payload.oflags, "post"].join(',');
+    if (body.condtype) {
+      payload['close[ordertype]'] = body.condtype || false
+      payload['close[price]'] = body.condprice || false
+      payload['close[price2]'] = body.condtotal || false
+    }
+
     console.log(body, payload)
     const response = await apiKraken.addOrder(payload);
     return response

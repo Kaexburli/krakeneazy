@@ -386,7 +386,9 @@
       "and": "and",
       "slippage": "Slippage",
       "favorableSlippage": "Favorable Slippage",
-      "unfavorableSlippage": "Unfavorable Slippage"
+      "unfavorableSlippage": "Unfavorable Slippage",
+      "percentProfit": "Percent profit",
+      "percentStoploss": "Percent profit"
     },
     "chartOrder": {
       "more": "MORE",
