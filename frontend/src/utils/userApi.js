@@ -27,7 +27,7 @@ const headers = {
 ************************************************************************************************/
 export const userRegister = async (data) => {
   try {
-    return await fetch(__env["BACKEND_URI"] + "/register", {
+    return await fetch(__env["BACKEND_URI"] + "/api/register", {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -50,7 +50,7 @@ export const userRegister = async (data) => {
 ************************************************************************************************/
 export const userLogin = async (data) => {
   try {
-    return await fetch(__env["BACKEND_URI"] + "/login", {
+    return await fetch(__env["BACKEND_URI"] + "/api/login", {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -71,7 +71,7 @@ export const userLogin = async (data) => {
 ************************************************************************************************/
 export const userLogout = async (token) => {
   try {
-    return await fetch(__env["BACKEND_URI"] + "/logout", {
+    return await fetch(__env["BACKEND_URI"] + "/api/logout", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export const userLogout = async (token) => {
 ************************************************************************************************/
 export const userRefreshToken = async (token, remember) => {
   try {
-    return await fetch(__env["BACKEND_URI"] + "/refresh-token", {
+    return await fetch(__env["BACKEND_URI"] + "/api/refresh-token", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export const userRefreshToken = async (token, remember) => {
 ************************************************************************************************/
 export const userForgotPassword = async (data) => {
   try {
-    return await fetch(__env["BACKEND_URI"] + "/forgot-password", {
+    return await fetch(__env["BACKEND_URI"] + "/api/forgot-password", {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -134,7 +134,7 @@ export const userForgotPassword = async (data) => {
 ************************************************************************************************/
 export const resendConfirmEmail = async (data) => {
   try {
-    return await fetch(__env["BACKEND_URI"] + "/send-confirm-email", {
+    return await fetch(__env["BACKEND_URI"] + "/api/send-confirm-email", {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -153,7 +153,7 @@ export const resendConfirmEmail = async (data) => {
 ************************************************************************************************/
 export const userProfile = async (token) => {
   try {
-    return await fetch(__env["BACKEND_URI"] + "/me", {
+    return await fetch(__env["BACKEND_URI"] + "/api/me", {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -174,7 +174,7 @@ export const addApiKey = async (token, data) => {
   const { privateKey, publicKey } = data
 
   try {
-    return await fetch(__env["BACKEND_URI"] + "/add-apikey", {
+    return await fetch(__env["BACKEND_URI"] + "/api/add-apikey", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ export const removeApiKey = async (token, data) => {
   const { ids, userId } = data
 
   try {
-    return await fetch(__env["BACKEND_URI"] + "/remove-apikey", {
+    return await fetch(__env["BACKEND_URI"] + "/api/remove-apikey", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -236,7 +236,7 @@ export const changeUserData = async (token, data, field) => {
   }
 
   try {
-    return await fetch(__env["BACKEND_URI"] + "/change-user-data", {
+    return await fetch(__env["BACKEND_URI"] + "/api/change-user-data", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -260,7 +260,7 @@ export const changeUserData = async (token, data, field) => {
 export const acceptCgv = async (token) => {
 
   try {
-    return await fetch(__env["BACKEND_URI"] + "/accept-cgv", {
+    return await fetch(__env["BACKEND_URI"] + "/api/accept-cgv", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -281,7 +281,7 @@ export const acceptCgv = async (token) => {
 export const setPriceAlert = async (token, data) => {
 
   try {
-    return await fetch(__env["BACKEND_URI"] + "/price-alerts", {
+    return await fetch(__env["BACKEND_URI"] + "/api/price-alerts", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -33,7 +33,7 @@ export const sendRegisterEmail = async (user) => {
       preview_text: "Confirmer votre inscription sur krakeneazy",
       line_1: "Confirmer mon email",
       line_2: "Cliquez sur le lien pour valider votre email et finaliser votre inscription.",
-      confirm_link: process.env.BACKEND_URI + "/email-confirm/" + confirmationToken,
+      confirm_link: process.env.FRONTEND_URI + "/api/email-confirm/" + confirmationToken,
       btn_label: "Valider mon email",
       footer: "Vous avez reçu ce message car votre adresse email à été utilisée pour s'incrire sur krakeneazy, si vous n'avez pas fait d'inscription veuillez ne pas tenir compte de cet email!"
     };
@@ -69,7 +69,7 @@ export const sendForgotPasswordEmail = async (user) => {
       preview_text: "Mot de passe oublié | " + process.env.SITE_NAME,
       line_1: "Réinitialisez votre mot de passe",
       line_2: "Pour pouvoir réinitialiser votre mot de passe veuillez cliquer sur le lien suivant:",
-      forgot_link: process.env.BACKEND_URI + "/forgot-password-confirm/" + resetPasswordToken,
+      forgot_link: process.env.FRONTEND_URI + "/api/forgot-password-confirm/" + resetPasswordToken,
       btn_label: "Réinitialiser mon mot de passe",
       footer: "Vous avez reçu ce message car votre adresse email à été utilisée pour faire une demande de réinitialisation de mot de passe sur krakeneazy, si vous n'avez pas fait cette demande veuillez ne pas tenir compte de cet email!"
     };

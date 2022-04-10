@@ -18,7 +18,7 @@ env.config({ path: __dirname + "/../.env" });
 const PORT = process.env.BACK_PORT || '9000'
 const uri = process.env.MONGODB_URI;
 
-const environment = 'development';
+const environment = process.env.ENVIRONMENT;
 const levels = ["fatal", "error", "warn", "info", "debug", "trace"]
 const fastify = Fastify({
   logger: {
@@ -73,7 +73,7 @@ const start = async () => {
   try {
     await fastify.listen(PORT)
   } catch (err) {
-    fastify.log.error("[SERVER START ERROR]:", err, typeof err)
+    fastify.log.error(`[SERVER START ERROR]:${err}`)
     process.exit(1)
   }
 }
