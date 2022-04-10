@@ -1,4 +1,5 @@
 // Require the framework and instantiate it
+import * as fs from 'fs';
 import path from 'path';
 const __dirname = path.resolve(path.dirname(''));
 
@@ -9,6 +10,7 @@ import FastifyCors from 'fastify-cors';
 import FastifyWs from 'fastify-websocket';
 import Autoload from 'fastify-autoload';
 import FastifyAuth from 'fastify-auth';
+import fastifyErrorPage from 'fastify-error-page';
 
 import db from './api/config/index';
 
@@ -59,11 +61,36 @@ fastify
   .register(FastifyWs)
   .register(FastifyAuth);
 
+if (environment === 'development')
+  fastify.register(fastifyErrorPage)
+
+
+// Page error 4xx et 5xx
+fastify.setErrorHandler(function (error, request, reply) {
+  var statusCode = error.statusCode
+  if (statusCode >= 500) {
+    const pageNotFoundStream = fs.createReadStream('./public/500.html')
+    fastify.log.error(`[SERVER setErrorHandler 500]:${error}`)
+    reply.code(500).type('text/html').send(pageNotFoundStream)
+  } else if (statusCode >= 400) {
+    const pageNotFoundStream = fs.createReadStream('./public/400.html')
+    fastify.log.error(`[SERVER setErrorHandler 400]:${error}`)
+    reply.code(400).type('text/html').send(pageNotFoundStream)
+  } else {
+    const pageNotFoundStream = fs.createReadStream('./public/maintenance.html')
+    fastify.log.error(`[SERVER setErrorHandler no code]:${error}`)
+    reply.code(404).type('text/html').send(pageNotFoundStream)
+  }
+})
+
+// Page 404 Not Found
+fastify.setNotFoundHandler(function (request, reply) {
+  const pageNotFoundStream = fs.createReadStream('./public/404.html')
+  reply.code(404).type('text/html').send(pageNotFoundStream)
+})
+
 
 // Declare a route
-fastify.get('/', async (request, reply) => {
-  return { hello: 'Site under construction' }
-})
 fastify.register(Autoload, {
   dir: './api/routes/'
 })
@@ -71,7 +98,13 @@ fastify.register(Autoload, {
 // Run the server!
 const start = async () => {
   try {
-    await fastify.listen(PORT)
+    fastify.listen(PORT, err => {
+      if (err) throw err
+      console.log(
+        'Server listenting on :',
+        `http://${fastify.server.address().address}:${fastify.server.address().port}`
+      )
+    })
   } catch (err) {
     fastify.log.error(`[SERVER START ERROR]:${err}`)
     process.exit(1)
