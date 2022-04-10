@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import User from '../models/user';
 import UserSettings from '../models/userSettings';
 import UserKraken from '../models/userKraken';
-import UserPriceAlerts from '../models/UserPriceAlerts';
+import UserPriceAlerts from '../models/userPriceAlerts';
 
 const models = {
   User,
