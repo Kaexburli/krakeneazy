@@ -73,7 +73,7 @@ const start = async () => {
   try {
     await fastify.listen(PORT)
   } catch (err) {
-    fastify.log.error("[SERVER START ERROR]:", err, typeof err)
+    fastify.log.error(`[SERVER START ERROR]:${err}`)
     process.exit(1)
   }
 }

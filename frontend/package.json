@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public --no-clear",
+    "start": "sirv public --no-clear --host",
     "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
     "smui-theme-light": "smui-theme compile public/static/svelte-material-ui/smui.css -i src/theme",
     "smui-theme-dark": "smui-theme compile public/static/svelte-material-ui/smui-dark.css -i src/theme/dark"

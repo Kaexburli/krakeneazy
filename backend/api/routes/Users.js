@@ -26,7 +26,7 @@ export default function usersRoutes(fastify, options, done) {
       // our routes goes here
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/register',
+        url: '/api/register',
         logLevel: 'warn',
         handler: registerCtrl
       });
@@ -34,7 +34,7 @@ export default function usersRoutes(fastify, options, done) {
       // email-confirm
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/email-confirm/:confirm_token',
+        url: '/api/email-confirm/:confirm_token',
         logLevel: 'warn',
         handler: confirmEmailCtrl
       });
@@ -42,7 +42,7 @@ export default function usersRoutes(fastify, options, done) {
       // forgot-password
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/forgot-password',
+        url: '/api/forgot-password',
         logLevel: 'warn',
         handler: forgotPasswordCtrl
       });
@@ -50,7 +50,7 @@ export default function usersRoutes(fastify, options, done) {
       // forgot-password
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/forgot-password-confirm/:resetPasswordToken',
+        url: '/api/forgot-password-confirm/:resetPasswordToken',
         logLevel: 'warn',
         handler: forgotPasswordConfirmCtrl
       });
@@ -58,7 +58,7 @@ export default function usersRoutes(fastify, options, done) {
       // forgot-password
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/send-confirm-email',
+        url: '/api/send-confirm-email',
         logLevel: 'warn',
         handler: resendConfirmEmailCtrl
       });
@@ -66,7 +66,7 @@ export default function usersRoutes(fastify, options, done) {
       // login route
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/login',
+        url: '/api/login',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyUsernameAndPassword]),
         handler: loginCtrl
@@ -75,7 +75,7 @@ export default function usersRoutes(fastify, options, done) {
       // logout route
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/logout',
+        url: '/api/logout',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: logoutCtrl
@@ -84,7 +84,7 @@ export default function usersRoutes(fastify, options, done) {
       // proifle route
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/me',
+        url: '/api/me',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: profileCtrl
@@ -93,7 +93,7 @@ export default function usersRoutes(fastify, options, done) {
       // forgot-password
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/add-apikey',
+        url: '/api/add-apikey',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: addApiKeyCtrl
@@ -102,7 +102,7 @@ export default function usersRoutes(fastify, options, done) {
       // forgot-password
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/remove-apikey',
+        url: '/api/remove-apikey',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: removeApiKeyCtrl
@@ -111,7 +111,7 @@ export default function usersRoutes(fastify, options, done) {
       // change-user-data
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/change-user-data',
+        url: '/api/change-user-data',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: changeUserDataCtrl
@@ -120,7 +120,7 @@ export default function usersRoutes(fastify, options, done) {
       // refreshToken route
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/refresh-token',
+        url: '/api/refresh-token',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: refreshTokenCtrl
@@ -129,7 +129,7 @@ export default function usersRoutes(fastify, options, done) {
       // change-user-data
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/accept-cgv',
+        url: '/api/accept-cgv',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: confirmCGVCtrl
@@ -138,7 +138,7 @@ export default function usersRoutes(fastify, options, done) {
       // add-price-alerts
       fastify.route({
         method: ['POST', 'HEAD'],
-        url: '/price-alerts',
+        url: '/api/price-alerts',
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: setPriceAlertCtrl
