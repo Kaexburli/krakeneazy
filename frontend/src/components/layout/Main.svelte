@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { page } from "store/store.js";
-  import Home from "components/pages/Home/MainHome.svelte";
+  import Home from "components/pages/home/MainHome.svelte";
   import Account from "components/pages/account/MainAccount.svelte";
   import Trading from "components/pages/trading/MainTrading.svelte";
   import Statistic from "components/pages/statistics/MainStatistics.svelte";

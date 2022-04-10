@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { pricealertlist } from "store/store.js";
   import { WSTickerAlert } from "store/wsstore.js";
@@ -10,11 +13,17 @@
   import Textfield from "@smui/textfield";
   import Icon from "@smui/textfield/icon";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   export let display = false;
   let isActive = false;
   let icon = isActive ? "fa-angle-double-right" : "fa-bell";
   let hasPriceAlert;
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const playSound = (track) => {
     let audio = new Audio("../sound/" + track + ".mp3");
     let playPromise = audio.play();

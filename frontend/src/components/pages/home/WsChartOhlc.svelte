@@ -5,7 +5,7 @@
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import RightClickMenu from "components/pages/home/RightClickMenu.svelte";
   import TradingOrderChart from "components/pages/trading/TradingOrderChart.svelte";
-  import PriceAlert from "components/api/PriceAlert.svelte";
+  import PriceAlerts from "components/api/PriceAlerts.svelte";
   import { Jumper } from "svelte-loading-spinners";
   import { CrosshairMode, PriceScaleMode } from "lightweight-charts";
   import Chart from "svelte-lightweight-charts/components/chart.svelte";
@@ -1105,7 +1105,7 @@
   <!-- Display ALert Menu -->
   {#if displayAlertMenu}
     <div id="displayAlertMenu">
-      <PriceAlert />
+      <PriceAlerts />
     </div>
   {/if}
 

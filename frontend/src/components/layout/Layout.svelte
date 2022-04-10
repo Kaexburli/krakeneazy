@@ -6,7 +6,7 @@
   import Footer from "components/layout/Footer.svelte";
   import OnlineApi from "components/api/Online.svelte";
   import GetAssets from "components/api/GetAssets.svelte";
-  import PriceAlert from "components/api/PriceAlert.svelte";
+  import PriceAlerts from "components/api/PriceAlerts.svelte";
   import Authentification from "components/pages/auth/Authentification.svelte";
   import { Modals, closeModal } from "svelte-modals";
   import { User, hasApikeysStore } from "store/userStore.js";
@@ -59,7 +59,7 @@
     <!-- // No displaying -->
     <OnlineApi display="header" />
     <GetAssets />
-    <PriceAlert display="true" />
+    <PriceAlerts display="true" />
     <Modals>
       <div slot="backdrop" class="backdrop" on:click={closeModal} />
     </Modals>
