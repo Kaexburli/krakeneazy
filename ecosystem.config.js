@@ -7,12 +7,10 @@ module.exports = {
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: false,
+      log: "/home/websitedev/krakeneazy.com/app/logs/pm2/backend.log",
       log_date_format: "YYYY-MM-DD HH:mm Z",
-      error_file: `${__dirname}/logs/pm2/backend_err.log`,
-      out_file: `${__dirname}/logs/pm2/backend_out.log`,
-      pid_file: `${__dirname}/logs/pm2/backend_pm2_id.pid`,
-      combine_logs: true,
-      merge_logs: true,
+      disable_logs: false,
+      merge_logs: false,
       env: {
         NODE_ENV: 'production',
         PORT: 9000,
@@ -26,12 +24,10 @@ module.exports = {
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: false,
+      log: "/home/websitedev/krakeneazy.com/app/logs/pm2/frontend.log",
       log_date_format: "YYYY-MM-DD HH:mm Z",
-      error_file: `${__dirname}/logs/pm2/frontend_err.log`,
-      out_file: `${__dirname}/logs/pm2/frontend_out.log`,
-      pid_file: `${__dirname}/logs/pm2/frontend_pm2_id.pid`,
-      combine_logs: true,
-      merge_logs: true,
+      disable_logs: false,
+      merge_logs: false,
       env: {
         NODE_ENV: 'production',
         COMMON_ENV_VAR: true,
@@ -44,7 +40,7 @@ module.exports = {
       user: "websitedev",
       host: ["212.227.212.129"],
       ssh_options: "StrictHostKeyChecking=no",
-      ref: "origin/main",
+      ref: "origin/develop",
       repo: "git@github.com:Kaexburli/krakeneazy.git",
       path: "/home/websitedev/krakeneazy.com/app/deploy",
       'pre-setup': "cd krakeneazy.com/app/; \
@@ -64,9 +60,9 @@ module.exports = {
       rm -rf src; \
       cd ../../../; \
       mv deploy/current/* ./; \
-      rm -v !('.env'|'smtp.env.js'|'ecosystem.config.cjs'); \
+      rm -v !('.env'|'smtp.env.js'|'ecosystem.config.cjs'|'backend'|'frontend'|'deploy'); \
       cp smtp.env.js backend/smtp.env.js; \
-      pm2 startOrRestart ecosystem.config.cjs;",
+      pm2 startOrRestart ecosystem.config.js;",
     },
   }
 };
