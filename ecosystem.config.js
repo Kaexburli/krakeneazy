@@ -35,7 +35,7 @@ module.exports = {
       ref: "origin/main",
       repo: "git@github.com:Kaexburli/krakeneazy.git",
       path: "/home/websitedev/krakeneazy.com/app/deploy",
-      'pre-setup': "cd krakeneazy.com/app/; rm -rf backend; rm -rf frontend; rm -v !('.env'); mkdir deploy",
+      'pre-setup': "cd krakeneazy.com/app/; rm -rf backend; rm -rf frontend; rm -v !('.env'|'smtp.env.js'); mkdir deploy",
       'post-setup': "pwd; cd backend && npm install; cd ../frontend && npm install && npm run build && rm -rf src; cd ../../../; mv deploy/current/* ./; rm -rf deploy; pm2 startOrRestart ecosystem.config.js",
     },
   }
