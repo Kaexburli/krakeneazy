@@ -5,7 +5,8 @@
   import { pair, assetpair, assetpairs } from "store/store.js";
   import { DoubleBounce } from "svelte-loading-spinners";
 
-  let backUrl = __env["BACKEND_URI"],
+  let backUrl =
+      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
     fetchUrl = backUrl + "/api/assetpairs",
     assetpairVal,
     spinner = false,

@@ -12,7 +12,7 @@ class UserData {
     this.endpoint = null;
     this.params = null;
     this.url = null;
-    this.server = __env["BACKEND_URI"] + "/api/private/";
+    this.server = (__env["ENVIRONMENT"] === "development") ? __env["BACKEND_URI"] + "/api/private/" : "/api/private/";
     this.token = user.token || false;
   }
 
