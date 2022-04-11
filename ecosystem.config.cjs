@@ -7,6 +7,12 @@ module.exports = {
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: false,
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      error_file: `${__dirname}/logs/pm2/backend_err.log`,
+      out_file: `${__dirname}/logs/pm2/backend_out.log`,
+      pid_file: `${__dirname}/logs/pm2/backend_pm2_id.pid`,
+      combine_logs: true,
+      merge_logs: true,
       env: {
         NODE_ENV: 'production',
         PORT: 9000,
@@ -20,6 +26,12 @@ module.exports = {
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: false,
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      error_file: `${__dirname}/logs/pm2/frontend_err.log`,
+      out_file: `${__dirname}/logs/pm2/frontend_out.log`,
+      pid_file: `${__dirname}/logs/pm2/frontend_pm2_id.pid`,
+      combine_logs: true,
+      merge_logs: true,
       env: {
         NODE_ENV: 'production',
         COMMON_ENV_VAR: true,
@@ -39,17 +51,22 @@ module.exports = {
       rm -rf backend; \
       rm -rf frontend; \
       rm -rf deploy; \
+      rm -rf logs; \
       rm -v !('.env'|'smtp.env.js'); \
-      mkdir deploy;",
+      mkdir deploy; \
+      mkdir logs; \
+      mkdir logs/pm2;",
       'post-setup': "cd backend; \
       npm install; \
       cd ../frontend; \
       npm install; \
       npm run build; \
+      rm -rf src; \
       cd ../../../; \
       mv deploy/current/* ./; \
+      rm -v !('.env'|'smtp.env.js'|'ecosystem.config.cjs'); \
       cp smtp.env.js backend/smtp.env.js; \
-      pm2 startOrRestart ecosystem.config.cjs",
+      pm2 startOrRestart ecosystem.config.cjs;",
     },
   }
 };
