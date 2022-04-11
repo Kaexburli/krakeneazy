@@ -61,27 +61,28 @@ fastify
   .register(FastifyWs)
   .register(FastifyAuth);
 
-if (environment === 'development')
-  fastify.register(fastifyErrorPage)
-
-
 // Page error 4xx et 5xx
-fastify.setErrorHandler(function (error, request, reply) {
-  var statusCode = error.statusCode
-  if (statusCode >= 500) {
-    const pageNotFoundStream = fs.createReadStream('./public/500.html')
-    fastify.log.error(`[SERVER setErrorHandler 500]:${error}`)
-    reply.code(500).type('text/html').send(pageNotFoundStream)
-  } else if (statusCode >= 400) {
-    const pageNotFoundStream = fs.createReadStream('./public/400.html')
-    fastify.log.error(`[SERVER setErrorHandler 400]:${error}`)
-    reply.code(400).type('text/html').send(pageNotFoundStream)
-  } else {
-    const pageNotFoundStream = fs.createReadStream('./public/maintenance.html')
-    fastify.log.error(`[SERVER setErrorHandler no code]:${error}`)
-    reply.code(404).type('text/html').send(pageNotFoundStream)
-  }
-})
+if (environment === 'development') {
+  fastify.register(fastifyErrorPage)
+}
+else {
+  fastify.setErrorHandler(function (error, request, reply) {
+    var statusCode = error.statusCode
+    if (statusCode >= 500) {
+      const pageNotFoundStream = fs.createReadStream('./public/500.html')
+      fastify.log.error(`[SERVER setErrorHandler 500]:${error}`)
+      reply.code(500).type('text/html').send(pageNotFoundStream)
+    } else if (statusCode >= 400) {
+      const pageNotFoundStream = fs.createReadStream('./public/400.html')
+      fastify.log.error(`[SERVER setErrorHandler 400]:${error}`)
+      reply.code(400).type('text/html').send(pageNotFoundStream)
+    } else {
+      const pageNotFoundStream = fs.createReadStream('./public/maintenance.html')
+      fastify.log.error(`[SERVER setErrorHandler no code]:${error}`)
+      reply.code(404).type('text/html').send(pageNotFoundStream)
+    }
+  })
+}
 
 // Page 404 Not Found
 fastify.setNotFoundHandler(function (request, reply) {
