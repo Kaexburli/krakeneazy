@@ -21,7 +21,8 @@
     spread_calcul = "0.00",
     decimals = $assetpair.pair_decimals,
     lot_decimals = $assetpair.lot_decimals,
-    backUrl = __env["BACKEND_URI"],
+    backUrl =
+      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
     fetchUrl = `${backUrl}/api/trades/${$assetpair.altname}`,
     last = null;
 

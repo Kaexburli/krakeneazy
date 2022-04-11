@@ -76,7 +76,8 @@
     close,
     volume,
     legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
-    backUrl = __env["BACKEND_URI"],
+    backUrl =
+      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
     fetchUrl = backUrl + "/api/ohlc",
     chartHeight = 488,
     chartWidth = 600,

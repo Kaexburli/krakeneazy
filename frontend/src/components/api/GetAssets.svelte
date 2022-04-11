@@ -3,7 +3,8 @@
   import { User } from "store/userStore.js";
   import { assets } from "store/store.js";
 
-  let backUrl = __env["BACKEND_URI"],
+  let backUrl =
+      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
     fetchUrl = backUrl + "/api/assets";
   const token = $User.token || false;
 
