@@ -1,4 +1,4 @@
-import SMTP from '../../../smtp.env.js';
+import SMTP from '../../../smtp.env.mjs';
 import nodemailer from "nodemailer";
 import handlebars from 'handlebars';
 import fs from 'fs';

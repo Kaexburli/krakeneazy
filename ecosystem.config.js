@@ -48,7 +48,7 @@ module.exports = {
       rm -rf frontend; \
       rm -rf deploy; \
       rm -rf logs; \
-      rm -v !('.env'|'smtp.env.js'); \
+      rm -v !('.env'|'smtp.env.mjs'); \
       mkdir deploy; \
       mkdir logs; \
       mkdir logs/pm2;",
@@ -60,8 +60,8 @@ module.exports = {
       rm -rf src; \
       cd ../../../; \
       mv deploy/current/* ./; \
-      rm -v !('.env'|'smtp.env.js'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
-      cp smtp.env.js.txt backend/smtp.env.js; \
+      rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
+      cp smtp.env.mjs backend/smtp.env.mjs; \
       pm2 startOrRestart ecosystem.config.js;",
     },
   }
