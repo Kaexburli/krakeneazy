@@ -39,6 +39,10 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
     req.user = user;
     req.token = token; // used in logout route
   } catch (error) {
+    console.log('###################################################')
+    console.log(error.message, error)
+    console.log('###################################################')
+
     reply.code(401).send(error.message);
   }
 
