@@ -49,8 +49,8 @@ module.exports = {
       rm -rf deploy; \
       rm -v !('.env'|'smtp.env.mjs'); \
       mkdir deploy;",
-      'post-setup': "cd backend; \
-      mv _error_pages/* ../; \
+      'post-setup': "mv _error_pages ../../../; \
+      cd backend; \
       npm install; \
       cd ../frontend; \
       npm install; \
