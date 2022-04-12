@@ -46,6 +46,7 @@ module.exports = {
       'pre-setup': "cd krakeneazy.com/; \
       rm -rf _error_pages; \
       cd app/; \
+      rm -rf deploy; \
       rm -rf backend; \
       rm -rf frontend; \
       rm -v !('.env'|'smtp.env.mjs'); \
