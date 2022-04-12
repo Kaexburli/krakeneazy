@@ -49,16 +49,16 @@ module.exports = {
       rm -rf deploy; \
       rm -v !('.env'|'smtp.env.mjs'); \
       mkdir deploy;",
-      'post-setup': "cd backend; \
+      'post-setup': "cd ../../; \
+      mv deploy/current/* ./; \
+      mv -f _error_pages ../; \
+      rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
+      cd backend; \
       npm install; \
       cd ../frontend; \
       npm install; \
       npm run build; \
       rm -rf src; \
-      cd ../../../; \
-      mv deploy/current/* ./; \
-      mv -f _error_pages ../; \
-      rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'|'_error_pages','_log'); \
       pm2 startOrRestart ecosystem.config.js;",
     },
   }
