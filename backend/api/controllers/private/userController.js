@@ -33,17 +33,15 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
     const token = req.headers.authorization.replace('Bearer ', '');
     const user = await User.findByToken(token);
     if (!user || user.hasOwnProperty('error')) {
-      reply.code(401).send({ error: true, statusCode: 401, message: 'Authentication failed!' });
+      console.log('###################################################')
+      console.log("user", user, "token", token, "auth", req.headers.authorization)
+      console.log('###################################################')
       throw new Error('Authentication failed!');
     }
     req.user = user;
     req.token = token; // used in logout route
   } catch (error) {
-    console.log('###################################################')
-    console.log(error.message, error)
-    console.log('###################################################')
-
-    reply.code(401).send(error.message);
+    reply.code(401).send({ error: true, statusCode: 401, message: error.message });
   }
 
 }
