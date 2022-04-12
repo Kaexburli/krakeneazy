@@ -38,7 +38,7 @@ const getOhlc = async (req, reply) => {
     let ohlc_response = await new Promise(resolve => ohlcFormat(response, resolve));
     return ohlc_response;
   } catch (error) {
-    console.log('######################" [ERROR:getOhlc]', error)
+    console.log('[ERROR:getOhlc]', error)
   }
 }
 

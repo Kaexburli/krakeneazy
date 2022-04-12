@@ -31,7 +31,7 @@ const GetSpread = async (connection, req) => {
       try {
         await spread.unsubscribe(pair)
       } catch (error) {
-        console.log('######################" [ERROR:SPREAD:ONCLOSE]', error)
+        console.log('[ERROR:SPREAD:ONCLOSE]', error)
       }
     })
   } catch (error) {

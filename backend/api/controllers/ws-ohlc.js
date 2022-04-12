@@ -31,7 +31,7 @@ const GetOhlc = async (connection, req) => {
       try {
         await ohlc.unsubscribe(pair)
       } catch (error) {
-        console.log('######################" [ERROR:OHLC:ONCLOSE]', error)
+        console.log('[ERROR:OHLC:ONCLOSE]', error)
       }
     })
   } catch (error) {

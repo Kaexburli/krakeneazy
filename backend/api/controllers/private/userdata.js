@@ -348,7 +348,6 @@ const AddOrder = async (req, _reply) => {
       payload['close[price2]'] = body.condtotal || false
     }
 
-    console.log(body, payload)
     const response = await apiKraken.addOrder(payload);
     return response
   } catch (error) {

@@ -7,7 +7,7 @@ const getSystemStatus = async (req, reply) => {
     let response = await api.systemStatus()
     reply.send(response)
   } catch (error) {
-    console.log('######################" [ERROR:getSystemStatus]', error)
+    console.log('[ERROR:getSystemStatus]', error)
   }
 }
 

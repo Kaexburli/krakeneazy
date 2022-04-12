@@ -8,7 +8,7 @@ const getAssetPairs = async (req, reply) => {
     let response = await api.assetPairs()
     reply.send(response)
   } catch (error) {
-    console.log('######################" [ERROR:getAssetPairs]', error)
+    console.log('[ERROR:getAssetPairs]', error)
   }
 }
 
