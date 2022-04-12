@@ -860,7 +860,6 @@
       if ($WSOpenOrders) {
         if (activeOrders) {
           getOrderMarker($WSOpenOrders);
-          console.log(markers_orders);
           if (markers_orders.length) {
             Object.values(markers_orders).map((pos) => {
               candleSeries.createPriceLine({

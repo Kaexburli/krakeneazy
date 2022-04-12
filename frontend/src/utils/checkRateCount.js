@@ -18,7 +18,6 @@ const rate_params = {
 };
 
 const getRateInfo = () => {
-  console.log('getRateInfo')
   let max_ratecount, max_ratecount_data;
   maxratecount.subscribe((v) => max_ratecount = v);
   maxratecount_data.subscribe((v) => max_ratecount_data = v);

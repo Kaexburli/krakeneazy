@@ -104,7 +104,6 @@
   };
 
   const GetBalance = async () => {
-    console.log("GetBalance");
     try {
       if (!$online) {
         error = true;
@@ -125,7 +124,6 @@
 
   const setActionWay = (event, way) => {
     if (event) event.preventDefault();
-    console.log("setActionWay");
     type = way;
     let btnBuy = document.querySelector(".btnBuy");
     let btnSell = document.querySelector(".btnBuy");
@@ -145,7 +143,6 @@
   };
 
   const setPercentAmount = (event) => {
-    console.log("setPercentAmount");
     event.preventDefault();
     let percent = parseFloat(actionPercentSelected.slice(0, -1)) / 100;
     let funds = parseFloat(quote_balance);
@@ -156,7 +153,6 @@
   };
 
   const resetForm = () => {
-    console.log("resetForm");
     type;
     ordertype = "market";
     leverage = 0;
@@ -175,7 +171,6 @@
 
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
-    console.log("handleSubmitOrder");
     // AddOrder
     try {
       if (!$online) {
@@ -213,7 +208,6 @@
 
         if (order.hasOwnProperty("descr")) {
           for (const descr of Object.entries(order.descr)) {
-            console.log(descr[0], descr[1], params.condprice);
             // // Add chart Line price
             if (candleSeries) {
               candleSeries.createPriceLine({
@@ -229,7 +223,6 @@
           }
         }
 
-        console.log("ORDER", order);
         if (error) Notification(error, "error");
       }
     } catch (error) {
@@ -279,7 +272,6 @@
   };
 
   const calculateTradeFeeAndPnL = async () => {
-    console.log("calculateTradeFeeAndPnL");
     try {
       let calculator = {
         assetPair: $assetpair,
