@@ -69,15 +69,15 @@ else {
   fastify.setErrorHandler((error, request, reply) => {
     var statusCode = reply.statusCode
     if (statusCode >= 500) {
-      const pageNotFoundStream = fs.createReadStream('../error_pages/500.html')
+      const pageNotFoundStream = fs.createReadStream('../../_error_pages/500.html')
       fastify.log.error(`[SERVER setErrorHandler ${statusCode}]:${error}`)
       reply.code(500).type('text/html').send(pageNotFoundStream)
     } else if (statusCode >= 400) {
-      const pageNotFoundStream = fs.createReadStream('../error_pages/400.html')
+      const pageNotFoundStream = fs.createReadStream('../../_error_pages/400.html')
       fastify.log.error(`[SERVER setErrorHandler ${statusCode}]:${error}`)
       reply.code(400).type('text/html').send(pageNotFoundStream)
     } else {
-      const pageNotFoundStream = fs.createReadStream('../error_pages/maintenance.html')
+      const pageNotFoundStream = fs.createReadStream('../../_error_pages/maintenance.html')
       fastify.log.error(`[SERVER setErrorHandler]:${error}`)
       reply.code(404).type('text/html').send(pageNotFoundStream)
     }

@@ -7,7 +7,7 @@ module.exports = {
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: false,
-      log: "/home/websitedev/krakeneazy.com/log/app/pm2/backend.log",
+      log: "/home/websitedev/krakeneazy.com/_log/app/pm2/backend.log",
       log_date_format: "YYYY-MM-DD HH:mm Z",
       disable_logs: false,
       merge_logs: false,
@@ -24,7 +24,7 @@ module.exports = {
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: false,
-      log: "/home/websitedev/krakeneazy.com/log/app/pm2/frontend.log",
+      log: "/home/websitedev/krakeneazy.com/_log/app/pm2/frontend.log",
       log_date_format: "YYYY-MM-DD HH:mm Z",
       disable_logs: false,
       merge_logs: false,
@@ -50,6 +50,7 @@ module.exports = {
       rm -v !('.env'|'smtp.env.mjs'); \
       mkdir deploy;",
       'post-setup': "cd backend; \
+      mv _error_pages/* ../; \
       npm install; \
       cd ../frontend; \
       npm install; \
@@ -57,7 +58,7 @@ module.exports = {
       rm -rf src; \
       cd ../../../; \
       mv deploy/current/* ./; \
-      rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
+      rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'|'_error_pages','_log'); \
       pm2 startOrRestart ecosystem.config.js;",
     },
   }
