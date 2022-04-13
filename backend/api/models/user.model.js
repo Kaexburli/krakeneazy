@@ -58,6 +58,10 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isLogged: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       default: 'user',
@@ -139,6 +143,7 @@ userSchema.methods.generateToken = async function (remember, reset = false) {
 
   user.token = token;
   user.tokenVersion = reset ? 1 : user.tokenVersion + 1;
+  user.isLogged = true;
   await user.save();
   return token;
 };
@@ -146,20 +151,25 @@ userSchema.methods.generateToken = async function (remember, reset = false) {
 // create a custom model method to find user by token for authenticationn
 userSchema.statics.findByToken = async function (token) {
   let User = this;
-  let decoded;
+  let decoded = null;
+
   try {
-    if (!token) {
-      return new Error('Missing token header');
-    }
-    decoded = jwt.verify(token, process.env.JWT_STANDARD_SECRET);
+    if (!token) return new Error('Missing token');
+    else decoded = jwt.verify(token, process.env.JWT_STANDARD_SECRET);
   } catch (error) {
     return { error: true, message: error };
   }
-  return await User.findOne({
-    _id: decoded.id,
-    token
-  }).populate(["settings", "apikeys", "alerts"]);
 
+  try {
+    if (decoded && token) {
+      return await User.findOne({
+        _id: decoded.id,
+        token
+      }).populate(["settings", "apikeys", "alerts"]);
+    }
+  } catch (error) {
+    return { error: true, message: error };
+  }
 };
 
 // create a custom model method to find user by token for authenticationn
@@ -185,20 +195,27 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
   // Check user
   const user = await User.findOne({ email });
+
   if (!user) {
-    throw new Error('Unable to login. Wrong credentials!');
+    return new Error('Unable to login. Wrong credentials!');
   }
 
   // Check password
   const isMatch = bcrypt.compareSync(password.trim(), user.password);
   if (!isMatch) {
-    throw new Error('Unable to login. Wrong credentials!');
+    return new Error('Unable to login. Wrong credentials!');
   }
 
   // Check is confirmed email
   const isConfirmed = user.confirmed;
   if (!isConfirmed) {
-    throw new Error('Your email is not confirmed! Please confirm your email!');
+    return new Error('Your email is not confirmed! Please confirm your email!');
+  }
+
+  // Check is already logged
+  const isLogged = user.isLogged;
+  if (isLogged) {
+    return new Error('Your are already connected!');
   }
 
   return user;

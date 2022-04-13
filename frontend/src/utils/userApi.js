@@ -70,16 +70,13 @@ export const userLogin = async (data) => {
 /**
  * userLogout
 ************************************************************************************************/
-export const userLogout = async (token) => {
+export const userLogout = async (id) => {
   try {
     return await fetch(`${baseBackendUri}/api/logout`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
       body: JSON.stringify({
-        token
+        id
       })
     })
       .then(checkStatus)

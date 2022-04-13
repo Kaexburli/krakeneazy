@@ -77,7 +77,6 @@ export default function usersRoutes(fastify, options, done) {
         method: ['POST', 'HEAD'],
         url: '/api/logout',
         logLevel: 'warn',
-        preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: logoutCtrl
       });
 

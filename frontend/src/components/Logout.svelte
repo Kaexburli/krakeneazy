@@ -41,7 +41,7 @@
 
   const SingOut = async () => {
     if (User.isLogged()) {
-      const logout = await userLogout($User.token);
+      const logout = await userLogout($User.id);
       if (logout.hasOwnProperty("error")) Notification(logout.message, "error");
       else Notification(logout.status, "success", true);
 

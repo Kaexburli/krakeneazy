@@ -13,13 +13,13 @@ export const websocketVerifyJWTCtrl = async (req, reply) => {
   try {
     const user = await User.findById(authorization);
     if (!user || user.hasOwnProperty('error')) {
-      reply.code(401).send({ error: true, statusCode: 401, message: 'Authentication failed!' });
-      throw new Error('Authentication failed!');
+      return reply.code(401).send({ error: true, statusCode: 401, message: 'Authentication failed!' });
     }
-    req.user = user;
+
+    return req.user = user;
 
   } catch (error) {
-    reply.code(401).send(error.message);
+    return reply.code(401).send(error.message);
   }
 
 }
@@ -28,20 +28,17 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
 
   try {
     if (!req.headers.authorization) {
-      throw new Error('No token was sent');
+      return req.user = new Error('No token was sent');
     }
     const token = req.headers.authorization.replace('Bearer ', '');
     const user = await User.findByToken(token);
     if (!user || user.hasOwnProperty('error')) {
-      console.log('###################################################')
-      console.log("user", user, "token", token, "auth", req.headers.authorization)
-      console.log('###################################################')
-      throw new Error('Authentication failed!');
+      return req.user = new Error('Authentication failed!');
     }
     req.user = user;
-    req.token = token; // used in logout route
+    return req.token = token; // used in logout route
   } catch (error) {
-    reply.code(401).send({ error: true, statusCode: 401, message: error.message });
+    return reply.code(401).send({ error: true, statusCode: 401, message: error.message });
   }
 
 }
@@ -57,12 +54,17 @@ export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
 
   try {
     if (!req.body) {
-      throw new Error('username and Password is required!');
+      return reply.status(400).send({ error: true, message: 'username and Password is required!' });
     }
-    const user = await User.findByCredentials(req.body.email, req.body.password);
-    req.user = user || false;
+
+    const { email, password } = req.body;
+    const user = await User.findByCredentials(email, password);
+
+    if (user instanceof Error) return req.user = { error: true, message: user.message }
+    else return req.user = user;
+
   } catch (error) {
-    reply.code(400).send(error);
+    return reply.code(400).send(error);
   }
 
 }
@@ -89,9 +91,9 @@ export const registerCtrl = async (req, reply) => {
 
     const email = await sendRegisterEmail(user)
     if (!email.hasOwnProperty('from') || !email.hasOwnProperty('to'))
-      reply.status(400).send("Mail not send, please contact us!");
+      return reply.status(400).send({ message: "Mail not send, please contact us!" });
     else {
-      reply.status(201).send({
+      return reply.status(201).send({
         user: {
           firstname: user.firstname,
           lastname: user.lastname,
@@ -102,10 +104,10 @@ export const registerCtrl = async (req, reply) => {
   } catch (error) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0] || " account ";
-      reply.status(400).send({ message: `Your ${field} is already exist!` })
+      return reply.status(200).send({ message: `Your ${field} is already exist!` })
     }
     else {
-      reply.status(400).send(error);
+      return reply.status(400).send(error);
     }
   }
 
@@ -119,13 +121,18 @@ export const registerCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const loginCtrl = async (req, reply) => {
-
-  if (req.user) {
-    const remember = req.body.remember || false;
-    await req.user.generateToken(remember, true);
+  if (req.user.error) {
+    return reply.status(200).send(req.user);
   }
 
-  reply.send({
+  try {
+    const remember = req.body.remember || false;
+    await req.user.generateToken(remember, true);
+  } catch (error) {
+    return reply.status(400).send(error);
+  }
+
+  return reply.send({
     ok: true,
     status: 'You are logged in',
     token: req.user.token,
@@ -148,11 +155,14 @@ export const loginCtrl = async (req, reply) => {
  */
 export const logoutCtrl = async (req, reply) => {
   try {
-    req.user.token = false
-    const loggedOutUser = await req.user.save();
-    reply.send({ ok: true, status: 'You are logged out!', user: loggedOutUser });
+    const id = req.body.id || false;
+    const user = await User.findById(id);
+    user.token = false
+    user.isLogged = false;
+    const loggedOutUser = await user.save();
+    return reply.send({ ok: true, status: 'You are logged out!', user: loggedOutUser });
   } catch (e) {
-    reply.status(500).send(e);
+    return reply.status(500).send(e);
   }
 }
 
@@ -165,12 +175,12 @@ export const logoutCtrl = async (req, reply) => {
  */
 export const refreshTokenCtrl = async (req, reply) => {
 
-  if (req.user) {
-    const remember = req.body.remember || false;
-    await req.user.generateToken(remember);
-  }
+  if (req.user instanceof Error) return reply.status(400).send(req.user);
 
-  reply.send({
+  const remember = req.body.remember || false;
+  await req.user.generateToken(remember);
+
+  return reply.send({
     ok: true,
     status: 'You are refresh token',
     token: req.user.token,

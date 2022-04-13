@@ -106,7 +106,7 @@ const verifyValidity = async (jwt) => {
  * expiredJWT
  ************************************************************************************************/
 const expiredJWT = async () => {
-  await userLogout(user.token);
+  await userLogout(user.id);
   User.signout();
   return location.reload();
 };
