@@ -2,7 +2,7 @@ import {
   asyncVerifyJWTCtrl,
 } from '../controllers/private/users.controller.js'
 
-import { getBalance } from '../controllers/private/userdata.js'
+import { getBalance } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateBalanceRoute(fastify, options, done) {
 

@@ -2,7 +2,7 @@ import {
   websocketVerifyJWTCtrl
 } from '../controllers/private/users.controller.js'
 
-import { getWsOwnTrades } from '../controllers/private/userdata.js'
+import { getWsOwnTrades } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateOwnTradesRoute(fastify, options, done) {
 

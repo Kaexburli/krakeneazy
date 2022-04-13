@@ -9,7 +9,7 @@ import {
   readExport,
   rmOldExport,
   checkIfFolderExist
-} from '../controllers/private/userdata.js'
+} from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateExportRoute(fastify, options, done) {
 

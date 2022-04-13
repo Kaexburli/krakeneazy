@@ -3,7 +3,7 @@ import {
   websocketVerifyJWTCtrl
 } from '../controllers/private/users.controller.js'
 
-import { getOpenOrders, getWsOpenOrders } from '../controllers/private/userdata.js'
+import { getOpenOrders, getWsOpenOrders } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateOpenOrdersRoute(fastify, options, done) {
 

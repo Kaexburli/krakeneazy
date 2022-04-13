@@ -2,7 +2,7 @@ import {
   asyncVerifyJWTCtrl,
 } from '../controllers/private/users.controller.js'
 
-import { getClosedOrders } from '../controllers/private/userdata.js'
+import { getClosedOrders } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateClosedOrdersRoute(fastify, options, done) {
 

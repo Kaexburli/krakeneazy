@@ -1,4 +1,4 @@
-import { getWsKrakenStatus } from '../controllers/private/userdata.js'
+import { getWsKrakenStatus } from '../controllers/private/userdatas.controller.js'
 
 export default function WsKrakenStatusRoute(fastify, options, done) {
   // Get KrakenStatus WS

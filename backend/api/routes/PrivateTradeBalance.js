@@ -6,7 +6,7 @@ import {
 import {
   getTradeBalance,
   getWsTradeBalance
-} from '../controllers/private/userdata.js'
+} from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateTradeBalanceRoute(fastify, options, done) {
 

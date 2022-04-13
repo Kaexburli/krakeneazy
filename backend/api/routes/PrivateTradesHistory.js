@@ -2,7 +2,7 @@ import {
   asyncVerifyJWTCtrl,
 } from '../controllers/private/users.controller.js'
 
-import { getTradesHistory } from '../controllers/private/userdata.js'
+import { getTradesHistory } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateTradesHistoryRoute(fastify, options, done) {
 

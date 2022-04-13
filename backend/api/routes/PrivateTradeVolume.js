@@ -2,7 +2,7 @@ import {
   asyncVerifyJWTCtrl,
 } from '../controllers/private/users.controller.js'
 
-import { getTradeVolume } from '../controllers/private/userdata.js'
+import { getTradeVolume } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateTradeVolumeRoute(fastify, options, done) {
 

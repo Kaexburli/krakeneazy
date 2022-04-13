@@ -3,7 +3,7 @@ import {
   websocketVerifyJWTCtrl
 } from '../controllers/private/users.controller.js'
 
-import { AddOrder } from '../controllers/private/userdata.js'
+import { AddOrder } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateOrderRoute(fastify, options, done) {
 

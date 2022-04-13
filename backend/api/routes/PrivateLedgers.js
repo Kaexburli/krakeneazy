@@ -2,7 +2,7 @@ import {
   asyncVerifyJWTCtrl,
 } from '../controllers/private/users.controller.js'
 
-import { getLedgers } from '../controllers/private/userdata.js'
+import { getLedgers } from '../controllers/private/userdatas.controller.js'
 
 export default function PrivateLedgersRoute(fastify, options, done) {
 

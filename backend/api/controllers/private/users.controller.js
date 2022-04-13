@@ -4,7 +4,7 @@ import UserSettings from '../../models/userSettings';
 import UserKraken from '../../models/userKraken';
 import UserPriceAlerts from '../../models/userPriceAlerts';
 import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../Mailer.js'
-import { checkApiKeyPermissions } from './userdata.js'
+import { checkApiKeyPermissions } from './userdatas.controller.js'
 
 
 export const websocketVerifyJWTCtrl = async (req, reply) => {
