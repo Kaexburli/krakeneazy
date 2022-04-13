@@ -65,6 +65,7 @@ module.exports = {
       rm -rf src; \
       cd ../; \
       rm -rf deploy; \
+      pm2 flush; \
       pm2 startOrRestart ecosystem.config.js;",
     },
   }
