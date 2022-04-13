@@ -1,9 +1,9 @@
 import fp from 'fastify-plugin';
 import mongoose from 'mongoose';
-import User from '../models/user';
-import UserSettings from '../models/userSettings';
-import UserKraken from '../models/userKraken';
-import UserPriceAlerts from '../models/userPriceAlerts';
+import User from '../models/user.model.js';
+import UserSettings from '../models/userSettings.model.js';
+import UserKraken from '../models/userKraken.model.js';
+import UserPriceAlerts from '../models/userPriceAlerts.model.js';
 
 const models = {
   User,
