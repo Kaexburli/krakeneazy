@@ -3,7 +3,7 @@ import User from '../../models/user';
 import UserSettings from '../../models/userSettings';
 import UserKraken from '../../models/userKraken';
 import UserPriceAlerts from '../../models/userPriceAlerts';
-import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../Mailer.js'
+import { sendRegisterEmail, sendForgotPasswordEmail, sendNewPasswordEmail } from '../../utils/Mailer.js'
 import { checkApiKeyPermissions } from './userdatas.controller.js'
 
 
