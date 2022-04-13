@@ -111,6 +111,7 @@ const checkApiKeyPermissions = async (apikeys) => {
   const apiKraken = initApiKraken([apikeys], true)
   if (!apiKraken) return { error: true, message: "API Key error!" };
 
+  // Fake Data for test apiKey
   const payload = {
     pair: 'XXBTZUSD',
     type: "buy",

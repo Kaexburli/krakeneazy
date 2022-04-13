@@ -116,7 +116,7 @@ const start = async () => {
     process.exit(1)
   }
 }
-start()
+start();
 
 process.on('unhandledRejection', (reason, promise) => {
   if (typeof reason !== "undefined" && typeof promise !== "undefined") {
