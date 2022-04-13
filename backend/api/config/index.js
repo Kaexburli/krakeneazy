@@ -14,23 +14,24 @@ const models = {
 
 const ConnectDB = async (fastify, options, done) => {
   try {
-    const db = await mongoose.connect(options.uri, {
+    mongoose.connect(options.uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
+    }).then(() => {
+      fastify.decorate('db', { models });
+      done();
     });
-    // decorates fastify with our model
-    fastify.decorate('db', { models });
-    done();
+
   } catch (error) {
     console.error(error);
   }
 
   mongoose.connection.on('connected', () => {
-    fastify.log.info({ actor: 'MongoDB' }, 'connected');
+    fastify.log.info({ actor: 'MongoDB' }, 'MongoDB connected!');
   });
 
   mongoose.connection.on('disconnected', () => {
-    fastify.log.error({ actor: 'MongoDB' }, 'disconnected');
+    fastify.log.error({ actor: 'MongoDB' }, 'MongoDB disconnected!');
   });
 
 };

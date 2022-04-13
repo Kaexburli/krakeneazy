@@ -24,7 +24,7 @@ const environment = process.env.ENVIRONMENT;
 const levels = ["fatal", "error", "warn", "info", "debug", "trace"]
 const fastify = Fastify({
   logger: {
-    level: levels[2],
+    level: environment === 'development' ? levels[5] : levels[0],
     prettyPrint:
       environment === 'development'
         ? {
@@ -100,11 +100,16 @@ fastify.register(Autoload, {
 const start = async () => {
   try {
     fastify.listen(PORT, err => {
+
       if (err) throw err
-      console.log(
-        'Server listenting on :',
-        `http://${fastify.server.address().address}:${fastify.server.address().port}`
-      )
+
+      if (environment !== 'development') {
+        console.log(
+          'Server listenting on :',
+          `http://${fastify.server.address().address}:${fastify.server.address().port}`
+        )
+      }
+
     })
   } catch (err) {
     fastify.log.error(`[SERVER START ERROR]:${err}`)
