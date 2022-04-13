@@ -1,4 +1,4 @@
-import { getAssetPairs } from '../controllers/assetpairs.js'
+import { getAssetPairs } from '../controllers/assetpairs.controller.js'
 
 const AssetPairOpts = {
   handler: getAssetPairs,
