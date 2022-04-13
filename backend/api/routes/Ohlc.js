@@ -1,4 +1,4 @@
-import { getOhlc } from '../controllers/ohlc.js'
+import { getOhlc } from '../controllers/ohlc.controller.js'
 
 const OhlcOpts = {
   handler: getOhlc,

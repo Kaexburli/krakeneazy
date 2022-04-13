@@ -1,4 +1,4 @@
-import { getSystemStatus } from '../controllers/systemstatus.js'
+import { getSystemStatus } from '../controllers/systemstatus.controller.js'
 
 // SystemStatus schema
 const SystemStatusRouteSchema = {

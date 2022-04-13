@@ -1,4 +1,4 @@
-import { GetTrade } from '../controllers/ws-trade.js'
+import { GetTrade } from '../controllers/wstrade.controller.js'
 
 export default function WsTradeRoute(fastify, options, done) {
   // Get Trades WS

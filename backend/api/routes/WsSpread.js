@@ -1,4 +1,4 @@
-import { GetSpread } from '../controllers/ws-spread.js'
+import { GetSpread } from '../controllers/wsspread.controller.js'
 
 export default function WsSpreadRoute(fastify, options, done) {
   // Get Spread WS

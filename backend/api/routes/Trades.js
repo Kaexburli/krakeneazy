@@ -1,4 +1,4 @@
-import { getTrades } from '../controllers/trades.js'
+import { getTrades } from '../controllers/trades.controller.js'
 
 const TradesOpts = {
   handler: getTrades,

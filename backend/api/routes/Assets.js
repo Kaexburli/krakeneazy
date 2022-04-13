@@ -1,4 +1,4 @@
-import { getAssets } from '../controllers/assets.js'
+import { getAssets } from '../controllers/assets.controller.js'
 
 const AssetsOpts = {
   handler: getAssets,

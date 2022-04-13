@@ -1,4 +1,4 @@
-import { GetTicker } from '../controllers/ws-ticker.js'
+import { GetTicker } from '../controllers/wsticker.controller.js'
 
 export default function WsTickerRoute(fastify, options, done) {
   // Get Ticker WS

@@ -1,4 +1,4 @@
-import { GetOhlc } from '../controllers/ws-ohlc.js'
+import { GetOhlc } from '../controllers/wsohlc.controller.js'
 
 export default function WsOhlcRoute(fastify, options, done) {
   // Get Ohlc WS

@@ -1,4 +1,4 @@
-import { GetOrderBook } from '../controllers/ws-order-book.js'
+import { GetOrderBook } from '../controllers/wsorderbook.controller.js'
 
 export default function WsOrderBookRoute(fastify, options, done) {
   // Get Ohlc WS

@@ -1,4 +1,4 @@
-import { getTicker } from '../controllers/ticker.js'
+import { getTicker } from '../controllers/ticker.controller.js'
 
 const TickerOpts = {
   handler: getTicker,
