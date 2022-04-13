@@ -1,7 +1,7 @@
 import {
   asyncVerifyJWTCtrl,
   websocketVerifyJWTCtrl
-} from '../controllers/private/userController.js'
+} from '../controllers/private/users.controller.js'
 
 import {
   getTradeBalance,

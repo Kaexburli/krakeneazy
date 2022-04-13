@@ -1,6 +1,6 @@
 import {
   asyncVerifyJWTCtrl,
-} from '../controllers/private/userController.js'
+} from '../controllers/private/users.controller.js'
 
 import { getClosedOrders } from '../controllers/private/userdata.js'
 

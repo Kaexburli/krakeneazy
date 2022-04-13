@@ -1,6 +1,6 @@
 import {
   asyncVerifyJWTCtrl,
-} from '../controllers/private/userController.js'
+} from '../controllers/private/users.controller.js'
 
 import { getBalance } from '../controllers/private/userdata.js'
 

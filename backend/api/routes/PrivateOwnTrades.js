@@ -1,6 +1,6 @@
 import {
   websocketVerifyJWTCtrl
-} from '../controllers/private/userController.js'
+} from '../controllers/private/users.controller.js'
 
 import { getWsOwnTrades } from '../controllers/private/userdata.js'
 

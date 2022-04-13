@@ -15,7 +15,7 @@ import {
   changeUserDataCtrl,
   confirmCGVCtrl,
   setPriceAlertCtrl
-} from '../controllers/private/userController.js'
+} from '../controllers/private/users.controller.js'
 
 export default function usersRoutes(fastify, options, done) {
   // Get Api USER
