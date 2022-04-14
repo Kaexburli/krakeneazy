@@ -8,15 +8,18 @@ import { checkApiKeyPermissions } from './userdatas.controller.js'
 
 
 export const websocketVerifyJWTCtrl = async (req, reply) => {
-  const { authorization } = req.params
+  const { id } = req.params || false;
 
   try {
-    const user = await User.findById(authorization);
-    if (!user || user.hasOwnProperty('error')) {
-      return reply.code(401).send({ error: true, statusCode: 401, message: 'Authentication failed!' });
-    }
+    const user = await User.findById(id);
 
-    return req.user = user;
+    if (!user)
+      return reply.code(401).send({ ok: false, statusCode: 401, message: "authFail" });
+
+    req.user = user;
+
+    if (!req.user)
+      return reply.code(401).send(error.message);
 
   } catch (error) {
     return reply.code(401).send(error.message);
@@ -25,20 +28,24 @@ export const websocketVerifyJWTCtrl = async (req, reply) => {
 }
 
 export const asyncVerifyJWTCtrl = async (req, reply) => {
+  const { authorization } = req.headers || false;
 
   try {
-    if (!req.headers.authorization) {
-      return req.user = new Error('No token was sent');
+    if (authorization) {
+      const token = authorization.replace('Bearer ', '');
+      const user = await User.findByToken(token, req);
+
+      if (user) {
+        req.user = user;
+        req.token = token; // used in logout route
+      }
     }
-    const token = req.headers.authorization.replace('Bearer ', '');
-    const user = await User.findByToken(token);
-    if (!user || user.hasOwnProperty('error')) {
-      return req.user = new Error('Authentication failed!');
-    }
-    req.user = user;
-    return req.token = token; // used in logout route
+
+    if (!req.user)
+      return reply.code(401).send({ ok: false, statusCode: 401, message: error.message });
+
   } catch (error) {
-    return reply.code(401).send({ error: true, statusCode: 401, message: error.message });
+    return reply.code(401).send({ ok: false, statusCode: 401, message: error.message });
   }
 
 }
@@ -52,15 +59,19 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
  */
 export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
 
-  try {
-    if (!req.body) {
-      return reply.send({ ok: true, message: 'Username and Password is required!' });
-    }
+  if (!req.body) {
+    return reply.send({ ok: false, message: 'usernameAndPasswordRequired' });
+  }
 
-    const { email, password } = req.body;
+  const { email, password } = req.body;
+
+  req.user = false;
+
+  try {
+
     const user = await User.findByCredentials(email, password);
 
-    if (user instanceof Error) return req.user = { ok: false, message: user.message }
+    if (user instanceof Error) return reply.code(200).send({ ok: false, message: user.message });
     else return req.user = user;
 
   } catch (error) {
@@ -92,7 +103,7 @@ export const registerCtrl = async (req, reply) => {
     const email = await sendRegisterEmail(user);
 
     if (!email)
-      return reply.status(200).send({ ok: false, message: "Mail not send, please contact us!" });
+      return reply.status(200).send({ ok: false, message: "errorMailSend" });
     else {
       return reply.status(201).send({
         user: {
@@ -105,7 +116,7 @@ export const registerCtrl = async (req, reply) => {
   } catch (error) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0] || " account ";
-      return reply.status(200).send({ ok: false, message: `Your ${field} is already exist!` })
+      return reply.status(200).send({ ok: false, message: `fieldExist`, field })
     }
     else {
       return reply.status(400).send(error);
@@ -123,7 +134,7 @@ export const registerCtrl = async (req, reply) => {
  */
 export const loginCtrl = async (req, reply) => {
 
-  if (!req.user.ok) {
+  if (!req.user) {
     return reply.status(200).send(req.user);
   }
 
@@ -136,7 +147,7 @@ export const loginCtrl = async (req, reply) => {
 
   return reply.send({
     ok: true,
-    status: 'You are logged in',
+    status: 'loggedIn',
     token: req.user.token,
     user: {
       id: req.user._id.toString(),
@@ -162,7 +173,7 @@ export const logoutCtrl = async (req, reply) => {
     user.token = false
     user.isLogged = false;
     const loggedOutUser = await user.save();
-    return reply.send({ ok: true, status: 'You are logged out!', user: loggedOutUser });
+    return reply.send({ ok: true, status: 'loggedOut', user: loggedOutUser });
   } catch (e) {
     return reply.status(500).send(e);
   }
@@ -184,7 +195,7 @@ export const refreshTokenCtrl = async (req, reply) => {
 
   return reply.send({
     ok: true,
-    status: 'You are refresh token',
+    status: 'refreshToken',
     token: req.user.token,
     user: {
       id: req.user._id.toString(),
@@ -225,7 +236,7 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
   const email = req.body.email || false;
 
   if (!email)
-    return reply.send({ ok: false, message: `We can't find you, sorry.` });
+    return reply.send({ ok: false, message: `cantFindYou` });
 
   const user = await User.findByEmail(email, true);
 
@@ -235,9 +246,9 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
   const sendemail = await sendRegisterEmail(user);
 
   if (!sendemail)
-    return reply.send({ ok: false, message: `Mail not send, please contact us!` });
+    return reply.send({ ok: false, message: `errorMailSend` });
   else
-    return reply.send({ ok: true, message: `An email has been sent to ${email}` });
+    return reply.send({ ok: true, message: `emailSend`, email });
 
 }
 
@@ -250,21 +261,22 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
  */
 export const forgotPasswordCtrl = async (req, reply) => {
 
-  let response;
   const email = req.body.email || false;
+
+  if (!email)
+    return reply.send({ ok: false, message: `cantFindYou` });
+
   const user = await User.findByEmail(email, true);
 
-  if (user) {
-    const sendemail = await sendForgotPasswordEmail(user)
-    if (!sendemail)
-      reply.status(400).send("Mail not send, please contact us!");
-    else
-      response = { ok: true, status: `An email has been sent to ${email}` }
-  } else {
-    response = { ok: false, status: `We can't find you, sorry.` }
-  }
+  if (user instanceof Error)
+    return reply.send({ ok: false, message: user.message });
 
-  reply.send(response);
+  const sendemail = await sendForgotPasswordEmail(user);
+
+  if (!sendemail)
+    return reply.send({ ok: false, message: `errorMailSend` });
+  else
+    return reply.send({ ok: true, message: `emailSend`, email });
 }
 
 /**
@@ -300,7 +312,7 @@ export const forgotPasswordConfirmCtrl = async (req, reply) => {
 export const profileCtrl = async (req, reply) => {
   reply.send({
     ok: true,
-    status: 'Authenticated!',
+    status: 'authenticated',
     user: {
       _id: req.user._id,
       firstname: req.user.firstname,

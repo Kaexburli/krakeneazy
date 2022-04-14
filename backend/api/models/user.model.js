@@ -149,35 +149,45 @@ userSchema.methods.generateToken = async function (remember, reset = false) {
 };
 
 // create a custom model method to find user by token for authenticationn
-userSchema.statics.findByToken = async function (token) {
-  let User = this;
-  let decoded = null;
+userSchema.statics.findByToken = async function (token, req) {
 
-  try {
-    if (!token) return new Error('Missing token');
-    else decoded = jwt.verify(token, process.env.JWT_STANDARD_SECRET);
-  } catch (error) {
-    return { error: true, message: error };
+  if (!token) {
+    req.log.error('No token was found!')
+    return false;
   }
 
+  let User = this;
+
   try {
-    if (decoded && token) {
+    let decoded = jwt.verify(token, process.env.JWT_STANDARD_SECRET);
+
+    if (decoded.id) {
       return await User.findOne({
         _id: decoded.id,
         token
       }).populate(["settings", "apikeys", "alerts"]);
     }
+    else {
+      req.log.error('Decoded token error!');
+      return false;
+    }
+
+
   } catch (error) {
-    return { error: true, message: error };
+    req.log.error(error)
+    return false;
   }
 };
 
 // create a custom model method to find user by token for authenticationn
 userSchema.statics.findById = async function (id) {
   let User = this;
+
   if (!id) {
-    return new Error('Missing id found');
+    req.log.error('Missing ID!');
+    return false;
   }
+
   return await User.findOne({
     _id: id,
   }).populate(["settings", "apikeys", "alerts"]);
@@ -197,25 +207,25 @@ userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return new Error('Unable to login. Wrong credentials!');
+    return new Error('wrongCredentials');
   }
 
   // Check password
   const isMatch = bcrypt.compareSync(password.trim(), user.password);
   if (!isMatch) {
-    return new Error('Unable to login. Wrong credentials!');
+    return new Error('wrongCredentials');
   }
 
   // Check is confirmed email
   const isConfirmed = user.confirmed;
   if (!isConfirmed) {
-    return new Error('Your email is not confirmed! Please confirm your email!');
+    return new Error('notConfirmed');
   }
 
   // Check is already logged
   const isLogged = user.isLogged;
   if (isLogged) {
-    return new Error('Your are already connected!');
+    return new Error('alreadyConnected');
   }
 
   return user;
@@ -254,7 +264,7 @@ userSchema.statics.findByConfirmToken = async function (confirmationToken) {
 userSchema.statics.findByEmail = async function (email, reset = false) {
   let User = this;
   if (!email) {
-    return new Error('Missing email');
+    return new Error('missingEMail');
   }
   const user = await User.findOne({ email });
 

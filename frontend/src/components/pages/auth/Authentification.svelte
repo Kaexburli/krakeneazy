@@ -312,12 +312,35 @@
    */
   const processForgotPassword = async (data) => {
     const forgot = await userForgotPassword(data);
+
     if (!forgot.ok) {
-      isError = !!forgot.status ? forgot.status : forgot.message;
+      isError = !!forgot.status
+        ? $_(`auth.msg.${forgot.status}`)
+        : $_(
+            `auth.msg.${forgot.message}`,
+            forgot.email
+              ? {
+                  values: {
+                    email: forgot.email,
+                  },
+                }
+              : {}
+          );
       Notification(isError, "error");
       resetForm();
     } else {
-      isSuccess = forgot.status;
+      isSuccess = !!forgot.status
+        ? $_(`auth.msg.${forgot.status}`)
+        : $_(
+            `auth.msg.${forgot.message}`,
+            forgot.email
+              ? {
+                  values: {
+                    email: forgot.email,
+                  },
+                }
+              : {}
+          );
       Notification(isSuccess, "success");
       resetForm();
       toogleForgotForm();
@@ -336,14 +359,37 @@
     const login = await userLogin(data);
 
     if (!login.ok) {
-      isError = login.message;
+      isError = $_(
+        `auth.msg.${login.message}`,
+        login.field
+          ? {
+              values: {
+                field: login.field,
+              },
+            }
+          : {}
+      );
       Notification(isError, "error");
       resetForm();
 
       if (isError.includes("confirmed")) {
         const resend = await resendConfirmEmail(data);
-        if (resend.ok) Notification(resend.message, "success");
-        else if (!resend.ok) Notification(resend.message, "error");
+        if (resend.ok)
+          Notification(
+            $_(
+              `auth.msg.${resend.message}`,
+              resend.email
+                ? {
+                    values: {
+                      email: resend.email,
+                    },
+                  }
+                : {}
+            ),
+            "success"
+          );
+        else if (!resend.ok)
+          Notification($_(`auth.msg.${resend.message}`), "error");
       }
     } else {
       isSuccess = `${$_("auth.welcome")} ${login.user.firstname}!`;
@@ -365,7 +411,16 @@
     const register = await userRegister(data);
 
     if (!register.ok) {
-      isError = register.message;
+      isError = $_(
+        `auth.msg.${register.message}`,
+        register.field
+          ? {
+              values: {
+                field: register.field,
+              },
+            }
+          : {}
+      );
       Notification(isError, "error");
     } else {
       isSuccess = `${$_("auth.welcome")} ${register.user.firstname}! ${$_(
