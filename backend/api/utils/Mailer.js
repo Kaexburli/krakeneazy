@@ -63,7 +63,7 @@ export const sendRegisterEmail = async (user) => {
       html: template(replacements)
     });
 
-    return info.envelope;
+    return (info.envelope.hasOwnProperty('from') && info.envelope.hasOwnProperty('to')) ? true : false;
 
   } catch (error) {
     console.log("[sendRegisterEmail ERROR:]", error);
@@ -99,7 +99,7 @@ export const sendForgotPasswordEmail = async (user) => {
       html: template(replacements)
     });
 
-    return info.envelope;
+    return (info.envelope.hasOwnProperty('from') && info.envelope.hasOwnProperty('to')) ? true : false;
 
   } catch (error) {
     console.log("[sendForgotPasswordEmail ERROR:]", error);
@@ -135,7 +135,7 @@ export const sendNewPasswordEmail = async (data) => {
       html: template(replacements)
     });
 
-    return info.envelope;
+    return (info.envelope.hasOwnProperty('from') && info.envelope.hasOwnProperty('to')) ? true : false;
 
   } catch (error) {
     console.log("[sendNewPasswordEmail ERROR:]", error);
