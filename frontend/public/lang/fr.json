@@ -163,10 +163,10 @@
       "usernameAndPasswordRequired": "Le nom d'utilisateur et le mot de passe sont requis!",
       "errorMailSend": "Mail non envoyé, veuillez nous contacter !",
       "fieldExist": "Votre {field} existe déjà!",
-      "loggedIn": "Vous êtes connecté",
+      "loggedIn": "Vous êtes connecté!",
       "loggedOut": "Vous êtes déconnecté!",
-      "refreshToken": "Vous êtes un jeton d'actualisation",
-      "cantFindYou": "Nous ne pouvons pas vous trouver, désolé.",
+      "refreshToken": "Votre connexion à bien été actualisé!",
+      "cantFindYou": "Aucun email correspondant!",
       "emailSend": "Un e-mail a été envoyé à {email}",
       "authenticated": "Authentifié!"
     }
