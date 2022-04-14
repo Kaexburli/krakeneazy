@@ -102,13 +102,26 @@ const start = async () => {
     fastify.listen(PORT, err => {
 
       if (err) throw err
-
-      if (environment !== 'development') {
+      else {
         console.log(
           'Server listenting on :',
           `http://${fastify.server.address().address}:${fastify.server.address().port}`
         )
       }
+
+      if (environment === 'production') {
+        setTimeout(process.send('ready'), 5000);
+      }
+
+      function cleanupAndExit() {
+        server.close(() => {
+          console.log('Server closed!!');
+          process.exit(0);
+        });
+      }
+
+      process.on('SIGTERM', cleanupAndExit);
+      process.on('SIGINT', cleanupAndExit);
 
     })
   } catch (err) {
