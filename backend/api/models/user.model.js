@@ -266,9 +266,12 @@ userSchema.statics.findByEmail = async function (email, reset = false) {
   if (!email) {
     return new Error('missingEMail');
   }
+
   const user = await User.findOne({ email });
 
-  if (user && reset) {
+  if (!user) return false;
+
+  if (reset) {
     user.resetPasswordToken = uuidv4();
     await user.save();
   }

@@ -240,8 +240,8 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
 
   const user = await User.findByEmail(email, true);
 
-  if (user instanceof Error)
-    return reply.send({ ok: false, message: user.message });
+  if (!user)
+    return reply.send({ ok: false, message: `cantFindYou` });
 
   const sendemail = await sendRegisterEmail(user);
 
@@ -268,8 +268,8 @@ export const forgotPasswordCtrl = async (req, reply) => {
 
   const user = await User.findByEmail(email, true);
 
-  if (user instanceof Error)
-    return reply.send({ ok: false, message: user.message });
+  if (!user)
+    return reply.send({ ok: false, message: `cantFindYou` });
 
   const sendemail = await sendForgotPasswordEmail(user);
 
