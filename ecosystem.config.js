@@ -53,7 +53,7 @@ module.exports = {
         COMMON_ENV_VAR: true,
         ENVIRONMENT: "production",
         NODE_ENV: 'production',
-        FRONTEND_URI: "http://app.krakeneazy.local",
+        FRONTEND_URI: "http://preprod.krakeneazy.com",
         MONGODB_URI: "mongodb://localhost:27017/krakeneazy_preprod",
         JWT_STANDARD_SECRET: "w^L/|sD@/BMKaWosSL.~4gmU(SXPmd",
         JWT_REFRESH_SECRET: "PC^e1%&U5R[oiCx([DvbDZ%gQg/^{i",
