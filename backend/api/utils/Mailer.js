@@ -1,20 +1,37 @@
-import SMTP from '../../../smtp.env.mjs';
 import nodemailer from "nodemailer";
 import handlebars from 'handlebars';
 import fs from 'fs';
 import path from 'path';
 const __dirname = path.resolve(path.dirname(''));
 
-const credentials = {
-  host: SMTP.host,
-  port: SMTP.port,
-  secure: SMTP.secure,
-  service: SMTP.service,
-  auth: {
-    user: SMTP.user,
-    pass: SMTP.pass,
-  },
-};
+let credentials = null;
+// Development
+if (process.env.ENVIRONMENT === "development") {
+  const { default: SMTP } = await import('../../../smtp.env.mjs');
+  credentials = {
+    host: SMTP.host,
+    port: SMTP.port,
+    secure: SMTP.secure,
+    service: SMTP.service,
+    auth: {
+      user: SMTP.user,
+      pass: SMTP.pass,
+    },
+  };
+}
+// Production
+else if (process.env.ENVIRONMENT === "production") {
+  credentials = {
+    host: process.env.SMTP_SERVICE,
+    port: process.env.SMTP_PORT,
+    secure: process.env.SMTP_SECURE,
+    service: process.env.SMTP_SERVICE,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  };
+}
 
 let transporter = nodemailer.createTransport(credentials);
 

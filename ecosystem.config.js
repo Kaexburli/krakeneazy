@@ -60,14 +60,11 @@ module.exports = {
         SITE_NAME: "Krakeneazy",
         SITE_EMAIL: "krakeneazy@gmail.com",
         KRAKEN_STATUS_API_URL: "https://status.kraken.com/api/v2/summary.json",
-        SMTP: {
-          service: "krakeneazy",
-          host: "smtp-fr.securemail.pro",
-          port: 465,
-          secure: true,
-          user: "contact@krakeneazy.com",
-          pass: "uVg&cB97-K@3vB_",
-        }
+        SMTP_SERVICE: "krakeneazy",
+        SMTP_PORT: 465,
+        SMTP_SECURE: true,
+        SMTP_USER: "contact@krakeneazy.com",
+        SMTP_PASS: "uVg&cB97-K@3vB_",
       }
     },
     {
@@ -101,8 +98,7 @@ module.exports = {
       ref: "origin/develop",
       repo: "git@github.com:Kaexburli/krakeneazy.git",
       path: "/home/websitedev/krakeneazy.com/preprod/deploy",
-      'pre-setup': "cd krakeneazy.com/; \
-      cd preprod/; \
+      'pre-setup': "cd krakeneazy.com/preprod/; \
       rm -rf deploy; \
       mkdir deploy;",
       'post-setup': "cd ../../; \
