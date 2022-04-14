@@ -114,8 +114,8 @@ const start = async () => {
       }
 
       function cleanupAndExit() {
-        server.close(() => {
-          console.log('Server closed!!');
+        fastify.close(() => {
+          console.log('Server closed gracefull!!');
           process.exit(0);
         });
       }
