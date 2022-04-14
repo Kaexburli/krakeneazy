@@ -96,7 +96,7 @@ module.exports = {
   deploy: {
     preprod: {
       user: "websitedev",
-      host: ["krakeneazy.com"],
+      host: ["212.227.212.129"],
       ssh_options: "StrictHostKeyChecking=no",
       ref: "origin/develop",
       repo: "git@github.com:Kaexburli/krakeneazy.git",
@@ -117,7 +117,7 @@ module.exports = {
     },
     production: {
       user: "websitedev",
-      host: ["krakeneazy.com"],
+      host: ["212.227.212.129"],
       ssh_options: "StrictHostKeyChecking=no",
       ref: "origin/main",
       repo: "git@github.com:Kaexburli/krakeneazy.git",
