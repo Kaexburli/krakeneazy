@@ -313,17 +313,17 @@
   const processForgotPassword = async (data) => {
     const forgot = await userForgotPassword(data);
     if (!forgot.ok) {
-      isLoading = false;
       isError = !!forgot.status ? forgot.status : forgot.message;
       Notification(isError, "error");
       resetForm();
     } else {
-      isLoading = false;
       isSuccess = forgot.status;
       Notification(isSuccess, "success");
       resetForm();
       toogleForgotForm();
     }
+
+    isLoading = false;
   };
 
   /**
