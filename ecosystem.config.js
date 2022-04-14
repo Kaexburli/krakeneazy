@@ -85,8 +85,8 @@ module.exports = {
         COMMON_ENV_VAR: true,
         NODE_ENV: 'production',
         ENVIRONMENT: "production",
-        BACKEND_URI: "http://localhost:8000",
-        BACKEND_WS_URI: "ws://localhost:8000/api/ws",
+        BACKEND_URI: "https://preprod.krakeneazy.com",
+        BACKEND_WS_URI: "ws://preprod.krakeneazy.com/api/ws",
         SITE_NAME: "Krakeneazy",
       }
     },
