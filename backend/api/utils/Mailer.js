@@ -22,7 +22,7 @@ if (process.env.ENVIRONMENT === "development") {
 // Production
 else if (process.env.ENVIRONMENT === "production") {
   credentials = {
-    host: process.env.SMTP_SERVICE,
+    host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
     secure: process.env.SMTP_SECURE,
     service: process.env.SMTP_SERVICE,

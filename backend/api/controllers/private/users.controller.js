@@ -106,6 +106,7 @@ export const registerCtrl = async (req, reply) => {
       return reply.status(200).send({ ok: false, message: "errorMailSend" });
     else {
       return reply.status(201).send({
+        ok: true,
         user: {
           firstname: user.firstname,
           lastname: user.lastname,

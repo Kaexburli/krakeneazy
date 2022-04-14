@@ -60,6 +60,7 @@ module.exports = {
         SITE_NAME: "Krakeneazy",
         SITE_EMAIL: "krakeneazy@gmail.com",
         KRAKEN_STATUS_API_URL: "https://status.kraken.com/api/v2/summary.json",
+        SMTP_HOST: "smtp-fr.securemail.pro",
         SMTP_SERVICE: "krakeneazy",
         SMTP_PORT: 465,
         SMTP_SECURE: true,
