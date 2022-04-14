@@ -100,6 +100,9 @@ module.exports = {
       path: "/home/websitedev/krakeneazy.com/preprod/deploy",
       'pre-setup': "cd krakeneazy.com/preprod/; \
       rm -rf deploy; \
+      rm -rf backend; \
+      rm -rf frontend; \
+      rm -v !('.env'|'smtp.env.mjs'); \
       mkdir deploy;",
       'post-setup': "cd ../../; \
       mv deploy/current/* ./; \
