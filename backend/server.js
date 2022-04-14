@@ -110,7 +110,7 @@ const start = async () => {
       }
 
       if (environment === 'production') {
-        setTimeout(process.send('ready'), 5000);
+        setTimeout(() => { process.send('ready') }, 5000);
       }
 
       function cleanupAndExit() {

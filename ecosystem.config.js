@@ -102,6 +102,7 @@ module.exports = {
       rm -rf deploy; \
       rm -rf backend; \
       rm -rf frontend; \
+      rm -rf _error_pages; \
       rm -v !('.env'|'smtp.env.mjs'); \
       mkdir deploy;",
       'post-setup': "cd ../../; \
