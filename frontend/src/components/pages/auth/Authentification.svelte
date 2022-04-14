@@ -334,23 +334,25 @@
    */
   const processLogin = async (data) => {
     const login = await userLogin(data);
-    if (login.hasOwnProperty("error")) {
-      isLoading = false;
+
+    if (!login.ok) {
       isError = login.message;
       Notification(isError, "error");
       resetForm();
 
       if (isError.includes("confirmed")) {
         const resend = await resendConfirmEmail(data);
-        if (resend.ok) Notification(resend.status, "success");
+        if (resend.ok) Notification(resend.message, "success");
+        else if (!resend.ok) Notification(resend.message, "error");
       }
     } else {
-      isLoading = false;
       isSuccess = `${$_("auth.welcome")} ${login.user.firstname}!`;
       Notification(isSuccess, "success", true);
       resetForm();
       User.signin({ token: login.token, id: login.user.id });
     }
+
+    isLoading = false;
   };
 
   /**

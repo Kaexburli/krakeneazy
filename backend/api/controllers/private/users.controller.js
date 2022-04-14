@@ -54,17 +54,17 @@ export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
 
   try {
     if (!req.body) {
-      return reply.status(400).send({ error: true, message: 'username and Password is required!' });
+      return reply.send({ ok: true, message: 'Username and Password is required!' });
     }
 
     const { email, password } = req.body;
     const user = await User.findByCredentials(email, password);
 
-    if (user instanceof Error) return req.user = { error: true, message: user.message }
+    if (user instanceof Error) return req.user = { ok: false, message: user.message }
     else return req.user = user;
 
   } catch (error) {
-    return reply.code(400).send(error);
+    return reply.code(400).send({ ok: false, message: error.message });
   }
 
 }
@@ -89,8 +89,9 @@ export const registerCtrl = async (req, reply) => {
     // Create user with settings
     await user.save();
 
-    const email = await sendRegisterEmail(user)
-    if (!email.hasOwnProperty('from') || !email.hasOwnProperty('to'))
+    const email = await sendRegisterEmail(user);
+
+    if (!email)
       return reply.status(400).send({ message: "Mail not send, please contact us!" });
     else {
       return reply.status(201).send({
@@ -121,7 +122,8 @@ export const registerCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const loginCtrl = async (req, reply) => {
-  if (req.user.error) {
+
+  if (!req.user.ok) {
     return reply.status(200).send(req.user);
   }
 
@@ -206,10 +208,8 @@ export const confirmEmailCtrl = async (req, reply) => {
   const { confirm_token } = req.params;
   const user = await User.findByConfirmToken(confirm_token);
 
-  if (!user)
-    reply.code(303).redirect(process.env.FRONTEND_URI + '?confirmation=notok')
-  else
-    reply.redirect(process.env.FRONTEND_URI + '?confirmation=ok')
+  if (!user) reply.redirect(process.env.FRONTEND_URI + '?confirmation=notok')
+  else reply.redirect(process.env.FRONTEND_URI + '?confirmation=ok')
 
 }
 
@@ -222,21 +222,22 @@ export const confirmEmailCtrl = async (req, reply) => {
  */
 export const resendConfirmEmailCtrl = async (req, reply) => {
 
-  let response;
   const email = req.body.email || false;
+
+  if (!email)
+    return reply.send({ ok: false, message: `We can't find you, sorry.` });
+
   const user = await User.findByEmail(email, true);
 
-  if (user) {
-    const sendemail = await sendRegisterEmail(user)
-    if (!sendemail.hasOwnProperty('from') || !sendemail.hasOwnProperty('to'))
-      reply.status(400).send("Mail not send, please contact us!");
-    else
-      response = { ok: true, status: `An email has been sent to ${email}` }
-  } else {
-    response = { ok: false, status: `We can't find you, sorry.` }
-  }
+  if (user instanceof Error)
+    return reply.send({ ok: false, message: user.message });
 
-  reply.send(response);
+  const sendemail = await sendRegisterEmail(user);
+
+  if (!sendemail)
+    return reply.send({ ok: false, message: `Mail not send, please contact us!` });
+  else
+    return reply.send({ ok: true, message: `An email has been sent to ${email}` });
 
 }
 
@@ -255,7 +256,7 @@ export const forgotPasswordCtrl = async (req, reply) => {
 
   if (user) {
     const sendemail = await sendForgotPasswordEmail(user)
-    if (!sendemail.hasOwnProperty('from') || !sendemail.hasOwnProperty('to'))
+    if (!sendemail)
       reply.status(400).send("Mail not send, please contact us!");
     else
       response = { ok: true, status: `An email has been sent to ${email}` }
@@ -282,7 +283,7 @@ export const forgotPasswordConfirmCtrl = async (req, reply) => {
     reply.code(303).redirect(process.env.FRONTEND_URI + '?reset=notok')
   else {
     const sendemail = await sendNewPasswordEmail(response)
-    if (!sendemail.hasOwnProperty('from') || !sendemail.hasOwnProperty('to'))
+    if (!sendemail)
       reply.code(303).redirect(process.env.FRONTEND_URI + '?reset=notok')
     else
       reply.redirect(process.env.FRONTEND_URI + '?reset=ok')
