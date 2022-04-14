@@ -27,7 +27,7 @@ export default function PrivateTradeBalanceRoute(fastify, options, done) {
       // Get Api TradeBalance - Websocket
       fastify.route({
         method: 'GET',
-        url: '/api/ws/tradebalance/:asset/:authorization',
+        url: '/api/ws/tradebalance/:asset/:id',
         logLevel: 'warn',
         websocket: true,
         preHandler: fastify.auth([fastify.websocketVerifyJWT]),

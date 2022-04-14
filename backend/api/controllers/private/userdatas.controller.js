@@ -496,7 +496,6 @@ const extractZip = async (source, target) => {
 // /private/OpenOrders
 const getWsOpenOrders = async (connection, req, _reply) => {
 
-
   const { apikeys } = req.user || false;
   const apiKraken = initApiKraken(apikeys)
   if (!apiKraken) return { error: true, message: "API Key error!" };

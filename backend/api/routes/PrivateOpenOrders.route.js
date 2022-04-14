@@ -32,7 +32,7 @@ export default function PrivateOpenOrdersRoute(fastify, options, done) {
       // Get Api OpenOrders - Websocket
       fastify.route({
         method: 'GET',
-        url: '/api/ws/openorders/:authorization',
+        url: '/api/ws/openorders/:id',
         logLevel: 'warn',
         websocket: true,
         preHandler: fastify.auth([fastify.websocketVerifyJWT]),

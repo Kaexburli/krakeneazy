@@ -13,7 +13,7 @@ export default function PrivateOwnTradesRoute(fastify, options, done) {
       // Get Api OwnTrades - Websocket
       fastify.route({
         method: 'GET',
-        url: '/api/ws/owntrades/:authorization',
+        url: '/api/ws/owntrades/:id',
         logLevel: 'warn',
         websocket: true,
         preHandler: fastify.auth([fastify.websocketVerifyJWT]),
