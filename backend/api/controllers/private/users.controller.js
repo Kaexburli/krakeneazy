@@ -92,7 +92,7 @@ export const registerCtrl = async (req, reply) => {
     const email = await sendRegisterEmail(user);
 
     if (!email)
-      return reply.status(400).send({ message: "Mail not send, please contact us!" });
+      return reply.status(200).send({ ok: false, message: "Mail not send, please contact us!" });
     else {
       return reply.status(201).send({
         user: {
@@ -105,7 +105,7 @@ export const registerCtrl = async (req, reply) => {
   } catch (error) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0] || " account ";
-      return reply.status(200).send({ message: `Your ${field} is already exist!` })
+      return reply.status(200).send({ ok: false, message: `Your ${field} is already exist!` })
     }
     else {
       return reply.status(400).send(error);

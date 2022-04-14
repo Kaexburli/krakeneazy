@@ -364,12 +364,10 @@
   const processRegister = async (data) => {
     const register = await userRegister(data);
 
-    if (register.hasOwnProperty("error")) {
-      isLoading = false;
+    if (!register.ok) {
       isError = register.message;
       Notification(isError, "error");
     } else {
-      isLoading = false;
       isSuccess = `${$_("auth.welcome")} ${register.user.firstname}! ${$_(
         "auth.welcomeMessage"
       )} (${register.user.email}).`;
@@ -377,6 +375,8 @@
       resetForm();
       toogleForm();
     }
+
+    isLoading = false;
   };
 
   /**
