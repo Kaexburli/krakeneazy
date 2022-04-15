@@ -40,7 +40,7 @@ module.exports = {
       script: 'server.js',
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
-      watch: false,
+      watch: true,
       max_memory_restart: '1G',
       log: "/home/websitedev/krakeneazy.com/_log/preprod/pm2/backend.log",
       log_date_format: "YYYY-MM-DD HH:mm Z",
@@ -55,7 +55,7 @@ module.exports = {
       args: 'run preprod',
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
-      watch: false,
+      watch: true,
       max_memory_restart: '1G',
       log: "/home/websitedev/krakeneazy.com/_log/preprod/pm2/frontend.log",
       log_date_format: "YYYY-MM-DD HH:mm Z",
@@ -82,6 +82,7 @@ module.exports = {
                     rm -rf deploy; \
                     rm -rf backend; \
                     rm -rf frontend; \
+                    rm -rf node_modules; \
                     rm -rf _error_pages; \
                     rm -v !('.env'|'smtp.env.mjs'|'package.json'); \
                     mkdir deploy;",
@@ -120,6 +121,7 @@ module.exports = {
                     rm -rf deploy; \
                     rm -rf backend; \
                     rm -rf frontend; \
+                    rm -rf node_modules; \
                     rm -v !('.env'|'smtp.env.mjs'); \
                     mkdir deploy;",
       'post-setup': "echo --- ROOT; \
