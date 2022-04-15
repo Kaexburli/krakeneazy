@@ -47,7 +47,7 @@ export default function usersRoutes(fastify, options, done) {
         handler: forgotPasswordCtrl
       });
 
-      // forgot-password
+      // forgot-password-confirm
       fastify.route({
         method: ['GET', 'HEAD'],
         url: '/api/forgot-password-confirm/:resetPasswordToken',
@@ -55,7 +55,7 @@ export default function usersRoutes(fastify, options, done) {
         handler: forgotPasswordConfirmCtrl
       });
 
-      // forgot-password
+      // send-confirm-email
       fastify.route({
         method: ['POST', 'HEAD'],
         url: '/api/send-confirm-email',
@@ -89,7 +89,7 @@ export default function usersRoutes(fastify, options, done) {
         handler: profileCtrl
       });
 
-      // forgot-password
+      // add-apikey
       fastify.route({
         method: ['POST', 'HEAD'],
         url: '/api/add-apikey',
@@ -98,7 +98,7 @@ export default function usersRoutes(fastify, options, done) {
         handler: addApiKeyCtrl
       });
 
-      // forgot-password
+      // remove-apikey
       fastify.route({
         method: ['POST', 'HEAD'],
         url: '/api/remove-apikey',

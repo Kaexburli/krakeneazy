@@ -7,9 +7,12 @@
   import KrakenStatusAPI from "components/api/KrakenStatusAPI.svelte";
 
   // Appel Websocket
-  const server = __env["BACKEND_WS_URI"];
-  const wss_systemstatus = server + "/systemstatus";
-  const wss_krakenstatus = server + "/krakenstatus";
+  const server =
+    location.protocol === "http:"
+      ? `${["ws:", location.host].join("//")}`
+      : `${["wss:", location.host].join("//")}`;
+  const wss_systemstatus = server + "/api/ws/systemstatus";
+  const wss_krakenstatus = server + "/api/ws/krakenstatus";
   const wsSystemStatus = websocketStore(wss_systemstatus);
   const wsKrakenStatus = websocketStore(wss_krakenstatus);
   // Appel Websocket

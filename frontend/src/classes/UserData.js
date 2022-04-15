@@ -1,9 +1,21 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import { _ } from "svelte-i18n";
 import Fetch from "utils/Runfetch.js"
-import { User } from "store/userStore.js";
+import {
+  User
+} from "store/userStore.js";
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 let url;
 let user;
+
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
 User.subscribe((v) => user = v);
 
 class UserData {
@@ -12,7 +24,7 @@ class UserData {
     this.endpoint = null;
     this.params = null;
     this.url = null;
-    this.server = (__env["ENVIRONMENT"] === "development") ? __env["BACKEND_URI"] + "/api/private/" : "/api/private/";
+    this.server = [location.protocol, location.host].join('//') + "/api/private/";
     this.token = user.token || false;
   }
 
@@ -32,7 +44,11 @@ class UserData {
 
     try {
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -51,7 +67,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -72,7 +92,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -93,7 +117,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -110,13 +138,19 @@ class UserData {
     }
 
     if (typeof params.pair === undefined && !params.pair) {
-      return { error: "ERROR: No pair found!" }
+      return {
+        error: "ERROR: No pair found!"
+      }
     }
 
     try {
       this.params = params.pair
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -134,7 +168,11 @@ class UserData {
 
     try {
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -152,7 +190,11 @@ class UserData {
 
     try {
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -173,7 +215,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -217,7 +263,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -238,7 +288,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
 
       return res
 
@@ -260,7 +314,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -281,7 +339,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      const res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res;
     } catch (error) {
       console.error(error)
@@ -300,7 +362,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      let res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
 
     } catch (error) {
@@ -321,7 +387,11 @@ class UserData {
     try {
       this.params = (typeof params !== "undefined") ? params : "";
       this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      return await Fetch({ url: this.url, endpoint: this.endpoint, token: this.token })
+      return await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
     } catch (error) {
       console.error(error)
     }

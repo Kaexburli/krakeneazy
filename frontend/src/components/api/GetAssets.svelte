@@ -1,13 +1,20 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import Fetch from "utils/Runfetch.js";
   import { User } from "store/userStore.js";
   import { assets } from "store/store.js";
 
-  let backUrl =
-      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
-    fetchUrl = backUrl + "/api/assets";
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  let fetchUrl = [location.protocol, location.host].join("//") + "/api/assets";
   const token = $User.token || false;
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const getAssets = async () => {
     let res = await Fetch({ url: fetchUrl, endpoint: "assets", token });
 

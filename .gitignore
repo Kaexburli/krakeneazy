@@ -33,3 +33,6 @@ backend/kraken.env.js
 /export/**
 frontend/yarn-error.log
 /smtp.env.mjs
+/conf/
+/logs/
+/temp/

@@ -1,102 +1,95 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  v4 as uuidv4
+} from 'uuid';
 
-const userSchema = mongoose.Schema(
-  {
-    firstname: {
-      type: String,
-      trim: true,
-      required: true,
-    },
-    lastname: {
-      type: String,
-      trim: true,
-      required: true,
-    },
-    email: {
-      type: String,
-      minlength: 6,
-      unique: true,
-      trim: true,
-      required: true,
-    },
-    username: {
-      type: String,
-      minlength: 3,
-      unique: true,
-      trim: true,
-      required: true,
-    },
-    password: {
-      type: String,
-      minlength: 6,
-      required: true
-    },
-    provider: {
-      type: String,
-      default: "email"
-    },
-    resetPasswordToken: {
-      type: String,
-      default: false
-    },
-    confirmationToken: {
-      type: String,
-      default: uuidv4()
-    },
-    confirmed: {
-      type: Boolean,
-      default: false,
-    },
-    blocked: {
-      type: Boolean,
-      default: false,
-    },
-    cgvConfirmed: {
-      type: Boolean,
-      default: false,
-    },
-    isLogged: {
-      type: Boolean,
-      default: false,
-    },
-    role: {
-      type: String,
-      default: 'user',
-    },
-    token: {
-      type: String,
-      default: false
-    },
-    tokenVersion: {
-      type: Number,
-      default: 0
-    },
-    settings: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user_settings"
-      }
-    ],
-    apikeys: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user_kraken"
-      }
-    ],
-    alerts: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user_price_alerts"
-      }
-    ]
+const userSchema = mongoose.Schema({
+  firstname: {
+    type: String,
+    trim: true,
+    required: true,
   },
-  {
-    timestamps: true
-  }
-);
+  lastname: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  email: {
+    type: String,
+    minlength: 6,
+    unique: true,
+    trim: true,
+    required: true,
+  },
+  username: {
+    type: String,
+    minlength: 3,
+    unique: true,
+    trim: true,
+    required: true,
+  },
+  password: {
+    type: String,
+    minlength: 6,
+    required: true
+  },
+  provider: {
+    type: String,
+    default: "email"
+  },
+  resetPasswordToken: {
+    type: String,
+    default: false
+  },
+  confirmationToken: {
+    type: String,
+    default: uuidv4()
+  },
+  confirmed: {
+    type: Boolean,
+    default: false,
+  },
+  blocked: {
+    type: Boolean,
+    default: false,
+  },
+  cgvConfirmed: {
+    type: Boolean,
+    default: false,
+  },
+  isLogged: {
+    type: Boolean,
+    default: false,
+  },
+  role: {
+    type: String,
+    default: 'user',
+  },
+  token: {
+    type: String,
+    default: false
+  },
+  tokenVersion: {
+    type: Number,
+    default: 0
+  },
+  settings: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user_settings"
+  }],
+  apikeys: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user_kraken"
+  }],
+  alerts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user_price_alerts"
+  }]
+}, {
+  timestamps: true
+});
 
 const generatePassword = (length) => {
   const charSet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789^°!"§$%&/()=?`*+~\'#,;.:-_';
@@ -126,8 +119,7 @@ userSchema.pre('save', function (next) {
 userSchema.methods.generateToken = async function (remember, reset = false) {
   let user = this;
 
-  const token = jwt.sign(
-    {
+  const token = jwt.sign({
       id: user._id.toString(),
       firstname: user.firstname,
       lastname: user.lastname,
@@ -135,8 +127,7 @@ userSchema.methods.generateToken = async function (remember, reset = false) {
       email: user.email,
       remember
     },
-    process.env.JWT_STANDARD_SECRET,
-    {
+    process.env.JWT_STANDARD_SECRET, {
       expiresIn: remember ? '2h' : '15m'
     }
   );
@@ -166,8 +157,7 @@ userSchema.statics.findByToken = async function (token, req) {
         _id: decoded.id,
         token
       }).populate(["settings", "apikeys", "alerts"]);
-    }
-    else {
+    } else {
       req.log.error('Decoded token error!');
       return false;
     }
@@ -204,7 +194,9 @@ userSchema.statics.findById = async function (id) {
 userSchema.statics.findByCredentials = async (email, password) => {
 
   // Check user
-  const user = await User.findOne({ email });
+  const user = await User.findOne({
+    email
+  });
 
   if (!user) {
     return new Error('wrongCredentials');
@@ -244,7 +236,9 @@ userSchema.statics.findByConfirmToken = async function (confirmationToken) {
 
   try {
 
-    const user = await User.findOne({ confirmationToken });
+    const user = await User.findOne({
+      confirmationToken
+    });
 
     if (user === null) {
       return false
@@ -267,16 +261,22 @@ userSchema.statics.findByEmail = async function (email, reset = false) {
     return new Error('missingEMail');
   }
 
-  const user = await User.findOne({ email });
+  try {
+    const user = await User.findOne({
+      email
+    });
 
-  if (!user) return false;
+    if (!user) return false;
 
-  if (reset) {
-    user.resetPasswordToken = uuidv4();
-    await user.save();
+    if (reset) {
+      user.resetPasswordToken = uuidv4();
+      await user.save();
+    }
+
+    return user;
+  } catch (error) {
+    return error
   }
-
-  return user;
 };
 
 // create a custom model method to find user by reset Password Token
@@ -292,7 +292,9 @@ userSchema.statics.findByForgotToken = async function (resetPasswordToken) {
   }
 
   try {
-    const user = await User.findOne({ resetPasswordToken });
+    const user = await User.findOne({
+      resetPasswordToken
+    });
 
     if (user === null) {
       return false
@@ -303,7 +305,10 @@ userSchema.statics.findByForgotToken = async function (resetPasswordToken) {
     user.resetPasswordToken = false;
     await user.save();
 
-    return { user, newPassword }
+    return {
+      user,
+      newPassword
+    }
 
   } catch (error) {
     return error;

@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsstore.js";
@@ -29,11 +32,6 @@
   import Fetch from "utils/Runfetch.js";
   import UserData from "classes/UserData.js";
 
-  const dispatch = createEventDispatcher();
-
-  export let User;
-  let callRCM, callTOC;
-
   import {
     online,
     interval,
@@ -44,6 +42,14 @@
     candleTimeout,
     setResizeChart,
   } from "store/store.js";
+
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  const dispatch = createEventDispatcher();
+
+  export let User;
+  let callRCM, callTOC;
 
   let type,
     candleSeries,
@@ -76,9 +82,7 @@
     close,
     volume,
     legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
-    backUrl =
-      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
-    fetchUrl = backUrl + "/api/ohlc",
+    fetchUrl = [location.protocol, location.host].join("//") + "/api/ohlc",
     chartHeight = 488,
     chartWidth = 600,
     error = false,
@@ -114,6 +118,9 @@
 
   const ud = new UserData();
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const cmtt = (milliseconde) => {
     return new Date(milliseconde).toLocaleTimeString(navigator.language, {
       timeZone: "UTC",

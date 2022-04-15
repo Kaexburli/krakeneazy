@@ -1,17 +1,25 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import Fetch from "utils/Runfetch.js";
   import { User } from "store/userStore.js";
   import { pair, assetpair, assetpairs } from "store/store.js";
   import { DoubleBounce } from "svelte-loading-spinners";
 
-  let backUrl =
-      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
-    fetchUrl = backUrl + "/api/assetpairs",
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  let fetchUrl =
+      [location.protocol, location.host].join("//") + "/api/assetpairs",
     assetpairVal,
     spinner = false,
     isFocused = false;
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const onFocus = () => (isFocused = true);
   const onBlur = () => {
     assetpairVal.value = "";

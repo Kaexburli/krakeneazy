@@ -1,6 +1,5 @@
 module.exports = {
-  apps: [
-    {
+  apps: [{
       name: 'SERVER',
       cwd: `${__dirname}/backend`,
       script: 'server.js',
@@ -14,6 +13,7 @@ module.exports = {
       merge_logs: false,
       env: {
         NODE_ENV: 'production',
+        ENVIRONMENT: 'production',
         BACK_PORT: 9000,
       }
     },
@@ -53,7 +53,7 @@ module.exports = {
         COMMON_ENV_VAR: true,
         ENVIRONMENT: "production",
         NODE_ENV: 'production',
-        FRONTEND_URI: "http://preprod.krakeneazy.com",
+        FRONTEND_URI: "https://preprod.krakeneazy.com",
         MONGODB_URI: "mongodb://localhost:27017/krakeneazy_preprod",
         JWT_STANDARD_SECRET: "w^L/|sD@/BMKaWosSL.~4gmU(SXPmd",
         JWT_REFRESH_SECRET: "PC^e1%&U5R[oiCx([DvbDZ%gQg/^{i",
@@ -85,8 +85,6 @@ module.exports = {
         COMMON_ENV_VAR: true,
         NODE_ENV: 'production',
         ENVIRONMENT: "production",
-        BACKEND_URI: "https://preprod.krakeneazy.com",
-        BACKEND_WS_URI: "wss://preprod.krakeneazy.com/api/ws",
         SITE_NAME: "Krakeneazy",
       }
     },

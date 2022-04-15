@@ -1,13 +1,21 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import nodemailer from "nodemailer";
 import handlebars from 'handlebars';
 import fs from 'fs';
 import path from 'path';
-const __dirname = path.resolve(path.dirname(''));
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
+const __dirname = path.resolve(path.dirname(''));
 let credentials = null;
 // Development
 if (process.env.ENVIRONMENT === "development") {
-  const { default: SMTP } = await import('../../../smtp.env.mjs');
+  const {
+    default: SMTP
+  } = await import('../../../smtp.env.mjs');
   credentials = {
     host: SMTP.host,
     port: SMTP.port,
@@ -35,9 +43,17 @@ else if (process.env.ENVIRONMENT === "production") {
 
 let transporter = nodemailer.createTransport(credentials);
 
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
 export const sendRegisterEmail = async (user) => {
 
-  const { firstname, lastname, email, confirmationToken } = user;
+  const {
+    firstname,
+    lastname,
+    email,
+    confirmationToken
+  } = user;
 
   try {
 
@@ -73,7 +89,12 @@ export const sendRegisterEmail = async (user) => {
 
 export const sendForgotPasswordEmail = async (user) => {
 
-  const { firstname, lastname, email, resetPasswordToken } = user;
+  const {
+    firstname,
+    lastname,
+    email,
+    resetPasswordToken
+  } = user;
 
   try {
 
@@ -108,7 +129,11 @@ export const sendForgotPasswordEmail = async (user) => {
 }
 
 export const sendNewPasswordEmail = async (data) => {
-  const { firstname, lastname, email } = data.user;
+  const {
+    firstname,
+    lastname,
+    email
+  } = data.user;
   const newPassword = data.newPassword;
 
   try {

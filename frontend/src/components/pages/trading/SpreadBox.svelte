@@ -1,10 +1,16 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import Fetch from "utils/Runfetch.js";
   import { WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
   import { assetpair, asymbole, tradedata } from "store/store.js";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let base = $asymbole.hasOwnProperty($assetpair.base)
     ? $asymbole[$assetpair.base].name
     : $assetpair.wsname.split("/")[0];
@@ -21,9 +27,9 @@
     spread_calcul = "0.00",
     decimals = $assetpair.pair_decimals,
     lot_decimals = $assetpair.lot_decimals,
-    backUrl =
-      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
-    fetchUrl = `${backUrl}/api/trades/${$assetpair.altname}`,
+    fetchUrl = `${[location.protocol, location.host].join("//")}/api/trades/${
+      $assetpair.altname
+    }`,
     last = null;
 
   const formatter = new Intl.DateTimeFormat(navigator.language, {
@@ -36,6 +42,9 @@
     second: "2-digit",
   });
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const getAssetTrades = async () => {
     let res = await Fetch({ url: fetchUrl, endpoint: "trades" });
 

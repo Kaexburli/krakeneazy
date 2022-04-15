@@ -3,14 +3,14 @@ import { assetpair, interval, devise, pricealertlist, depth } from "store/store.
 import { User } from "store/userStore.js";
 import websocketStore from "svelte-websocket-store";
 const environment = __env["ENVIRONMENT"] === "development" ? true : false
-const server = __env["BACKEND_WS_URI"];
+const server =  (location.protocol === 'http:') ? `${['ws:', location.host].join('//')}` : `${['wss:', location.host].join('//')}`;
 
 /**
  * Call Ticker Websocket
  *************************/
 export const WSTicker = derived([assetpair], ([$assetpair], set) => {
 
-  const ticker_url = $assetpair ? `${server}/ticker/${$assetpair.wsname}` : false;
+  const ticker_url = $assetpair ? `${server}/api/ws/ticker/${$assetpair.wsname}` : false;
   const ticker_websocket = websocketStore(ticker_url);
   const stop = ticker_websocket.subscribe((tick) => {
     if (tick) {
@@ -49,7 +49,7 @@ export const WSTickerAlert = derived([assetpair, pricealertlist, WSTicker], ([$a
   }
   // On boucle sur la liste et on créer une connexion websocket pour chaque pair
   ticker_pair.map((tickpair) => {
-    ticker_alert_urls[tickpair] = `${server}/ticker/${tickpair}`;
+    ticker_alert_urls[tickpair] = `${server}/api/ws/ticker/${tickpair}`;
     wsTickerAlert[tickpair] = websocketStore(ticker_alert_urls[tickpair]);
   });
   // // On boucle chaque connexion websocket pour y souscrire
@@ -89,7 +89,7 @@ export const WSTickerAlert = derived([assetpair, pricealertlist, WSTicker], ([$a
  * Call Book Websocket
  *************************/
 export const WSBook = derived([assetpair, depth], ([$assetpair, $depth], set) => {
-  const book_url = $assetpair ? `${server}/book/${$assetpair.wsname}/${$depth}` : false;
+  const book_url = $assetpair ? `${server}/api/ws/book/${$assetpair.wsname}/${$depth}` : false;
   const book_websocket = websocketStore(book_url);
   const stop = book_websocket.subscribe((tick) => {
     if (tick) {
@@ -114,7 +114,7 @@ export const WSBook = derived([assetpair, depth], ([$assetpair, $depth], set) =>
  * Call Ohlc Websocket
  *************************/
 export const WSOhlc = derived([assetpair, interval], ([$assetpair, $interval], set) => {
-  const ohlc_url = $assetpair ? `${server}/ohlc/${$assetpair.wsname}/${$interval}` : false;
+  const ohlc_url = $assetpair ? `${server}/api/ws/ohlc/${$assetpair.wsname}/${$interval}` : false;
   const ohlc_websocket = websocketStore(ohlc_url);
   const stop = ohlc_websocket.subscribe((tick) => {
     if (tick) {
@@ -139,7 +139,7 @@ export const WSOhlc = derived([assetpair, interval], ([$assetpair, $interval], s
  * Call Spread Websocket
  *************************/
 export const WSSpread = derived([assetpair], ([$assetpair], set) => {
-  const spread_url = $assetpair ? `${server}/spread/${$assetpair.wsname}` : false;
+  const spread_url = $assetpair ? `${server}/api/ws/spread/${$assetpair.wsname}` : false;
   const spread_websocket = websocketStore(spread_url);
   const stop = spread_websocket.subscribe((tick) => {
     if (tick) {
@@ -164,7 +164,7 @@ export const WSSpread = derived([assetpair], ([$assetpair], set) => {
  * Call Trade Websocket
  *************************/
 export const WSTrade = derived([assetpair], ([$assetpair], set) => {
-  const trade_url = $assetpair ? `${server}/trade/${$assetpair.wsname}` : false;
+  const trade_url = $assetpair ? `${server}/api/ws/trade/${$assetpair.wsname}` : false;
   const trade_websocket = websocketStore(trade_url);
   const stop = trade_websocket.subscribe((tick) => {
     if (tick) {
@@ -189,7 +189,7 @@ export const WSTrade = derived([assetpair], ([$assetpair], set) => {
  * Call OpenOrders Websocket
  *************************/
 export const WSOpenOrders = derived([User], ([$User], set) => {
-  const openorders_url = $User.id ? `${server}/openorders/${$User.id}` : false;
+  const openorders_url = $User.id ? `${server}/api/ws/openorders/${$User.id}` : false;
   const openorders_websocket = websocketStore(openorders_url);
   const stop = openorders_websocket.subscribe((tick) => {
     if (tick) {
@@ -215,7 +215,7 @@ export const WSOpenOrders = derived([User], ([$User], set) => {
  * Call OwnTrades Websocket
  *************************/
 export const WSOwnTrades = derived([User], ([$User], set) => {
-  const owntrades_url = $User.id ? `${server}/owntrades/${$User.id}` : false;
+  const owntrades_url = $User.id ? `${server}/api/ws/owntrades/${$User.id}` : false;
   const owntrades_websocket = websocketStore(owntrades_url);
   const stop = owntrades_websocket.subscribe((tick) => {
     if (tick) {
@@ -240,7 +240,7 @@ export const WSOwnTrades = derived([User], ([$User], set) => {
  * Call TradeBalance Websocket
  *************************/
 export const WSTradeBalance = derived([User, devise], ([$User, $devise], set) => {
-  const tradebalance_url = ($devise && $User.id) ? `${server}/tradebalance/${$devise}/${$User.id}` : false;
+  const tradebalance_url = ($devise && $User.id) ? `${server}/api/ws/tradebalance/${$devise}/${$User.id}` : false;
   const tradebalance_websocket = websocketStore(tradebalance_url);
   const stop = tradebalance_websocket.subscribe((tick) => {
     if (tick) {
