@@ -93,12 +93,12 @@ module.exports = {
                     mv deploy/current/* ./; \
                     npm install; \
                     npm outdated; \
-                    cd backend; \
                     echo --- BACKEND; \
+                    cd backend; \
                     npm install; \
                     npm outdated; \
-                    cd ../frontend; \
                     echo --- FRONTEND; \
+                    cd ../frontend; \
                     npm install; \
                     npm outdated; \
                     npm run build; \
@@ -115,24 +115,30 @@ module.exports = {
       ref: "origin/main",
       repo: "git@github.com:Kaexburli/krakeneazy.git",
       path: "/home/websitedev/krakeneazy.com/app/deploy",
-      'pre-setup': "cd krakeneazy.com/; \
+      'pre-setup': "echo --- ROOT; \
+                    cd krakeneazy.com/; \
                     rm -rf _error_pages; \
+                    echo --- APP; \
                     cd app/; \
                     rm -rf deploy; \
                     rm -rf backend; \
                     rm -rf frontend; \
                     rm -v !('.env'|'smtp.env.mjs'); \
                     mkdir deploy;",
-      'post-setup': "cd ../../; \
+      'post-setup': "echo --- ROOT; \
+                    cd ../../; \
                     mv deploy/current/* ./; \
                     mv _error_pages ../; \
                     rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
+                    echo --- BACKEND; \
                     cd backend; \
                     npm install; \
+                    echo --- FRONTEND; \
                     cd ../frontend; \
                     npm install; \
                     npm run build; \
                     rm -rf src; \
+                    echo --- PM2; \
                     cd ../; \
                     rm -rf deploy; \
                     pm2 flush; \
