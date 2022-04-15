@@ -1,4 +1,5 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { User } from "store/userStore.js";
   import { userLogout } from "utils/userApi.js";
   import { toast } from "@zerodevx/svelte-toast";
@@ -32,7 +33,7 @@
       dismissable: true,
       target: "new",
       theme,
-      duration: reload ? 0 : 5000,
+      duration: reload ? 500 : 5000,
       onpop: () => {
         reload ? location.reload() : false;
       },
@@ -42,8 +43,12 @@
   const SingOut = async () => {
     if (User.isLogged()) {
       const logout = await userLogout($User.id);
-      if (logout.hasOwnProperty("error")) Notification(logout.message, "error");
-      else Notification(logout.status, "success", true);
+
+      Notification(
+        $_(`auth.msg.${logout.status}`),
+        logout.ok ? "success" : "error",
+        true
+      );
 
       User.signout();
     }

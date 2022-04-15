@@ -214,12 +214,23 @@ export const logoutCtrl = async (req, reply) => {
     const user = await User.findById(id);
     user.token = false
     user.isLogged = false;
+
     const loggedOutUser = await user.save();
-    return reply.send({
-      ok: true,
-      status: 'loggedOut',
-      user: loggedOutUser
-    });
+
+    if (!loggedOutUser.isLogged) {
+      return reply.send({
+        ok: true,
+        status: 'loggedOut',
+        user: loggedOutUser
+      });
+    }
+    else {
+      return reply.send({
+        ok: false,
+        status: `loggedOutError`
+      });
+    }
+    
   } catch (e) {
     return reply.status(500).send(e);
   }

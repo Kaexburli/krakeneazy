@@ -41,8 +41,19 @@
   };
   setContext("data", hasApikeys);
 
+  /**
+   * checkQueryParamaters
+   * @description Vérifie et supprime les paramètres de l'url
+   */
+  const checkQueryParamaters = () => {
+    if (window.location.search !== "") {
+      window.location.replace([location.protocol, location.host].join("//"));
+    }
+  };
+
   onMount(async () => {
     userProfile = await getProfile();
+    if (isLoggedIn) checkQueryParamaters();
   });
 
   /** store */

@@ -139,8 +139,8 @@ const refreshToken = async (jwt) => {
       closeModal();
     },
     no: async () => {
-      closeModal();
       expiredJWT();
+      closeModal();
     },
   });
 };

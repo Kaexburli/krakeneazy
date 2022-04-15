@@ -42,6 +42,13 @@
           flashMessage[action][response]["message"],
           flashMessage[action][response]["flag"]
         );
+
+        // Supprime les paramètres de l'url
+        setTimeout(() => {
+          window.location.replace(
+            [location.protocol, location.host].join("//")
+          );
+        }, 5000);
       }
     }
   };

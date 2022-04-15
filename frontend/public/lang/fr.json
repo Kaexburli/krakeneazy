@@ -165,6 +165,7 @@
       "fieldExist": "Votre {field} existe déjà!",
       "loggedIn": "Vous êtes connecté!",
       "loggedOut": "Vous êtes déconnecté!",
+      "loggedOutError": "Une erreur est intervenue!",
       "refreshToken": "Votre connexion à bien été actualisé!",
       "cantFindYou": "Aucun email correspondant!",
       "emailSend": "Un e-mail a été envoyé à {email}",
