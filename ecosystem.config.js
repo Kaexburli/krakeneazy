@@ -89,13 +89,16 @@ module.exports = {
                     rm -v !('.env'|'smtp.env.mjs'); \
                     mkdir deploy;",
       'post-setup': "cd ../../; \
+                    mv deploy/current/* ./; \
+                    echo [ROOT ################################] \
                     npm install; \
                     npm outdated; \
-                    mv deploy/current/* ./; \
                     cd backend; \
+                    echo [BACKEND ################################] \
                     npm install; \
                     npm outdated; \
                     cd ../frontend; \
+                    echo [FRONTEND ################################] \
                     npm install; \
                     npm outdated; \
                     npm run build; \
