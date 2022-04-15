@@ -18,7 +18,8 @@ const getTrades = async (req, reply) => {
     })
     reply.send(response)
   } catch (error) {
-    console.error('[ERROR:getTrades]', error)
+    console.error('[ERROR:getTrades]', error);
+    return error;
   }
 }
 

@@ -31,11 +31,13 @@ const GetTrade = async (connection, req) => {
       try {
         await trade.unsubscribe(pair)
       } catch (error) {
-        console.log('[ERROR:TRADE:ONCLOSE]', error)
+        console.log('[ERROR:TRADE:ONCLOSE]', error);
+        return error;
       }
     })
   } catch (error) {
-    console.log('[CATCH ERROR TRADE]: ', error)
+    console.log('[CATCH ERROR TRADE]: ', error);
+    return error;
   }
 }
 

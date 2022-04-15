@@ -43,11 +43,13 @@ const GetOrderBook = async (connection, req) => {
       try {
         await book.unsubscribe(pair)
       } catch (error) {
-        console.log('[ERROR:BOOK:ONCLOSE]', error)
+        console.log('[ERROR:BOOK:ONCLOSE]', error);
+        return error;
       }
     })
   } catch (error) {
-    console.log('[CATCH ERROR BOOK]: ', error)
+    console.log('[CATCH ERROR BOOK]: ', error);
+    return error;
   }
 }
 

@@ -31,11 +31,13 @@ const GetTicker = async (connection, req) => {
       try {
         await ticker.unsubscribe(pair)
       } catch (error) {
-        console.log('[ERROR:TICKER:ONCLOSE]', error)
+        console.log('[ERROR:TICKER:ONCLOSE]', error);
+        return error;
       }
     })
   } catch (error) {
-    console.log('[CATCH ERROR TICKER]: ', error)
+    console.log('[CATCH ERROR TICKER]: ', error);
+    return error;
   }
 }
 
