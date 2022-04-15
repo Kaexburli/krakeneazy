@@ -13,11 +13,7 @@ module.exports = {
       log_date_format: "YYYY-MM-DD HH:mm Z",
       disable_logs: false,
       merge_logs: false,
-      env: {
-        NODE_ENV: 'production',
-        ENVIRONMENT: 'production',
-        BACK_PORT: 9000,
-      }
+      env: require('dotenv').config({ path: path.resolve('.env') }).parsed
     },
     {
       name: 'CLIENT',
@@ -81,12 +77,13 @@ module.exports = {
       ref: "origin/develop",
       repo: "git@github.com:Kaexburli/krakeneazy.git",
       path: "/home/websitedev/krakeneazy.com/preprod/deploy",
-      'pre-setup': "cd krakeneazy.com/preprod/; \
+      'pre-setup': "echo --- ROOT; \
+                    cd krakeneazy.com/preprod/; \
                     rm -rf deploy; \
                     rm -rf backend; \
                     rm -rf frontend; \
                     rm -rf _error_pages; \
-                    rm -v !('.env'|'smtp.env.mjs'); \
+                    rm -v !('.env'|'smtp.env.mjs'|'package.json'); \
                     mkdir deploy;",
       'post-setup': "echo --- ROOT; \
                     cd ../../; \
@@ -128,14 +125,18 @@ module.exports = {
       'post-setup': "echo --- ROOT; \
                     cd ../../; \
                     mv deploy/current/* ./; \
+                    npm install; \
+                    npm outdated; \
                     mv _error_pages ../; \
-                    rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
+                    rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'|'package.json'); \
                     echo --- BACKEND; \
                     cd backend; \
                     npm install; \
+                    npm outdated; \
                     echo --- FRONTEND; \
                     cd ../frontend; \
                     npm install; \
+                    npm outdated; \
                     npm run build; \
                     rm -rf src; \
                     echo --- PM2; \
