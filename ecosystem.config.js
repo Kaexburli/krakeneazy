@@ -90,15 +90,15 @@ module.exports = {
                     mkdir deploy;",
       'post-setup': "cd ../../; \
                     mv deploy/current/* ./; \
-                    echo [ROOT ################################] \
+                    echo - ROOT ___________________________________________; \
                     npm install; \
                     npm outdated; \
                     cd backend; \
-                    echo [BACKEND ################################] \
+                    echo - BACKEND ___________________________________________; \
                     npm install; \
                     npm outdated; \
                     cd ../frontend; \
-                    echo [FRONTEND ################################] \
+                    echo - FRONTEND ___________________________________________; \
                     npm install; \
                     npm outdated; \
                     npm run build; \
