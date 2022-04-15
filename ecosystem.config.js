@@ -102,6 +102,7 @@ module.exports = {
                     npm install; \
                     npm outdated; \
                     npm run build; \
+                    echo --- PM2; \
                     cd ../; \
                     pm2 delete PREPROD_SERVER; \
                     pm2 delete PREPROD_CLIENT; \
