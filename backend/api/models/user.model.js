@@ -215,9 +215,19 @@ userSchema.statics.findByCredentials = async (email, password) => {
   }
 
   // Check is already logged
-  const isLogged = user.isLogged;
-  if (isLogged) {
-    return new Error('alreadyConnected');
+  if (user.isLogged) {
+
+    let expired = false;
+    jwt.verify(user.token, process.env.JWT_STANDARD_SECRET, function (err, _decoded) {
+      if (err) expired = true;
+    });
+
+    if (expired) {
+      user.isLogged = false;
+      user.token = false;
+      await user.save();
+    } else return new Error('alreadyConnected');
+
   }
 
   return user;
