@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   apps: [{
       name: 'SERVER',
@@ -48,25 +50,7 @@ module.exports = {
       log_date_format: "YYYY-MM-DD HH:mm Z",
       disable_logs: false,
       merge_logs: false,
-      env: {
-        BACK_PORT: 8000,
-        COMMON_ENV_VAR: true,
-        ENVIRONMENT: "production",
-        NODE_ENV: 'production',
-        FRONTEND_URI: "https://preprod.krakeneazy.com",
-        MONGODB_URI: "mongodb://localhost:27017/krakeneazy_preprod",
-        JWT_STANDARD_SECRET: "w^L/|sD@/BMKaWosSL.~4gmU(SXPmd",
-        JWT_REFRESH_SECRET: "PC^e1%&U5R[oiCx([DvbDZ%gQg/^{i",
-        SITE_NAME: "Krakeneazy",
-        SITE_EMAIL: "krakeneazy@gmail.com",
-        KRAKEN_STATUS_API_URL: "https://status.kraken.com/api/v2/summary.json",
-        SMTP_HOST: "smtp-fr.securemail.pro",
-        SMTP_SERVICE: "krakeneazy",
-        SMTP_PORT: 465,
-        SMTP_SECURE: true,
-        SMTP_USER: "contact@krakeneazy.com",
-        SMTP_PASS: "uVg&cB97-K@3vB_",
-      }
+      env: require('dotenv').config({ path: path.resolve('.preprod.env') }).parsed
     },
     {
       name: 'PREPROD_CLIENT',
@@ -116,9 +100,6 @@ module.exports = {
                     cd ../; \
                     pm2 delete PREPROD_SERVER; \
                     pm2 delete PREPROD_CLIENT; \
-                    mongo krakeneazy_preprod; \
-                    show dbs; \
-                    exit; \
                     pm2 startOrRestart ecosystem.config.js --only 'PREPROD_SERVER,PREPROD_CLIENT';",
     },
     production: {
