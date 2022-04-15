@@ -4,6 +4,9 @@ import { Kraken } from 'node-kraken-api'
 const api = new Kraken()
 
 const getTicker = async (req, reply) => {
+  if (!req.headers['x-webapp-header'] || req.headers['x-webapp-header'] !== "krakeneazy")
+    reply.redirect('/')
+    
   try {
     const { pair } = req.params
     let response = await api.ticker({ pair: pair })

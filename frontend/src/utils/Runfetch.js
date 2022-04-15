@@ -47,11 +47,20 @@ const callApiFetch = async (params) => {
     // console.log('[Fetch Background]:', background, endpoint)
 
     let errorTimeout = false;
-    let options = {}
+    let options = {
+      headers: { 
+        'Content-Type': 'application/json', 
+        'x-webapp-header': 'krakeneazy'
+      }
+    }
 
     if (token) {
       options = {
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Content-Type': 'application/json', 
+          'x-webapp-header': 'krakeneazy', 
+          'Authorization': `Bearer ${token}`
+        }
       }
     }
 

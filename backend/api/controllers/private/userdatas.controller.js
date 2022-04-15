@@ -146,7 +146,7 @@ const checkApiKeyPermissions = async (apikeys) => {
 }
 
 // /SystemStatus
-const getSystemStatus = async (req, _reply) => {
+const getSystemStatus = async (_req, _reply) => {
 
   const apiKraken = initApiKraken()
   if (!apiKraken) return { error: true, message: "API Key error!" };

@@ -1,4 +1,6 @@
-import { Kraken } from 'node-kraken-api'
+import {
+  Kraken
+} from 'node-kraken-api'
 
 // Instanciation du module kraken API
 const api = new Kraken()
@@ -32,9 +34,18 @@ const ohlcFormat = (datas, resolve) => {
 }
 
 const getOhlc = async (req, reply) => {
+  if (!req.headers['x-webapp-header'] || req.headers['x-webapp-header'] !== "krakeneazy")
+    reply.redirect('/')
+
   try {
-    const { pair, interval } = req.params
-    let response = await api.ohlc({ pair, interval })
+    const {
+      pair,
+      interval
+    } = req.params
+    let response = await api.ohlc({
+      pair,
+      interval
+    })
     let ohlc_response = await new Promise(resolve => ohlcFormat(response, resolve));
     return ohlc_response;
   } catch (error) {
