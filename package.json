@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "concurrently": "^6.4.0",
+    "dotenv": "^16.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {},
