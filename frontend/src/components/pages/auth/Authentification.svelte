@@ -376,6 +376,7 @@
             }
           : {}
       );
+
       Notification(isError, "error");
       resetForm();
 
