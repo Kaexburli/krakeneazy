@@ -98,21 +98,28 @@ module.exports = {
       repo: "git@github.com:Kaexburli/krakeneazy.git",
       path: "/home/websitedev/krakeneazy.com/preprod/deploy",
       'pre-setup': "cd krakeneazy.com/preprod/; \
-      rm -rf deploy; \
-      rm -rf backend; \
-      rm -rf frontend; \
-      rm -rf _error_pages; \
-      rm -v !('.env'|'smtp.env.mjs'); \
-      mkdir deploy;",
+                    rm -rf deploy; \
+                    rm -rf backend; \
+                    rm -rf frontend; \
+                    rm -rf _error_pages; \
+                    rm -v !('.env'|'smtp.env.mjs'); \
+                    mkdir deploy;",
       'post-setup': "cd ../../; \
-      mv deploy/current/* ./; \
-      cd backend; \
-      npm install; \
-      cd ../frontend; \
-      npm install; \
-      npm run build; \
-      cd ../; \
-      pm2 startOrRestart ecosystem.config.js --wait-ready --listen-timeout 10000 --only 'PREPROD_SERVER,PREPROD_CLIENT';",
+                    mv deploy/current/* ./; \
+                    cd backend; \
+                    npm install; \
+                    npm outdated; \
+                    cd ../frontend; \
+                    npm install; \
+                    npm outdated; \
+                    npm run build; \
+                    cd ../; \
+                    pm2 delete PREPROD_SERVER; \
+                    pm2 delete PREPROD_CLIENT; \
+                    mongo krakeneazy_preprod; \
+                    show dbs; \
+                    exit; \
+                    pm2 startOrRestart ecosystem.config.js --only 'PREPROD_SERVER,PREPROD_CLIENT';",
     },
     production: {
       user: "websitedev",
@@ -122,27 +129,27 @@ module.exports = {
       repo: "git@github.com:Kaexburli/krakeneazy.git",
       path: "/home/websitedev/krakeneazy.com/app/deploy",
       'pre-setup': "cd krakeneazy.com/; \
-      rm -rf _error_pages; \
-      cd app/; \
-      rm -rf deploy; \
-      rm -rf backend; \
-      rm -rf frontend; \
-      rm -v !('.env'|'smtp.env.mjs'); \
-      mkdir deploy;",
+                    rm -rf _error_pages; \
+                    cd app/; \
+                    rm -rf deploy; \
+                    rm -rf backend; \
+                    rm -rf frontend; \
+                    rm -v !('.env'|'smtp.env.mjs'); \
+                    mkdir deploy;",
       'post-setup': "cd ../../; \
-      mv deploy/current/* ./; \
-      mv _error_pages ../; \
-      rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
-      cd backend; \
-      npm install; \
-      cd ../frontend; \
-      npm install; \
-      npm run build; \
-      rm -rf src; \
-      cd ../; \
-      rm -rf deploy; \
-      pm2 flush; \
-      pm2 startOrRestart ecosystem.config.js --wait-ready --listen-timeout 10000 --only 'SERVER,CLIENT';",
+                    mv deploy/current/* ./; \
+                    mv _error_pages ../; \
+                    rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'); \
+                    cd backend; \
+                    npm install; \
+                    cd ../frontend; \
+                    npm install; \
+                    npm run build; \
+                    rm -rf src; \
+                    cd ../; \
+                    rm -rf deploy; \
+                    pm2 flush; \
+                    pm2 startOrRestart ecosystem.config.js --only 'SERVER,CLIENT';",
     },
   }
 };
