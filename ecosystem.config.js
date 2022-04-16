@@ -85,12 +85,12 @@ module.exports = {
         rm -vf _log/preprod/nginx/access.log; \
         rm -vf _log/preprod/nginx/error.log; \
         cd preprod/; \
-        rm -vrf deploy; \
-        rm -vrf backend; \
-        rm -vrf frontend; \
-        rm -vrf node_modules; \
-        rm -vrf _error_pages; \
-        rm -v !('.env'|'smtp.env.mjs'|'package.json'); \
+        rm -rf deploy; \
+        rm -rf backend; \
+        rm -rf frontend; \
+        rm -rf node_modules; \
+        rm -rf _error_pages; \
+        rm !('.env'|'smtp.env.mjs'|'package.json'); \
         mkdir deploy;",
       'post-setup':
         "echo --- ROOT; \
@@ -125,14 +125,14 @@ module.exports = {
       'pre-setup':
         "echo --- ROOT; \
         cd krakeneazy.com/; \
-        rm -vrf _error_pages; \
+        rm -rf _error_pages; \
         echo --- APP; \
         cd app/; \
-        rm -vrf deploy; \
-        rm -vrf backend; \
-        rm -vrf frontend; \
-        rm -vrf node_modules; \
-        rm -v !('.env'|'smtp.env.mjs'); \
+        rm -rf deploy; \
+        rm -rf backend; \
+        rm -rf frontend; \
+        rm -rf node_modules; \
+        rm !('.env'|'smtp.env.mjs'); \
         mkdir deploy;",
       'post-setup':
         "echo --- ROOT; \
@@ -141,7 +141,7 @@ module.exports = {
         npm install; \
         npm outdated; \
         mv _error_pages ../; \
-        rm -v !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'|'package.json'); \
+        rm !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'|'package.json'); \
         echo --- BACKEND; \
         cd backend; \
         npm install; \
@@ -151,10 +151,10 @@ module.exports = {
         npm install; \
         npm outdated; \
         npm run build; \
-        rm -vrf src; \
+        rm -rf src; \
         echo --- PM2; \
         cd ../; \
-        rm -vrf deploy; \
+        rm -rf deploy; \
         pm2 flush SERVER; \
         pm2 flush CLIENT; \
         pm2 startOrRestart ecosystem.config.js --only 'SERVER,CLIENT';"
