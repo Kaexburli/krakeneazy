@@ -79,48 +79,51 @@ module.exports = {
       ref: 'origin/develop',
       repo: 'git@github.com:Kaexburli/krakeneazy.git',
       path: '/home/websitedev/krakeneazy.com/staging/deploy',
-      'pre-setup':
-        "echo --- ROOT; \
-        pm2 flush staging-server; \
-        pm2 flush staging-client; \
-        pm2 delete staging-server; \
-        pm2 delete staging-client; \
-        cd krakeneazy.com/; \
-        rm -vf _log/staging/nginx/access.log; \
-        rm -vf _log/staging/nginx/error.log; \
-        touch _log/staging/nginx/access.log; \
-        touch _log/staging/nginx/error.log; \
-        rm -vf _log/staging/pm2/*; \
-        rm -vf _log/staging/pm2/*; \
-        cd staging/; \
-        rm -rf deploy; \
-        rm -rf backend; \
-        rm -rf frontend; \
-        rm -rf node_modules; \
-        rm -rf export; \
-        rm -rf _error_pages; \
-        rm !('.env'|'smtp.env.mjs'|'package.json'); \
-        mkdir deploy;",
-      'post-setup':
-        "echo --- ROOT; \
-        cd ../../; \
-        mv deploy/current/* ./; \
-        npm install; \
-        npm outdated; \
-        echo --- BACKEND; \
-        cd backend; \
-        npm install; \
-        npm outdated; \
-        echo --- FRONTEND; \
-        cd ../frontend; \
-        npm install; \
-        npm outdated; \
-        npm run build; \
-        echo --- MONGO; \
-        echo '`db.dropDatabase()`' | mongo krakeneazy_staging; \
-        echo --- PM2; \
-        cd ../; \
-        pm2 startOrRestart ecosystem.config.js --only 'staging-server,staging-client';"
+      'pre-setup': [
+        'echo --- ROOT',
+        // 'pm2 kill',
+        // 'pm2 flush staging-server',
+        // 'pm2 flush staging-client',
+        // 'pm2 delete staging-server',
+        // 'pm2 delete staging-client',
+        'cd krakeneazy.com/',
+        'rm -vf _log/staging/nginx/access.log',
+        'rm -vf _log/staging/nginx/error.log',
+        'touch _log/staging/nginx/access.log',
+        'touch _log/staging/nginx/error.log',
+        'rm -vf _log/staging/pm2/*',
+        'rm -vf _log/staging/pm2/*',
+        'cd staging/',
+        'rm -rf deploy',
+        'rm -rf backend',
+        'rm -rf frontend',
+        'rm -rf node_modules',
+        'rm -rf export',
+        'rm -rf _error_pages',
+        "rm !('.env')",
+        'mkdir deploy;'
+      ].join(' && '),
+      'post-setup': [
+        'echo --- ROOT',
+        'cd ../../',
+        'mv deploy/current/* ./',
+        'npm install',
+        'npm outdated',
+        'echo --- BACKEND',
+        'cd backend',
+        'npm install',
+        'npm outdated',
+        'echo --- FRONTEND',
+        'cd ../frontend',
+        'npm install',
+        'npm outdated',
+        'npm run build',
+        'echo --- MONGO',
+        // "echo 'db.dropDatabase()' | mongo krakeneazy_staging",
+        'echo --- PM2',
+        'cd ../',
+        "pm2 startOrRestart ecosystem.config.js --only 'staging-server,staging-client'"
+      ].join(' && ')
     },
     production: {
       user: 'websitedev',
@@ -129,42 +132,45 @@ module.exports = {
       ref: 'origin/main',
       repo: 'git@github.com:Kaexburli/krakeneazy.git',
       path: '/home/websitedev/krakeneazy.com/app/deploy',
-      'pre-setup':
-        "echo --- ROOT; \
-        cd krakeneazy.com/; \
-        rm -rf _error_pages; \
-        echo --- APP; \
-        cd app/; \
-        rm -rf deploy; \
-        rm -rf backend; \
-        rm -rf frontend; \
-        rm -rf node_modules; \
-        rm !('.env'|'smtp.env.mjs'); \
-        mkdir deploy;",
-      'post-setup':
-        "echo --- ROOT; \
-        cd ../../; \
-        mv deploy/current/* ./; \
-        npm install; \
-        npm outdated; \
-        mv _error_pages ../; \
-        rm !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'|'package.json'); \
-        echo --- BACKEND; \
-        cd backend; \
-        npm install; \
-        npm outdated; \
-        echo --- FRONTEND; \
-        cd ../frontend; \
-        npm install; \
-        npm outdated; \
-        npm run build; \
-        rm -rf src; \
-        echo --- PM2; \
-        cd ../; \
-        rm -rf deploy; \
-        pm2 flush SERVER; \
-        pm2 flush CLIENT; \
-        pm2 startOrRestart ecosystem.config.js --only 'SERVER,CLIENT';"
+      'pre-setup': [
+        'npm install',
+        'echo --- ROOT',
+        'cd krakeneazy.com/',
+        'rm -rf _error_pages',
+        'echo --- APP',
+        'cd app/',
+        'rm -rf deploy',
+        'rm -rf backend',
+        'rm -rf frontend',
+        'rm -rf node_modules',
+        'rm !(".env"|"smtp.env.mjs")',
+        'mkdir deploy'
+      ].join(' && '),
+      'post-setup': [
+        'echo --- ROOT',
+        'cd ../../',
+        'mv deploy/current/* ./',
+        'npm install',
+        'npm outdated',
+        'mv _error_pages ../',
+        "rm !('.env'|'smtp.env.mjs'|'ecosystem.config.js'|'backend'|'frontend'|'deploy'|'package.json')",
+        'echo --- BACKEND',
+        'cd backend',
+        'npm install',
+        'npm outdated',
+        'echo --- FRONTEND',
+        'cd ../frontend',
+        'npm install',
+        'npm outdated',
+        'npm run build',
+        'rm -rf src',
+        'echo --- PM2',
+        'cd ../',
+        'rm -rf deploy',
+        'pm2 flush SERVER',
+        'pm2 flush CLIENT',
+        "pm2 startOrRestart ecosystem.config.js --env production --only 'SERVER,CLIENT'"
+      ].join(' && ')
     }
   }
 }
