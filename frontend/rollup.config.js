@@ -83,10 +83,10 @@ export default {
 
     replace({
       preventAssignment: true,
-      __env: JSON.stringify({
-        ...config({ path: path.join(__dirname, '/../.env') }).parsed
-      }),
-      'process.env.NODE_ENV': process.env.NODE_ENV
+      'process.env.NODE_ENV': process.env.NODE_ENV,
+      __App: JSON.stringify({
+        env: { ...config({ path: path.join(__dirname, '/../.env') }).parsed }
+      })
     }),
 
     // In dev mode, call `npm run start` once

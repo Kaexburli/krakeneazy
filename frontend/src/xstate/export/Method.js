@@ -40,7 +40,7 @@ export const StatusExport = async (type, id) => {
     // Retourne le résultat
     return res.filter(
       // eslint-disable-next-line no-undef, dot-notation
-      (val) => val.report === type && val.descr === __env['SITE_NAME']
+      (val) => val.report === type && val.descr === __App['env'].SITE_NAME
     )
   } catch (error) {
     return { error: error }
@@ -69,8 +69,8 @@ export const AddExport = async (type, starttm) => {
     const ud = new UserData()
     const res = await ud.addExport({
       report: report,
-      // eslint-disable-next-line no-undef
-      description: __env.SITE_NAME,
+      // eslint-disable-next-line no-undef, dot-notation
+      description: __App['env'].SITE_NAME,
       starttm: starttm
     })
 

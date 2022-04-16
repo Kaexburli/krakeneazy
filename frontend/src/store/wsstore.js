@@ -28,7 +28,7 @@ export const WSTicker = derived(
         if (
           Object.prototype.hasOwnProperty.call(tick, 'status') &&
           // eslint-disable-next-line no-undef, dot-notation
-          __env['ENVIRONMENT'] === 'development'
+          __App['env'].ENVIRONMENT === 'development'
         ) {
           if (tick.status.status === 'error') {
             console.error(
@@ -91,7 +91,7 @@ export const WSTickerAlert = derived(
             if (
               Object.prototype.hasOwnProperty.call(tick, 'status') &&
               // eslint-disable-next-line no-undef, dot-notation
-              __env['ENVIRONMENT'] === 'development'
+              __App['env'].ENVIRONMENT === 'development'
             ) {
               if (tick.status.status === 'error') {
                 console.error(
@@ -146,7 +146,7 @@ export const WSBook = derived(
         if (
           Object.prototype.hasOwnProperty.call(tick, 'status') &&
           // eslint-disable-next-line no-undef, dot-notation
-          __env['ENVIRONMENT'] === 'development'
+          __App['env'].ENVIRONMENT === 'development'
         ) {
           if (tick.status.status === 'error') {
             console.error(
@@ -190,7 +190,7 @@ export const WSOhlc = derived(
         if (
           Object.prototype.hasOwnProperty.call(tick, 'status') &&
           // eslint-disable-next-line no-undef, dot-notation
-          __env['ENVIRONMENT'] === 'development'
+          __App['env'].ENVIRONMENT === 'development'
         ) {
           if (tick.status.status === 'error') {
             console.error(
@@ -234,7 +234,7 @@ export const WSSpread = derived(
         if (
           Object.prototype.hasOwnProperty.call(tick, 'status') &&
           // eslint-disable-next-line no-undef, dot-notation
-          __env['ENVIRONMENT'] === 'development'
+          __App['env'].ENVIRONMENT === 'development'
         ) {
           if (tick.status.status === 'error') {
             console.error(
@@ -278,7 +278,7 @@ export const WSTrade = derived(
         if (
           Object.prototype.hasOwnProperty.call(tick, 'status') &&
           // eslint-disable-next-line no-undef, dot-notation
-          __env['ENVIRONMENT'] === 'development'
+          __App['env'].ENVIRONMENT === 'development'
         ) {
           if (tick.status.status === 'error') {
             console.error(
@@ -322,7 +322,7 @@ export const WSOpenOrders = derived(
         if (
           Object.prototype.hasOwnProperty.call(tick, 'status') &&
           // eslint-disable-next-line no-undef, dot-notation
-          __env['ENVIRONMENT'] === 'development'
+          __App['env'].ENVIRONMENT === 'development'
         ) {
           if (tick.status.status === 'error') {
             console.error(
@@ -369,7 +369,7 @@ export const WSOwnTrades = derived(
         if (
           Object.prototype.hasOwnProperty.call(tick, 'status') &&
           // eslint-disable-next-line no-undef, dot-notation
-          __env['ENVIRONMENT'] === 'development'
+          __App['env'].ENVIRONMENT === 'development'
         ) {
           if (tick.status.status === 'error') {
             console.error(
