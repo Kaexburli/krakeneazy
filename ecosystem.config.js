@@ -81,6 +81,8 @@ module.exports = {
       path: '/home/websitedev/krakeneazy.com/preprod/deploy',
       'pre-setup':
         "echo --- ROOT; \
+        pm2 stop PREPROD_SERVER; \
+        pm2 stop PREPROD_CLIENT; \
         cd krakeneazy.com/; \
         rm -vf _log/preprod/nginx/access.log; \
         rm -vf _log/preprod/nginx/error.log; \
@@ -113,6 +115,7 @@ module.exports = {
         npm run build; \
         echo --- PM2; \
         cd ../; \
+        echo `db.dropDatabase()` | mongo krakeneazy_preprod; \
         pm2 flush PREPROD_SERVER; \
         pm2 flush PREPROD_CLIENT; \
         pm2 delete PREPROD_SERVER; \
