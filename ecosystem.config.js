@@ -82,12 +82,15 @@ module.exports = {
       path: '/home/websitedev/krakeneazy.com/preprod/deploy',
       'pre-setup':
         "echo --- ROOT; \
-        cd krakeneazy.com/preprod/; \
-        rm -rf deploy; \
-        rm -rf backend; \
-        rm -rf frontend; \
-        rm -rf node_modules; \
-        rm -rf _error_pages; \
+        cd krakeneazy.com/; \
+        rm -vf _log/preprod/nginx/access.log; \
+        rm -vf _log/preprod/nginx/error.log; \
+        cd preprod/; \
+        rm -vrf deploy; \
+        rm -vrf backend; \
+        rm -vrf frontend; \
+        rm -vrf node_modules; \
+        rm -vrf _error_pages; \
         rm -v !('.env'|'smtp.env.mjs'|'package.json'); \
         mkdir deploy;",
       'post-setup':
@@ -107,6 +110,8 @@ module.exports = {
         npm run build; \
         echo --- PM2; \
         cd ../; \
+        pm2 flush PREPROD_SERVER; \
+        pm2 flush PREPROD_CLIENT; \
         pm2 delete PREPROD_SERVER; \
         pm2 delete PREPROD_CLIENT; \
         pm2 startOrRestart ecosystem.config.js --only 'PREPROD_SERVER,PREPROD_CLIENT';"
@@ -121,13 +126,13 @@ module.exports = {
       'pre-setup':
         "echo --- ROOT; \
         cd krakeneazy.com/; \
-        rm -rf _error_pages; \
+        rm -vrf _error_pages; \
         echo --- APP; \
         cd app/; \
-        rm -rf deploy; \
-        rm -rf backend; \
-        rm -rf frontend; \
-        rm -rf node_modules; \
+        rm -vrf deploy; \
+        rm -vrf backend; \
+        rm -vrf frontend; \
+        rm -vrf node_modules; \
         rm -v !('.env'|'smtp.env.mjs'); \
         mkdir deploy;",
       'post-setup':
@@ -147,11 +152,12 @@ module.exports = {
         npm install; \
         npm outdated; \
         npm run build; \
-        rm -rf src; \
+        rm -vrf src; \
         echo --- PM2; \
         cd ../; \
-        rm -rf deploy; \
-        pm2 flush; \
+        rm -vrf deploy; \
+        pm2 flush SERVER; \
+        pm2 flush CLIENT; \
         pm2 startOrRestart ecosystem.config.js --only 'SERVER,CLIENT';"
     }
   }
