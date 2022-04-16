@@ -84,6 +84,8 @@ module.exports = {
         cd krakeneazy.com/; \
         rm -vf _log/preprod/nginx/access.log; \
         rm -vf _log/preprod/nginx/error.log; \
+        touch _log/preprod/nginx/access.log; \
+        touch _log/preprod/nginx/error.log; \
         rm -vf _log/preprod/pm2/*; \
         rm -vf _log/preprod/pm2/*; \
         cd preprod/; \
