@@ -22,37 +22,42 @@ export const WSTicker = derived(
     const tickerUrl = $assetpair
       ? `${server}/api/ws/ticker/${$assetpair.wsname}`
       : false
-    const tickerWebsocket = websocketStore(tickerUrl)
-    const stop = tickerWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (
-          Object.prototype.hasOwnProperty.call(tick, 'status') &&
-          // eslint-disable-next-line no-undef, dot-notation
-          __App['env'].ENVIRONMENT === 'development'
-        ) {
-          if (tick.status.status === 'error') {
-            console.error(
-              `[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`
-            )
-          } else {
-            console.warn(
-              `[${tick.status.channelID}] ${
-                tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
-              } to channel [${tick.status.channelName.toUpperCase()}|${
-                tick.status.pair
-              }] ${tick.status.status}!`
-            )
-          }
-        } else if (
-          Object.prototype.hasOwnProperty.call(tick, 'data') &&
-          tick.data
-        ) {
-          if (tick.service === 'Ticker') set(tick.data)
-        }
-      }
-    })
 
-    return stop
+    if (tickerUrl) {
+      const tickerWebsocket = websocketStore(tickerUrl)
+      const ticker = tickerWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (
+            Object.prototype.hasOwnProperty.call(tick, 'status') &&
+            // eslint-disable-next-line no-undef, dot-notation
+            __App['env'].ENVIRONMENT === 'development'
+          ) {
+            if (tick.status.status === 'error') {
+              console.error(
+                `[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`
+              )
+            } else {
+              console.warn(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
+            }
+          } else if (
+            Object.prototype.hasOwnProperty.call(tick, 'data') &&
+            tick.data
+          ) {
+            if (tick.service === 'Ticker') set(tick.data)
+          }
+        }
+      })
+
+      return ticker
+    }
+
+    return false
   },
   false
 )
@@ -76,17 +81,21 @@ export const WSTickerAlert = derived(
     }
     // On boucle sur la liste et on créer une connexion websocket pour chaque pair
     tickerPair.map((tickpair) => {
-      tickerAlertUrls[tickpair] = `${server}/api/ws/ticker/${tickpair}`
-      wsTickerAlert[tickpair] = websocketStore(tickerAlertUrls[tickpair])
+      tickerAlertUrls[tickpair] = tickpair
+        ? `${server}/api/ws/ticker/${tickpair}`
+        : false
+      if (tickerAlertUrls[tickpair]) {
+        wsTickerAlert[tickpair] = websocketStore(tickerAlertUrls[tickpair])
+      }
       return true
     })
     // // On boucle chaque connexion websocket pour y souscrire
     const obj = {}
-    const objStop = {}
+    const tickerAlert = {}
     for (const tickpair in wsTickerAlert) {
       if (Object.hasOwnProperty.call(wsTickerAlert, tickpair)) {
         const socket = wsTickerAlert[tickpair]
-        objStop[tickpair] = socket.subscribe((tick) => {
+        tickerAlert[tickpair] = socket.subscribe((tick) => {
           if (tick) {
             if (
               Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -126,7 +135,7 @@ export const WSTickerAlert = derived(
       }
     }
 
-    return objStop
+    return tickerAlert
   },
   false
 )
@@ -137,40 +146,46 @@ export const WSTickerAlert = derived(
 export const WSBook = derived(
   [assetpair, depth],
   ([$assetpair, $depth], set) => {
-    const bookUrl = $assetpair
-      ? `${server}/api/ws/book/${$assetpair.wsname}/${$depth}`
-      : false
-    const bookWebsocket = websocketStore(bookUrl)
-    const stop = bookWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (
-          Object.prototype.hasOwnProperty.call(tick, 'status') &&
-          // eslint-disable-next-line no-undef, dot-notation
-          __App['env'].ENVIRONMENT === 'development'
-        ) {
-          if (tick.status.status === 'error') {
-            console.error(
-              `[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`
-            )
-          } else {
-            console.warn(
-              `[${tick.status.channelID}] ${
-                tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
-              } to channel [${tick.status.channelName.toUpperCase()}|${
-                tick.status.pair
-              }] ${tick.status.status}!`
-            )
-          }
-        } else if (
-          Object.prototype.hasOwnProperty.call(tick, 'data') &&
-          tick.data
-        ) {
-          if (tick.service === 'OrderBook') set(tick.data)
-        }
-      }
-    })
+    const bookUrl =
+      $assetpair && $depth
+        ? `${server}/api/ws/book/${$assetpair.wsname}/${$depth}`
+        : false
 
-    return stop
+    if (bookUrl) {
+      const bookWebsocket = websocketStore(bookUrl)
+      const book = bookWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (
+            Object.prototype.hasOwnProperty.call(tick, 'status') &&
+            // eslint-disable-next-line no-undef, dot-notation
+            __App['env'].ENVIRONMENT === 'development'
+          ) {
+            if (tick.status.status === 'error') {
+              console.error(
+                `[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`
+              )
+            } else {
+              console.warn(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
+            }
+          } else if (
+            Object.prototype.hasOwnProperty.call(tick, 'data') &&
+            tick.data
+          ) {
+            if (tick.service === 'OrderBook') set(tick.data)
+          }
+        }
+      })
+
+      return book
+    }
+
+    return false
   },
   false
 )
@@ -181,40 +196,46 @@ export const WSBook = derived(
 export const WSOhlc = derived(
   [assetpair, interval],
   ([$assetpair, $interval], set) => {
-    const ohlcUrl = $assetpair
-      ? `${server}/api/ws/ohlc/${$assetpair.wsname}/${$interval}`
-      : false
-    const ohlcWebsocket = websocketStore(ohlcUrl)
-    const stop = ohlcWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (
-          Object.prototype.hasOwnProperty.call(tick, 'status') &&
-          // eslint-disable-next-line no-undef, dot-notation
-          __App['env'].ENVIRONMENT === 'development'
-        ) {
-          if (tick.status.status === 'error') {
-            console.error(
-              `[${tick.status.pair}] Websocket Ohlc ${tick.status.errorMessage}`
-            )
-          } else {
-            console.warn(
-              `[${tick.status.channelID}] ${
-                tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
-              } to channel [${tick.status.channelName.toUpperCase()}|${
-                tick.status.pair
-              }] ${tick.status.status}!`
-            )
-          }
-        } else if (
-          Object.prototype.hasOwnProperty.call(tick, 'data') &&
-          tick.data
-        ) {
-          if (tick.service === 'Ohlc') set(tick.data)
-        }
-      }
-    })
+    const ohlcUrl =
+      $assetpair && $interval
+        ? `${server}/api/ws/ohlc/${$assetpair.wsname}/${$interval}`
+        : false
 
-    return stop
+    if (ohlcUrl) {
+      const ohlcWebsocket = websocketStore(ohlcUrl)
+      const ohlc = ohlcWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (
+            Object.prototype.hasOwnProperty.call(tick, 'status') &&
+            // eslint-disable-next-line no-undef, dot-notation
+            __App['env'].ENVIRONMENT === 'development'
+          ) {
+            if (tick.status.status === 'error') {
+              console.error(
+                `[${tick.status.pair}] Websocket Ohlc ${tick.status.errorMessage}`
+              )
+            } else {
+              console.warn(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
+            }
+          } else if (
+            Object.prototype.hasOwnProperty.call(tick, 'data') &&
+            tick.data
+          ) {
+            if (tick.service === 'Ohlc') set(tick.data)
+          }
+        }
+      })
+
+      return ohlc
+    }
+
+    return false
   },
   false
 )
@@ -228,37 +249,42 @@ export const WSSpread = derived(
     const spreadUrl = $assetpair
       ? `${server}/api/ws/spread/${$assetpair.wsname}`
       : false
-    const spreadWebsocket = websocketStore(spreadUrl)
-    const stop = spreadWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (
-          Object.prototype.hasOwnProperty.call(tick, 'status') &&
-          // eslint-disable-next-line no-undef, dot-notation
-          __App['env'].ENVIRONMENT === 'development'
-        ) {
-          if (tick.status.status === 'error') {
-            console.error(
-              `[${tick.status.pair}] Websocket Spread ${tick.status.errorMessage}`
-            )
-          } else {
-            console.warn(
-              `[${tick.status.channelID}] ${
-                tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
-              } to channel [${tick.status.channelName.toUpperCase()}|${
-                tick.status.pair
-              }] ${tick.status.status}!`
-            )
-          }
-        } else if (
-          Object.prototype.hasOwnProperty.call(tick, 'data') &&
-          tick.data
-        ) {
-          if (tick.service === 'Spread') set(tick.data)
-        }
-      }
-    })
 
-    return stop
+    if (spreadUrl) {
+      const spreadWebsocket = websocketStore(spreadUrl)
+      const spread = spreadWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (
+            Object.prototype.hasOwnProperty.call(tick, 'status') &&
+            // eslint-disable-next-line no-undef, dot-notation
+            __App['env'].ENVIRONMENT === 'development'
+          ) {
+            if (tick.status.status === 'error') {
+              console.error(
+                `[${tick.status.pair}] Websocket Spread ${tick.status.errorMessage}`
+              )
+            } else {
+              console.warn(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
+            }
+          } else if (
+            Object.prototype.hasOwnProperty.call(tick, 'data') &&
+            tick.data
+          ) {
+            if (tick.service === 'Spread') set(tick.data)
+          }
+        }
+      })
+
+      return spread
+    }
+
+    return false
   },
   false
 )
@@ -272,37 +298,42 @@ export const WSTrade = derived(
     const tradeUrl = $assetpair
       ? `${server}/api/ws/trade/${$assetpair.wsname}`
       : false
-    const tradeWebsocket = websocketStore(tradeUrl)
-    const stop = tradeWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (
-          Object.prototype.hasOwnProperty.call(tick, 'status') &&
-          // eslint-disable-next-line no-undef, dot-notation
-          __App['env'].ENVIRONMENT === 'development'
-        ) {
-          if (tick.status.status === 'error') {
-            console.error(
-              `[${tick.status.pair}] Websocket Trade ${tick.status.errorMessage}`
-            )
-          } else {
-            console.warn(
-              `[${tick.status.channelID}] ${
-                tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
-              } to channel [${tick.status.channelName.toUpperCase()}|${
-                tick.status.pair
-              }] ${tick.status.status}!`
-            )
-          }
-        } else if (
-          Object.prototype.hasOwnProperty.call(tick, 'data') &&
-          tick.data
-        ) {
-          if (tick.service === 'Trade') set(tick.data)
-        }
-      }
-    })
 
-    return stop
+    if (tradeUrl) {
+      const tradeWebsocket = websocketStore(tradeUrl)
+      const trade = tradeWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (
+            Object.prototype.hasOwnProperty.call(tick, 'status') &&
+            // eslint-disable-next-line no-undef, dot-notation
+            __App['env'].ENVIRONMENT === 'development'
+          ) {
+            if (tick.status.status === 'error') {
+              console.error(
+                `[${tick.status.pair}] Websocket Trade ${tick.status.errorMessage}`
+              )
+            } else {
+              console.warn(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
+            }
+          } else if (
+            Object.prototype.hasOwnProperty.call(tick, 'data') &&
+            tick.data
+          ) {
+            if (tick.service === 'Trade') set(tick.data)
+          }
+        }
+      })
+
+      return trade
+    }
+
+    return false
   },
   false
 )
@@ -316,40 +347,45 @@ export const WSOpenOrders = derived(
     const openordersUrl = $User.id
       ? `${server}/api/ws/openorders/${$User.id}`
       : false
-    const openordersWebsocket = websocketStore(openordersUrl)
-    const stop = openordersWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (
-          Object.prototype.hasOwnProperty.call(tick, 'status') &&
-          // eslint-disable-next-line no-undef, dot-notation
-          __App['env'].ENVIRONMENT === 'development'
-        ) {
-          if (tick.status.status === 'error') {
-            console.error(
-              `[${tick.status.pair}] Websocket OpenOrders ${tick.status.errorMessage}`
-            )
-          } else {
-            console.warn(
-              `${
-                tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
-              } to channel [${tick.status.channelName.toUpperCase()}|${
-                tick.status.subscription.maxratecount
-              }] ${tick.status.status}!`
-            )
-            console.error(
-              'maxratecount a mettre dans la base de données !!!!!!!!!!!!!!'
-            )
-          }
-        } else if (
-          Object.prototype.hasOwnProperty.call(tick, 'data') &&
-          tick.data
-        ) {
-          if (tick.service === 'OpenOrders') set(tick.data)
-        }
-      }
-    })
 
-    return stop
+    if (openordersUrl) {
+      const openordersWebsocket = websocketStore(openordersUrl)
+      const openorders = openordersWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (
+            Object.prototype.hasOwnProperty.call(tick, 'status') &&
+            // eslint-disable-next-line no-undef, dot-notation
+            __App['env'].ENVIRONMENT === 'development'
+          ) {
+            if (tick.status.status === 'error') {
+              console.error(
+                `[${tick.status.pair}] Websocket OpenOrders ${tick.status.errorMessage}`
+              )
+            } else {
+              console.warn(
+                `${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.subscription.maxratecount
+                }] ${tick.status.status}!`
+              )
+              console.error(
+                'maxratecount a mettre dans la base de données !!!!!!!!!!!!!!'
+              )
+            }
+          } else if (
+            Object.prototype.hasOwnProperty.call(tick, 'data') &&
+            tick.data
+          ) {
+            if (tick.service === 'OpenOrders') set(tick.data)
+          }
+        }
+      })
+
+      return openorders
+    }
+
+    return false
   },
   false
 )
@@ -363,37 +399,42 @@ export const WSOwnTrades = derived(
     const owntradesUrl = $User.id
       ? `${server}/api/ws/owntrades/${$User.id}`
       : false
-    const owntradesWebsocket = websocketStore(owntradesUrl)
-    const stop = owntradesWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (
-          Object.prototype.hasOwnProperty.call(tick, 'status') &&
-          // eslint-disable-next-line no-undef, dot-notation
-          __App['env'].ENVIRONMENT === 'development'
-        ) {
-          if (tick.status.status === 'error') {
-            console.error(
-              `[${tick.status.pair}] Websocket OwnTrades ${tick.status.errorMessage}`
-            )
-          } else {
-            console.warn(
-              `${
-                tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
-              } to channel [${tick.status.channelName.toUpperCase()}] ${
-                tick.status.status
-              }!`
-            )
-          }
-        } else if (
-          Object.prototype.hasOwnProperty.call(tick, 'data') &&
-          tick.data
-        ) {
-          if (tick.service === 'OwnTrades') set(tick.data)
-        }
-      }
-    })
 
-    return stop
+    if (owntradesUrl) {
+      const owntradesWebsocket = websocketStore(owntradesUrl)
+      const owntrades = owntradesWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (
+            Object.prototype.hasOwnProperty.call(tick, 'status') &&
+            // eslint-disable-next-line no-undef, dot-notation
+            __App['env'].ENVIRONMENT === 'development'
+          ) {
+            if (tick.status.status === 'error') {
+              console.error(
+                `[${tick.status.pair}] Websocket OwnTrades ${tick.status.errorMessage}`
+              )
+            } else {
+              console.warn(
+                `${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}] ${
+                  tick.status.status
+                }!`
+              )
+            }
+          } else if (
+            Object.prototype.hasOwnProperty.call(tick, 'data') &&
+            tick.data
+          ) {
+            if (tick.service === 'OwnTrades') set(tick.data)
+          }
+        }
+      })
+
+      return owntrades
+    }
+
+    return false
   },
   false
 )
@@ -408,16 +449,21 @@ export const WSTradeBalance = derived(
       $devise && $User.id
         ? `${server}/api/ws/tradebalance/${$devise}/${$User.id}`
         : false
-    const tradebalanceWebsocket = websocketStore(tradebalanceUrl)
-    const stop = tradebalanceWebsocket.subscribe((tick) => {
-      if (tick) {
-        if (Object.prototype.hasOwnProperty.call(tick, 'data') && tick.data) {
-          if (tick.service === 'WsTradeBalance') set(tick.data)
-        }
-      }
-    })
 
-    return stop
+    if (tradebalanceUrl) {
+      const tradebalanceWebsocket = websocketStore(tradebalanceUrl)
+      const tradebalance = tradebalanceWebsocket.subscribe((tick) => {
+        if (tick) {
+          if (Object.prototype.hasOwnProperty.call(tick, 'data') && tick.data) {
+            if (tick.service === 'WsTradeBalance') set(tick.data)
+          }
+        }
+      })
+
+      return tradebalance
+    }
+
+    return false
   },
   false
 )
