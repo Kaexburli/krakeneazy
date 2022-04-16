@@ -39,8 +39,8 @@ export const StatusExport = async (type, id) => {
 
     // Retourne le résultat
     return res.filter(
-      // eslint-disable-next-line no-undef
-      (val) => val.report === type && val.descr === __env.SITE_NAME
+      // eslint-disable-next-line no-undef, dot-notation
+      (val) => val.report === type && val.descr === __env['SITE_NAME']
     )
   } catch (error) {
     return { error: error }
