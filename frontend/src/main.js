@@ -1,7 +1,7 @@
 // ---------------------------------------------------------
 //  Imports
 // ---------------------------------------------------------
-import App from './App.svelte';
+import App from './App.svelte'
 
 // ---------------------------------------------------------
 //  Props
@@ -9,15 +9,15 @@ import App from './App.svelte';
 
 const app = new App({
   target: document.body
-});
+})
 
 // ---------------------------------------------------------
 //  Methods Declarations
 // ---------------------------------------------------------
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js');
-  });
+    navigator.serviceWorker.register('/service-worker.js')
+  })
 }
 
-export default app;
+export default app
