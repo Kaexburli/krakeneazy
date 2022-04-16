@@ -7,7 +7,7 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear --host",
-    "preprod": "sirv public --no-clear --host --port 4000",
+    "staging": "sirv public --no-clear --host --port 4000",
     "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
     "smui-theme-light": "smui-theme compile public/static/svelte-material-ui/smui.css -i src/theme",
     "smui-theme-dark": "smui-theme compile public/static/svelte-material-ui/smui-dark.css -i src/theme/dark"

@@ -37,29 +37,29 @@ module.exports = {
       }
     },
     {
-      name: 'PREPROD_SERVER',
+      name: 'staging-server',
       cwd: path.join(__dirname, 'backend'),
       script: 'server.js',
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: true,
       max_memory_restart: '1G',
-      log: '/home/websitedev/krakeneazy.com/_log/preprod/pm2/backend.log',
+      log: '/home/websitedev/krakeneazy.com/_log/staging/pm2/backend.log',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       disable_logs: false,
       merge_logs: false,
       env: require('dotenv').config({ path: path.resolve('.env') }).parsed
     },
     {
-      name: 'PREPROD_CLIENT',
+      name: 'staging-client',
       cwd: path.join(__dirname, 'frontend'),
       script: 'npm',
-      args: 'run preprod',
+      args: 'run staging',
       interpreter: 'node',
       interpreter_args: '--es-module-specifier-resolution=node',
       watch: true,
       max_memory_restart: '1G',
-      log: '/home/websitedev/krakeneazy.com/_log/preprod/pm2/frontend.log',
+      log: '/home/websitedev/krakeneazy.com/_log/staging/pm2/frontend.log',
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       disable_logs: false,
       merge_logs: false,
@@ -72,33 +72,34 @@ module.exports = {
     }
   ],
   deploy: {
-    preprod: {
+    staging: {
       user: 'websitedev',
       host: ['212.227.212.129'],
       ssh_options: 'StrictHostKeyChecking=no',
       ref: 'origin/develop',
       repo: 'git@github.com:Kaexburli/krakeneazy.git',
-      path: '/home/websitedev/krakeneazy.com/preprod/deploy',
+      path: '/home/websitedev/krakeneazy.com/staging/deploy',
       'pre-setup':
         "echo --- ROOT; \
-        pm2 flush PREPROD_SERVER; \
-        pm2 flush PREPROD_CLIENT; \
-        pm2 delete PREPROD_SERVER; \
-        pm2 delete PREPROD_CLIENT; \
+        pm2 flush staging-server; \
+        pm2 flush staging-client; \
+        pm2 delete staging-server; \
+        pm2 delete staging-client; \
         cd krakeneazy.com/; \
-        rm -vf _log/preprod/nginx/access.log; \
-        rm -vf _log/preprod/nginx/error.log; \
-        touch _log/preprod/nginx/access.log; \
-        touch _log/preprod/nginx/error.log; \
-        rm -vf _log/preprod/pm2/*; \
-        rm -vf _log/preprod/pm2/*; \
-        cd preprod/; \
+        rm -vf _log/staging/nginx/access.log; \
+        rm -vf _log/staging/nginx/error.log; \
+        touch _log/staging/nginx/access.log; \
+        touch _log/staging/nginx/error.log; \
+        rm -vf _log/staging/pm2/*; \
+        rm -vf _log/staging/pm2/*; \
+        cd staging/; \
         rm -rf deploy; \
         rm -rf backend; \
         rm -rf frontend; \
         rm -rf node_modules; \
+        rm -rf export; \
         rm -rf _error_pages; \
-        rm !('.env'|'smtp.env.mjs'|'package.json'|'export'); \
+        rm !('.env'|'smtp.env.mjs'|'package.json'); \
         mkdir deploy;",
       'post-setup':
         "echo --- ROOT; \
@@ -115,10 +116,11 @@ module.exports = {
         npm install; \
         npm outdated; \
         npm run build; \
+        echo --- MONGO; \
+        echo '`db.dropDatabase()`' | mongo krakeneazy_staging; \
         echo --- PM2; \
         cd ../; \
-        echo `db.dropDatabase()` | mongo krakeneazy_preprod; \
-        pm2 startOrRestart ecosystem.config.js --only 'PREPROD_SERVER,PREPROD_CLIENT';"
+        pm2 startOrRestart ecosystem.config.js --only 'staging-server,staging-client';"
     },
     production: {
       user: 'websitedev',
