@@ -36,3 +36,5 @@ frontend/yarn-error.log
 /conf/
 /logs/
 /temp/
+.editorconfig
+.eslintrc.js
