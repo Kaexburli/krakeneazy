@@ -46,7 +46,8 @@ const callApiFetch = async (params) => {
     let options = {
       headers: {
         'Content-Type': 'application/json',
-        'x-webapp-header': 'krakeneazy'
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
       }
     }
 
@@ -54,7 +55,8 @@ const callApiFetch = async (params) => {
       options = {
         headers: {
           'Content-Type': 'application/json',
-          'x-webapp-header': 'krakeneazy',
+          // eslint-disable-next-line no-undef, dot-notation
+          'x-webapp-header': __App['env'].SITE_NAME,
           Authorization: `Bearer ${token}`
         }
       }

@@ -15,7 +15,7 @@ const api = new Kraken()
 const getTrades = async (req, reply) => {
   if (
     !req.headers['x-webapp-header'] ||
-    req.headers['x-webapp-header'] !== 'krakeneazy'
+    req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
     reply.redirect('/')
   }
