@@ -1,46 +1,60 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import { Kraken } from 'node-kraken-api'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 // Instanciation du module kraken API
 const api = new Kraken()
-const debug = false;
+const debug = false
 
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
 const GetSpread = async (connection, req) => {
   try {
-    const { base, quote } = req.params;
-    const pair = base + "/" + quote;
+    const { base, quote } = req.params
+    const pair = base + '/' + quote
 
-    if (debug) console.log('########################################### GetSpread')
+    if (debug) console.log('GetSpread')
 
-    const spread = await api.ws.spread()
+    const spread = await api.ws
+      .spread()
       .on('update', (update, pair) => {
         if (debug) console.log('[UPDATE SPREAD]: ', pair, update)
-        connection.socket.send(JSON.stringify({ service: 'Spread', data: update }))
+        connection.socket.send(
+          JSON.stringify({ service: 'Spread', data: update })
+        )
       })
       .on('status', (status) => {
         if (debug) console.log('[STATUS SPREAD]: ', status)
-        connection.socket.send(JSON.stringify({ service: 'Spread', data: false, status }))
+        connection.socket.send(
+          JSON.stringify({ service: 'Spread', data: false, status })
+        )
       })
       .on('error', (error, pair) => {
         if (debug) console.log('[ERROR SPREAD]: ', error, pair)
-        connection.socket.send(JSON.stringify({ service: 'Spread', data: false, error, pair }))
+        connection.socket.send(
+          JSON.stringify({ service: 'Spread', data: false, error, pair })
+        )
       })
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      if (debug) console.log('[###########################################  CLOSE SPREAD]: ', message)
+      if (debug) console.log('[CLOSE SPREAD]: ', message)
       try {
         await spread.unsubscribe(pair)
       } catch (error) {
-        console.log('[ERROR:SPREAD:ONCLOSE]', error);
-        return error;
+        console.log('[ERROR:SPREAD:ONCLOSE]', error)
+        return error
       }
     })
   } catch (error) {
-    console.log('[CATCH ERROR SPREAD]: ', error);
-    return error;
+    console.log('[CATCH ERROR SPREAD]: ', error)
+    return error
   }
 }
 
-export {
-  GetSpread
-};
+export { GetSpread }

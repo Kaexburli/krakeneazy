@@ -1,5 +1,11 @@
-import mongoose from 'mongoose';
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
+import mongoose from 'mongoose'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 const userKrakenSchema = mongoose.Schema(
   {
     apiKeyPrivate: {
@@ -22,7 +28,10 @@ const userKrakenSchema = mongoose.Schema(
   {
     timestamps: true
   }
-);
+)
 
-const UserKraken = mongoose.model('user_kraken', userKrakenSchema);
-export default UserKraken;
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+const UserKraken = mongoose.model('user_kraken', userKrakenSchema)
+export default UserKraken

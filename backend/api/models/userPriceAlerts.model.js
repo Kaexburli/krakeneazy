@@ -1,5 +1,11 @@
-import mongoose from 'mongoose';
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
+import mongoose from 'mongoose'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 const userPriceAlertsSchema = mongoose.Schema(
   {
     alerts: {
@@ -14,7 +20,13 @@ const userPriceAlertsSchema = mongoose.Schema(
   {
     timestamps: true
   }
-);
+)
 
-const UserPriceAlerts = mongoose.model('user_price_alerts', userPriceAlertsSchema);
-export default UserPriceAlerts;
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+const UserPriceAlerts = mongoose.model(
+  'user_price_alerts',
+  userPriceAlertsSchema
+)
+export default UserPriceAlerts

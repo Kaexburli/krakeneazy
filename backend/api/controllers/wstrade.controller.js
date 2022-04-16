@@ -1,46 +1,60 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import { Kraken } from 'node-kraken-api'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 // Instanciation du module kraken API
 const api = new Kraken()
-const debug = false;
+const debug = false
 
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
 const GetTrade = async (connection, req) => {
   try {
-    const { base, quote } = req.params;
-    const pair = base + "/" + quote;
+    const { base, quote } = req.params
+    const pair = base + '/' + quote
 
-    if (debug) console.log('########################################### GetTrade')
+    if (debug) console.log('GetTrade')
 
-    const trade = await api.ws.trade()
+    const trade = await api.ws
+      .trade()
       .on('update', (update, pair) => {
         if (debug) console.log('[UPDATE TRADE]: ', pair, update)
-        connection.socket.send(JSON.stringify({ service: 'Trade', data: update }))
+        connection.socket.send(
+          JSON.stringify({ service: 'Trade', data: update })
+        )
       })
       .on('status', (status) => {
         if (debug) console.log('[STATUS TRADE]: ', status)
-        connection.socket.send(JSON.stringify({ service: 'Trade', data: false, status }))
+        connection.socket.send(
+          JSON.stringify({ service: 'Trade', data: false, status })
+        )
       })
       .on('error', (error, pair) => {
         if (debug) console.log('[ERROR TRADE]: ', error, pair)
-        connection.socket.send(JSON.stringify({ service: 'Trade', data: false, error, pair }))
+        connection.socket.send(
+          JSON.stringify({ service: 'Trade', data: false, error, pair })
+        )
       })
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      if (debug) console.log('[###########################################  CLOSE TRADE]: ', message)
+      if (debug) console.log('[CLOSE TRADE]: ', message)
       try {
         await trade.unsubscribe(pair)
       } catch (error) {
-        console.log('[ERROR:TRADE:ONCLOSE]', error);
-        return error;
+        console.log('[ERROR:TRADE:ONCLOSE]', error)
+        return error
       }
     })
   } catch (error) {
-    console.log('[CATCH ERROR TRADE]: ', error);
-    return error;
+    console.log('[CATCH ERROR TRADE]: ', error)
+    return error
   }
 }
 
-export {
-  GetTrade
-};
+export { GetTrade }

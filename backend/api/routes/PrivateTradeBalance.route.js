@@ -1,20 +1,27 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import {
   asyncVerifyJWTCtrl,
   websocketVerifyJWTCtrl
 } from '../controllers/private/users.controller.js'
-
 import {
   getTradeBalance,
   getWsTradeBalance
 } from '../controllers/private/userdatas.controller.js'
 
-export default function PrivateTradeBalanceRoute(fastify, options, done) {
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+export default function PrivateTradeBalanceRoute (fastify, _options, done) {
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
     .decorate('websocketVerifyJWT', websocketVerifyJWTCtrl)
     .after(() => {
-
       // Get Api TradeBalance - private
       fastify.route({
         method: ['GET', 'HEAD'],
@@ -22,7 +29,7 @@ export default function PrivateTradeBalanceRoute(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: getTradeBalance
-      });
+      })
 
       // Get Api TradeBalance - Websocket
       fastify.route({
@@ -33,8 +40,7 @@ export default function PrivateTradeBalanceRoute(fastify, options, done) {
         preHandler: fastify.auth([fastify.websocketVerifyJWT]),
         handler: getWsTradeBalance
       })
-
-    });
+    })
 
   done()
 }

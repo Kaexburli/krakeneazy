@@ -1,10 +1,16 @@
-import mongoose from 'mongoose';
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
+import mongoose from 'mongoose'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 const userSettingsSchema = mongoose.Schema(
   {
     sound: {
       type: String,
-      default: "up",
+      default: 'up'
     },
     exports: {
       type: Object,
@@ -20,7 +26,7 @@ const userSettingsSchema = mongoose.Schema(
     },
     devise: {
       type: String,
-      default: "ZUSD"
+      default: 'ZUSD'
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -30,7 +36,10 @@ const userSettingsSchema = mongoose.Schema(
   {
     timestamps: true
   }
-);
+)
 
-const UserSettings = mongoose.model('user_settings', userSettingsSchema);
-export default UserSettings;
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+const UserSettings = mongoose.model('user_settings', userSettingsSchema)
+export default UserSettings

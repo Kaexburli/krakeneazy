@@ -1,74 +1,72 @@
-import User from '../../models/user.model.js';
-import UserSettings from '../../models/userSettings.model.js';
-import UserKraken from '../../models/userKraken.model.js';
-import UserPriceAlerts from '../../models/userPriceAlerts.model.js';
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
+import User from '../../models/user.model.js'
+import UserSettings from '../../models/userSettings.model.js'
+import UserKraken from '../../models/userKraken.model.js'
+import UserPriceAlerts from '../../models/userPriceAlerts.model.js'
 import {
   sendRegisterEmail,
   sendForgotPasswordEmail,
   sendNewPasswordEmail
 } from '../../utils/Mailer.js'
-import {
-  checkApiKeyPermissions
-} from './userdatas.controller.js'
+import { checkApiKeyPermissions } from './userdatas.controller.js'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
 export const websocketVerifyJWTCtrl = async (req, reply) => {
-  const {
-    id
-  } = req.params || false;
+  const { id } = req.params || false
 
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(id, req)
 
-    if (!user)
+    if (!user) {
       return reply.code(401).send({
         ok: false,
         statusCode: 401,
-        message: "authFail"
-      });
+        message: 'authFail'
+      })
+    }
 
-    req.user = user;
-
-    if (!req.user)
-      return reply.code(401).send(error.message);
-
+    req.user = user
   } catch (error) {
-    return reply.code(401).send(error.message);
+    return reply.code(401).send(error.message)
   }
-
 }
 
 export const asyncVerifyJWTCtrl = async (req, reply) => {
-  const {
-    authorization
-  } = req.headers || false;
+  const { authorization } = req.headers || false
 
   try {
     if (authorization) {
-      const token = authorization.replace('Bearer ', '');
-      const user = await User.findByToken(token, req);
+      const token = authorization.replace('Bearer ', '')
+      const user = await User.findByToken(token, req)
 
       if (user) {
-        req.user = user;
-        req.token = token; // used in logout route
+        req.user = user
+        req.token = token // used in logout route
       }
     }
 
-    if (!req.user)
+    if (!req.user) {
       return reply.code(401).send({
         ok: false,
         statusCode: 401,
-        message: error.message
-      });
-
+        message: 'authFail'
+      })
+    }
   } catch (error) {
     return reply.code(401).send({
       ok: false,
       statusCode: 401,
       message: error.message
-    });
+    })
   }
-
 }
 
 /**
@@ -79,38 +77,35 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
-
   if (!req.body) {
     return reply.send({
       ok: false,
       message: 'usernameAndPasswordRequired'
-    });
+    })
   }
 
-  const {
-    email,
-    password
-  } = req.body;
+  const { email, password } = req.body
 
-  req.user = false;
+  req.user = false
 
   try {
+    const user = await User.findByCredentials(email, password)
 
-    const user = await User.findByCredentials(email, password);
-
-    if (user instanceof Error) return reply.code(200).send({
-      ok: false,
-      message: user.message
-    });
-    else return req.user = user;
-
+    if (user instanceof Error) {
+      return reply.code(200).send({
+        ok: false,
+        message: user.message
+      })
+    } else {
+      req.user = user
+      return req.user
+    }
   } catch (error) {
     return reply.code(400).send({
       ok: false,
       message: error.message
-    });
+    })
   }
-
 }
 
 /**
@@ -121,8 +116,7 @@ export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const registerCtrl = async (req, reply) => {
-
-  const user = new User(req.body);
+  const user = new User(req.body)
   try {
     // assume user ID is passed in body from frontend for simplicity
     // Create settings
@@ -133,38 +127,37 @@ export const registerCtrl = async (req, reply) => {
     user.settings = user.settings.concat(savedSetting)
 
     // Create user with settings
-    await user.save();
+    await user.save()
 
-    const email = await sendRegisterEmail(user);
+    const email = await sendRegisterEmail(user)
 
-    if (!email)
+    if (!email) {
       return reply.status(200).send({
         ok: false,
-        message: "errorMailSend"
-      });
-    else {
+        message: 'errorMailSend'
+      })
+    } else {
       return reply.status(201).send({
         ok: true,
         user: {
           firstname: user.firstname,
           lastname: user.lastname,
-          email: user.email,
+          email: user.email
         }
-      });
+      })
     }
   } catch (error) {
     if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern)[0] || " account ";
+      const field = Object.keys(error.keyPattern)[0] || ' account '
       return reply.status(200).send({
         ok: false,
-        message: `fieldExist`,
+        message: 'fieldExist',
         field
       })
     } else {
-      return reply.status(400).send(error);
+      return reply.status(400).send(error)
     }
   }
-
 }
 
 /**
@@ -175,16 +168,15 @@ export const registerCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const loginCtrl = async (req, reply) => {
-
   if (!req.user) {
-    return reply.status(200).send(req.user);
+    return reply.status(200).send(req.user)
   }
 
   try {
-    const remember = req.body.remember || false;
-    await req.user.generateToken(remember, true);
+    const remember = req.body.remember || false
+    await req.user.generateToken(remember, true)
   } catch (error) {
-    return reply.status(400).send(error);
+    return reply.status(400).send(error)
   }
 
   return reply.send({
@@ -198,7 +190,7 @@ export const loginCtrl = async (req, reply) => {
       username: req.user.username,
       email: req.user.email
     }
-  });
+  })
 }
 
 /**
@@ -210,29 +202,27 @@ export const loginCtrl = async (req, reply) => {
  */
 export const logoutCtrl = async (req, reply) => {
   try {
-    const id = req.body.id || false;
-    const user = await User.findById(id);
+    const id = req.body.id || false
+    const user = await User.findById(id, req)
     user.token = false
-    user.isLogged = false;
+    user.isLogged = false
 
-    const loggedOutUser = await user.save();
+    const loggedOutUser = await user.save()
 
     if (!loggedOutUser.isLogged) {
       return reply.send({
         ok: true,
         status: 'loggedOut',
         user: loggedOutUser
-      });
-    }
-    else {
+      })
+    } else {
       return reply.send({
         ok: false,
-        status: `loggedOutError`
-      });
+        status: 'loggedOutError'
+      })
     }
-    
   } catch (e) {
-    return reply.status(500).send(e);
+    return reply.status(500).send(e)
   }
 }
 
@@ -244,11 +234,10 @@ export const logoutCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const refreshTokenCtrl = async (req, reply) => {
+  if (req.user instanceof Error) return reply.status(400).send(req.user)
 
-  if (req.user instanceof Error) return reply.status(400).send(req.user);
-
-  const remember = req.body.remember || false;
-  await req.user.generateToken(remember);
+  const remember = req.body.remember || false
+  await req.user.generateToken(remember)
 
   return reply.send({
     ok: true,
@@ -261,7 +250,7 @@ export const refreshTokenCtrl = async (req, reply) => {
       username: req.user.username,
       email: req.user.email
     }
-  });
+  })
 }
 
 /**
@@ -272,15 +261,11 @@ export const refreshTokenCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const confirmEmailCtrl = async (req, reply) => {
-
-  const {
-    confirm_token
-  } = req.params;
-  const user = await User.findByConfirmToken(confirm_token);
+  const { confirmToken } = req.params
+  const user = await User.findByConfirmToken(confirmToken)
 
   if (!user) reply.redirect('/?confirmation=notok')
   else reply.redirect('/?confirmation=ok')
-
 }
 
 /**
@@ -291,45 +276,44 @@ export const confirmEmailCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const resendConfirmEmailCtrl = async (req, reply) => {
-
-  const email = req.body.email || false;
+  const email = req.body.email || false
 
   if (!email) {
     return reply.send({
       ok: false,
-      message: `cantFindYou`
-    });
+      message: 'cantFindYou'
+    })
   }
 
   try {
-    const user = await User.findByEmail(email, true);
+    const user = await User.findByEmail(email, true)
 
     if (!user) {
       return reply.send({
         ok: false,
-        message: `cantFindYou`
-      });
+        message: 'cantFindYou'
+      })
     }
 
-    const sendemail = await sendRegisterEmail(user);
+    const sendemail = await sendRegisterEmail(user)
 
     if (!sendemail) {
       return reply.send({
         ok: false,
-        message: `errorMailSend`
-      });
+        message: 'errorMailSend'
+      })
     } else {
       return reply.send({
         ok: true,
-        message: `emailSend`,
+        message: 'emailSend',
         email
-      });
+      })
     }
   } catch (error) {
     return reply.send({
       ok: false,
       message: error
-    });
+    })
   }
 }
 
@@ -341,47 +325,46 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const forgotPasswordCtrl = async (req, reply) => {
-
-  const email = req.body.email || false;
+  const email = req.body.email || false
 
   if (!email) {
     return reply.send({
       ok: false,
-      message: `cantFindYou`,
+      message: 'cantFindYou',
       field: 'email'
-    });
+    })
   }
 
   try {
-    const user = await User.findByEmail(email, true);
+    const user = await User.findByEmail(email, true)
 
     if (!user) {
       return reply.send({
         ok: false,
-        message: `cantFindYou`,
+        message: 'cantFindYou',
         field: 'user'
-      });
+      })
     }
 
-    const sendemail = await sendForgotPasswordEmail(user);
+    const sendemail = await sendForgotPasswordEmail(user)
 
     if (!sendemail) {
       return reply.send({
         ok: false,
-        message: `errorMailSend`
-      });
+        message: 'errorMailSend'
+      })
     } else {
       return reply.send({
         ok: true,
-        message: `emailSend`,
+        message: 'emailSend',
         email
-      });
+      })
     }
   } catch (error) {
     return reply.send({
       ok: false,
       message: error
-    });
+    })
   }
 }
 
@@ -393,20 +376,18 @@ export const forgotPasswordCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const forgotPasswordConfirmCtrl = async (req, reply) => {
+  const { resetPasswordToken } = req.params
+  const response = await User.findByForgotToken(resetPasswordToken)
 
-  const {
-    resetPasswordToken
-  } = req.params;
-  const response = await User.findByForgotToken(resetPasswordToken);
-
-  if (!response)
+  if (!response) {
     reply.code(303).redirect('/?reset=notok')
-  else {
+  } else {
     const sendemail = await sendNewPasswordEmail(response)
-    if (!sendemail)
+    if (!sendemail) {
       reply.code(303).redirect('/?reset=notok')
-    else
+    } else {
       reply.redirect('/?reset=ok')
+    }
   }
 }
 
@@ -434,11 +415,11 @@ export const profileCtrl = async (req, reply) => {
         exports: req.user.settings[0].exports,
         interval: req.user.settings[0].interval,
         sound: req.user.settings[0].sound,
-        maxratecount: req.user.settings[0].maxratecount,
+        maxratecount: req.user.settings[0].maxratecount
       },
       apikeys: req.user.apikeys
     }
-  });
+  })
 }
 
 /**
@@ -449,10 +430,7 @@ export const profileCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const addApiKeyCtrl = async (req, reply) => {
-  const {
-    publicKey,
-    privateKey
-  } = req.body;
+  const { publicKey, privateKey } = req.body
 
   try {
     // Add api key
@@ -460,28 +438,28 @@ export const addApiKeyCtrl = async (req, reply) => {
       apiKeyPublic: publicKey,
       apiKeyPrivate: privateKey,
       user: req.user._id
-    });
+    })
 
-    const verifyKeys = await checkApiKeyPermissions(apikey);
-    if (verifyKeys.hasOwnProperty('error')) {
+    const verifyKeys = await checkApiKeyPermissions(apikey)
+    if (Object.prototype.hasOwnProperty.call(verifyKeys, 'error')) {
       reply.status(400).send({
         ok: false,
         message: `Your api key return an error : ${verifyKeys.error}`
       })
     } else {
-      const savedApikey = await apikey.save();
+      const savedApikey = await apikey.save()
       // save user
-      req.user.apikeys = req.user.apikeys.concat(savedApikey);
-      await req.user.save();
+      req.user.apikeys = req.user.apikeys.concat(savedApikey)
+      await req.user.save()
 
       reply.send({
         ok: true,
         id: savedApikey._id
-      });
+      })
     }
   } catch (error) {
     if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern)[0] || " apikey ";
+      const field = Object.keys(error.keyPattern)[0] || ' apikey '
       reply.status(400).send({
         ok: false,
         message: `Your ${field} is already exist!`
@@ -490,7 +468,7 @@ export const addApiKeyCtrl = async (req, reply) => {
       reply.status(400).send({
         ok: false,
         message: error.errors
-      });
+      })
     }
   }
 }
@@ -503,38 +481,38 @@ export const addApiKeyCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const removeApiKeyCtrl = async (req, reply) => {
-  const {
-    ids,
-    userId
-  } = req.body;
+  const { ids, userId } = req.body
 
-  if (req.user._id != userId)
+  if (req.user._id !== userId) {
     reply.status(400).send({
       ok: false,
-      message: `User ID does not match`
+      message: 'User ID does not match'
     })
+  }
 
   try {
-
-    let removedIds = []
+    const removedIds = []
     for (const apikey of ids) {
       const removedApikey = await UserKraken.deleteOne({
         _id: apikey,
         user: req.user._id
-      });
-      if (removedApikey.deletedCount)
+      })
+      if (removedApikey.deletedCount) {
         removedIds.push(apikey)
+      }
     }
 
-    if (removedIds.length === ids.length) reply.send({
-      ok: true,
-      removedIds
-    });
-    else reply.status(400).send({
-      ok: false,
-      message: `An unexpected error is produced`
-    })
-
+    if (removedIds.length === ids.length) {
+      reply.send({
+        ok: true,
+        removedIds
+      })
+    } else {
+      reply.status(400).send({
+        ok: false,
+        message: 'An unexpected error is produced'
+      })
+    }
   } catch (error) {
     reply.status(400).send({
       ok: false,
@@ -551,29 +529,23 @@ export const removeApiKeyCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const changeUserDataCtrl = async (req, reply) => {
-  const {
-    firstname,
-    lastname,
-    username,
-    email,
-    password
-  } = req.body.user;
-  const field = req.body.field;
+  const { firstname, lastname, username, email, password } = req.body.user
+  const field = req.body.field
 
   try {
-    if (firstname) req.user.firstname = firstname;
-    if (lastname) req.user.lastname = lastname;
-    if (username) req.user.username = username;
-    if (email) req.user.email = email;
-    if (password) req.user.password = password;
+    if (firstname) req.user.firstname = firstname
+    if (lastname) req.user.lastname = lastname
+    if (username) req.user.username = username
+    if (email) req.user.email = email
+    if (password) req.user.password = password
 
     // save user
-    await req.user.save();
+    await req.user.save()
 
     reply.send({
       ok: true,
       message: `Change ${field} done!`
-    });
+    })
   } catch (error) {
     if (error.code === 11000) {
       reply.status(400).send({
@@ -584,7 +556,7 @@ export const changeUserDataCtrl = async (req, reply) => {
       reply.status(400).send({
         ok: false,
         message: error.errors
-      });
+      })
     }
   }
 }
@@ -597,23 +569,21 @@ export const changeUserDataCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const confirmCGVCtrl = async (req, reply) => {
-  const {
-    cgvConfirmed
-  } = req.body;
+  const { cgvConfirmed } = req.body
 
   try {
-    if (cgvConfirmed) req.user.cgvConfirmed = cgvConfirmed;
+    if (cgvConfirmed) req.user.cgvConfirmed = cgvConfirmed
     // save user
-    await req.user.save();
+    await req.user.save()
     reply.send({
       ok: true,
-      message: `CGV accepted!`
-    });
+      message: 'CGV accepted!'
+    })
   } catch (error) {
     reply.status(400).send({
       ok: false,
       message: error.errors
-    });
+    })
   }
 }
 
@@ -625,11 +595,9 @@ export const confirmCGVCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const setPriceAlertCtrl = async (req, reply) => {
-  const {
-    alerts
-  } = req.body;
+  const { alerts } = req.body
 
-  let priceAlert;
+  let priceAlert
 
   const countAlert = req.user.alerts.length
 
@@ -639,28 +607,28 @@ export const setPriceAlertCtrl = async (req, reply) => {
       priceAlert = new UserPriceAlerts({
         alerts: alerts,
         user: req.user._id
-      });
+      })
     } else {
       priceAlert = await UserPriceAlerts.findOne({
-        _id: req.user.alerts[0]._id,
-      });
+        _id: req.user.alerts[0]._id
+      })
       priceAlert.alerts = alerts
     }
 
-    const savedPriceAlert = await priceAlert.save();
+    const savedPriceAlert = await priceAlert.save()
 
     // save user
-    req.user.alerts = savedPriceAlert;
-    await req.user.save();
+    req.user.alerts = savedPriceAlert
+    await req.user.save()
 
     reply.send({
       ok: true,
       id: priceAlert._id
-    });
+    })
   } catch (error) {
     reply.status(400).send({
       ok: false,
       message: error.errors
-    });
+    })
   }
 }

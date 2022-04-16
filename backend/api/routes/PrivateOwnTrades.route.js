@@ -1,26 +1,28 @@
-import {
-  websocketVerifyJWTCtrl
-} from '../controllers/private/users.controller.js'
-
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
+import { websocketVerifyJWTCtrl } from '../controllers/private/users.controller.js'
 import { getWsOwnTrades } from '../controllers/private/userdatas.controller.js'
 
-export default function PrivateOwnTradesRoute(fastify, options, done) {
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 
-  fastify
-    .decorate('websocketVerifyJWT', websocketVerifyJWTCtrl)
-    .after(() => {
-
-      // Get Api OwnTrades - Websocket
-      fastify.route({
-        method: 'GET',
-        url: '/api/ws/owntrades/:id',
-        logLevel: 'warn',
-        websocket: true,
-        preHandler: fastify.auth([fastify.websocketVerifyJWT]),
-        handler: getWsOwnTrades
-      })
-
-    });
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+export default function PrivateOwnTradesRoute (fastify, _options, done) {
+  fastify.decorate('websocketVerifyJWT', websocketVerifyJWTCtrl).after(() => {
+    // Get Api OwnTrades - Websocket
+    fastify.route({
+      method: 'GET',
+      url: '/api/ws/owntrades/:id',
+      logLevel: 'warn',
+      websocket: true,
+      preHandler: fastify.auth([fastify.websocketVerifyJWT]),
+      handler: getWsOwnTrades
+    })
+  })
 
   done()
 }

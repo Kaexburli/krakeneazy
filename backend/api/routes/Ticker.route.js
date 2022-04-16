@@ -1,10 +1,19 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import { getTicker } from '../controllers/ticker.controller.js'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 const TickerOpts = {
-  handler: getTicker,
+  handler: getTicker
 }
 
-export default function TickerRoute(fastify, options, done) {
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+export default function TickerRoute (fastify, _options, done) {
   // Get Api Ticker
   fastify.get('/api/ticker/:pair', TickerOpts)
 

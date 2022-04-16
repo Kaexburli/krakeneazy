@@ -1,3 +1,6 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import {
   asyncVerifyJWTCtrl,
   asyncVerifyUsernameAndPasswordCtrl,
@@ -17,11 +20,21 @@ import {
   setPriceAlertCtrl
 } from '../controllers/private/users.controller.js'
 
-export default function usersRoutes(fastify, options, done) {
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
+
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+export default function usersRoutes (fastify, _options, done) {
   // Get Api USER
   fastify
     .decorate('asyncVerifyJWT', asyncVerifyJWTCtrl)
-    .decorate('asyncVerifyUsernameAndPassword', asyncVerifyUsernameAndPasswordCtrl)
+    .decorate(
+      'asyncVerifyUsernameAndPassword',
+      asyncVerifyUsernameAndPasswordCtrl
+    )
     .after(() => {
       // our routes goes here
       fastify.route({
@@ -29,15 +42,15 @@ export default function usersRoutes(fastify, options, done) {
         url: '/api/register',
         logLevel: 'warn',
         handler: registerCtrl
-      });
+      })
 
       // email-confirm
       fastify.route({
         method: ['GET', 'HEAD'],
-        url: '/api/email-confirm/:confirm_token',
+        url: '/api/email-confirm/:confirmToken',
         logLevel: 'warn',
         handler: confirmEmailCtrl
-      });
+      })
 
       // forgot-password
       fastify.route({
@@ -45,7 +58,7 @@ export default function usersRoutes(fastify, options, done) {
         url: '/api/forgot-password',
         logLevel: 'warn',
         handler: forgotPasswordCtrl
-      });
+      })
 
       // forgot-password-confirm
       fastify.route({
@@ -53,7 +66,7 @@ export default function usersRoutes(fastify, options, done) {
         url: '/api/forgot-password-confirm/:resetPasswordToken',
         logLevel: 'warn',
         handler: forgotPasswordConfirmCtrl
-      });
+      })
 
       // send-confirm-email
       fastify.route({
@@ -61,7 +74,7 @@ export default function usersRoutes(fastify, options, done) {
         url: '/api/send-confirm-email',
         logLevel: 'warn',
         handler: resendConfirmEmailCtrl
-      });
+      })
 
       // login route
       fastify.route({
@@ -70,7 +83,7 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyUsernameAndPassword]),
         handler: loginCtrl
-      });
+      })
 
       // logout route
       fastify.route({
@@ -78,7 +91,7 @@ export default function usersRoutes(fastify, options, done) {
         url: '/api/logout',
         logLevel: 'warn',
         handler: logoutCtrl
-      });
+      })
 
       // proifle route
       fastify.route({
@@ -87,7 +100,7 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: profileCtrl
-      });
+      })
 
       // add-apikey
       fastify.route({
@@ -96,7 +109,7 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: addApiKeyCtrl
-      });
+      })
 
       // remove-apikey
       fastify.route({
@@ -105,7 +118,7 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: removeApiKeyCtrl
-      });
+      })
 
       // change-user-data
       fastify.route({
@@ -114,7 +127,7 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: changeUserDataCtrl
-      });
+      })
 
       // refreshToken route
       fastify.route({
@@ -123,7 +136,7 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: refreshTokenCtrl
-      });
+      })
 
       // change-user-data
       fastify.route({
@@ -132,7 +145,7 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: confirmCGVCtrl
-      });
+      })
 
       // add-price-alerts
       fastify.route({
@@ -141,9 +154,8 @@ export default function usersRoutes(fastify, options, done) {
         logLevel: 'warn',
         preHandler: fastify.auth([fastify.asyncVerifyJWT]),
         handler: setPriceAlertCtrl
-      });
-
-    });
+      })
+    })
 
   done()
 }

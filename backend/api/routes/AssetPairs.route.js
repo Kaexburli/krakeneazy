@@ -1,10 +1,19 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import { getAssetPairs } from '../controllers/assetpairs.controller.js'
 
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
 const AssetPairOpts = {
-  handler: getAssetPairs,
+  handler: getAssetPairs
 }
 
-export default function AssetPairsRoute(fastify, options, done) {
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+export default function AssetPairsRoute (fastify, options, done) {
   // Get Api System Status
   fastify.get('/api/assetpairs', AssetPairOpts)
 
