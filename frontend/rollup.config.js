@@ -85,7 +85,14 @@ export default {
       preventAssignment: true,
       'process.env.NODE_ENV': process.env.NODE_ENV,
       __App: JSON.stringify({
-        env: { ...config({ path: path.join(__dirname, '/../.env') }).parsed }
+        env: {
+          ...config({
+            path: path.join(
+              __dirname,
+              production ? '/../.env' : '/../.preprod.env'
+            )
+          }).parsed
+        }
       })
     }),
 
