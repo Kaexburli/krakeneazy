@@ -1,6 +1,7 @@
 // ---------------------------------------------------------
 //  Imports
 // ---------------------------------------------------------
+// eslint-disable-next-line no-unused-vars
 import { _ } from 'svelte-i18n'
 import Fetch from 'utils/Runfetch.js'
 import { User } from 'store/userStore.js'
@@ -37,6 +38,7 @@ class UserData {
     this.endpoint = 'balance'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -59,6 +61,7 @@ class UserData {
     this.endpoint = 'tradebalance'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -82,6 +85,7 @@ class UserData {
     this.endpoint = 'openorders'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -107,6 +111,7 @@ class UserData {
     this.endpoint = 'closedorders'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -132,6 +137,7 @@ class UserData {
     this.endpoint = 'tradevolume'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -161,6 +167,7 @@ class UserData {
     this.endpoint = 'ledgers'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -183,6 +190,7 @@ class UserData {
     this.endpoint = 'tradeshistory'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -205,6 +213,7 @@ class UserData {
     this.endpoint = 'openpositions'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -231,6 +240,7 @@ class UserData {
     this.endpoint = 'addorder'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -254,6 +264,7 @@ class UserData {
     this.endpoint = 'addexport'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -280,6 +291,7 @@ class UserData {
     this.endpoint = 'statusexport'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -307,6 +319,7 @@ class UserData {
     this.endpoint = 'retrieveexport'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -333,6 +346,7 @@ class UserData {
     this.endpoint = 'removeoldexport'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -359,6 +373,7 @@ class UserData {
     this.endpoint = 'readexport'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
@@ -384,6 +399,7 @@ class UserData {
     this.endpoint = 'checkexport'
 
     if (!this.token) {
+      // eslint-disable-next-line no-undef
       console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
