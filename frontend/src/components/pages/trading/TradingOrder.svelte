@@ -5,7 +5,7 @@
   import { WSTicker, WSSpread, WSBook } from "store/wsstore.js";
   import UserData from "classes/UserData.js";
   import { getSummuryInfos } from "components/pages/trading/trade.js";
-
+  import { hasApikeysStore } from "store/userStore.js";
   import SegmentedButton, { Segment } from "@smui/segmented-button";
   import Textfield from "@smui/textfield";
   import Button from "@smui/button";
@@ -322,7 +322,7 @@
   };
 
   onMount(() => {
-    GetBalance();
+    if ($hasApikeysStore) GetBalance();
     setActionWay(false, "buy");
   });
 

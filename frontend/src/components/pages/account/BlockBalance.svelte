@@ -5,6 +5,7 @@
   import UserData from "classes/UserData.js";
   import { online, asymbole } from "store/store.js";
   import LinearProgress from "@smui/linear-progress";
+  import { hasApikeysStore } from "store/userStore.js";
 
   const ud = new UserData();
 
@@ -34,7 +35,7 @@
   };
 
   onMount(() => {
-    GetBalance();
+    if ($hasApikeysStore) GetBalance();
   });
 </script>
 
