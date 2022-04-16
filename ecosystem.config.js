@@ -98,7 +98,7 @@ module.exports = {
         rm -rf frontend; \
         rm -rf node_modules; \
         rm -rf _error_pages; \
-        rm !('.env'|'smtp.env.mjs'|'package.json'); \
+        rm !('.env'|'smtp.env.mjs'|'package.json'|'export'); \
         mkdir deploy;",
       'post-setup':
         "echo --- ROOT; \
