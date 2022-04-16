@@ -48,8 +48,7 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm Z',
       disable_logs: false,
       merge_logs: false,
-      env: require('dotenv').config({ path: path.resolve('.preprod.env') })
-        .parsed
+      env: require('dotenv').config({ path: path.resolve('.env') }).parsed
     },
     {
       name: 'PREPROD_CLIENT',
