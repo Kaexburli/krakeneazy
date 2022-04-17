@@ -21,7 +21,11 @@ const fetchSvelte = new Fetch()
 const parseJSON = (resp) => (resp.json ? resp.json() : resp)
 
 const callApiFetch = async (params) => {
-  const url = params.url || false
+  const url = !params.url.includes('//')
+    ? [location.protocol, location.host].join('//') + params.url
+    : params.url
+      ? params.url
+      : false
   const method = params.method || 'GET'
   const endpoint = params.endpoint || false
   const token = params.token || false

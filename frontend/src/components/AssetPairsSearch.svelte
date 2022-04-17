@@ -11,8 +11,7 @@
   // ---------------------------------------------------------
   //  Props
   // ---------------------------------------------------------
-  let fetchUrl =
-      [location.protocol, location.host].join("//") + "/api/assetpairs",
+  let fetchUrl = "/api/assetpairs",
     assetpairVal,
     spinner = false,
     isFocused = false;

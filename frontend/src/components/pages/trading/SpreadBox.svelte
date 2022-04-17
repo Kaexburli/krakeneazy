@@ -27,9 +27,7 @@
     spread_calcul = "0.00",
     decimals = $assetpair.pair_decimals,
     lot_decimals = $assetpair.lot_decimals,
-    fetchUrl = `${[location.protocol, location.host].join("//")}/api/trades/${
-      $assetpair.altname
-    }`,
+    fetchUrl = `/api/trades/${$assetpair.altname}`,
     last = null;
 
   const formatter = new Intl.DateTimeFormat(navigator.language, {

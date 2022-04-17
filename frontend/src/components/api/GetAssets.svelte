@@ -9,7 +9,7 @@
   // ---------------------------------------------------------
   //  Props
   // ---------------------------------------------------------
-  let fetchUrl = [location.protocol, location.host].join("//") + "/api/assets";
+  let fetchUrl = "/api/assets";
   const token = $User.token || false;
 
   // ---------------------------------------------------------

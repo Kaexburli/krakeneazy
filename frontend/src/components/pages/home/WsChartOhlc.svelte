@@ -82,7 +82,7 @@
     close,
     volume,
     legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
-    fetchUrl = [location.protocol, location.host].join("//") + "/api/ohlc",
+    fetchUrl = "/api/ohlc",
     chartHeight = 488,
     chartWidth = 600,
     error = false,

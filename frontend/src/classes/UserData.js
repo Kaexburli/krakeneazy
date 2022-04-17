@@ -22,8 +22,7 @@ class UserData {
     this.endpoint = null
     this.params = null
     this.url = null
-    this.server =
-      [location.protocol, location.host].join('//') + '/api/private/'
+    this.server = '/api/private/'
     this.token = user.token || false
   }
 
