@@ -38,3 +38,4 @@ frontend/yarn-error.log
 /temp/
 .editorconfig
 .eslintrc.js
+deploy.cmd.js
