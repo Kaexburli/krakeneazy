@@ -1,8 +1,13 @@
-/* eslint-disable no-multi-str */
+const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 dotenv.config({ path: path.resolve('.deploy.env') })
-const command = require('./deploy.cmd.js')
+
+let command = []
+const deployCmdFile = './deploy.cmd.js'
+if (fs.existsSync(deployCmdFile)) {
+  command = require(deployCmdFile)
+}
 
 module.exports = {
   apps: [
