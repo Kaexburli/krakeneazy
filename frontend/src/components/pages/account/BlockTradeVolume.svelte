@@ -39,7 +39,10 @@
 
       const ud = new UserData();
       const res = await ud.getTradeVolume({ pair: $assetpair.altname });
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
         setTimeout(() => {
           GetTradeVolume();
@@ -61,7 +64,7 @@
     tradevolume;
 
     if (typeof tradevolume !== "undefined") {
-      if (tradevolume.hasOwnProperty("currency")) {
+      if (Object.prototype.hasOwnProperty.call(tradevolume, "currency")) {
         tradevol = Number(tradevolume.volume).toFixed(2);
         currency = $asymbole[tradevolume.currency]["symbol"];
         next_vol = Number(

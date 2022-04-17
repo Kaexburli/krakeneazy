@@ -91,7 +91,7 @@
         !tick ||
         typeof tick === "undefined" ||
         tick.service !== "WsKrakenStatus" ||
-        !tick.hasOwnProperty("data")
+        !Object.prototype.hasOwnProperty.call(tick, "data")
       )
         return false;
 
@@ -106,7 +106,7 @@
       )
         return false;
 
-      if (tick.data.hasOwnProperty("errno")) {
+      if (Object.prototype.hasOwnProperty.call(tick.data, "errno")) {
         count = 1;
         error =
           "[" +
@@ -117,25 +117,30 @@
           tick.data.syscall;
         status = "offline";
         online.update((n) => false);
-      } else if (tick.data.hasOwnProperty("errorMessage")) {
+      } else if (
+        Object.prototype.hasOwnProperty.call(tick.data, "errorMessage")
+      ) {
         count = 1;
         error =
           "[" + tick.data.subscription.name + "] " + tick.data.errorMessage;
         status = "offline";
         online.update((n) => false);
-      } else if (tick.data.hasOwnProperty("error")) {
+      } else if (Object.prototype.hasOwnProperty.call(tick.data, "error")) {
         count = 1;
         let message = tick.data.message;
         error = "[" + tick.data.error + "] " + message;
         status = "offline";
-      } else if (tick.data.hasOwnProperty("status")) {
+      } else if (Object.prototype.hasOwnProperty.call(tick.data, "status")) {
         let timestamp = new Date(tick.data.timestamp).getTime();
         let diff_beetween = interval - timestamp;
         diff_beetween = Math.floor(diff_beetween / 1000 / 60 / 60 / 24);
         online.update((n) => diff_beetween === -1);
         status = tick.data.status;
         error = false;
-      } else if (!$online && !tick.data.hasOwnProperty("status")) {
+      } else if (
+        !$online &&
+        !Object.prototype.hasOwnProperty.call(tick.data, "status")
+      ) {
         count = 1;
         error = "ERROR";
         return false;

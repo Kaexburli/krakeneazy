@@ -62,7 +62,10 @@
         ofs: 0,
       });
 
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
         setTimeout(() => {
           GetTradesHistory();

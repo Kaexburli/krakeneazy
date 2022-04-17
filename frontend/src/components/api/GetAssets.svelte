@@ -18,7 +18,10 @@
   const getAssets = async () => {
     let res = await Fetch({ url: fetchUrl, endpoint: "assets", token });
 
-    if (typeof res !== "undefined" && res.hasOwnProperty("error"))
+    if (
+      typeof res !== "undefined" &&
+      Object.prototype.hasOwnProperty.call(res, "error")
+    )
       console.error("[ERROR] : " + res.statusCode + " " + res.message);
 
     assets.set(res);

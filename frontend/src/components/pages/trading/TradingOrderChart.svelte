@@ -112,7 +112,10 @@
           return false;
         }
         const res = await ud.addOrder(params);
-        if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+        if (
+          typeof res !== "undefined" &&
+          Object.prototype.hasOwnProperty.call(res, "error")
+        ) {
           error = res.error;
         } else {
           order = res;

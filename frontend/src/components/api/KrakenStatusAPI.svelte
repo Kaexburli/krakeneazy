@@ -63,7 +63,7 @@
                     {formatter.format(new Date(item.scheduled_until).getTime())}
                   </p>
                 </div>
-                {#if item.hasOwnProperty("components") && item.components !== null}
+                {#if Object.prototype.hasOwnProperty.call(item, "components") && item.components !== null}
                   <div>
                     <ul>
                       {#each item.components as component}
@@ -98,7 +98,7 @@
                       {$_("krakenStatusAPI.affected")}
                     </strong>
                   </p>
-                  {#if item.hasOwnProperty("affected") && item.affected !== null}
+                  {#if Object.prototype.hasOwnProperty.call(item, "affected") && item.affected !== null}
                     <ul>
                       {#each item.affected as affected}
                         <li>

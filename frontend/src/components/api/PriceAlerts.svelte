@@ -171,7 +171,7 @@
         typeof $WSTickerAlert[pair] !== "undefined" &&
         $WSTickerAlert[pair] !== null
       ) {
-        if ($WSTickerAlert[pair].hasOwnProperty("a")) {
+        if (Object.prototype.hasOwnProperty.call($WSTickerAlert[pair], "a")) {
           let tickerPrice = $WSTickerAlert[pair]["a"][0];
           let upList = $pricealertlist[pair]["up"];
           let downList = $pricealertlist[pair]["down"];

@@ -45,10 +45,10 @@
   let condtype = "limit";
   let condprice = null;
   let condtotal = null;
-  let base = $asymbole.hasOwnProperty($assetpair.base)
+  let base = Object.prototype.hasOwnProperty.call($asymbole, $assetpair.base)
     ? $asymbole[$assetpair.base].name
     : $assetpair.base;
-  let quote = $asymbole.hasOwnProperty($assetpair.quote)
+  let quote = Object.prototype.hasOwnProperty.call($asymbole, $assetpair.quote)
     ? $asymbole[$assetpair.quote].name
     : $assetpair.quote;
   let devise = "quote";
@@ -129,7 +129,10 @@
       }
 
       const res = await ud.getBalance();
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
       } else {
         balance = res;
@@ -218,7 +221,10 @@
 
       const res = await ud.addOrder(params);
 
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
       } else {
         order = res;
@@ -226,7 +232,7 @@
         dispatch("closedialogorder", { closeDialogOrder: true });
         resetForm();
 
-        if (order.hasOwnProperty("descr")) {
+        if (Object.prototype.hasOwnProperty.call(order, "descr")) {
           for (const descr of Object.entries(order.descr)) {
             // // Add chart Line price
             if (candleSeries) {
@@ -375,7 +381,7 @@
               $assetpair.pair_decimals
             );
           } else {
-            if ($WSBook.hasOwnProperty("mirror")) {
+            if (Object.prototype.hasOwnProperty.call($WSBook, "mirror")) {
               let asks = $WSBook.mirror.as;
               let s = calculSlippageForMarkerOrder(
                 asks,
@@ -393,7 +399,7 @@
               $assetpair.pair_decimals
             );
           } else {
-            if ($WSBook.hasOwnProperty("mirror")) {
+            if (Object.prototype.hasOwnProperty.call($WSBook, "mirror")) {
               let bids = $WSBook.mirror.bs;
               let s = calculSlippageForMarkerOrder(
                 bids,
@@ -445,9 +451,11 @@
     }
 
     quote_balance =
-      buyorsell === "quote" && balance.hasOwnProperty($assetpair.quote)
+      buyorsell === "quote" &&
+      Object.prototype.hasOwnProperty.call(balance, $assetpair.quote)
         ? balance[$assetpair.quote]
-        : buyorsell === "base" && balance.hasOwnProperty($assetpair.base)
+        : buyorsell === "base" &&
+          Object.prototype.hasOwnProperty.call(balance, $assetpair.base)
         ? balance[$assetpair.base]
         : "";
     fundDevise = buyorsell === "base" ? $assetpair.base : $assetpair.quote;

@@ -82,7 +82,10 @@
       const ud = new UserData();
       const res = await ud.getTradeBalance(asset);
 
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
         setTimeout(() => {
           GetTradeBalance();
@@ -102,7 +105,7 @@
   });
 
   $: if ($WSTradeBalance) {
-    if ($WSTradeBalance.hasOwnProperty("eb")) {
+    if (Object.prototype.hasOwnProperty.call($WSTradeBalance, "eb")) {
       tradebalancedata = $WSTradeBalance;
     }
   }
@@ -147,7 +150,7 @@
               {#if index == "eb"}
                 <span class="solde-account">
                   {parseFloat(bal).toFixed(2)}
-                  {#if $asymbole.hasOwnProperty(asset)}
+                  {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                     <span class="symbol">{$asymbole[asset].symbol}</span>
                   {/if}
                 </span>
@@ -159,13 +162,13 @@
                     : "realynotgood"}
                 >
                   {parseFloat(bal).toFixed(2)}
-                  {#if $asymbole.hasOwnProperty(asset)}
+                  {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                     <span class="symbol">{$asymbole[asset].symbol}</span>
                   {/if}
                 </span>
               {:else}
                 {parseFloat(bal).toFixed(2)}
-                {#if $asymbole.hasOwnProperty(asset)}
+                {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                   <span class="symbol">{$asymbole[asset].symbol}</span>
                 {/if}
               {/if}
@@ -207,7 +210,7 @@
                     </span>
                   {/if}
                   {parseFloat(bal).toFixed(2)}
-                  {#if $asymbole.hasOwnProperty(asset)}
+                  {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                     <span class="symbol">{$asymbole[asset].symbol}</span>
                   {/if}
                 </span>
@@ -224,7 +227,7 @@
                 <span class="symbol">%</span>
               {:else}
                 {parseFloat(bal).toFixed(2)}
-                {#if $asymbole.hasOwnProperty(asset)}
+                {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                   <span class="symbol">{$asymbole[asset].symbol}</span>
                 {/if}
               {/if}

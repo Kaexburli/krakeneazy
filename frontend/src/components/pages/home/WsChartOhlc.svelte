@@ -236,7 +236,10 @@
       }
 
       const res = await ud.getOpenPositions();
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
       } else {
         openpositions = res;
@@ -293,7 +296,7 @@
       let url = [fetchUrl, $pair, $interval].join("/");
       let res = await Fetch({ url, endpoint: "ohlc" });
 
-      if (res.hasOwnProperty("error")) {
+      if (Object.prototype.hasOwnProperty.call(res, "error")) {
         console.error(`${res.message} ${res.error} (${res.statusCode})`);
       } else {
         Object.keys(res).map(
@@ -619,7 +622,7 @@
 
       if (
         typeof datas[index][order_id] !== "undefined" &&
-        datas[index][order_id].hasOwnProperty("descr")
+        Object.prototype.hasOwnProperty.call(datas[index][order_id], "descr")
       ) {
         if ($assetpair.wsname === datas[index][order_id].descr.pair) {
           let color =
@@ -662,7 +665,9 @@
     markers_positions = [];
     Object.values(datas).map((val) => {
       if ($assetpair.altname === val.pair) {
-        if (markers_positions.hasOwnProperty(val.ordertxid)) {
+        if (
+          Object.prototype.hasOwnProperty.call(markers_positions, val.ordertxid)
+        ) {
           let val_exist = markers_positions[val.ordertxid];
           val_exist.time = val.time;
           val_exist.rollovertm = val.rollovertm;
@@ -707,7 +712,12 @@
         });
 
         // Ajout des PriceLine positions
-        if (!price_line_positions_display.hasOwnProperty(pos.postxid)) {
+        if (
+          !Object.prototype.hasOwnProperty.call(
+            price_line_positions_display,
+            pos.postxid
+          )
+        ) {
           price_line_positions[pos.postxid] = {
             postxid: pos.postxid,
             price: pos.price,
@@ -903,7 +913,10 @@
         if (price_line_positions) {
           Object.values(price_line_positions).map((pos) => {
             if (
-              !price_line_positions_display.hasOwnProperty(pos.postxid) ||
+              !Object.prototype.hasOwnProperty.call(
+                price_line_positions_display,
+                pos.postxid
+              ) ||
               changeInterval
             ) {
               let priceLine = candleSeries.createPriceLine({

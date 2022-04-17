@@ -39,7 +39,7 @@
   const createAlertPrice = async (price, pair, currentPrice) => {
     let pushway = parseFloat(currentPrice) > parseFloat(price) ? "down" : "up";
     if (price >= 0) {
-      if (!$pricealertlist.hasOwnProperty(pair)) {
+      if (!Object.prototype.hasOwnProperty.call($pricealertlist, pair)) {
         $pricealertlist[pair] = { up: [], down: [] };
         $pricealertlist[pair][pushway] = [price];
       } else {
@@ -160,7 +160,9 @@
   });
 
   $: {
-    if ($pricealertlist.hasOwnProperty($assetpair.wsname)) {
+    if (
+      Object.prototype.hasOwnProperty.call($pricealertlist, $assetpair.wsname)
+    ) {
       hasAlertForPair =
         $pricealertlist[$assetpair.wsname]["up"].length >= 1
           ? true
