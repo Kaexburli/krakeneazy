@@ -157,7 +157,7 @@
   const checkError = async (_ctx, event) => {
     errorMsg = Object.prototype.hasOwnProperty.call(event, "data")
       ? event.data
-      : =Object.prototype.hasOwnProperty.call(event, "error")
+      : Object.prototype.hasOwnProperty.call(event, "error")
       ? event.error
       : event;
 
