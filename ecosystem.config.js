@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
-dotenv.config({ path: path.resolve('.deploy.env') })
+dotenv.config({ path: path.resolve('.env') })
 
 let command = {
   staging: { presetup: [], postsetup: [], predeploy: [], postdeploy: [] },
