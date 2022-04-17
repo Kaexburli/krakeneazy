@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount, afterUpdate } from "svelte";
   import {
@@ -11,12 +14,19 @@
   import { Moon } from "svelte-loading-spinners";
   import { User } from "store/userStore.js";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let isLoading = false,
     isError = false,
     isSuccess = false,
     isLoginFom = true,
     isForgotFom = false,
-    formClass = isLoginFom ? "loginForm" : "registerForm";
+    formClass = isLoginFom ? "loginForm" : "registerForm",
+    authForm = null,
+    inputsAll = null,
+    inputsClass = null,
+    domLoaded = false;
 
   const flashMessage = {
     confirmation: {
@@ -27,6 +37,20 @@
       ok: { message: $_("auth.resetConfirmSuccess"), flag: "success" },
       notok: { message: $_("auth.resetConfirmError"), flag: "error" },
     },
+  };
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      authForm = document.getElementById("authForm");
+      inputsClass = document.querySelectorAll(".input");
+      inputsAll = document.querySelectorAll(
+        `input[type="text"], input[type="email"], input[type="password"]`
+      );
+      domLoaded = true;
+    }
   };
 
   /**
@@ -42,6 +66,13 @@
           flashMessage[action][response]["message"],
           flashMessage[action][response]["flag"]
         );
+
+        // Supprime les paramètres de l'url
+        setTimeout(() => {
+          window.location.replace(
+            [location.protocol, location.host].join("//")
+          );
+        }, 5000);
       }
     }
   };
@@ -51,7 +82,8 @@
    * @description Réinitialise le formulaire
    */
   const resetForm = () => {
-    document.getElementById("authForm").reset();
+    if (!authForm) console.debug("[ERROR] resetForm");
+    else authForm.reset();
   };
 
   /**
@@ -98,8 +130,11 @@
    */
   const setError = (selector) => {
     let input = document.querySelector(`input[name="${selector}"]`);
-    input.style.border = "2px solid red";
-    input.style.background = "#662f2f";
+    if (!input) console.debug("[ERROR] setError");
+    else {
+      input.style.border = "2px solid red";
+      input.style.background = "#662f2f";
+    }
   };
 
   /**
@@ -108,11 +143,11 @@
    * @returns { Void } void
    */
   const unsetError = () => {
-    let inputs = document.querySelectorAll(
-      `input[type="text"], input[type="email"], input[type="password"]`
-    );
-    for (const input of inputs) {
-      input.style.border = "0px";
+    if (!inputsAll) console.debug("[ERROR] unsetError");
+    else {
+      for (const input of inputsAll) {
+        input.style.border = "0px";
+      }
     }
   };
 
@@ -142,18 +177,20 @@
    * @returns { Void } void
    */
   const toogleColorIcon = () => {
-    const inputs = document.querySelectorAll(".input");
-    for (const el of inputs) {
-      el.addEventListener("focus", (e) => {
-        const icon = el.previousElementSibling;
-        icon.style.color = "firebrick";
-        icon.style.background = "#cdcdcd";
-      });
-      el.addEventListener("blur", (e) => {
-        const icon = el.previousElementSibling;
-        icon.style.color = "#ffffff";
-        icon.style.background = "#3b3b3b";
-      });
+    if (!inputsClass) console.debug("[ERROR] unsetError");
+    else {
+      for (const el of inputsClass) {
+        el.addEventListener("focus", (e) => {
+          const icon = el.previousElementSibling;
+          icon.style.color = "firebrick";
+          icon.style.background = "#cdcdcd";
+        });
+        el.addEventListener("blur", (e) => {
+          const icon = el.previousElementSibling;
+          icon.style.color = "#ffffff";
+          icon.style.background = "#3b3b3b";
+        });
+      }
     }
   };
 
@@ -312,18 +349,41 @@
    */
   const processForgotPassword = async (data) => {
     const forgot = await userForgotPassword(data);
+
     if (!forgot.ok) {
-      isLoading = false;
-      isError = !!forgot.status ? forgot.status : forgot.message;
+      isError = !!forgot.status
+        ? $_(`auth.msg.${forgot.status}`)
+        : $_(
+            `auth.msg.${forgot.message}`,
+            forgot.email
+              ? {
+                  values: {
+                    email: forgot.email,
+                  },
+                }
+              : {}
+          );
       Notification(isError, "error");
       resetForm();
     } else {
-      isLoading = false;
-      isSuccess = forgot.status;
+      isSuccess = !!forgot.status
+        ? $_(`auth.msg.${forgot.status}`)
+        : $_(
+            `auth.msg.${forgot.message}`,
+            forgot.email
+              ? {
+                  values: {
+                    email: forgot.email,
+                  },
+                }
+              : {}
+          );
       Notification(isSuccess, "success");
       resetForm();
       toogleForgotForm();
     }
+
+    isLoading = false;
   };
 
   /**
@@ -334,23 +394,49 @@
    */
   const processLogin = async (data) => {
     const login = await userLogin(data);
-    if (login.hasOwnProperty("error")) {
-      isLoading = false;
-      isError = login.message;
+
+    if (!login.ok) {
+      isError = $_(
+        `auth.msg.${login.message}`,
+        login.field
+          ? {
+              values: {
+                field: login.field,
+              },
+            }
+          : {}
+      );
+
       Notification(isError, "error");
       resetForm();
 
       if (isError.includes("confirmed")) {
         const resend = await resendConfirmEmail(data);
-        if (resend.ok) Notification(resend.status, "success");
+        if (resend.ok)
+          Notification(
+            $_(
+              `auth.msg.${resend.message}`,
+              resend.email
+                ? {
+                    values: {
+                      email: resend.email,
+                    },
+                  }
+                : {}
+            ),
+            "success"
+          );
+        else if (!resend.ok)
+          Notification($_(`auth.msg.${resend.message}`), "error");
       }
     } else {
-      isLoading = false;
       isSuccess = `${$_("auth.welcome")} ${login.user.firstname}!`;
       Notification(isSuccess, "success", true);
       resetForm();
       User.signin({ token: login.token, id: login.user.id });
     }
+
+    isLoading = false;
   };
 
   /**
@@ -362,12 +448,19 @@
   const processRegister = async (data) => {
     const register = await userRegister(data);
 
-    if (register.hasOwnProperty("error")) {
-      isLoading = false;
-      isError = register.message;
+    if (!register.ok) {
+      isError = $_(
+        `auth.msg.${register.message}`,
+        register.field
+          ? {
+              values: {
+                field: register.field,
+              },
+            }
+          : {}
+      );
       Notification(isError, "error");
     } else {
-      isLoading = false;
       isSuccess = `${$_("auth.welcome")} ${register.user.firstname}! ${$_(
         "auth.welcomeMessage"
       )} (${register.user.email}).`;
@@ -375,6 +468,8 @@
       resetForm();
       toogleForm();
     }
+
+    isLoading = false;
   };
 
   /**
@@ -389,6 +484,7 @@
    */
   onMount(async () => {
     checkQueryParamaters(flashMessage);
+    bootstrap(document.readyState);
   });
 </script>
 
@@ -431,6 +527,7 @@
           class="input"
           placeholder={$_("auth.email")}
           name="log_email"
+          autocomplete="username"
           required
         />
         <span class="entypo-key inputPassIcon">
@@ -441,6 +538,7 @@
           class="input"
           placeholder={$_("auth.password")}
           name="log_password"
+          autocomplete="current-password"
           required
         />
         <input type="checkbox" id="remember_me" name="remember_me" />
@@ -548,6 +646,7 @@
         class="input"
         placeholder={$_("auth.password")}
         name="reg_password"
+        autocomplete="false"
         required
       />
       <span class="entypo-key inputPassConfirmIcon">
@@ -558,6 +657,7 @@
         class="input"
         placeholder={$_("auth.passwordConfirm")}
         name="reg_password_confirm"
+        autocomplete="false"
         required
       />
       <input type="hidden" name="action" value="register" />

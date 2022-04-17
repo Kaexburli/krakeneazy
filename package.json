@@ -3,12 +3,20 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "dependencies": {
-    "concurrently": "^6.4.0",
+    "concurrently": "^6.5.1",
+    "dotenv": "^16.0.0",
     "uuid": "^8.3.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-svelte3": "^3.4.1",
+    "prettier": "2.6.2"
+  },
   "scripts": {
     "start": "concurrently --names 'SERVER,CLIENT' --prefix-colors 'bgBlue.bold,bgMagenta.bold,bgGreen.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
   },

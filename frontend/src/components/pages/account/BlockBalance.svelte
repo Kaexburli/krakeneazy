@@ -5,6 +5,7 @@
   import UserData from "classes/UserData.js";
   import { online, asymbole } from "store/store.js";
   import LinearProgress from "@smui/linear-progress";
+  import { hasApikeysStore } from "store/userStore.js";
 
   const ud = new UserData();
 
@@ -19,7 +20,10 @@
       }
 
       const res = await ud.getBalance();
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
         setTimeout(() => {
           GetBalance();
@@ -34,7 +38,7 @@
   };
 
   onMount(() => {
-    GetBalance();
+    if ($hasApikeysStore) GetBalance();
   });
 </script>
 
@@ -50,7 +54,7 @@
       {#each Object.entries(balance) as [asset, bal]}
         {#if bal > 0}
           <li>
-            {#if $asymbole.hasOwnProperty(asset)}
+            {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
               <span class="label">
                 <img
                   src="img/icons/white/{$asymbole[asset].icon}.png"
@@ -63,7 +67,7 @@
               <span class="label">{asset}</span>
             {/if}
             <span class="solde">
-              {#if $asymbole.hasOwnProperty(asset)}
+              {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                 <span class="symbol">({$asymbole[asset].symbol})</span>
               {/if}
               {bal}

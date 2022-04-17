@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsstore.js";
@@ -29,11 +32,6 @@
   import Fetch from "utils/Runfetch.js";
   import UserData from "classes/UserData.js";
 
-  const dispatch = createEventDispatcher();
-
-  export let User;
-  let callRCM, callTOC;
-
   import {
     online,
     interval,
@@ -44,6 +42,14 @@
     candleTimeout,
     setResizeChart,
   } from "store/store.js";
+
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  const dispatch = createEventDispatcher();
+
+  export let User;
+  let callRCM, callTOC;
 
   let type,
     candleSeries,
@@ -76,9 +82,7 @@
     close,
     volume,
     legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
-    backUrl =
-      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
-    fetchUrl = backUrl + "/api/ohlc",
+    fetchUrl = "/api/ohlc",
     chartHeight = 488,
     chartWidth = 600,
     error = false,
@@ -110,9 +114,110 @@
       "240": { offset: 6, spacing: 16 },
       "1440": { offset: 4, spacing: 16 },
       "10080": { offset: 4, spacing: 16 },
-    };
+    },
+    chartblock = null,
+    toolTip = null,
+    domLoaded = false;
 
   const ud = new UserData();
+
+  const optionsChart = {
+    height: chartHeight,
+    layout: {
+      backgroundColor: "#212121",
+      textColor: "#fcfcfc",
+      fontFamily: "'iosevka-etoile', monospace",
+    },
+    grid: {
+      vertLines: {
+        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
+        style: 4,
+      },
+      horzLines: {
+        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
+        style: 4,
+      },
+    },
+    crosshair: {
+      mode: crosshairMode ? CrosshairMode.Magnet : CrosshairMode.Normal,
+      vertLine: {
+        labelVisible: true,
+        labelBackgroundColor: "rgba(51, 51, 51, 0.2)",
+      },
+    },
+    rightPriceScale: {
+      color: "#00ff00",
+      borderColor: "rgba(197, 203, 206, 0.8)",
+      mode: rightPriceScaleMode
+        ? PriceScaleMode.Logarithmic
+        : PriceScaleMode.Normal,
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
+    },
+    timeScale: {
+      timeVisible: true,
+      secondsVisible: true,
+      borderColor: "rgba(197, 203, 206, 0.8)",
+      rightOffset: chartConfigInterval[$interval].offset,
+      barSpacing: chartConfigInterval[$interval].spacing,
+      fixLeftEdge: true,
+      lockVisibleTimeRangeOnResize: true,
+      rightBarStaysOnScroll: true,
+      // tickMarkFormatter: function (timePoint, tickMarkType, locale) {
+      //   console.log(timePoint, tickMarkType, locale);
+      // },
+    },
+    watermark: {
+      color: "rgba(100, 100, 100, 0.1)",
+      visible: true,
+      fontSize: 150,
+      text: $assetpair.wsname,
+    },
+    localization: {
+      locale: navigator.language,
+      dateFormat: getLocaleDateString(),
+    },
+  };
+
+  const CandlestickSeriesOpts = {
+    upColor: "#6ddc09",
+    downColor: "#fe1014",
+    borderDownColor: "#fe1014",
+    borderUpColor: "#6ddc09",
+    wickDownColor: "#fe1014",
+    wickUpColor: "#6ddc09",
+    priceFormat: {
+      type: "price",
+      precision: $assetpair.pair_decimals,
+      minMove: Number("0." + String(1).padStart($assetpair.pair_decimals, "0")),
+    },
+  };
+
+  const HistogramSeriesOpts = {
+    color: "#26a69a",
+    priceFormat: {
+      type: "volume",
+    },
+    priceLineVisible: true,
+    priceScaleId: "",
+    scaleMargins: {
+      top: 0.95,
+      bottom: 0,
+    },
+  };
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      chartblock = document.querySelector(".chart-block");
+      toolTip = document.querySelector(".floating-tooltip");
+      domLoaded = true;
+    }
+  };
 
   const cmtt = (milliseconde) => {
     return new Date(milliseconde).toLocaleTimeString(navigator.language, {
@@ -131,7 +236,10 @@
       }
 
       const res = await ud.getOpenPositions();
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
       } else {
         openpositions = res;
@@ -188,7 +296,7 @@
       let url = [fetchUrl, $pair, $interval].join("/");
       let res = await Fetch({ url, endpoint: "ohlc" });
 
-      if (res.hasOwnProperty("error")) {
+      if (Object.prototype.hasOwnProperty.call(res, "error")) {
         console.error(`${res.message} ${res.error} (${res.statusCode})`);
       } else {
         Object.keys(res).map(
@@ -362,60 +470,59 @@
    * displayToolTipChart
    ************************/
   const displayToolTipChart = (param) => {
-    let toolTipWidth = 80,
-      toolTipHeight = 80,
-      toolTipMargin = 15,
-      opentooltip,
-      closetooltip,
-      hightooltip,
-      lowtooltip,
-      volumetooltip;
+    if (!chartblock || !toolTip) console.debug("[ERROR] displayToolTipChart");
+    else {
+      let toolTipWidth = 80,
+        toolTipHeight = 80,
+        toolTipMargin = 15,
+        opentooltip,
+        closetooltip,
+        hightooltip,
+        lowtooltip,
+        volumetooltip;
 
-    const seriesPriceValues = param.seriesPrices.values();
+      const seriesPriceValues = param.seriesPrices.values();
 
-    for (const value of seriesPriceValues) {
-      if (typeof value === "object") {
-        opentooltip = value["open"];
-        hightooltip = value["high"];
-        lowtooltip = value["low"];
-        closetooltip = value["close"];
+      for (const value of seriesPriceValues) {
+        if (typeof value === "object") {
+          opentooltip = value["open"];
+          hightooltip = value["high"];
+          lowtooltip = value["low"];
+          closetooltip = value["close"];
+        }
+
+        if (typeof value === "string") {
+          volumetooltip = parseFloat(value).toFixed(2);
+        }
       }
 
-      if (typeof value === "string") {
-        volumetooltip = parseFloat(value).toFixed(2);
-      }
-    }
+      // update tooltip
+      if (
+        param.point === undefined ||
+        !param.time ||
+        param.point.x < 0 ||
+        param.point.x > chartblock.clientWidth ||
+        param.point.y < 0 ||
+        param.point.y > chartblock.clientHeight ||
+        !activetooltip
+      ) {
+        toolTip.style.display = "none";
+      } else {
+        toolTip.style.display = "block";
+        let price = param.seriesPrices.get(candleSeries);
+        type = price.open <= price.close ? "green" : "red";
+        let timelaps =
+          $interval >= 10080
+            ? $interval / 60 / 24 + "J"
+            : $interval >= 60
+            ? $interval / 60 + "H"
+            : $interval + "M";
 
-    let chartblock = document.querySelector(".chart-block");
-    let toolTip = document.querySelector(".floating-tooltip");
+        let vol = "";
+        if (volumetooltip)
+          vol = `<br /><strong>Volume:</strong> ${volumetooltip}`;
 
-    // update tooltip
-    if (
-      param.point === undefined ||
-      !param.time ||
-      param.point.x < 0 ||
-      param.point.x > chartblock.clientWidth ||
-      param.point.y < 0 ||
-      param.point.y > chartblock.clientHeight ||
-      !activetooltip
-    ) {
-      toolTip.style.display = "none";
-    } else {
-      toolTip.style.display = "block";
-      let price = param.seriesPrices.get(candleSeries);
-      type = price.open <= price.close ? "green" : "red";
-      let timelaps =
-        $interval >= 10080
-          ? $interval / 60 / 24 + "J"
-          : $interval >= 60
-          ? $interval / 60 + "H"
-          : $interval + "M";
-
-      let vol = "";
-      if (volumetooltip)
-        vol = `<br /><strong>Volume:</strong> ${volumetooltip}`;
-
-      toolTip.innerHTML = `<div class="${type}">
+        toolTip.innerHTML = `<div class="${type}">
         <div class="title">
           <strong>${$assetpair.wsname} ${timelaps}</strong>
         </div>
@@ -428,30 +535,31 @@
         </div>
       </div>`;
 
-      let priceCoordinate = type === "green" ? price.open : price.close;
-      let coordinate = candleSeries.priceToCoordinate(priceCoordinate);
-      let shiftedCoordinate = param.point.x - 30;
+        let priceCoordinate = type === "green" ? price.open : price.close;
+        let coordinate = candleSeries.priceToCoordinate(priceCoordinate);
+        let shiftedCoordinate = param.point.x - 30;
 
-      if (coordinate === null) return;
+        if (coordinate === null) return;
 
-      shiftedCoordinate = Math.max(
-        0,
-        Math.min(chartblock.clientWidth - toolTipWidth, shiftedCoordinate)
-      );
+        shiftedCoordinate = Math.max(
+          0,
+          Math.min(chartblock.clientWidth - toolTipWidth, shiftedCoordinate)
+        );
 
-      let coordinateY =
-        coordinate - toolTipHeight - toolTipMargin > 0
-          ? coordinate - toolTipHeight - toolTipMargin
-          : Math.max(
-              0,
-              Math.min(
-                chartblock.clientHeight - toolTipHeight - toolTipMargin,
-                coordinate + toolTipMargin
-              )
-            );
+        let coordinateY =
+          coordinate - toolTipHeight - toolTipMargin > 0
+            ? coordinate - toolTipHeight - toolTipMargin
+            : Math.max(
+                0,
+                Math.min(
+                  chartblock.clientHeight - toolTipHeight - toolTipMargin,
+                  coordinate + toolTipMargin
+                )
+              );
 
-      toolTip.style.left = shiftedCoordinate + "px";
-      toolTip.style.top = coordinateY + "px";
+        toolTip.style.left = shiftedCoordinate + "px";
+        toolTip.style.top = coordinateY + "px";
+      }
     }
   };
 
@@ -514,7 +622,7 @@
 
       if (
         typeof datas[index][order_id] !== "undefined" &&
-        datas[index][order_id].hasOwnProperty("descr")
+        Object.prototype.hasOwnProperty.call(datas[index][order_id], "descr")
       ) {
         if ($assetpair.wsname === datas[index][order_id].descr.pair) {
           let color =
@@ -557,7 +665,9 @@
     markers_positions = [];
     Object.values(datas).map((val) => {
       if ($assetpair.altname === val.pair) {
-        if (markers_positions.hasOwnProperty(val.ordertxid)) {
+        if (
+          Object.prototype.hasOwnProperty.call(markers_positions, val.ordertxid)
+        ) {
           let val_exist = markers_positions[val.ordertxid];
           val_exist.time = val.time;
           val_exist.rollovertm = val.rollovertm;
@@ -602,7 +712,12 @@
         });
 
         // Ajout des PriceLine positions
-        if (!price_line_positions_display.hasOwnProperty(pos.postxid)) {
+        if (
+          !Object.prototype.hasOwnProperty.call(
+            price_line_positions_display,
+            pos.postxid
+          )
+        ) {
           price_line_positions[pos.postxid] = {
             postxid: pos.postxid,
             price: pos.price,
@@ -720,9 +835,9 @@
    * resizeChart
    ************************/
   const resizeChart = () => {
-    if (!isMounted) return false;
-    let chartblock = document.querySelector(".chart-block");
-    if (chartblock) {
+    if (!isMounted && !domLoaded) return false;
+    if (!chartblock) console.debug("[ERROR] resizeChart");
+    else {
       chartWidth = chartblock.clientWidth || chartWidth;
       chartApi.resize(chartWidth, chartHeight);
       $setResizeChart = false;
@@ -747,6 +862,7 @@
     isMounted = true;
     getChartHistoryDatas();
     GetOpenPositions();
+    bootstrap(document.readyState);
   });
 
   /**
@@ -756,93 +872,6 @@
     isMounted = false;
     $ohlcchart = false;
   });
-
-  const optionsChart = {
-    height: chartHeight,
-    layout: {
-      backgroundColor: "#212121",
-      textColor: "#fcfcfc",
-      fontFamily: "'iosevka-etoile', monospace",
-    },
-    grid: {
-      vertLines: {
-        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
-        style: 4,
-      },
-      horzLines: {
-        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
-        style: 4,
-      },
-    },
-    crosshair: {
-      mode: crosshairMode ? CrosshairMode.Magnet : CrosshairMode.Normal,
-      vertLine: {
-        labelVisible: true,
-        labelBackgroundColor: "rgba(51, 51, 51, 0.2)",
-      },
-    },
-    rightPriceScale: {
-      color: "#00ff00",
-      borderColor: "rgba(197, 203, 206, 0.8)",
-      mode: rightPriceScaleMode
-        ? PriceScaleMode.Logarithmic
-        : PriceScaleMode.Normal,
-      scaleMargins: {
-        top: 0.1,
-        bottom: 0.1,
-      },
-    },
-    timeScale: {
-      timeVisible: true,
-      secondsVisible: true,
-      borderColor: "rgba(197, 203, 206, 0.8)",
-      rightOffset: chartConfigInterval[$interval].offset,
-      barSpacing: chartConfigInterval[$interval].spacing,
-      fixLeftEdge: true,
-      lockVisibleTimeRangeOnResize: true,
-      rightBarStaysOnScroll: true,
-      // tickMarkFormatter: function (timePoint, tickMarkType, locale) {
-      //   console.log(timePoint, tickMarkType, locale);
-      // },
-    },
-    watermark: {
-      color: "rgba(100, 100, 100, 0.1)",
-      visible: true,
-      fontSize: 150,
-      text: $assetpair.wsname,
-    },
-    localization: {
-      locale: navigator.language,
-      dateFormat: getLocaleDateString(),
-    },
-  };
-
-  let CandlestickSeriesOpts = {
-    upColor: "#6ddc09",
-    downColor: "#fe1014",
-    borderDownColor: "#fe1014",
-    borderUpColor: "#6ddc09",
-    wickDownColor: "#fe1014",
-    wickUpColor: "#6ddc09",
-    priceFormat: {
-      type: "price",
-      precision: $assetpair.pair_decimals,
-      minMove: Number("0." + String(1).padStart($assetpair.pair_decimals, "0")),
-    },
-  };
-
-  let HistogramSeriesOpts = {
-    color: "#26a69a",
-    priceFormat: {
-      type: "volume",
-    },
-    priceLineVisible: true,
-    priceScaleId: "",
-    scaleMargins: {
-      top: 0.95,
-      bottom: 0,
-    },
-  };
 
   $: if ($setResizeChart) resizeChart();
   $: if ($interval) intvalSeconde = $interval * 60;
@@ -860,7 +889,6 @@
       if ($WSOpenOrders) {
         if (activeOrders) {
           getOrderMarker($WSOpenOrders);
-          console.log(markers_orders);
           if (markers_orders.length) {
             Object.values(markers_orders).map((pos) => {
               candleSeries.createPriceLine({
@@ -885,7 +913,10 @@
         if (price_line_positions) {
           Object.values(price_line_positions).map((pos) => {
             if (
-              !price_line_positions_display.hasOwnProperty(pos.postxid) ||
+              !Object.prototype.hasOwnProperty.call(
+                price_line_positions_display,
+                pos.postxid
+              ) ||
               changeInterval
             ) {
               let priceLine = candleSeries.createPriceLine({

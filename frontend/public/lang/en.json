@@ -153,6 +153,23 @@
       "emailNotValid": "Your email is not valid!",
       "passwordNotValid": "Your password is invalid! <br />Minimum 8 characters containing a capital letter and a special character!",
       "confirmPasswordNotValid": "Your password is not corresponding with your password confirmation!"
+    },
+    "msg": {
+      "authFail": "Authentication failed!",
+      "alreadyConnected": "Your are already connected!",
+      "wrongCredentials": "Unable to login. Wrong credentials!",
+      "notConfirmed": "Your email is not confirmed! Please confirm your email!",
+      "missingEMail": "Missing email",
+      "usernameAndPasswordRequired": "Username and Password is required!",
+      "errorMailSend": "Mail not send, please contact us!",
+      "fieldExist": "Your {field} is already exist!",
+      "loggedIn": "You are logged in",
+      "loggedOut": "You are logged out!",
+      "loggedOutError": "An error occured!",
+      "refreshToken": "You are refresh token",
+      "cantFindYou": "We can't find you, sorry.",
+      "emailSend": "An email has been sent to {email}",
+      "authenticated": "Authenticated!"
     }
   },
   "account": {

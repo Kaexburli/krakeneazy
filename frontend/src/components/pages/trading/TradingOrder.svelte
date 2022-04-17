@@ -1,11 +1,14 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount, createEventDispatcher } from "svelte";
   import { online, assetpair, asymbole } from "store/store.js";
   import { WSTicker, WSSpread, WSBook } from "store/wsstore.js";
   import UserData from "classes/UserData.js";
   import { getSummuryInfos } from "components/pages/trading/trade.js";
-
+  import { hasApikeysStore } from "store/userStore.js";
   import SegmentedButton, { Segment } from "@smui/segmented-button";
   import Textfield from "@smui/textfield";
   import Button from "@smui/button";
@@ -18,11 +21,12 @@
   import Slider from "@smui/slider";
   import { toast } from "@zerodevx/svelte-toast";
 
-  const dispatch = createEventDispatcher();
-
-  const ud = new UserData();
-
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   export let candleSeries;
+  const dispatch = createEventDispatcher();
+  const ud = new UserData();
 
   let dry = true;
   let error = false;
@@ -41,10 +45,10 @@
   let condtype = "limit";
   let condprice = null;
   let condtotal = null;
-  let base = $asymbole.hasOwnProperty($assetpair.base)
+  let base = Object.prototype.hasOwnProperty.call($asymbole, $assetpair.base)
     ? $asymbole[$assetpair.base].name
     : $assetpair.base;
-  let quote = $asymbole.hasOwnProperty($assetpair.quote)
+  let quote = Object.prototype.hasOwnProperty.call($asymbole, $assetpair.quote)
     ? $asymbole[$assetpair.quote].name
     : $assetpair.quote;
   let devise = "quote";
@@ -66,6 +70,20 @@
   let profit_percent_price = 1;
   let lastVolume = null;
   let lastTotal = null;
+  let btnBuy = null,
+    btnSell = null,
+    domLoaded = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      btnBuy = document.querySelector(".btnBuy");
+      btnSell = document.querySelector(".btnBuy");
+      domLoaded = true;
+    }
+  };
 
   /**
    * Notification
@@ -104,7 +122,6 @@
   };
 
   const GetBalance = async () => {
-    console.log("GetBalance");
     try {
       if (!$online) {
         error = true;
@@ -112,7 +129,10 @@
       }
 
       const res = await ud.getBalance();
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
       } else {
         balance = res;
@@ -125,19 +145,20 @@
 
   const setActionWay = (event, way) => {
     if (event) event.preventDefault();
-    console.log("setActionWay");
     type = way;
-    let btnBuy = document.querySelector(".btnBuy");
-    let btnSell = document.querySelector(".btnBuy");
 
-    if (way === "buy") {
-      btnBuy.classList.add("active");
-      btnSell.classList.remove("active");
-    }
+    if (!btnBuy || !btnSell)
+      console.debug("[ERROR] setActionWay btnBuy || btnSell");
+    else {
+      if (way === "buy") {
+        btnBuy.classList.add("active");
+        btnSell.classList.remove("active");
+      }
 
-    if (way === "sell") {
-      btnSell.classList.add("active");
-      btnBuy.classList.remove("active");
+      if (way === "sell") {
+        btnSell.classList.add("active");
+        btnBuy.classList.remove("active");
+      }
     }
 
     if (way === "buy") buyorsell = "quote";
@@ -145,7 +166,6 @@
   };
 
   const setPercentAmount = (event) => {
-    console.log("setPercentAmount");
     event.preventDefault();
     let percent = parseFloat(actionPercentSelected.slice(0, -1)) / 100;
     let funds = parseFloat(quote_balance);
@@ -156,7 +176,6 @@
   };
 
   const resetForm = () => {
-    console.log("resetForm");
     type;
     ordertype = "market";
     leverage = 0;
@@ -175,7 +194,6 @@
 
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
-    console.log("handleSubmitOrder");
     // AddOrder
     try {
       if (!$online) {
@@ -203,7 +221,10 @@
 
       const res = await ud.addOrder(params);
 
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
       } else {
         order = res;
@@ -211,9 +232,8 @@
         dispatch("closedialogorder", { closeDialogOrder: true });
         resetForm();
 
-        if (order.hasOwnProperty("descr")) {
+        if (Object.prototype.hasOwnProperty.call(order, "descr")) {
           for (const descr of Object.entries(order.descr)) {
-            console.log(descr[0], descr[1], params.condprice);
             // // Add chart Line price
             if (candleSeries) {
               candleSeries.createPriceLine({
@@ -229,7 +249,6 @@
           }
         }
 
-        console.log("ORDER", order);
         if (error) Notification(error, "error");
       }
     } catch (error) {
@@ -279,7 +298,6 @@
   };
 
   const calculateTradeFeeAndPnL = async () => {
-    console.log("calculateTradeFeeAndPnL");
     try {
       let calculator = {
         assetPair: $assetpair,
@@ -330,8 +348,9 @@
   };
 
   onMount(() => {
-    GetBalance();
-    setActionWay(false, "buy");
+    bootstrap(document.readyState);
+    if ($hasApikeysStore) GetBalance();
+    if (domLoaded) setActionWay(false, "buy");
   });
 
   // Prix actuel
@@ -362,7 +381,7 @@
               $assetpair.pair_decimals
             );
           } else {
-            if ($WSBook.hasOwnProperty("mirror")) {
+            if (Object.prototype.hasOwnProperty.call($WSBook, "mirror")) {
               let asks = $WSBook.mirror.as;
               let s = calculSlippageForMarkerOrder(
                 asks,
@@ -380,7 +399,7 @@
               $assetpair.pair_decimals
             );
           } else {
-            if ($WSBook.hasOwnProperty("mirror")) {
+            if (Object.prototype.hasOwnProperty.call($WSBook, "mirror")) {
               let bids = $WSBook.mirror.bs;
               let s = calculSlippageForMarkerOrder(
                 bids,
@@ -432,9 +451,11 @@
     }
 
     quote_balance =
-      buyorsell === "quote" && balance.hasOwnProperty($assetpair.quote)
+      buyorsell === "quote" &&
+      Object.prototype.hasOwnProperty.call(balance, $assetpair.quote)
         ? balance[$assetpair.quote]
-        : buyorsell === "base" && balance.hasOwnProperty($assetpair.base)
+        : buyorsell === "base" &&
+          Object.prototype.hasOwnProperty.call(balance, $assetpair.base)
         ? balance[$assetpair.base]
         : "";
     fundDevise = buyorsell === "base" ? $assetpair.base : $assetpair.quote;

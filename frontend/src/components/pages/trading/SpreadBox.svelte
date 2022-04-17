@@ -1,14 +1,20 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import Fetch from "utils/Runfetch.js";
   import { WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
   import { assetpair, asymbole, tradedata } from "store/store.js";
 
-  let base = $asymbole.hasOwnProperty($assetpair.base)
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  let base = Object.prototype.hasOwnProperty.call($asymbole, $assetpair.base)
     ? $asymbole[$assetpair.base].name
     : $assetpair.wsname.split("/")[0];
-  let quote = $asymbole.hasOwnProperty($assetpair.quote)
+  let quote = Object.prototype.hasOwnProperty.call($asymbole, $assetpair.quote)
     ? $asymbole[$assetpair.quote].name
     : $assetpair.wsname.split("/")[1];
 
@@ -21,10 +27,11 @@
     spread_calcul = "0.00",
     decimals = $assetpair.pair_decimals,
     lot_decimals = $assetpair.lot_decimals,
-    backUrl =
-      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
-    fetchUrl = `${backUrl}/api/trades/${$assetpair.altname}`,
-    last = null;
+    fetchUrl = `/api/trades/${$assetpair.altname}`,
+    last = null,
+    spreadbid = null,
+    spreadask = null,
+    domLoaded = false;
 
   const formatter = new Intl.DateTimeFormat(navigator.language, {
     hour12: false,
@@ -36,10 +43,25 @@
     second: "2-digit",
   });
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      spreadbid = document.querySelector(".spreadbid");
+      spreadask = document.querySelector(".spreadask");
+      updateSpreadBox();
+      domLoaded = true;
+    }
+  };
+
   const getAssetTrades = async () => {
     let res = await Fetch({ url: fetchUrl, endpoint: "trades" });
 
-    if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+    if (
+      typeof res !== "undefined" &&
+      Object.prototype.hasOwnProperty.call(res, "error")
+    ) {
       console.error("[ERROR] : " + res.statusCode + " " + res.message);
       return false;
     }
@@ -48,7 +70,19 @@
     if (pair) tradedata.set(res[pair].reverse().slice(0, 500));
   };
 
-  onMount(() => getAssetTrades());
+  const updateSpreadBox = () => {
+    if (!spreadbid || !spreadask)
+      console.debug("[ERROR] spreadBox", spreadbid, spreadask);
+    else {
+      spreadbid.style.width = bid_spread + "%";
+      spreadask.style.width = ask_spread + "%";
+    }
+  };
+
+  onMount(() => {
+    bootstrap(document.readyState);
+    getAssetTrades();
+  });
 
   $: if ($WSTrade) $tradedata = [...$WSTrade, ...$tradedata];
   $: if ($WSSpread) spreaddata = $WSSpread;
@@ -57,7 +91,7 @@
   $: {
     if (
       tickerdata &&
-      tickerdata.hasOwnProperty("c") &&
+      Object.prototype.hasOwnProperty.call(tickerdata, "c") &&
       spreaddata &&
       spreaddata.length > 0
     ) {
@@ -68,126 +102,117 @@
       ask_spread = Math.abs(spreaddata[0] - tickerdata["c"][0]);
       ask_bid_diff = Math.abs(ask_spread + bid_spread);
       ask_bid_spread_diff = Math.abs(spreaddata[0] - spreaddata[1]);
-
       ask_spread = ((ask_spread / ask_bid_diff) * 100) / 2;
       bid_spread = ((bid_spread / ask_bid_diff) * 100) / 2;
 
-      let spreadbid = document.querySelector(".spreadbid");
-      let spreadask = document.querySelector(".spreadask");
-
-      if (spreadbid && spreadask && spreadbid !== null && spreadask !== null) {
-        spreadbid.style.width = bid_spread + "%";
-        spreadask.style.width = ask_spread + "%";
-      }
+      if (domLoaded) updateSpreadBox();
     }
   }
 </script>
 
-{#if !isNaN(ask_spread) && !isNaN(bid_spread)}
-  <div class="container-box">
-    <div id="jaugespread">
-      <span class="spreadpercent-left"
-        >({Number(ask_spread * 2).toFixed(2)}%)</span
-      >
-      <span class="spreadpercent-right"
-        >({Number(bid_spread * 2).toFixed(2)}%)</span
-      >
-      <span class="spreadask" />
-      <span class="spreadbid" />
-      <span class="spread">{spread_calcul}</span>
-    </div>
-    {#if spreaddata && spreaddata.length > 0}
-      <div class="spread-box right">
-        <h5>
-          <span class="left"
-            >{$_("trading.spreadBox.askTitle")}
-            <span class="little">({$_("trading.spreadBox.ask")})</span></span
-          >
-          <span class="right"
-            >{$_("trading.spreadBox.bidTitle")}
-            <span class="little">({$_("trading.spreadBox.bid")})</span></span
-          >
-          <span>{$_("trading.spreadBox.spread")}</span>
-        </h5>
-        <div class="left">
-          <span class="ask-spread">
-            {Number(spreaddata[1]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span class="ask-spread-vol">
-            ({Number(spreaddata[4]).toFixed(lot_decimals)})
-          </span>
-        </div>
-        &nbsp;{Number(ask_bid_spread_diff).toFixed(2)}&nbsp;
-        <div class="right">
-          <span class="bid-spread">
-            {Number(spreaddata[0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span class="bid-spread-vol">
-            ({Number(spreaddata[3]).toFixed(lot_decimals)})
-          </span>
-        </div>
-      </div>
-    {/if}
-
-    {#if tickerdata && tickerdata.hasOwnProperty("c")}
-      <div class="ticker-box">
-        <h5>
-          <span class="left"
-            >{$_("trading.spreadBox.askTitle")}
-            <span class="little">({$_("trading.spreadBox.ask")})</span></span
-          >
-          <span class="right"
-            >{$_("trading.spreadBox.bidTitle")}
-            <span class="little">({$_("trading.spreadBox.bid")})</span></span
-          >
-          <span>{$_("trading.spreadBox.price")}</span>
-        </h5>
-        <div>
-          <span class="ask-tick left">
-            {Number(tickerdata["a"][0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span class="bid-tick right">
-            {Number(tickerdata["b"][0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span class="current_price">
-            {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-        </div>
-      </div>
-    {/if}
-
-    {#if $tradedata}
-      <div class="recent-trade">
-        {#each $tradedata as td}
-          <div class="{td[3]} vol{parseInt(td[1] * td[0]).toString().length}">
-            <span class="badge {td[4]}">
-              {#if td[4] === "l"}{$_(
-                  "trading.spreadBox.limit"
-                )}{:else if td[4] === "m"}{$_("trading.spreadBox.market")}{/if}
-            </span>
-            <span class="date">{formatter.format(parseInt(td[2]) * 1000)}</span>
-            <span class="price">
-              {$_("trading.spreadBox.price")}
-              {#if td[3] === "b"}
-                {$_("trading.spreadBox.priceBid")}
-              {:else if td[3] === "s"}
-                {$_("trading.spreadBox.priceAsk")}
-              {/if}:
-              {Number(td[0]).toFixed(decimals)}&nbsp;{quote}
-            </span>
-            <span class="volume">
-              {$_("trading.spreadBox.volume")}: ({td[1]})
-            </span>
-            <span class="amount">
-              {$_("trading.spreadBox.totalCost")}:
-              {Number(td[1] * td[0]).toFixed(decimals)}&nbsp;{quote}
-            </span>
-          </div>
-        {/each}
-      </div>
-    {/if}
+<div class="container-box">
+  <div id="jaugespread">
+    <span class="spreadpercent-left"
+      >({Number(ask_spread * 2).toFixed(2)}%)</span
+    >
+    <span class="spreadpercent-right"
+      >({Number(bid_spread * 2).toFixed(2)}%)</span
+    >
+    <span class="spreadask" />
+    <span class="spreadbid" />
+    <span class="spread">{spread_calcul}</span>
   </div>
-{/if}
+  {#if spreaddata && spreaddata.length > 0}
+    <div class="spread-box right">
+      <h5>
+        <span class="left"
+          >{$_("trading.spreadBox.askTitle")}
+          <span class="little">({$_("trading.spreadBox.ask")})</span></span
+        >
+        <span class="right"
+          >{$_("trading.spreadBox.bidTitle")}
+          <span class="little">({$_("trading.spreadBox.bid")})</span></span
+        >
+        <span>{$_("trading.spreadBox.spread")}</span>
+      </h5>
+      <div class="left">
+        <span class="ask-spread">
+          {Number(spreaddata[1]).toFixed(decimals)}&nbsp;{quote}
+        </span>
+        <span class="ask-spread-vol">
+          ({Number(spreaddata[4]).toFixed(lot_decimals)})
+        </span>
+      </div>
+      &nbsp;{Number(ask_bid_spread_diff).toFixed(2)}&nbsp;
+      <div class="right">
+        <span class="bid-spread">
+          {Number(spreaddata[0]).toFixed(decimals)}&nbsp;{quote}
+        </span>
+        <span class="bid-spread-vol">
+          ({Number(spreaddata[3]).toFixed(lot_decimals)})
+        </span>
+      </div>
+    </div>
+  {/if}
+
+  {#if tickerdata && Object.prototype.hasOwnProperty.call(tickerdata, "c")}
+    <div class="ticker-box">
+      <h5>
+        <span class="left"
+          >{$_("trading.spreadBox.askTitle")}
+          <span class="little">({$_("trading.spreadBox.ask")})</span></span
+        >
+        <span class="right"
+          >{$_("trading.spreadBox.bidTitle")}
+          <span class="little">({$_("trading.spreadBox.bid")})</span></span
+        >
+        <span>{$_("trading.spreadBox.price")}</span>
+      </h5>
+      <div>
+        <span class="ask-tick left">
+          {Number(tickerdata["a"][0]).toFixed(decimals)}&nbsp;{quote}
+        </span>
+        <span class="bid-tick right">
+          {Number(tickerdata["b"][0]).toFixed(decimals)}&nbsp;{quote}
+        </span>
+        <span class="current_price">
+          {Number(tickerdata["c"][0]).toFixed(decimals)}&nbsp;{quote}
+        </span>
+      </div>
+    </div>
+  {/if}
+
+  {#if $tradedata}
+    <div class="recent-trade">
+      {#each $tradedata as td}
+        <div class="{td[3]} vol{parseInt(td[1] * td[0]).toString().length}">
+          <span class="badge {td[4]}">
+            {#if td[4] === "l"}{$_(
+                "trading.spreadBox.limit"
+              )}{:else if td[4] === "m"}{$_("trading.spreadBox.market")}{/if}
+          </span>
+          <span class="date">{formatter.format(parseInt(td[2]) * 1000)}</span>
+          <span class="price">
+            {$_("trading.spreadBox.price")}
+            {#if td[3] === "b"}
+              {$_("trading.spreadBox.priceBid")}
+            {:else if td[3] === "s"}
+              {$_("trading.spreadBox.priceAsk")}
+            {/if}:
+            {Number(td[0]).toFixed(decimals)}&nbsp;{quote}
+          </span>
+          <span class="volume">
+            {$_("trading.spreadBox.volume")}: ({td[1]})
+          </span>
+          <span class="amount">
+            {$_("trading.spreadBox.totalCost")}:
+            {Number(td[1] * td[0]).toFixed(decimals)}&nbsp;{quote}
+          </span>
+        </div>
+      {/each}
+    </div>
+  {/if}
+</div>
 
 <style>
   #jaugespread {

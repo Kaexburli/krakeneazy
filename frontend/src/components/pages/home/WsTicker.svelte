@@ -25,7 +25,10 @@
     tickerdata = $WSTicker;
     dispatch("loading", { loading: true });
 
-    if (typeof tickerdata !== "undefined" && tickerdata.hasOwnProperty("a")) {
+    if (
+      typeof tickerdata !== "undefined" &&
+      Object.prototype.hasOwnProperty.call(tickerdata, "a")
+    ) {
       spread = (tickerdata["a"][0] - tickerdata["b"][0]).toFixed(decimals);
     }
   }

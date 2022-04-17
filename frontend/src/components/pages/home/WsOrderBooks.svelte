@@ -167,14 +167,14 @@
    * getBook
    ************************/
   const getBook = (data) => {
-    if (data.hasOwnProperty("snapshot")) {
+    if (Object.prototype.hasOwnProperty.call(data, "snapshot")) {
       order_book = data.snapshot;
-    } else if (data.hasOwnProperty("mirror")) {
+    } else if (Object.prototype.hasOwnProperty.call(data, "mirror")) {
       // let checksum = orderbookChecksum(order_book);
-    } else if (data.hasOwnProperty("ask")) {
+    } else if (Object.prototype.hasOwnProperty.call(data, "ask")) {
       ask = data.ask.a || false;
       if (ask) updateBook("as", ask, data.ask.c);
-    } else if (data.hasOwnProperty("bid")) {
+    } else if (Object.prototype.hasOwnProperty.call(data, "bid")) {
       bid = data.bid.b || false;
       if (bid) updateBook("bs", bid, data.bid.c);
     }

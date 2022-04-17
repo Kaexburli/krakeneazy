@@ -24,14 +24,14 @@ export const exportService = {
           actions: 'assignExpired'
         },
         RETREIVE: {
-          target: 'retreive',
+          target: 'retreive'
         },
         PROCESSED: {
           target: 'processed',
           actions: 'assignData'
         },
         ERROR: 'failure'
-      },
+      }
     },
     add: {
       invoke: {
@@ -42,14 +42,14 @@ export const exportService = {
       on: {
         ADDED: 'status',
         ERROR: 'failure'
-      },
+      }
     },
     status: {
       invoke: {
         id: 'statusExport',
         src: 'statusExport',
         onDone: 'loading',
-        onError: 'error',
+        onError: 'error'
       },
       on: {
         PROCESSED: 'retreive',
@@ -73,16 +73,16 @@ export const exportService = {
     error: {
       invoke: {
         id: 'error',
-        src: 'checkError',
+        src: 'checkError'
       }
     },
     failure: {
       invoke: {
         id: 'error',
-        src: 'checkError',
+        src: 'checkError'
       },
       type: 'final'
     },
-    processed: { type: 'final' },
+    processed: { type: 'final' }
   }
 }

@@ -82,7 +82,10 @@
     isError = $state.matches("error");
     isLoading = !$state.matches("displaying");
     datas = $state.context.dataformat;
-    if (datas.hasOwnProperty("chartDatas") && datas.chartDatas.length == 0) {
+    if (
+      Object.prototype.hasOwnProperty.call(datas, "chartDatas") &&
+      datas.chartDatas.length == 0
+    ) {
       $page = "reports";
     }
   }
@@ -98,7 +101,7 @@
     <LinearProgress indeterminate />
   {/if}
   <div class="chart-block">
-    {#if datas.hasOwnProperty("chartDatas")}
+    {#if Object.prototype.hasOwnProperty.call(datas, "chartDatas")}
       {#each Object.keys(datas.chartDatas) as ledg}
         <div class="chart">
           <h4>{$_(`statistics.${ledg}`)}</h4>

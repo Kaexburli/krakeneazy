@@ -1,30 +1,50 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
   import Fetch from "utils/Runfetch.js";
   import { User } from "store/userStore.js";
   import { pair, assetpair, assetpairs } from "store/store.js";
   import { DoubleBounce } from "svelte-loading-spinners";
 
-  let backUrl =
-      __env["ENVIRONMENT"] === "development" ? __env["BACKEND_URI"] : "",
-    fetchUrl = backUrl + "/api/assetpairs",
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  const token = $User.token || false;
+
+  let fetchUrl = "/api/assetpairs",
     assetpairVal,
     spinner = false,
-    isFocused = false;
+    isFocused = false,
+    searchbox = null,
+    searchboxresult = null,
+    domLoaded = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      searchbox = document.getElementById("search-box");
+      searchboxresult = document.getElementById("search-box-result");
+      domLoaded = true;
+    }
+  };
 
   const onFocus = () => (isFocused = true);
+
   const onBlur = () => {
     assetpairVal.value = "";
     isFocused = false;
     spinner = false;
 
-    const searchboxresult = document.getElementById("search-box-result");
     setTimeout(() => {
-      searchboxresult.style.display = "none";
+      if (searchboxresult) searchboxresult.style.display = "none";
+      else console.error("[ERROR] searchboxresult");
     }, 1000);
   };
-
-  const token = $User.token || false;
 
   const getAssetPairs = async () => {
     try {
@@ -65,26 +85,31 @@
   };
 
   const createSearchBox = (searchValues) => {
-    const ul = document.getElementById("search-box");
-    const searchboxresult = document.getElementById("search-box-result");
-    while (ul.firstChild) {
-      ul.firstChild.remove();
-    }
+    if (!searchbox || !searchboxresult)
+      console.debug("[ERROR] createSearchBox");
+    else {
+      while (searchbox.firstChild) {
+        searchbox.firstChild.remove();
+      }
 
-    searchValues.forEach((v) => {
-      let li = document.createElement("li");
-      li.appendChild(document.createTextNode(v[1]["wsname"]));
-      li.setAttribute("id", v[0]);
-      ul.appendChild(li);
-      li.addEventListener("click", function (e) {
-        changeAssetPair(e.target.id);
-        searchboxresult.style.display = "none";
+      searchValues.forEach((v) => {
+        let li = document.createElement("li");
+        li.appendChild(document.createTextNode(v[1]["wsname"]));
+        li.setAttribute("id", v[0]);
+        searchbox.appendChild(li);
+        li.addEventListener("click", function (e) {
+          changeAssetPair(e.target.id);
+          searchboxresult.style.display = "none";
+        });
       });
-    });
-    searchboxresult.style.display = "block";
+      searchboxresult.style.display = "block";
+    }
   };
 
-  if (!$assetpairs) getAssetPairs();
+  onMount(() => {
+    bootstrap(document.readyState);
+    if (!$assetpairs) getAssetPairs();
+  });
 </script>
 
 <div class="assetpairs-search">

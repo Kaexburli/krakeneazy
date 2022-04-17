@@ -1,36 +1,39 @@
-// Require the framework and instantiate it
-import * as fs from 'fs';
-import path from 'path';
-const __dirname = path.resolve(path.dirname(''));
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
+import * as fs from 'fs'
+import path from 'path'
+import Fastify from 'fastify'
+import FastifySwagger from 'fastify-swagger'
+import FastifyEnv from 'fastify-env'
+import FastifyCors from 'fastify-cors'
+import FastifyWs from 'fastify-websocket'
+import Autoload from 'fastify-autoload'
+import FastifyAuth from 'fastify-auth'
+import fastifyErrorPage from 'fastify-error-page'
+import db from './api/config/index'
+import env from 'dotenv'
 
-import Fastify from 'fastify';
-import FastifySwagger from 'fastify-swagger';
-import FastifyEnv from 'fastify-env';
-import FastifyCors from 'fastify-cors';
-import FastifyWs from 'fastify-websocket';
-import Autoload from 'fastify-autoload';
-import FastifyAuth from 'fastify-auth';
-import fastifyErrorPage from 'fastify-error-page';
-
-import db from './api/config/index';
-
-import env from 'dotenv';
-env.config({ path: __dirname + "/../.env" });
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
+const __dirname = path.resolve(path.dirname(''))
+env.config({ path: __dirname + '/../.env' })
 
 const PORT = process.env.BACK_PORT || '9000'
-const uri = process.env.MONGODB_URI;
+const uri = process.env.MONGODB_URI
 
-const environment = process.env.ENVIRONMENT;
-const levels = ["fatal", "error", "warn", "info", "debug", "trace"]
+const environment = process.env.ENVIRONMENT
+const levels = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
 const fastify = Fastify({
   logger: {
-    level: levels[2],
+    level: environment === 'development' ? levels[5] : levels[0],
     prettyPrint:
       environment === 'development'
         ? {
-          translateTime: 'HH:MM:ss Z',
-          ignore: 'pid,hostname'
-        }
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname'
+          }
         : false
   }
 })
@@ -46,12 +49,15 @@ const options = {
   dotenv: true
 }
 
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
 fastify.register(FastifySwagger, {
   exposeRoute: true,
   routePrefix: '/docs',
   swagger: {
-    info: { title: 'fastify-api' },
-  },
+    info: { title: 'fastify-api' }
+  }
 })
 
 fastify
@@ -59,36 +65,41 @@ fastify
   .register(FastifyEnv, options)
   .register(FastifyCors)
   .register(FastifyWs)
-  .register(FastifyAuth);
-
-if (environment === 'development')
-  fastify.register(fastifyErrorPage)
-
+  .register(FastifyAuth)
 
 // Page error 4xx et 5xx
-fastify.setErrorHandler(function (error, request, reply) {
-  var statusCode = error.statusCode
-  if (statusCode >= 500) {
-    const pageNotFoundStream = fs.createReadStream('./public/500.html')
-    fastify.log.error(`[SERVER setErrorHandler 500]:${error}`)
-    reply.code(500).type('text/html').send(pageNotFoundStream)
-  } else if (statusCode >= 400) {
-    const pageNotFoundStream = fs.createReadStream('./public/400.html')
-    fastify.log.error(`[SERVER setErrorHandler 400]:${error}`)
-    reply.code(400).type('text/html').send(pageNotFoundStream)
-  } else {
-    const pageNotFoundStream = fs.createReadStream('./public/maintenance.html')
-    fastify.log.error(`[SERVER setErrorHandler no code]:${error}`)
-    reply.code(404).type('text/html').send(pageNotFoundStream)
-  }
-})
+if (environment === 'development') {
+  fastify.register(fastifyErrorPage)
+} else {
+  fastify.setErrorHandler((error, request, reply) => {
+    const statusCode = reply.statusCode
+    if (statusCode >= 500) {
+      const pageNotFoundStream = fs.createReadStream(
+        '../../_error_pages/500.html'
+      )
+      fastify.log.error(`[SERVER setErrorHandler ${statusCode}]:${error}`)
+      reply.code(500).type('text/html').send(pageNotFoundStream)
+    } else if (statusCode >= 400) {
+      const pageNotFoundStream = fs.createReadStream(
+        '../../_error_pages/400.html'
+      )
+      fastify.log.error(`[SERVER setErrorHandler ${statusCode}]:${error}`)
+      reply.code(400).type('text/html').send(pageNotFoundStream)
+    } else {
+      const pageNotFoundStream = fs.createReadStream(
+        '../../_error_pages/maintenance.html'
+      )
+      fastify.log.error(`[SERVER setErrorHandler]:${error}`)
+      reply.code(404).type('text/html').send(pageNotFoundStream)
+    }
+  })
+}
 
 // Page 404 Not Found
-fastify.setNotFoundHandler(function (request, reply) {
+fastify.setNotFoundHandler((request, reply) => {
   const pageNotFoundStream = fs.createReadStream('./public/404.html')
   reply.code(404).type('text/html').send(pageNotFoundStream)
 })
-
 
 // Declare a route
 fastify.register(Autoload, {
@@ -98,12 +109,32 @@ fastify.register(Autoload, {
 // Run the server!
 const start = async () => {
   try {
-    fastify.listen(PORT, err => {
+    fastify.listen(PORT, (err) => {
       if (err) throw err
-      console.log(
-        'Server listenting on :',
-        `http://${fastify.server.address().address}:${fastify.server.address().port}`
-      )
+      else {
+        console.log(
+          'Server listenting on :',
+          `http://${fastify.server.address().address}:${
+            fastify.server.address().port
+          }`
+        )
+      }
+
+      if (environment === 'production') {
+        setTimeout(() => {
+          process.send('ready')
+        }, 5000)
+      }
+
+      function cleanupAndExit () {
+        fastify.close(() => {
+          console.log('Server closed gracefull!!')
+          process.exit(0)
+        })
+      }
+
+      process.on('SIGTERM', cleanupAndExit)
+      process.on('SIGINT', cleanupAndExit)
     })
   } catch (err) {
     fastify.log.error(`[SERVER START ERROR]:${err}`)
@@ -113,8 +144,8 @@ const start = async () => {
 start()
 
 process.on('unhandledRejection', (reason, promise) => {
-  if (typeof reason !== "undefined" && typeof promise !== "undefined") {
-    console.log('[unhandledRejection]: reason is', reason);
-    console.log('[unhandledRejection]: promise is', promise);
+  if (typeof reason !== 'undefined' && typeof promise !== 'undefined') {
+    console.log('[unhandledRejection]: reason is', reason)
+    console.log('[unhandledRejection]: promise is', promise)
   }
-});
+})

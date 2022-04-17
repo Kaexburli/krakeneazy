@@ -36,7 +36,12 @@
       let status = datas[index][order_id]["status"];
       switch (status) {
         case "open":
-          if (datas[index][order_id].hasOwnProperty("opentm")) {
+          if (
+            Object.prototype.hasOwnProperty.call(
+              datas[index][order_id],
+              "opentm"
+            )
+          ) {
             // Vérifie si le status de l'élément est 'open' et si il existe une propriété 'opentm'
             // Si les 2 conditions sont remplis on push l'élément dans la variable openorders_tmp
             // console.log("# Nouvelle ouverture d'ordre ou ordre existant");
@@ -93,7 +98,12 @@
           break;
 
         default:
-          if (!datas[index][order_id].hasOwnProperty("status")) {
+          if (
+            !Object.prototype.hasOwnProperty.call(
+              datas[index][order_id],
+              "status"
+            )
+          ) {
             // Cas d'ordre exécuté
             // La valeur vol_exec est mis a jour sur l'id d'ordre
             // console.log("# Mise a jour du volume exécuté");
@@ -135,14 +145,20 @@
 
       const ud = new UserData();
       const res = await ud.getOpenOrders({ trade: true });
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
         error = res.error;
         setTimeout(() => {
           GetOpenOrders();
         }, res.timeout);
         isLoading = false;
       } else {
-        if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
+        if (
+          typeof res !== "undefined" &&
+          Object.prototype.hasOwnProperty.call(res, "open")
+        ) {
           let openorders_tmp = [];
           Object.keys(res.open).map((key) => {
             // Création d'un objet temporaire

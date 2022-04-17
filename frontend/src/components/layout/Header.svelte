@@ -1,17 +1,39 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
+  import { onMount } from "svelte";
   import SelectDevises from "components/SelectDevises.svelte";
   import AssetPairsSearch from "components/AssetPairsSearch.svelte";
   import Logout from "components/Logout.svelte";
 
-  const handleClickMenu = (e) => {
-    document.body.classList.toggle("active");
-    document.getElementById("sidebar").classList.toggle("active");
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  let sidebar = null,
+    domLoaded = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      sidebar = document.getElementById("sidebar");
+      domLoaded = true;
+    }
   };
 
-  // Active par default
-  document.addEventListener("DOMContentLoaded", function (event) {
-    handleClickMenu();
+  const handleClickMenu = (e) => {
+    document.body.classList.toggle("active");
+    if (!sidebar) console.debug("[ERROR] handleClickMenu");
+    else sidebar.classList.toggle("active");
+  };
+
+  onMount(() => {
+    bootstrap(document.readyState);
   });
+
+  $: if (domLoaded) handleClickMenu();
 </script>
 
 <div class="header">

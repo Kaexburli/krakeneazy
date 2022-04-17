@@ -16,47 +16,47 @@ const context = {
  * @returns Définie une variable statisticsService utilisé pour la stateMachine
  */
 export const statisticsService = {
-  id: "statisticsMachine",
-  initial: "idle",
+  id: 'statisticsMachine',
+  initial: 'idle',
   context,
   states: {
     idle: {
-      on: { FETCH: "loading" },
+      on: { FETCH: 'loading' }
     },
     loading: {
       invoke: {
-        src: "fetchExport",
+        src: 'fetchExport',
         onDone: {
-          target: "success",
-          actions: "assignData"
+          target: 'success',
+          actions: 'assignData'
         },
         onError: {
-          target: "error",
-          actions: "displayError",
-        },
-      },
+          target: 'error',
+          actions: 'displayError'
+        }
+      }
     },
     processing: {
       invoke: {
-        src: "processingData",
+        src: 'processingData',
         onDone: {
-          target: "displaying",
-          actions: "assignDataDisplay"
+          target: 'displaying',
+          actions: 'assignDataDisplay'
         },
         onError: {
-          target: "error",
-          actions: "displayError",
-        },
-      },
+          target: 'error',
+          actions: 'displayError'
+        }
+      }
     },
     success: {
-      on: { NEXT: "processing" },
+      on: { NEXT: 'processing' }
     },
     error: {
-      on: { FETCH: "loading" },
+      on: { FETCH: 'loading' }
     },
     displaying: {
       type: 'final'
-    },
-  },
+    }
+  }
 }

@@ -153,6 +153,23 @@
       "emailNotValid": "L'email indiqué n'est pas valide!",
       "passwordNotValid": "Votre mot de passe n'est pas valide ! <br />Minimum 8 caractères contenant une majuscule et un caractère spécial",
       "confirmPasswordNotValid": "Votre mot de passe ne correspond pas à votre confirmation de mot de passe"
+    },
+    "msg": {
+      "authFail": "L'authentification a échoué!",
+      "alreadyConnected": "Vous êtes déjà connecté!",
+      "wrongCredentials": "Impossible de se connecter. Mauvais identifiants!",
+      "notConfirmed": "Votre email n'est pas confirmé ! Veuillez confirmer votre email !",
+      "missingEMail": "E-mail manquant",
+      "usernameAndPasswordRequired": "Le nom d'utilisateur et le mot de passe sont requis!",
+      "errorMailSend": "Mail non envoyé, veuillez nous contacter !",
+      "fieldExist": "Votre {field} existe déjà!",
+      "loggedIn": "Vous êtes connecté!",
+      "loggedOut": "Vous êtes déconnecté!",
+      "loggedOutError": "Une erreur est intervenue!",
+      "refreshToken": "Votre connexion à bien été actualisé!",
+      "cantFindYou": "Aucun email correspondant!",
+      "emailSend": "Un e-mail a été envoyé à {email}",
+      "authenticated": "Authentifié!"
     }
   },
   "account": {

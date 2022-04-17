@@ -151,14 +151,13 @@
           type="name"
           style="width: 100%;"
           helperLine$style="width: 100%;"
-          input$autocomplete="name"
+          input$autocomplete="off"
           bind:value={firstname}
           bind:invalid={invalidFirstname}
           updateInvalid
           label={userProfile.user.firstname}
           on:change={(e) => handleChange(e, "firstname")}
           input$pattern={"^[a-zA-Z-]+$"}
-          autocomplete="off"
         >
           <Icon class="material-icons" slot="leadingIcon">person</Icon>
           <Icon class="material-icons" slot="trailingIcon">
@@ -179,14 +178,13 @@
           type="username"
           style="width: 100%;"
           helperLine$style="width: 100%;"
-          input$autocomplete="username"
+          input$autocomplete="off"
           bind:value={username}
           bind:invalid={invalidUsername}
           updateInvalid
           label={userProfile.user.username}
           on:change={(e) => handleChange(e, "username")}
           input$pattern={"^[A-Za-z0-9_-]{1,254}$"}
-          autocomplete="off"
         >
           <Icon class="material-icons" slot="leadingIcon">perm_identity</Icon>
           <Icon class="material-icons" slot="trailingIcon">
@@ -207,14 +205,13 @@
           type="password"
           style="width: 100%;"
           helperLine$style="width: 100%;"
-          input$autocomplete="name"
+          input$autocomplete="off"
           bind:value={password}
           bind:invalid={invalidPassword}
           updateInvalid
           label=""
           on:change={(e) => handleChange(e, "password")}
           input$pattern={"^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\\W).*$"}
-          autocomplete="off"
         >
           <Icon class="material-icons" slot="leadingIcon">lock</Icon>
           <Icon class="material-icons" slot="trailingIcon">
@@ -237,14 +234,13 @@
           type="name"
           style="width: 100%;"
           helperLine$style="width: 100%;"
-          input$autocomplete="name"
+          input$autocomplete="off"
           bind:value={lastname}
           bind:invalid={invalidLastname}
           updateInvalid
           label={userProfile.user.lastname}
           on:change={(e) => handleChange(e, "lastname")}
           input$pattern={"^[a-zA-Z-]+$"}
-          autocomplete="off"
         >
           <Icon class="material-icons" slot="leadingIcon">person</Icon>
           <Icon class="material-icons" slot="trailingIcon">
@@ -266,13 +262,12 @@
           type="email"
           style="width: 100%;"
           helperLine$style="width: 100%;"
-          input$autocomplete="email"
+          input$autocomplete="off"
           bind:value={email}
           bind:invalid={invalidEmail}
           updateInvalid
           label={userProfile.user.email}
           on:change={(e) => handleChange(e, "email")}
-          autocomplete="off"
           disabled
         >
           <Icon class="material-icons" slot="leadingIcon">email</Icon>
@@ -294,14 +289,13 @@
           type="password"
           style="width: 100%;"
           helperLine$style="width: 100%;"
-          input$autocomplete="name"
+          input$autocomplete="off"
           bind:value={passwordConfirm}
           bind:invalid={invalidPasswordConfirm}
           updateInvalid
           label=""
           on:change={(e) => handleChange(e, "passwordConfirm")}
           input$pattern={"^" + escapeRegExp(password).replace(/\*/, ".*") + "$"}
-          autocomplete="off"
         >
           <Icon class="material-icons" slot="leadingIcon">lock</Icon>
           <Icon class="material-icons" slot="trailingIcon">

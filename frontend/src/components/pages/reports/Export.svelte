@@ -45,7 +45,8 @@
       const res = await getListExport(ctx, event);
 
       if (Array.isArray(res)) callback({ type: "PROCESSED", newData: res });
-      else if (res.hasOwnProperty("callback")) callback(res.callback);
+      else if (Object.prototype.hasOwnProperty.call(res, "callback"))
+        callback(res.callback);
       else if (!res) callback("ERROR");
     };
   };
@@ -63,7 +64,7 @@
     return async (callback, _onEvent) => {
       const res = await AddExport(event.data.type);
 
-      if (res.hasOwnProperty("callback")) {
+      if (Object.prototype.hasOwnProperty.call(res, "callback")) {
         if (res.callback.type === "ERROR_TRAD") {
           const callBack = {
             type: "ERROR",
@@ -99,7 +100,7 @@
       const res = await StatusExport(event.data.type, event.data.id, userId);
 
       if (res) {
-        if (res.hasOwnProperty("error"))
+        if (Object.prototype.hasOwnProperty.call(res, "error"))
           callback({ type: "ERROR", error: $_(`reports.export.${res.error}`) });
 
         if (ctx.count >= 1) await wait(10000);
@@ -133,7 +134,10 @@
         userId
       );
 
-      if (typeof retreive !== "undefined" && retreive.hasOwnProperty("error")) {
+      if (
+        typeof retreive !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(retreive, "error")
+      ) {
         message += retreive.error;
       } else if (typeof retreive !== "undefined" && retreive.res) {
         message += $_("reports.export.endExtractExport", {
@@ -151,9 +155,9 @@
    * checkError
    */
   const checkError = async (_ctx, event) => {
-    errorMsg = event.hasOwnProperty("data")
+    errorMsg = Object.prototype.hasOwnProperty.call(event, "data")
       ? event.data
-      : event.hasOwnProperty("error")
+      : Object.prototype.hasOwnProperty.call(event, "error")
       ? event.error
       : event;
 

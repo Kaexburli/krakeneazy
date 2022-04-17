@@ -32,4 +32,10 @@ TODO
 backend/kraken.env.js
 /export/**
 frontend/yarn-error.log
-/smtp.env.js
+/smtp.env.mjs
+/conf/
+/logs/
+/temp/
+.editorconfig
+.eslintrc.js
+deploy.cmd.js
