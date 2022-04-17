@@ -91,7 +91,9 @@ module.exports = {
       path: process.env.DEPLOY_STAGING_PATH,
       ssh_options: 'StrictHostKeyChecking=no',
       'pre-setup': command.staging.presetup,
-      'post-setup': command.staging.postsetup
+      'post-setup': command.staging.postsetup,
+      'pre-deploy': command.staging.predeploy,
+      'post-deploy': command.staging.postdeploy
     },
     production: {
       user: process.env.DEPLOY_USER,
@@ -101,7 +103,9 @@ module.exports = {
       path: process.env.DEPLOY_PROD_PATH,
       ssh_options: 'StrictHostKeyChecking=no',
       'pre-setup': command.production.presetup,
-      'post-setup': command.production.postsetup
+      'post-setup': command.production.postsetup,
+      'pre-deploy': command.production.predeploy,
+      'post-deploy': command.production.postdeploy
     }
   }
 }
