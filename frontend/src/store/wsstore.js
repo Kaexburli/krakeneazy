@@ -37,7 +37,7 @@ export const WSTicker = derived(
                 `[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`
               )
             } else {
-              console.warn(
+              console.debug(
                 `[${tick.status.channelID}] ${
                   tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
                 } to channel [${tick.status.channelName.toUpperCase()}|${
@@ -107,7 +107,7 @@ export const WSTickerAlert = derived(
                   `[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`
                 )
               } else {
-                console.warn(
+                console.debug(
                   `[${tick.status.channelID}] ${
                     tick.status.status === 'subscribed'
                       ? 'Connect'
@@ -165,7 +165,7 @@ export const WSBook = derived(
                 `[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`
               )
             } else {
-              console.warn(
+              console.debug(
                 `[${tick.status.channelID}] ${
                   tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
                 } to channel [${tick.status.channelName.toUpperCase()}|${
@@ -215,7 +215,7 @@ export const WSOhlc = derived(
                 `[${tick.status.pair}] Websocket Ohlc ${tick.status.errorMessage}`
               )
             } else {
-              console.warn(
+              console.debug(
                 `[${tick.status.channelID}] ${
                   tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
                 } to channel [${tick.status.channelName.toUpperCase()}|${
@@ -264,7 +264,7 @@ export const WSSpread = derived(
                 `[${tick.status.pair}] Websocket Spread ${tick.status.errorMessage}`
               )
             } else {
-              console.warn(
+              console.debug(
                 `[${tick.status.channelID}] ${
                   tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
                 } to channel [${tick.status.channelName.toUpperCase()}|${
@@ -313,7 +313,7 @@ export const WSTrade = derived(
                 `[${tick.status.pair}] Websocket Trade ${tick.status.errorMessage}`
               )
             } else {
-              console.warn(
+              console.debug(
                 `[${tick.status.channelID}] ${
                   tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
                 } to channel [${tick.status.channelName.toUpperCase()}|${
@@ -362,14 +362,14 @@ export const WSOpenOrders = derived(
                 `[${tick.status.pair}] Websocket OpenOrders ${tick.status.errorMessage}`
               )
             } else {
-              console.warn(
+              console.debug(
                 `${
                   tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
                 } to channel [${tick.status.channelName.toUpperCase()}|${
                   tick.status.subscription.maxratecount
                 }] ${tick.status.status}!`
               )
-              console.error(
+              console.debug(
                 'maxratecount a mettre dans la base de données !!!!!!!!!!!!!!'
               )
             }
@@ -414,7 +414,7 @@ export const WSOwnTrades = derived(
                 `[${tick.status.pair}] Websocket OwnTrades ${tick.status.errorMessage}`
               )
             } else {
-              console.warn(
+              console.debug(
                 `${
                   tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
                 } to channel [${tick.status.channelName.toUpperCase()}] ${
