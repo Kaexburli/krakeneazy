@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount, afterUpdate } from "svelte";
   import {
@@ -11,12 +14,19 @@
   import { Moon } from "svelte-loading-spinners";
   import { User } from "store/userStore.js";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let isLoading = false,
     isError = false,
     isSuccess = false,
     isLoginFom = true,
     isForgotFom = false,
-    formClass = isLoginFom ? "loginForm" : "registerForm";
+    formClass = isLoginFom ? "loginForm" : "registerForm",
+    authForm = null,
+    inputsAll = null,
+    inputsClass = null,
+    domLoaded = false;
 
   const flashMessage = {
     confirmation: {
@@ -27,6 +37,20 @@
       ok: { message: $_("auth.resetConfirmSuccess"), flag: "success" },
       notok: { message: $_("auth.resetConfirmError"), flag: "error" },
     },
+  };
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      authForm = document.getElementById("authForm");
+      inputsClass = document.querySelectorAll(".input");
+      inputsAll = document.querySelectorAll(
+        `input[type="text"], input[type="email"], input[type="password"]`
+      );
+      domLoaded = true;
+    }
   };
 
   /**
@@ -58,7 +82,6 @@
    * @description Réinitialise le formulaire
    */
   const resetForm = () => {
-    const authForm = document.getElementById("authForm");
     if (!authForm) console.debug("[ERROR] resetForm");
     else authForm.reset();
   };
@@ -120,13 +143,9 @@
    * @returns { Void } void
    */
   const unsetError = () => {
-    let inputs = document.querySelectorAll(
-      `input[type="text"], input[type="email"], input[type="password"]`
-    );
-
-    if (!inputs) console.debug("[ERROR] unsetError");
+    if (!inputsAll) console.debug("[ERROR] unsetError");
     else {
-      for (const input of inputs) {
+      for (const input of inputsAll) {
         input.style.border = "0px";
       }
     }
@@ -158,10 +177,9 @@
    * @returns { Void } void
    */
   const toogleColorIcon = () => {
-    const inputs = document.querySelectorAll(".input");
-    if (!inputs) console.debug("[ERROR] unsetError");
+    if (!inputsClass) console.debug("[ERROR] unsetError");
     else {
-      for (const el of inputs) {
+      for (const el of inputsClass) {
         el.addEventListener("focus", (e) => {
           const icon = el.previousElementSibling;
           icon.style.color = "firebrick";
@@ -466,6 +484,7 @@
    */
   onMount(async () => {
     checkQueryParamaters(flashMessage);
+    bootstrap(document.readyState);
   });
 </script>
 
@@ -508,6 +527,7 @@
           class="input"
           placeholder={$_("auth.email")}
           name="log_email"
+          autocomplete="username"
           required
         />
         <span class="entypo-key inputPassIcon">
@@ -518,6 +538,7 @@
           class="input"
           placeholder={$_("auth.password")}
           name="log_password"
+          autocomplete="current-password"
           required
         />
         <input type="checkbox" id="remember_me" name="remember_me" />
@@ -625,6 +646,7 @@
         class="input"
         placeholder={$_("auth.password")}
         name="reg_password"
+        autocomplete="false"
         required
       />
       <span class="entypo-key inputPassConfirmIcon">
@@ -635,6 +657,7 @@
         class="input"
         placeholder={$_("auth.passwordConfirm")}
         name="reg_password_confirm"
+        autocomplete="false"
         required
       />
       <input type="hidden" name="action" value="register" />

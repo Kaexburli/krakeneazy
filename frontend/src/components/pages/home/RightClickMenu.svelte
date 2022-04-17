@@ -1,16 +1,37 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
   import { setPriceAlert } from "utils/userApi.js";
   import { assetpair, pricealertlist } from "store/store.js";
   import { toast } from "@zerodevx/svelte-toast";
   import { openModal, closeModal } from "svelte-modals";
   import ConfirmModal from "components/modal/ConfirmModal.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   export let User;
   export let currentPrice;
 
   let pricealert = "0.00",
-    hasAlertForPair;
+    hasAlertForPair,
+    chartblock = null,
+    rightclickmenu = null,
+    domLoaded = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      chartblock = document.querySelector(".chart-block");
+      rightclickmenu = document.getElementById("rightclickmenu").style;
+      domLoaded = true;
+    }
+  };
 
   /**
    * createAlertPrice
@@ -73,10 +94,8 @@
    * rigthClickMenu
    ************************/
   export const rigthClickMenu = (param, candleSeries) => {
-    let chartblock = document.querySelector(".chart-block");
-    let rightclickmenu = document.getElementById("rightclickmenu").style;
-
-    if (!chartblock || rightclickmenu) console.debug("[ERROR] rigthClickMenu");
+    if (!chartblock || !rightclickmenu)
+      console.debug("[ERROR] chartblock || rigthClickMenu");
     else {
       if (typeof param.point !== "undefined") {
         let price = candleSeries.coordinateToPrice(param.point.y);
@@ -132,6 +151,13 @@
     el.visibility = "visible";
     el.opacity = "1";
   };
+
+  /**
+   * Method onMount
+   */
+  onMount(async () => {
+    bootstrap(document.readyState);
+  });
 
   $: {
     if ($pricealertlist.hasOwnProperty($assetpair.wsname)) {

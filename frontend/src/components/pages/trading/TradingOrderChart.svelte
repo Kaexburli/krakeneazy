@@ -1,5 +1,9 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
   import { draggable } from "@neodrag/svelte";
   import { assetpair, online } from "store/store.js";
   import { WSTicker, WSSpread } from "store/wsstore.js";
@@ -10,6 +14,9 @@
   import Button, { Label } from "@smui/button";
   import TradingOrder from "components/pages/trading/TradingOrder.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   export let candleSeries;
 
   const ud = new UserData();
@@ -25,7 +32,21 @@
     params = null,
     marketPrice = { ask: false, bid: false },
     base = $assetpair.wsname.split("/")[0],
-    quote = $assetpair.wsname.split("/")[1];
+    quote = $assetpair.wsname.split("/")[1],
+    chartblock = null,
+    modal = null,
+    domLoaded = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      chartblock = document.querySelector(".chart-block");
+      modal = document.getElementById("trading-order-modal");
+      domLoaded = true;
+    }
+  };
 
   /**
    * Notification
@@ -140,23 +161,29 @@
   const handleMouseenter = () => (displayMore = true);
   const handleMouseleave = () => (displayMore = false);
 
+  const resizeChartAfterLoad = () => {
+    if (!chartblock || !modal)
+      console.debug("[ERROR] resizeChartAfterLoad chartblock || modal");
+    else {
+      let modalWidth = modal.clientWidth || 232;
+      let chartWidth = chartblock.clientWidth || chartWidth;
+      let leftModal = chartWidth / 2 - modalWidth / 2;
+      modal.style.left = `${leftModal}px`;
+    }
+  };
+
   $: if ($WSSpread) {
     marketPrice.bid = $WSSpread[0];
     marketPrice.ask = $WSSpread[1];
   }
 
-  // window.addEventListener("load", () => {
-  //   let chartblock = document.querySelector(".chart-block");
-  //   let modal = document.getElementById("trading-order-modal");
-
-  //   if (!chartblock || !modal) console.debug("[ERROR] addEventListener Load");
-  //   else {
-  //     let modalWidth = modal.clientWidth || 232;
-  //     let chartWidth = chartblock.clientWidth || chartWidth;
-  //     let leftModal = chartWidth / 2 - modalWidth / 2;
-  //     modal.style.left = `${leftModal}px`;
-  //   }
-  // });
+  /**
+   * Method onMount
+   */
+  onMount(async () => {
+    bootstrap(document.readyState);
+    if (domLoaded) resizeChartAfterLoad();
+  });
 </script>
 
 <div

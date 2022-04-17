@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount, createEventDispatcher } from "svelte";
   import { online, assetpair, asymbole } from "store/store.js";
@@ -18,11 +21,12 @@
   import Slider from "@smui/slider";
   import { toast } from "@zerodevx/svelte-toast";
 
-  const dispatch = createEventDispatcher();
-
-  const ud = new UserData();
-
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   export let candleSeries;
+  const dispatch = createEventDispatcher();
+  const ud = new UserData();
 
   let dry = true;
   let error = false;
@@ -66,6 +70,20 @@
   let profit_percent_price = 1;
   let lastVolume = null;
   let lastTotal = null;
+  let btnBuy = null,
+    btnSell = null,
+    domLoaded = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      btnBuy = document.querySelector(".btnBuy");
+      btnSell = document.querySelector(".btnBuy");
+      domLoaded = true;
+    }
+  };
 
   /**
    * Notification
@@ -125,10 +143,9 @@
   const setActionWay = (event, way) => {
     if (event) event.preventDefault();
     type = way;
-    let btnBuy = document.querySelector(".btnBuy");
-    let btnSell = document.querySelector(".btnBuy");
 
-    if (!btnBuy || !btnSell) console.debug("[ERROR] setActionWay");
+    if (!btnBuy || !btnSell)
+      console.debug("[ERROR] setActionWay btnBuy || btnSell");
     else {
       if (way === "buy") {
         btnBuy.classList.add("active");
@@ -325,8 +342,9 @@
   };
 
   onMount(() => {
+    bootstrap(document.readyState);
     if ($hasApikeysStore) GetBalance();
-    setActionWay(false, "buy");
+    if (domLoaded) setActionWay(false, "buy");
   });
 
   // Prix actuel

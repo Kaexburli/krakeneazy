@@ -3,6 +3,7 @@
   //  Imports
   // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
   import { pricealertlist } from "store/store.js";
   import { WSTickerAlert } from "store/wsstore.js";
   import { toast } from "@zerodevx/svelte-toast";
@@ -17,9 +18,11 @@
   //  Props
   // ---------------------------------------------------------
   export let display = false;
-  let isActive = false;
-  let icon = isActive ? "fa-angle-double-right" : "fa-bell";
-  let hasPriceAlert;
+  let isActive = false,
+    icon = isActive ? "fa-angle-double-right" : "fa-bell",
+    hasPriceAlert,
+    paWrapper = null,
+    domLoaded = false;
 
   // ---------------------------------------------------------
   //  Methods Declarations
@@ -28,6 +31,13 @@
     let audio = new Audio("../sound/" + track + ".mp3");
     let playPromise = audio.play();
     playPromise;
+  };
+
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      paWrapper = document.querySelector(".pricealert-wrapper").style;
+      domLoaded = true;
+    }
   };
 
   const sendAlertPrice = (pair, price, way) => {
@@ -59,52 +69,7 @@
     });
   };
 
-  $: if (
-    $WSTickerAlert &&
-    typeof $WSTickerAlert !== "undefined" &&
-    typeof $pricealertlist !== "undefined"
-  ) {
-    let pairs = Object.keys($pricealertlist);
-    pairs.forEach((pair) => {
-      if (
-        typeof $WSTickerAlert[pair] !== "undefined" &&
-        $WSTickerAlert[pair] !== null
-      ) {
-        if ($WSTickerAlert[pair].hasOwnProperty("a")) {
-          let tickerPrice = $WSTickerAlert[pair]["a"][0];
-          let upList = $pricealertlist[pair]["up"];
-          let downList = $pricealertlist[pair]["down"];
-
-          upList.filter((upPrice) => {
-            if (parseFloat(tickerPrice) >= parseFloat(upPrice)) {
-              let index = upList.indexOf(upPrice);
-              if (index > -1) {
-                upList.splice(index, 1);
-                $pricealertlist[pair]["up"] = [...upList];
-              }
-              sendAlertPrice(pair, upPrice, "up");
-            }
-          });
-
-          downList.filter((downPrice) => {
-            if (parseFloat(tickerPrice) <= parseFloat(downPrice)) {
-              let index = downList.indexOf(downPrice);
-              if (index > -1) {
-                downList.splice(index, 1);
-                $pricealertlist[pair]["down"] = [...downList];
-              }
-              sendAlertPrice(pair, downPrice, "down");
-            }
-          });
-        }
-      }
-    });
-  }
-
-  $: hasPriceAlert = Object.keys($pricealertlist).length >= 1 ? true : false;
-
   const toogleBoxPriceAlert = () => {
-    let paWrapper = document.querySelector(".pricealert-wrapper").style;
     if (!paWrapper) console.debug("[ERROR] toogleBoxPriceAlert");
     isActive = !isActive;
     if (isActive) paWrapper.right = "0px";
@@ -190,6 +155,54 @@
     else
       ulDiv.style.display = ulDiv.style.display === "none" ? "block" : "none";
   };
+
+  onMount(() => {
+    bootstrap(document.readyState);
+  });
+
+  $: if (
+    $WSTickerAlert &&
+    typeof $WSTickerAlert !== "undefined" &&
+    typeof $pricealertlist !== "undefined"
+  ) {
+    let pairs = Object.keys($pricealertlist);
+    pairs.forEach((pair) => {
+      if (
+        typeof $WSTickerAlert[pair] !== "undefined" &&
+        $WSTickerAlert[pair] !== null
+      ) {
+        if ($WSTickerAlert[pair].hasOwnProperty("a")) {
+          let tickerPrice = $WSTickerAlert[pair]["a"][0];
+          let upList = $pricealertlist[pair]["up"];
+          let downList = $pricealertlist[pair]["down"];
+
+          upList.filter((upPrice) => {
+            if (parseFloat(tickerPrice) >= parseFloat(upPrice)) {
+              let index = upList.indexOf(upPrice);
+              if (index > -1) {
+                upList.splice(index, 1);
+                $pricealertlist[pair]["up"] = [...upList];
+              }
+              sendAlertPrice(pair, upPrice, "up");
+            }
+          });
+
+          downList.filter((downPrice) => {
+            if (parseFloat(tickerPrice) <= parseFloat(downPrice)) {
+              let index = downList.indexOf(downPrice);
+              if (index > -1) {
+                downList.splice(index, 1);
+                $pricealertlist[pair]["down"] = [...downList];
+              }
+              sendAlertPrice(pair, downPrice, "down");
+            }
+          });
+        }
+      }
+    });
+  }
+
+  $: hasPriceAlert = Object.keys($pricealertlist).length >= 1 ? true : false;
 </script>
 
 {#if display && hasPriceAlert}

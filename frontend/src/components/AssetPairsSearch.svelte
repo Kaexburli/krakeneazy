@@ -3,6 +3,7 @@
   //  Imports
   // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
   import Fetch from "utils/Runfetch.js";
   import { User } from "store/userStore.js";
   import { pair, assetpair, assetpairs } from "store/store.js";
@@ -11,29 +12,39 @@
   // ---------------------------------------------------------
   //  Props
   // ---------------------------------------------------------
+  const token = $User.token || false;
+
   let fetchUrl = "/api/assetpairs",
     assetpairVal,
     spinner = false,
-    isFocused = false;
+    isFocused = false,
+    searchbox = null,
+    searchboxresult = null,
+    domLoaded = false;
 
   // ---------------------------------------------------------
   //  Methods Declarations
   // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      searchbox = document.getElementById("search-box");
+      searchboxresult = document.getElementById("search-box-result");
+      domLoaded = true;
+    }
+  };
+
   const onFocus = () => (isFocused = true);
+
   const onBlur = () => {
     assetpairVal.value = "";
     isFocused = false;
     spinner = false;
-
-    const searchboxresult = document.getElementById("search-box-result");
 
     setTimeout(() => {
       if (searchboxresult) searchboxresult.style.display = "none";
       else console.error("[ERROR] searchboxresult");
     }, 1000);
   };
-
-  const token = $User.token || false;
 
   const getAssetPairs = async () => {
     try {
@@ -74,20 +85,18 @@
   };
 
   const createSearchBox = (searchValues) => {
-    const ul = document.getElementById("search-box");
-    const searchboxresult = document.getElementById("search-box-result");
-
-    if (!ul || !searchboxresult) console.debug("[ERROR] createSearchBox");
+    if (!searchbox || !searchboxresult)
+      console.debug("[ERROR] createSearchBox");
     else {
-      while (ul.firstChild) {
-        ul.firstChild.remove();
+      while (searchbox.firstChild) {
+        searchbox.firstChild.remove();
       }
 
       searchValues.forEach((v) => {
         let li = document.createElement("li");
         li.appendChild(document.createTextNode(v[1]["wsname"]));
         li.setAttribute("id", v[0]);
-        ul.appendChild(li);
+        searchbox.appendChild(li);
         li.addEventListener("click", function (e) {
           changeAssetPair(e.target.id);
           searchboxresult.style.display = "none";
@@ -97,7 +106,10 @@
     }
   };
 
-  if (!$assetpairs) getAssetPairs();
+  onMount(() => {
+    bootstrap(document.readyState);
+    if (!$assetpairs) getAssetPairs();
+  });
 </script>
 
 <div class="assetpairs-search">

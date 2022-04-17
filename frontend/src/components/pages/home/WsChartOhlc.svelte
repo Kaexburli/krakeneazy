@@ -114,13 +114,111 @@
       "240": { offset: 6, spacing: 16 },
       "1440": { offset: 4, spacing: 16 },
       "10080": { offset: 4, spacing: 16 },
-    };
+    },
+    chartblock = null,
+    toolTip = null,
+    domLoaded = false;
 
   const ud = new UserData();
+
+  const optionsChart = {
+    height: chartHeight,
+    layout: {
+      backgroundColor: "#212121",
+      textColor: "#fcfcfc",
+      fontFamily: "'iosevka-etoile', monospace",
+    },
+    grid: {
+      vertLines: {
+        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
+        style: 4,
+      },
+      horzLines: {
+        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
+        style: 4,
+      },
+    },
+    crosshair: {
+      mode: crosshairMode ? CrosshairMode.Magnet : CrosshairMode.Normal,
+      vertLine: {
+        labelVisible: true,
+        labelBackgroundColor: "rgba(51, 51, 51, 0.2)",
+      },
+    },
+    rightPriceScale: {
+      color: "#00ff00",
+      borderColor: "rgba(197, 203, 206, 0.8)",
+      mode: rightPriceScaleMode
+        ? PriceScaleMode.Logarithmic
+        : PriceScaleMode.Normal,
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
+    },
+    timeScale: {
+      timeVisible: true,
+      secondsVisible: true,
+      borderColor: "rgba(197, 203, 206, 0.8)",
+      rightOffset: chartConfigInterval[$interval].offset,
+      barSpacing: chartConfigInterval[$interval].spacing,
+      fixLeftEdge: true,
+      lockVisibleTimeRangeOnResize: true,
+      rightBarStaysOnScroll: true,
+      // tickMarkFormatter: function (timePoint, tickMarkType, locale) {
+      //   console.log(timePoint, tickMarkType, locale);
+      // },
+    },
+    watermark: {
+      color: "rgba(100, 100, 100, 0.1)",
+      visible: true,
+      fontSize: 150,
+      text: $assetpair.wsname,
+    },
+    localization: {
+      locale: navigator.language,
+      dateFormat: getLocaleDateString(),
+    },
+  };
+
+  const CandlestickSeriesOpts = {
+    upColor: "#6ddc09",
+    downColor: "#fe1014",
+    borderDownColor: "#fe1014",
+    borderUpColor: "#6ddc09",
+    wickDownColor: "#fe1014",
+    wickUpColor: "#6ddc09",
+    priceFormat: {
+      type: "price",
+      precision: $assetpair.pair_decimals,
+      minMove: Number("0." + String(1).padStart($assetpair.pair_decimals, "0")),
+    },
+  };
+
+  const HistogramSeriesOpts = {
+    color: "#26a69a",
+    priceFormat: {
+      type: "volume",
+    },
+    priceLineVisible: true,
+    priceScaleId: "",
+    scaleMargins: {
+      top: 0.95,
+      bottom: 0,
+    },
+  };
 
   // ---------------------------------------------------------
   //  Methods Declarations
   // ---------------------------------------------------------
+  const bootstrap = (readyState) => {
+    if (["interactive", "complete"].includes(readyState)) {
+      chartblock = document.querySelector(".chart-block");
+      toolTip = document.querySelector(".floating-tooltip");
+      domLoaded = true;
+    }
+  };
+
   const cmtt = (milliseconde) => {
     return new Date(milliseconde).toLocaleTimeString(navigator.language, {
       timeZone: "UTC",
@@ -369,10 +467,7 @@
    * displayToolTipChart
    ************************/
   const displayToolTipChart = (param) => {
-    let chartblock = document.querySelector(".chart-block");
-    let toolTip = document.querySelector(".floating-tooltip");
-
-    if (!chartblock || toolTip) console.debug("[ERROR] displayToolTipChart");
+    if (!chartblock || !toolTip) console.debug("[ERROR] displayToolTipChart");
     else {
       let toolTipWidth = 80,
         toolTipHeight = 80,
@@ -730,8 +825,7 @@
    * resizeChart
    ************************/
   const resizeChart = () => {
-    if (!isMounted) return false;
-    let chartblock = document.querySelector(".chart-block");
+    if (!isMounted && !domLoaded) return false;
     if (!chartblock) console.debug("[ERROR] resizeChart");
     else {
       chartWidth = chartblock.clientWidth || chartWidth;
@@ -758,6 +852,7 @@
     isMounted = true;
     getChartHistoryDatas();
     GetOpenPositions();
+    bootstrap(document.readyState);
   });
 
   /**
@@ -767,93 +862,6 @@
     isMounted = false;
     $ohlcchart = false;
   });
-
-  const optionsChart = {
-    height: chartHeight,
-    layout: {
-      backgroundColor: "#212121",
-      textColor: "#fcfcfc",
-      fontFamily: "'iosevka-etoile', monospace",
-    },
-    grid: {
-      vertLines: {
-        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
-        style: 4,
-      },
-      horzLines: {
-        color: "rgba(19, 203, 206, 0.3)", // #5b5b5b
-        style: 4,
-      },
-    },
-    crosshair: {
-      mode: crosshairMode ? CrosshairMode.Magnet : CrosshairMode.Normal,
-      vertLine: {
-        labelVisible: true,
-        labelBackgroundColor: "rgba(51, 51, 51, 0.2)",
-      },
-    },
-    rightPriceScale: {
-      color: "#00ff00",
-      borderColor: "rgba(197, 203, 206, 0.8)",
-      mode: rightPriceScaleMode
-        ? PriceScaleMode.Logarithmic
-        : PriceScaleMode.Normal,
-      scaleMargins: {
-        top: 0.1,
-        bottom: 0.1,
-      },
-    },
-    timeScale: {
-      timeVisible: true,
-      secondsVisible: true,
-      borderColor: "rgba(197, 203, 206, 0.8)",
-      rightOffset: chartConfigInterval[$interval].offset,
-      barSpacing: chartConfigInterval[$interval].spacing,
-      fixLeftEdge: true,
-      lockVisibleTimeRangeOnResize: true,
-      rightBarStaysOnScroll: true,
-      // tickMarkFormatter: function (timePoint, tickMarkType, locale) {
-      //   console.log(timePoint, tickMarkType, locale);
-      // },
-    },
-    watermark: {
-      color: "rgba(100, 100, 100, 0.1)",
-      visible: true,
-      fontSize: 150,
-      text: $assetpair.wsname,
-    },
-    localization: {
-      locale: navigator.language,
-      dateFormat: getLocaleDateString(),
-    },
-  };
-
-  let CandlestickSeriesOpts = {
-    upColor: "#6ddc09",
-    downColor: "#fe1014",
-    borderDownColor: "#fe1014",
-    borderUpColor: "#6ddc09",
-    wickDownColor: "#fe1014",
-    wickUpColor: "#6ddc09",
-    priceFormat: {
-      type: "price",
-      precision: $assetpair.pair_decimals,
-      minMove: Number("0." + String(1).padStart($assetpair.pair_decimals, "0")),
-    },
-  };
-
-  let HistogramSeriesOpts = {
-    color: "#26a69a",
-    priceFormat: {
-      type: "volume",
-    },
-    priceLineVisible: true,
-    priceScaleId: "",
-    scaleMargins: {
-      top: 0.95,
-      bottom: 0,
-    },
-  };
 
   $: if ($setResizeChart) resizeChart();
   $: if ($interval) intvalSeconde = $interval * 60;
