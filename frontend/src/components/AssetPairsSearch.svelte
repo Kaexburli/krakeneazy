@@ -27,8 +27,10 @@
     spinner = false;
 
     const searchboxresult = document.getElementById("search-box-result");
+
     setTimeout(() => {
-      searchboxresult.style.display = "none";
+      if (searchboxresult) searchboxresult.style.display = "none";
+      else console.error("[ERROR] searchboxresult");
     }, 1000);
   };
 
@@ -75,21 +77,25 @@
   const createSearchBox = (searchValues) => {
     const ul = document.getElementById("search-box");
     const searchboxresult = document.getElementById("search-box-result");
-    while (ul.firstChild) {
-      ul.firstChild.remove();
-    }
 
-    searchValues.forEach((v) => {
-      let li = document.createElement("li");
-      li.appendChild(document.createTextNode(v[1]["wsname"]));
-      li.setAttribute("id", v[0]);
-      ul.appendChild(li);
-      li.addEventListener("click", function (e) {
-        changeAssetPair(e.target.id);
-        searchboxresult.style.display = "none";
+    if (!ul || !searchboxresult) console.debug("[ERROR] createSearchBox");
+    else {
+      while (ul.firstChild) {
+        ul.firstChild.remove();
+      }
+
+      searchValues.forEach((v) => {
+        let li = document.createElement("li");
+        li.appendChild(document.createTextNode(v[1]["wsname"]));
+        li.setAttribute("id", v[0]);
+        ul.appendChild(li);
+        li.addEventListener("click", function (e) {
+          changeAssetPair(e.target.id);
+          searchboxresult.style.display = "none";
+        });
       });
-    });
-    searchboxresult.style.display = "block";
+      searchboxresult.style.display = "block";
+    }
   };
 
   if (!$assetpairs) getAssetPairs();

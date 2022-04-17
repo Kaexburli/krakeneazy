@@ -58,7 +58,9 @@
    * @description Réinitialise le formulaire
    */
   const resetForm = () => {
-    document.getElementById("authForm").reset();
+    const authForm = document.getElementById("authForm");
+    if (!authForm) console.debug("[ERROR] resetForm");
+    else authForm.reset();
   };
 
   /**
@@ -105,8 +107,11 @@
    */
   const setError = (selector) => {
     let input = document.querySelector(`input[name="${selector}"]`);
-    input.style.border = "2px solid red";
-    input.style.background = "#662f2f";
+    if (!input) console.debug("[ERROR] setError");
+    else {
+      input.style.border = "2px solid red";
+      input.style.background = "#662f2f";
+    }
   };
 
   /**
@@ -118,8 +123,12 @@
     let inputs = document.querySelectorAll(
       `input[type="text"], input[type="email"], input[type="password"]`
     );
-    for (const input of inputs) {
-      input.style.border = "0px";
+
+    if (!inputs) console.debug("[ERROR] unsetError");
+    else {
+      for (const input of inputs) {
+        input.style.border = "0px";
+      }
     }
   };
 
@@ -150,17 +159,20 @@
    */
   const toogleColorIcon = () => {
     const inputs = document.querySelectorAll(".input");
-    for (const el of inputs) {
-      el.addEventListener("focus", (e) => {
-        const icon = el.previousElementSibling;
-        icon.style.color = "firebrick";
-        icon.style.background = "#cdcdcd";
-      });
-      el.addEventListener("blur", (e) => {
-        const icon = el.previousElementSibling;
-        icon.style.color = "#ffffff";
-        icon.style.background = "#3b3b3b";
-      });
+    if (!inputs) console.debug("[ERROR] unsetError");
+    else {
+      for (const el of inputs) {
+        el.addEventListener("focus", (e) => {
+          const icon = el.previousElementSibling;
+          icon.style.color = "firebrick";
+          icon.style.background = "#cdcdcd";
+        });
+        el.addEventListener("blur", (e) => {
+          const icon = el.previousElementSibling;
+          icon.style.color = "#ffffff";
+          icon.style.background = "#3b3b3b";
+        });
+      }
     }
   };
 

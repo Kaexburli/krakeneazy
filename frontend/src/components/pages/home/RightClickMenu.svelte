@@ -76,47 +76,50 @@
     let chartblock = document.querySelector(".chart-block");
     let rightclickmenu = document.getElementById("rightclickmenu").style;
 
-    if (typeof param.point !== "undefined") {
-      let price = candleSeries.coordinateToPrice(param.point.y);
-      if (price) pricealert = price.toFixed($assetpair.pair_decimals);
-    }
+    if (!chartblock || rightclickmenu) console.debug("[ERROR] rigthClickMenu");
+    else {
+      if (typeof param.point !== "undefined") {
+        let price = candleSeries.coordinateToPrice(param.point.y);
+        if (price) pricealert = price.toFixed($assetpair.pair_decimals);
+      }
 
-    if (chartblock.addEventListener) {
-      chartblock.addEventListener(
-        "contextmenu",
-        (e) => {
+      if (chartblock.addEventListener) {
+        chartblock.addEventListener(
+          "contextmenu",
+          (e) => {
+            e.preventDefault();
+            var posX = e.clientX;
+            var posY = e.clientY;
+            setMenu(rightclickmenu, posX, posY);
+          },
+          false
+        );
+        chartblock.addEventListener(
+          "click",
+          (e) => {
+            e.preventDefault();
+            rightclickmenu.opacity = "0";
+            setTimeout(() => {
+              rightclickmenu.visibility = "hidden";
+            }, 501);
+          },
+          false
+        );
+      } else {
+        chartblock.attachEvent("oncontextmenu", (e) => {
           e.preventDefault();
           var posX = e.clientX;
           var posY = e.clientY;
           setMenu(rightclickmenu, posX, posY);
-        },
-        false
-      );
-      chartblock.addEventListener(
-        "click",
-        (e) => {
+        });
+        chartblock.attachEvent("onclick", (e) => {
           e.preventDefault();
           rightclickmenu.opacity = "0";
           setTimeout(() => {
             rightclickmenu.visibility = "hidden";
           }, 501);
-        },
-        false
-      );
-    } else {
-      chartblock.attachEvent("oncontextmenu", (e) => {
-        e.preventDefault();
-        var posX = e.clientX;
-        var posY = e.clientY;
-        setMenu(rightclickmenu, posX, posY);
-      });
-      chartblock.attachEvent("onclick", (e) => {
-        e.preventDefault();
-        rightclickmenu.opacity = "0";
-        setTimeout(() => {
-          rightclickmenu.visibility = "hidden";
-        }, 501);
-      });
+        });
+      }
     }
   };
 

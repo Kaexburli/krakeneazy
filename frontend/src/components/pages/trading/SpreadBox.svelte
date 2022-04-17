@@ -84,7 +84,8 @@
       let spreadbid = document.querySelector(".spreadbid");
       let spreadask = document.querySelector(".spreadask");
 
-      if (spreadbid && spreadask && spreadbid !== null && spreadask !== null) {
+      if (!spreadbid || !spreadask) console.debug("[ERROR] spreadBox");
+      else {
         spreadbid.style.width = bid_spread + "%";
         spreadask.style.width = ask_spread + "%";
       }

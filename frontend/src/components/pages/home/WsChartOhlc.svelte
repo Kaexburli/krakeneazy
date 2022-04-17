@@ -369,60 +369,62 @@
    * displayToolTipChart
    ************************/
   const displayToolTipChart = (param) => {
-    let toolTipWidth = 80,
-      toolTipHeight = 80,
-      toolTipMargin = 15,
-      opentooltip,
-      closetooltip,
-      hightooltip,
-      lowtooltip,
-      volumetooltip;
-
-    const seriesPriceValues = param.seriesPrices.values();
-
-    for (const value of seriesPriceValues) {
-      if (typeof value === "object") {
-        opentooltip = value["open"];
-        hightooltip = value["high"];
-        lowtooltip = value["low"];
-        closetooltip = value["close"];
-      }
-
-      if (typeof value === "string") {
-        volumetooltip = parseFloat(value).toFixed(2);
-      }
-    }
-
     let chartblock = document.querySelector(".chart-block");
     let toolTip = document.querySelector(".floating-tooltip");
 
-    // update tooltip
-    if (
-      param.point === undefined ||
-      !param.time ||
-      param.point.x < 0 ||
-      param.point.x > chartblock.clientWidth ||
-      param.point.y < 0 ||
-      param.point.y > chartblock.clientHeight ||
-      !activetooltip
-    ) {
-      toolTip.style.display = "none";
-    } else {
-      toolTip.style.display = "block";
-      let price = param.seriesPrices.get(candleSeries);
-      type = price.open <= price.close ? "green" : "red";
-      let timelaps =
-        $interval >= 10080
-          ? $interval / 60 / 24 + "J"
-          : $interval >= 60
-          ? $interval / 60 + "H"
-          : $interval + "M";
+    if (!chartblock || toolTip) console.debug("[ERROR] displayToolTipChart");
+    else {
+      let toolTipWidth = 80,
+        toolTipHeight = 80,
+        toolTipMargin = 15,
+        opentooltip,
+        closetooltip,
+        hightooltip,
+        lowtooltip,
+        volumetooltip;
 
-      let vol = "";
-      if (volumetooltip)
-        vol = `<br /><strong>Volume:</strong> ${volumetooltip}`;
+      const seriesPriceValues = param.seriesPrices.values();
 
-      toolTip.innerHTML = `<div class="${type}">
+      for (const value of seriesPriceValues) {
+        if (typeof value === "object") {
+          opentooltip = value["open"];
+          hightooltip = value["high"];
+          lowtooltip = value["low"];
+          closetooltip = value["close"];
+        }
+
+        if (typeof value === "string") {
+          volumetooltip = parseFloat(value).toFixed(2);
+        }
+      }
+
+      // update tooltip
+      if (
+        param.point === undefined ||
+        !param.time ||
+        param.point.x < 0 ||
+        param.point.x > chartblock.clientWidth ||
+        param.point.y < 0 ||
+        param.point.y > chartblock.clientHeight ||
+        !activetooltip
+      ) {
+        toolTip.style.display = "none";
+      } else {
+        toolTip.style.display = "block";
+        let price = param.seriesPrices.get(candleSeries);
+        type = price.open <= price.close ? "green" : "red";
+        let timelaps =
+          $interval >= 10080
+            ? $interval / 60 / 24 + "J"
+            : $interval >= 60
+            ? $interval / 60 + "H"
+            : $interval + "M";
+
+        let vol = "";
+        if (volumetooltip)
+          vol = `<br /><strong>Volume:</strong> ${volumetooltip}`;
+
+        toolTip.innerHTML = `<div class="${type}">
         <div class="title">
           <strong>${$assetpair.wsname} ${timelaps}</strong>
         </div>
@@ -435,30 +437,31 @@
         </div>
       </div>`;
 
-      let priceCoordinate = type === "green" ? price.open : price.close;
-      let coordinate = candleSeries.priceToCoordinate(priceCoordinate);
-      let shiftedCoordinate = param.point.x - 30;
+        let priceCoordinate = type === "green" ? price.open : price.close;
+        let coordinate = candleSeries.priceToCoordinate(priceCoordinate);
+        let shiftedCoordinate = param.point.x - 30;
 
-      if (coordinate === null) return;
+        if (coordinate === null) return;
 
-      shiftedCoordinate = Math.max(
-        0,
-        Math.min(chartblock.clientWidth - toolTipWidth, shiftedCoordinate)
-      );
+        shiftedCoordinate = Math.max(
+          0,
+          Math.min(chartblock.clientWidth - toolTipWidth, shiftedCoordinate)
+        );
 
-      let coordinateY =
-        coordinate - toolTipHeight - toolTipMargin > 0
-          ? coordinate - toolTipHeight - toolTipMargin
-          : Math.max(
-              0,
-              Math.min(
-                chartblock.clientHeight - toolTipHeight - toolTipMargin,
-                coordinate + toolTipMargin
-              )
-            );
+        let coordinateY =
+          coordinate - toolTipHeight - toolTipMargin > 0
+            ? coordinate - toolTipHeight - toolTipMargin
+            : Math.max(
+                0,
+                Math.min(
+                  chartblock.clientHeight - toolTipHeight - toolTipMargin,
+                  coordinate + toolTipMargin
+                )
+              );
 
-      toolTip.style.left = shiftedCoordinate + "px";
-      toolTip.style.top = coordinateY + "px";
+        toolTip.style.left = shiftedCoordinate + "px";
+        toolTip.style.top = coordinateY + "px";
+      }
     }
   };
 
@@ -729,7 +732,8 @@
   const resizeChart = () => {
     if (!isMounted) return false;
     let chartblock = document.querySelector(".chart-block");
-    if (chartblock) {
+    if (!chartblock) console.debug("[ERROR] resizeChart");
+    else {
       chartWidth = chartblock.clientWidth || chartWidth;
       chartApi.resize(chartWidth, chartHeight);
       $setResizeChart = false;

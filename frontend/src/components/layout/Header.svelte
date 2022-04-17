@@ -5,7 +5,9 @@
 
   const handleClickMenu = (e) => {
     document.body.classList.toggle("active");
-    document.getElementById("sidebar").classList.toggle("active");
+    const sidebar = document.getElementById("sidebar");
+    if (!sidebar) console.debug("[ERROR] handleClickMenu");
+    else sidebar.classList.toggle("active");
   };
 
   // Active par default

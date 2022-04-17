@@ -148,10 +148,14 @@
   // window.addEventListener("load", () => {
   //   let chartblock = document.querySelector(".chart-block");
   //   let modal = document.getElementById("trading-order-modal");
-  //   let modalWidth = modal.clientWidth || 232;
-  //   let chartWidth = chartblock.clientWidth || chartWidth;
-  //   let leftModal = chartWidth / 2 - modalWidth / 2;
-  //   modal.style.left = `${leftModal}px`;
+
+  //   if (!chartblock || !modal) console.debug("[ERROR] addEventListener Load");
+  //   else {
+  //     let modalWidth = modal.clientWidth || 232;
+  //     let chartWidth = chartblock.clientWidth || chartWidth;
+  //     let leftModal = chartWidth / 2 - modalWidth / 2;
+  //     modal.style.left = `${leftModal}px`;
+  //   }
   // });
 </script>
 

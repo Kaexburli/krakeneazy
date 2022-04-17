@@ -105,6 +105,7 @@
 
   const toogleBoxPriceAlert = () => {
     let paWrapper = document.querySelector(".pricealert-wrapper").style;
+    if (!paWrapper) console.debug("[ERROR] toogleBoxPriceAlert");
     isActive = !isActive;
     if (isActive) paWrapper.right = "0px";
     else if (!isActive) paWrapper.right = "-275px";
@@ -185,7 +186,9 @@
 
   const handleClickDisplayList = (id) => {
     const ulDiv = document.querySelector("#pricealert-slide-" + id);
-    ulDiv.style.display = ulDiv.style.display === "none" ? "block" : "none";
+    if (!ulDiv) console.debug("[ERROR] handleClickDisplayList");
+    else
+      ulDiv.style.display = ulDiv.style.display === "none" ? "block" : "none";
   };
 </script>
 

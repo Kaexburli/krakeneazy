@@ -128,14 +128,17 @@
     let btnBuy = document.querySelector(".btnBuy");
     let btnSell = document.querySelector(".btnBuy");
 
-    if (way === "buy") {
-      btnBuy.classList.add("active");
-      btnSell.classList.remove("active");
-    }
+    if (!btnBuy || !btnSell) console.debug("[ERROR] setActionWay");
+    else {
+      if (way === "buy") {
+        btnBuy.classList.add("active");
+        btnSell.classList.remove("active");
+      }
 
-    if (way === "sell") {
-      btnSell.classList.add("active");
-      btnBuy.classList.remove("active");
+      if (way === "sell") {
+        btnSell.classList.add("active");
+        btnBuy.classList.remove("active");
+      }
     }
 
     if (way === "buy") buyorsell = "quote";
