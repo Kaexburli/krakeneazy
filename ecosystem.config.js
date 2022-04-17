@@ -3,7 +3,10 @@ const path = require('path')
 const dotenv = require('dotenv')
 dotenv.config({ path: path.resolve('.deploy.env') })
 
-let command = []
+let command = {
+  staging: { presetup: [], postsetup: [], predeploy: [], postdeploy: [] },
+  production: { presetup: [], postsetup: [], predeploy: [], postdeploy: [] }
+}
 const deployCmdFile = './deploy.cmd.js'
 if (fs.existsSync(deployCmdFile)) {
   command = require(deployCmdFile)
