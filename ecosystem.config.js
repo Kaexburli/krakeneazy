@@ -157,6 +157,9 @@ module.exports = {
         'echo ---- mkdir deploy && mkdir deploy'
       ].join(';'),
       'post-setup': [
+        'echo ' + '/'.repeat(50),
+        'echo POST-SETUP',
+        'echo ' + '/'.repeat(50),
         'echo [ROOT]',
         'echo ---- cd ../../ && cd ../../',
         'echo ---- mv deploy/current/* ./ && mv deploy/current/* ./',
