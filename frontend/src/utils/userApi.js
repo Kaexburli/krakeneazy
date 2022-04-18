@@ -21,7 +21,7 @@ const checkStatus = async (resp) => {
 const headers = {
   'Content-Type': 'application/json',
   // eslint-disable-next-line no-undef, dot-notation
-  'X-Webapp-Header': __App['env'].SITE_NAME
+  'x-webapp-header': __App['env'].SITE_NAME
 }
 
 /**
@@ -118,7 +118,7 @@ export const userRefreshToken = async (token, remember) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line no-undef, dot-notation
-          'X-Webapp-Header': __App['env'].SITE_NAME
+          'x-webapp-header': __App['env'].SITE_NAME
         },
         body: JSON.stringify({
           token,
@@ -199,7 +199,7 @@ export const userProfile = async (token) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line no-undef, dot-notation
-          'X-Webapp-Header': __App['env'].SITE_NAME
+          'x-webapp-header': __App['env'].SITE_NAME
         }
       }
     )
@@ -228,7 +228,7 @@ export const addApiKey = async (token, data) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line no-undef, dot-notation
-          'X-Webapp-Header': __App['env'].SITE_NAME
+          'x-webapp-header': __App['env'].SITE_NAME
         },
         body: JSON.stringify({
           privateKey,
@@ -258,7 +258,7 @@ export const removeApiKey = async (token, data) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line no-undef, dot-notation
-          'X-Webapp-Header': __App['env'].SITE_NAME
+          'x-webapp-header': __App['env'].SITE_NAME
         },
         body: JSON.stringify({
           ids,
@@ -303,7 +303,7 @@ export const changeUserData = async (token, data, field) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line no-undef, dot-notation
-          'X-Webapp-Header': __App['env'].SITE_NAME
+          'x-webapp-header': __App['env'].SITE_NAME
         },
         body: JSON.stringify({
           user,
@@ -331,7 +331,7 @@ export const acceptCgv = async (token) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line no-undef, dot-notation
-          'X-Webapp-Header': __App['env'].SITE_NAME
+          'x-webapp-header': __App['env'].SITE_NAME
         },
         body: JSON.stringify({
           cgvConfirmed: true
@@ -358,7 +358,7 @@ export const setPriceAlert = async (token, data) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           // eslint-disable-next-line no-undef, dot-notation
-          'X-Webapp-Header': __App['env'].SITE_NAME
+          'x-webapp-header': __App['env'].SITE_NAME
         },
         body: JSON.stringify({
           alerts: data

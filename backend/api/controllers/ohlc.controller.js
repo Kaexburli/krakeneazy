@@ -40,8 +40,8 @@ const ohlcFormat = (datas, resolve) => {
 
 const getOhlc = async (req, reply) => {
   if (
-    !req.headers['X-Webapp-Header'] ||
-    req.headers['X-Webapp-Header'] !== process.env.SITE_NAME
+    !req.headers['x-webapp-header'] ||
+    req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
     return reply.redirect('/')
   }
