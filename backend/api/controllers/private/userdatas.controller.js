@@ -98,7 +98,7 @@ const logError = (error, func) => {
     `\x1b[0m${func}:\x1b[0m\x1b[33m${error}\x1b[0m`
   )
 }
-const handleError = (error, func) => {
+const handleError = (error, func, req = false) => {
   if (error) {
     if (Object.prototype.hasOwnProperty.call(error, 'body')) {
       logError(error.body.error[0], func)
@@ -120,6 +120,9 @@ const handleError = (error, func) => {
         }
       }
     }
+
+    if (req) req.log.error(error)
+
     return error
   }
 }
@@ -164,7 +167,7 @@ const checkApiKeyPermissions = async (apikeys) => {
 }
 
 // /SystemStatus
-const getSystemStatus = async (_req, _reply) => {
+const getSystemStatus = async (req, _reply) => {
   const apiKraken = initApiKraken()
   if (!apiKraken) return { error: true, message: 'API Key error!' }
 
@@ -172,7 +175,7 @@ const getSystemStatus = async (_req, _reply) => {
     const response = await apiKraken.systemStatus()
     return response
   } catch (error) {
-    return handleError(error, 'getSystemStatus')
+    return handleError(error, 'getSystemStatus', req)
   }
 }
 
@@ -186,7 +189,7 @@ const getBalance = async (req, _reply) => {
     const response = await apiKraken.balance()
     return response
   } catch (error) {
-    return handleError(error, 'getBalance')
+    return handleError(error, 'getBalance', req)
   }
 }
 
@@ -202,7 +205,7 @@ const getTradeBalance = async (req, _reply) => {
     const response = await apiKraken.tradeBalance({ asset: asset })
     return response
   } catch (error) {
-    return handleError(error, 'getTradeBalance')
+    return handleError(error, 'getTradeBalance', req)
   }
 }
 
@@ -226,7 +229,7 @@ const getOpenOrders = async (req, _reply) => {
     const response = await apiKraken.openOrders(params)
     return response
   } catch (error) {
-    return handleError(error, 'getOpenOrders')
+    return handleError(error, 'getOpenOrders', req)
   }
 }
 
@@ -250,7 +253,7 @@ const getClosedOrders = async (req, _reply) => {
     const response = await apiKraken.closedOrders(params)
     return response
   } catch (error) {
-    return handleError(error, 'getClosedOrders')
+    return handleError(error, 'getClosedOrders', req)
   }
 }
 
@@ -270,7 +273,7 @@ const getTradeVolume = async (req, _reply) => {
     const response = await apiKraken.tradeVolume({ pair })
     return response
   } catch (error) {
-    return handleError(error, 'getTradeVolume')
+    return handleError(error, 'getTradeVolume', req)
   }
 }
 
@@ -284,7 +287,7 @@ const getLedgers = async (req, _reply) => {
     const response = await apiKraken.ledgers()
     return response
   } catch (error) {
-    return handleError(error, 'getLedgers')
+    return handleError(error, 'getLedgers', req)
   }
 }
 
@@ -298,7 +301,7 @@ const getTradesHistory = async (req, _reply) => {
     const response = await apiKraken.tradesHistory()
     return response
   } catch (error) {
-    return handleError(error, 'getTradesHistory')
+    return handleError(error, 'getTradesHistory', req)
   }
 }
 
@@ -324,7 +327,7 @@ const getOpenPositions = async (req, _reply) => {
 
     return response
   } catch (error) {
-    return handleError(error, 'getOpenPositions')
+    return handleError(error, 'getOpenPositions', req)
   }
 }
 
@@ -364,7 +367,7 @@ const AddOrder = async (req, _reply) => {
     const response = await apiKraken.addOrder(payload)
     return response
   } catch (error) {
-    return handleError(error, 'AddOrder')
+    return handleError(error, 'AddOrder', req)
   }
 }
 
@@ -379,7 +382,7 @@ const addExport = async (req, _reply) => {
     const add = await apiKraken.addExport({ report, description, starttm })
     return add
   } catch (error) {
-    return handleError(error, 'addExport')
+    return handleError(error, 'addExport', req)
   }
 }
 
@@ -395,7 +398,7 @@ const statusExport = async (req, _reply) => {
     const status = await apiKraken.exportStatus({ report })
     return status
   } catch (error) {
-    return handleError(error, 'statusExport')
+    return handleError(error, 'statusExport', req)
   }
 }
 
@@ -435,7 +438,7 @@ const retrieveExport = async (req, _reply) => {
 
     return { filename, res, data }
   } catch (error) {
-    return handleError(error, 'retrieveExport')
+    return handleError(error, 'retrieveExport', req)
   }
 }
 
@@ -453,7 +456,7 @@ const rmOldExport = async (req, _reply) => {
     const res = await apiKraken.removeExport({ id, type: 'delete' })
     return res
   } catch (error) {
-    return handleError(error, 'rmOldExport')
+    return handleError(error, 'rmOldExport', req)
   }
 }
 
@@ -470,7 +473,7 @@ const readExport = async (req, _reply) => {
 
     return data
   } catch (error) {
-    return handleError(error, 'readExport')
+    return handleError(error, 'readExport', req)
   }
 }
 
@@ -498,7 +501,17 @@ const extractZip = async (source, target) => {
 
 // /private/OpenOrders
 const getWsOpenOrders = async (connection, req, _reply) => {
-  const { apikeys } = req.user || false
+  if (!req.user.isLogged) {
+    req.log.error('ERROR: [getWsOpenOrders] - Missing isLogged!')
+    return false
+  }
+
+  if (!req.user.token) {
+    req.log.error('ERROR: [getWsOpenOrders] - Missing token!')
+    return false
+  }
+
+  const { apikeys } = req.user
   const apiKraken = initApiKraken(apikeys)
   if (!apiKraken) return { error: true, message: 'API Key error!' }
 
@@ -534,13 +547,23 @@ const getWsOpenOrders = async (connection, req, _reply) => {
       openorders.unsubscribe()
     })
   } catch (error) {
-    handleError(error, 'getWsOpenOrders')
+    handleError(error, 'getWsOpenOrders', req)
     return error
   }
 }
 
 // /private/OwnTrades
 const getWsOwnTrades = async (connection, req, _reply) => {
+  if (!req.user.isLogged) {
+    req.log.error('ERROR: [getWsOwnTrades] - Missing isLogged!')
+    return false
+  }
+
+  if (!req.user.token) {
+    req.log.error('ERROR: [getWsOwnTrades] - Missing token!')
+    return false
+  }
+
   const { apikeys } = req.user || false
   const apiKraken = initApiKraken(apikeys)
   if (!apiKraken) return { error: true, message: 'API Key error!' }
@@ -553,7 +576,7 @@ const getWsOwnTrades = async (connection, req, _reply) => {
       .on('update', (update, sequence) => {
         if (debug) console.log('[UPDATE OWN-TRADES]: ', update, sequence)
         connection.socket.send(
-          JSON.stringify({ service: 'OwnTrades', data: update, sequence })
+          JSON.stringify({ service: 'token', data: update, sequence })
         )
       })
       .on('token', (token) => {
@@ -577,13 +600,23 @@ const getWsOwnTrades = async (connection, req, _reply) => {
       owntrades.unsubscribe()
     })
   } catch (error) {
-    handleError(error, 'getWsOwnTrades')
+    handleError(error, 'getWsOwnTrades', req)
     return error
   }
 }
 
 // /private/TradeBalance WS
 const getWsTradeBalance = async (connection, req, reply) => {
+  if (!req.user.isLogged) {
+    req.log.error('ERROR: [getWsTradeBalance] - Missing isLogged!')
+    return false
+  }
+
+  if (!req.user.token) {
+    req.log.error('ERROR: [getWsTradeBalance] - Missing token!')
+    return false
+  }
+
   let timer = null
   const interval = 15000
 
@@ -600,7 +633,7 @@ const getWsTradeBalance = async (connection, req, reply) => {
       const response = await getTradeBalance(req, reply)
       checkAndSendResult(response)
     } catch (error) {
-      handleError(error, 'getWsTradeBalance')
+      handleError(error, 'getWsTradeBalance', req)
     }
   }
 
@@ -662,7 +695,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
       const response = await getSystemStatus(req, reply)
       checkAndSendResult(response)
     } catch (error) {
-      handleError(error, 'getWsSystemStatus')
+      handleError(error, 'getWsSystemStatus', req)
     }
   }
 
@@ -705,7 +738,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
 }
 
 // /getWsKrakenStatus WS
-const getWsKrakenStatus = async (connection, _req, _reply) => {
+const getWsKrakenStatus = async (connection, req, _reply) => {
   let timer = null
   const interval = 60000
 
@@ -727,7 +760,7 @@ const getWsKrakenStatus = async (connection, _req, _reply) => {
         console.error('[ERROR]:', error)
       }
     } catch (error) {
-      handleError(error, 'getWsKrakenStatus')
+      handleError(error, 'getWsKrakenStatus', req)
     }
   }
 

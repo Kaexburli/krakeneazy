@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onDestroy, onMount } from "svelte";
   import { WSOpenOrders } from "store/wsstore.js";
@@ -13,11 +16,21 @@
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
   import LinearProgress from "@smui/linear-progress";
   import Paper, { Title, Content } from "@smui/paper";
+  import SnackBar from "components/SnackBar.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let error = false,
     isLoading = true,
     unsubscribe;
 
+  let snackBarText = "",
+    snackBarShow = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   /**
    * checkStatusDatas
    *********************/
@@ -149,6 +162,9 @@
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
         setTimeout(() => {
           GetOpenOrders();
@@ -216,6 +232,7 @@
   $: isLoading = !!$openordersdata;
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block open-orders">
   {#if error && typeof error !== "boolean"}
     <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>

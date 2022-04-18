@@ -1,10 +1,12 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
   import { online, closedordersdata } from "store/store.js";
-  import TooltipIcon from "components/TooltipIcon.svelte";
   import DataTable, {
     Head,
     Body,
@@ -17,13 +19,23 @@
   import { Label } from "@smui/common";
   import LinearProgress from "@smui/linear-progress";
   import Paper, { Title, Content } from "@smui/paper";
+  import SnackBar from "components/SnackBar.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let error = false,
     closedorders = false,
     closedorders_store = false,
     life = 300, // Secondes
     isLoading = false;
 
+  let snackBarText = "",
+    snackBarShow = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   /**
    * get__store
    *********************/
@@ -63,6 +75,9 @@
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
         isLoading = true;
         setTimeout(() => {
@@ -117,6 +132,7 @@
   }
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block closed-orders">
   {#if error && typeof error !== "boolean"}
     <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>

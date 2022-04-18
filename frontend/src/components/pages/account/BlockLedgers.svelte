@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
@@ -17,7 +20,11 @@
   import { Label } from "@smui/common";
   import LinearProgress from "@smui/linear-progress";
   import Paper, { Title, Content } from "@smui/paper";
+  import SnackBar from "components/SnackBar.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   const ud = new UserData();
 
   let error = false,
@@ -26,6 +33,9 @@
     count = false,
     life = 300, // Secondes
     isLoading = false;
+
+  let snackBarText = "",
+    snackBarShow = false;
 
   const typeLabel = {
     margin: $_("account.ledgers.typeLabel.margin"),
@@ -36,6 +46,9 @@
     withdrawal: $_("account.ledgers.typeLabel.withdrawal"),
   };
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   /**
    * get__store
    *********************/
@@ -74,6 +87,9 @@
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
         setTimeout(() => {
           GetLedgers();
@@ -134,6 +150,7 @@
   }
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block ledgers">
   {#if error && typeof error !== "boolean"}
     <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>

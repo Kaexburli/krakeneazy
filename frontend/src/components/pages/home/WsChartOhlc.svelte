@@ -31,6 +31,7 @@
   import List, { Group, Subheader, Item, Separator, Text } from "@smui/list";
   import Fetch from "utils/Runfetch.js";
   import UserData from "classes/UserData.js";
+  import SnackBar from "components/SnackBar.svelte";
 
   import {
     online,
@@ -50,6 +51,9 @@
 
   export let User;
   let callRCM, callTOC;
+
+  let snackBarText = "",
+    snackBarShow = false;
 
   let type,
     candleSeries,
@@ -236,10 +240,14 @@
       }
 
       const res = await ud.getOpenPositions();
+
       if (
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
       } else {
         openpositions = res;
@@ -986,6 +994,7 @@
   }, 1000);
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="chartctrl-block clearfix">
   <!-- Chart Settings -->
   <Wrapper>

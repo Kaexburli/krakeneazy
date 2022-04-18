@@ -12,6 +12,8 @@
   import LinearProgress from "@smui/linear-progress";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
+  import SnackBar from "components/SnackBar.svelte";
+
   // ---------------------------------------------------------
   //  Props
   // ---------------------------------------------------------
@@ -22,6 +24,9 @@
     played = false,
     trading_percent,
     asset = $devise;
+
+  let snackBarText = "",
+    snackBarShow = false;
 
   let tbLabel = {
     eb: {
@@ -86,6 +91,9 @@
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
         setTimeout(() => {
           GetTradeBalance();
@@ -130,6 +138,7 @@
   }
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block">
   <h3>{$_("account.tradeBalance.title")}</h3>
   <ul class="trade-balance">

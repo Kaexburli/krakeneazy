@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { User } from "store/userStore.js";
   import { sound, pair } from "store/store.js";
@@ -16,8 +19,10 @@
   import Tab, { Label } from "@smui/tab";
   import TabBar from "@smui/tab-bar";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let active = $_("account.tabs.openOrders");
-
   const isLogged = User.isLogged();
   const tabList = [
     $_("account.tabs.openOrders"),
@@ -26,6 +31,9 @@
     $_("account.tabs.register"),
   ];
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const handleClickSound = () => {
     sound.update((n) => (n == "up" ? "mute" : "up"));
   };

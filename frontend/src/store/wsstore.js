@@ -35,7 +35,19 @@ export const WSTicker = derived(
       : false
 
     if (tickerUrl) {
-      const tickerWebsocket = websocketStore(tickerUrl)
+      const defaultValues = {
+        a: [],
+        b: [],
+        c: [],
+        v: [],
+        p: [],
+        t: [],
+        l: [],
+        h: [],
+        o: []
+      }
+
+      const tickerWebsocket = websocketStore(tickerUrl, defaultValues)
       const ticker = tickerWebsocket.subscribe((tick) => {
         if (tick) {
           if (

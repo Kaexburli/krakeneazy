@@ -17,7 +17,7 @@ const getAssets = async (req, reply) => {
     !req.headers['x-webapp-header'] ||
     req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
-    reply.redirect('/')
+    return reply.redirect('/')
   }
 
   try {

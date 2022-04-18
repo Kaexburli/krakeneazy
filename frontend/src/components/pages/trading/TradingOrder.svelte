@@ -20,6 +20,7 @@
   import Radio from "@smui/radio";
   import Slider from "@smui/slider";
   import { toast } from "@zerodevx/svelte-toast";
+  import SnackBar from "components/SnackBar.svelte";
 
   // ---------------------------------------------------------
   //  Props
@@ -73,6 +74,9 @@
   let btnBuy = null,
     btnSell = null,
     domLoaded = false;
+
+  let snackBarText = "",
+    snackBarShow = false;
 
   // ---------------------------------------------------------
   //  Methods Declarations
@@ -133,6 +137,9 @@
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
       } else {
         balance = res;
@@ -462,6 +469,7 @@
   }
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <h2 class="placeOrderH2">
   {$_("trading.subtitle")} ({nbTradesToday})
   {#if tickerPrice}
