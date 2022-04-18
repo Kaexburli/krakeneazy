@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
@@ -6,12 +9,22 @@
   import { online, asymbole } from "store/store.js";
   import LinearProgress from "@smui/linear-progress";
   import { hasApikeysStore } from "store/userStore.js";
+  import SnackBar from "components/SnackBar.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   const ud = new UserData();
 
   let error = false,
     balance = false;
 
+  let snackBarText = "",
+    snackBarShow = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const GetBalance = async () => {
     try {
       if (!$online) {
@@ -20,10 +33,14 @@
       }
 
       const res = await ud.getBalance();
+
       if (
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
         setTimeout(() => {
           GetBalance();
@@ -42,6 +59,7 @@
   });
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block">
   <h3>{$_("account.balance.title")}</h3>
   <ul class="balance">

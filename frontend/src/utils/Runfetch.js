@@ -88,9 +88,14 @@ const callApiFetch = async (params) => {
     if (Object.prototype.hasOwnProperty.call(response, 'error')) {
       errorTimeout = response.timeout
       if (response.error === 'Permission denied') {
-        alert($_('runfetch.permissionDenied'))
+        response.error = $_('runfetch.permissionDenied')
       }
-      console.error(`[HAS ERROR]: ${endpoint} = ${response.error}`)
+      return {
+        error: response.error,
+        message: response.error,
+        timeout: response.timeout,
+        endpoint
+      }
     }
 
     fetchTimeout.update((n) => {

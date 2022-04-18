@@ -13,6 +13,7 @@
   import Dialog, { Title, Content, Actions } from "@smui/dialog";
   import Button, { Label } from "@smui/button";
   import TradingOrder from "components/pages/trading/TradingOrder.svelte";
+  import SnackBar from "components/SnackBar.svelte";
 
   // ---------------------------------------------------------
   //  Props
@@ -36,6 +37,9 @@
     chartblock = null,
     modal = null,
     domLoaded = false;
+
+  let snackBarText = "",
+    snackBarShow = false;
 
   // ---------------------------------------------------------
   //  Methods Declarations
@@ -116,6 +120,9 @@
           typeof res !== "undefined" &&
           Object.prototype.hasOwnProperty.call(res, "error")
         ) {
+          snackBarShow = true;
+          snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
           error = res.error;
         } else {
           order = res;
@@ -189,6 +196,7 @@
   });
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div
   id="trading-order-modal"
   use:draggable

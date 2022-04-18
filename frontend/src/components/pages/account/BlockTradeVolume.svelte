@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
@@ -7,7 +10,11 @@
   import LinearProgress from "@smui/linear-progress";
   import { tweened } from "svelte/motion";
   import { linear } from "svelte/easing";
+  import SnackBar from "components/SnackBar.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   let currency,
     tradevol,
     next_vol,
@@ -20,11 +27,17 @@
     error = false,
     tradevolume = false;
 
+  let snackBarText = "",
+    snackBarShow = false;
+
   const progress = tweened(0, {
     duration: 1000,
     easing: linear,
   });
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const GetTradeVolume = async () => {
     try {
       if (!$online) {
@@ -43,6 +56,9 @@
         typeof res !== "undefined" &&
         Object.prototype.hasOwnProperty.call(res, "error")
       ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
         setTimeout(() => {
           GetTradeVolume();
@@ -91,6 +107,7 @@
   }
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block">
   <h3>{$_("account.tradeVolume.title")}</h3>
   {#if error && typeof error !== "boolean"}
