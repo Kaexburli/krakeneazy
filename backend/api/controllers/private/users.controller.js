@@ -40,6 +40,13 @@ export const websocketVerifyJWTCtrl = async (req, reply) => {
 }
 
 export const asyncVerifyJWTCtrl = async (req, reply) => {
+  if (
+    !req.headers['X-Webapp-Header'] ||
+    req.headers['X-Webapp-Header'] !== process.env.SITE_NAME
+  ) {
+    return reply.redirect('/')
+  }
+
   const { authorization } = req.headers || false
 
   try {

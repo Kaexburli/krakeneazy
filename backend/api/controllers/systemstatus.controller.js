@@ -13,10 +13,10 @@ const api = new Kraken()
 // ---------------------------------------------------------
 const getSystemStatus = async (req, reply) => {
   if (
-    !req.headers['x-webapp-header'] ||
-    req.headers['x-webapp-header'] !== process.env.SITE_NAME
+    !req.headers['X-Webapp-Header'] ||
+    req.headers['X-Webapp-Header'] !== process.env.SITE_NAME
   ) {
-    reply.redirect('/')
+    return reply.redirect('/')
   }
 
   try {
