@@ -11,6 +11,7 @@ import {
   sendNewPasswordEmail
 } from '../../utils/Mailer.js'
 import { checkApiKeyPermissions } from './userdatas.controller.js'
+import jwt from 'jsonwebtoken'
 
 // ---------------------------------------------------------
 //  Props
@@ -26,6 +27,9 @@ export const websocketVerifyJWTCtrl = async (req, reply) => {
     const user = await User.findById(id, req)
 
     if (!user) {
+      req.log.error(
+        'ERROR: [websocketVerifyJWTCtrl] - Authentification failed!'
+      )
       return reply.code(401).send({
         ok: false,
         statusCode: 401,
@@ -33,8 +37,20 @@ export const websocketVerifyJWTCtrl = async (req, reply) => {
       })
     }
 
+    const decoded = jwt.verify(user.token, process.env.JWT_STANDARD_SECRET)
+
+    if (
+      decoded.exp <= parseInt(Date.now() / 1000) ||
+      !user.isLogged ||
+      !user.token
+    ) {
+      req.log.error('ERROR: [websocketVerifyJWTCtrl] - Decoded JWT failed!')
+      return reply.redirect('/')
+    }
+
     req.user = user
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [websocketVerifyJWTCtrl]')
     return reply.code(401).send(error.message)
   }
 }
@@ -44,6 +60,9 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
     !req.headers['x-webapp-header'] ||
     req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
+    req.log.error(
+      'ERROR: [asyncVerifyJWTCtrl] - Missing x-webapp-header parameter!'
+    )
     return reply.redirect('/')
   }
 
@@ -61,6 +80,7 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
     }
 
     if (!req.user) {
+      req.log.error('ERROR: [asyncVerifyJWTCtrl] - Authentification failed!')
       return reply.code(401).send({
         ok: false,
         statusCode: 401,
@@ -68,6 +88,7 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
       })
     }
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [asyncVerifyJWTCtrl]')
     return reply.code(401).send({
       ok: false,
       statusCode: 401,
@@ -85,6 +106,9 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
  */
 export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
   if (!req.body) {
+    req.log.error(
+      'ERROR: [asyncVerifyUsernameAndPasswordCtrl] - Missing parameter!'
+    )
     return reply.send({
       ok: false,
       message: 'usernameAndPasswordRequired'
@@ -99,6 +123,9 @@ export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
     const user = await User.findByCredentials(email, password)
 
     if (user instanceof Error) {
+      req.log.error(
+        'ERROR: [asyncVerifyUsernameAndPasswordCtrl] - Missing user!'
+      )
       return reply.code(200).send({
         ok: false,
         message: user.message
@@ -108,6 +135,7 @@ export const asyncVerifyUsernameAndPasswordCtrl = async (req, reply) => {
       return req.user
     }
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [asyncVerifyUsernameAndPasswordCtrl]')
     return reply.code(400).send({
       ok: false,
       message: error.message
@@ -139,6 +167,7 @@ export const registerCtrl = async (req, reply) => {
     const email = await sendRegisterEmail(user)
 
     if (!email) {
+      req.log.error('ERROR: [registerCtrl] - Missing email!')
       return reply.status(200).send({
         ok: false,
         message: 'errorMailSend'
@@ -156,12 +185,14 @@ export const registerCtrl = async (req, reply) => {
   } catch (error) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0] || ' account '
+      req.log.error(`ERROR: [registerCtrl] - Field Exist: ${field}`)
       return reply.status(200).send({
         ok: false,
         message: 'fieldExist',
         field
       })
     } else {
+      req.log.error({ error }, 'ERROR: [registerCtrl]')
       return reply.status(400).send(error)
     }
   }
@@ -176,6 +207,7 @@ export const registerCtrl = async (req, reply) => {
  */
 export const loginCtrl = async (req, reply) => {
   if (!req.user) {
+    req.log.error('ERROR: [loginCtrl] - Missing user!')
     return reply.status(200).send(req.user)
   }
 
@@ -183,6 +215,7 @@ export const loginCtrl = async (req, reply) => {
     const remember = req.body.remember || false
     await req.user.generateToken(remember, true)
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [loginCtrl] - generateToken failed!')
     return reply.status(400).send(error)
   }
 
@@ -223,6 +256,7 @@ export const logoutCtrl = async (req, reply) => {
         user: loggedOutUser
       })
     } else {
+      req.log.error('ERROR: [logoutCtrl] - Not isLogged!')
       return reply.send({
         ok: false,
         status: 'loggedOutError'
@@ -241,7 +275,13 @@ export const logoutCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const refreshTokenCtrl = async (req, reply) => {
-  if (req.user instanceof Error) return reply.status(400).send(req.user)
+  if (req.user instanceof Error) {
+    req.log.error(
+      { user: req.user },
+      'ERROR: [refreshTokenCtrl] - generateToken failed!'
+    )
+    return reply.status(400).send(req.user)
+  }
 
   const remember = req.body.remember || false
   await req.user.generateToken(remember)
@@ -286,6 +326,7 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
   const email = req.body.email || false
 
   if (!email) {
+    req.log.error('ERROR: [resendConfirmEmailCtrl] - Missing email!')
     return reply.send({
       ok: false,
       message: 'cantFindYou'
@@ -296,6 +337,7 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
     const user = await User.findByEmail(email, true)
 
     if (!user) {
+      req.log.error('ERROR: [resendConfirmEmailCtrl] - Missing user!')
       return reply.send({
         ok: false,
         message: 'cantFindYou'
@@ -305,6 +347,7 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
     const sendemail = await sendRegisterEmail(user)
 
     if (!sendemail) {
+      req.log.error('ERROR: [resendConfirmEmailCtrl] - Error send email!')
       return reply.send({
         ok: false,
         message: 'errorMailSend'
@@ -317,6 +360,7 @@ export const resendConfirmEmailCtrl = async (req, reply) => {
       })
     }
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [resendConfirmEmailCtrl]')
     return reply.send({
       ok: false,
       message: error
@@ -335,6 +379,7 @@ export const forgotPasswordCtrl = async (req, reply) => {
   const email = req.body.email || false
 
   if (!email) {
+    req.log.error('ERROR: [forgotPasswordCtrl] - Missing email!')
     return reply.send({
       ok: false,
       message: 'cantFindYou',
@@ -346,6 +391,7 @@ export const forgotPasswordCtrl = async (req, reply) => {
     const user = await User.findByEmail(email, true)
 
     if (!user) {
+      req.log.error('ERROR: [forgotPasswordCtrl] - Missing user!')
       return reply.send({
         ok: false,
         message: 'cantFindYou',
@@ -356,6 +402,7 @@ export const forgotPasswordCtrl = async (req, reply) => {
     const sendemail = await sendForgotPasswordEmail(user)
 
     if (!sendemail) {
+      req.log.error('ERROR: [forgotPasswordCtrl] - Error send email!')
       return reply.send({
         ok: false,
         message: 'errorMailSend'
@@ -368,6 +415,7 @@ export const forgotPasswordCtrl = async (req, reply) => {
       })
     }
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [forgotPasswordCtrl]')
     return reply.send({
       ok: false,
       message: error
@@ -406,6 +454,11 @@ export const forgotPasswordConfirmCtrl = async (req, reply) => {
  * @returns { Object } HTTP response
  */
 export const profileCtrl = async (req, reply) => {
+  if (req.user instanceof Error) {
+    req.log.error({ user: req.user }, 'ERROR: [profileCtrl]')
+    return reply.status(400).send(req.user)
+  }
+
   reply.send({
     ok: true,
     status: 'authenticated',
@@ -449,6 +502,7 @@ export const addApiKeyCtrl = async (req, reply) => {
 
     const verifyKeys = await checkApiKeyPermissions(apikey)
     if (Object.prototype.hasOwnProperty.call(verifyKeys, 'error')) {
+      req.log.error('ERROR: [addApiKeyCtrl] - Your api key return an error!')
       reply.status(400).send({
         ok: false,
         message: `Your api key return an error : ${verifyKeys.error}`
@@ -467,11 +521,13 @@ export const addApiKeyCtrl = async (req, reply) => {
   } catch (error) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0] || ' apikey '
+      req.log.error(`ERROR: [addApiKeyCtrl] - Field Exist: ${field}`)
       reply.status(400).send({
         ok: false,
         message: `Your ${field} is already exist!`
       })
     } else {
+      req.log.error({ error }, 'ERROR: [addApiKeyCtrl]')
       reply.status(400).send({
         ok: false,
         message: error.errors
@@ -491,6 +547,7 @@ export const removeApiKeyCtrl = async (req, reply) => {
   const { ids, userId } = req.body
 
   if (req.user._id !== userId) {
+    req.log.error('ERROR: [removeApiKeyCtrl] - Id not egals!')
     reply.status(400).send({
       ok: false,
       message: 'User ID does not match'
@@ -515,12 +572,16 @@ export const removeApiKeyCtrl = async (req, reply) => {
         removedIds
       })
     } else {
+      req.log.error(
+        'ERROR: [removeApiKeyCtrl] - An unexpected error is produced'
+      )
       reply.status(400).send({
         ok: false,
         message: 'An unexpected error is produced'
       })
     }
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [removeApiKeyCtrl]')
     reply.status(400).send({
       ok: false,
       message: error.message
@@ -555,11 +616,13 @@ export const changeUserDataCtrl = async (req, reply) => {
     })
   } catch (error) {
     if (error.code === 11000) {
+      req.log.error(`ERROR: [changeUserDataCtrl] - Field Exist: ${field}`)
       reply.status(400).send({
         ok: false,
         message: `Your ${field} is already exist!`
       })
     } else {
+      req.log.error({ error }, 'ERROR: [changeUserDataCtrl]')
       reply.status(400).send({
         ok: false,
         message: error.errors
@@ -587,6 +650,7 @@ export const confirmCGVCtrl = async (req, reply) => {
       message: 'CGV accepted!'
     })
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [confirmCGVCtrl]')
     reply.status(400).send({
       ok: false,
       message: error.errors
@@ -633,6 +697,7 @@ export const setPriceAlertCtrl = async (req, reply) => {
       id: priceAlert._id
     })
   } catch (error) {
+    req.log.error({ error }, 'ERROR: [changeUserDataCtrl]')
     reply.status(400).send({
       ok: false,
       message: error.errors
