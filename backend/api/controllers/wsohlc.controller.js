@@ -8,36 +8,29 @@ import { Kraken } from 'node-kraken-api'
 // ---------------------------------------------------------
 // Instanciation du module kraken API
 const api = new Kraken()
-const debug = false
 
 // ---------------------------------------------------------
 //  Methods Declarations
 // ---------------------------------------------------------
-const GetOhlc = async (connection, req) => {
+const GetOhlc = async (connection, req, _reply) => {
   try {
     const { base, quote, interval } = req.params
     const pair = base + '/' + quote
 
-    if (debug) {
-      console.log('GetOhlc', interval)
-    }
-
     const ohlc = await api.ws
       .ohlc({ interval: parseInt(interval) })
       .on('update', (update, pair) => {
-        if (debug) console.log('[UPDATE OHLC]: ', pair, update)
         connection.socket.send(
           JSON.stringify({ service: 'Ohlc', data: update })
         )
       })
       .on('status', (status) => {
-        if (debug) console.log('[STATUS OHLC]: ', status)
         connection.socket.send(
           JSON.stringify({ service: 'Ohlc', data: false, status })
         )
       })
       .on('error', (error, pair) => {
-        if (debug) console.log('[ERROR OHLC]: ', error, pair)
+        req.log.error({ error, pair }, '[ERROR GetOhlc]')
         connection.socket.send(
           JSON.stringify({ service: 'Ohlc', data: false, error, pair })
         )
@@ -45,18 +38,16 @@ const GetOhlc = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      if (debug) {
-        console.log('[CLOSE OHLC]: ', message)
-      }
+      req.log.error({ message }, '[CLOSE GetOhlc]')
       try {
         await ohlc.unsubscribe(pair)
       } catch (error) {
-        console.log('[ERROR:OHLC:ONCLOSE]', error)
+        req.log.error({ error }, '[ERROR:OHLC:GetOhlc]')
         return error
       }
     })
   } catch (error) {
-    console.log('[CATCH ERROR OHLC]: ', error)
+    req.log.error({ error }, '[CATCH ERROR GetOhlc]')
     return error
   }
 }

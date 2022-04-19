@@ -17,6 +17,7 @@ const getTicker = async (req, reply) => {
     !req.headers['x-webapp-header'] ||
     req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
+    req.log.warn('[WARN:getTicker] missing x-webapp-header!')
     return reply.redirect('/')
   }
 
@@ -25,7 +26,7 @@ const getTicker = async (req, reply) => {
     const response = await api.ticker({ pair: pair })
     reply.send(response)
   } catch (error) {
-    console.error('[ERROR:getTicker]', error)
+    req.log.error({ error }, '[ERROR:getTicker]')
     return error
   }
 }
