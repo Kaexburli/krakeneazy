@@ -152,13 +152,13 @@
 
 <SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block ledgers">
-  {#if error && typeof error !== "boolean"}
+  <!-- {#if error && typeof error !== "boolean"}
     <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>
       <Content>
         {error}
       </Content>
     </Paper>
-  {/if}
+  {/if} -->
   <DataTable
     table$aria-label={$_("account.ledgers.dataLabel")}
     style="width: 100%;"

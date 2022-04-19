@@ -134,13 +134,13 @@
 
 <SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block closed-orders">
-  {#if error && typeof error !== "boolean"}
+  <!-- {#if error && typeof error !== "boolean"}
     <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>
       <Content>
         {error}
       </Content>
     </Paper>
-  {/if}
+  {/if} -->
   <DataTable
     table$aria-label={$_("account.closedOrders.dataLabel")}
     style="width: 100%;"

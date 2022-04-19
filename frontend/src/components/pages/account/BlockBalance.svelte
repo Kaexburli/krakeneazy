@@ -63,9 +63,9 @@
 <div class="block">
   <h3>{$_("account.balance.title")}</h3>
   <ul class="balance">
-    {#if error && typeof error !== "boolean"}
+    <!-- {#if error && typeof error !== "boolean"}
       <span class="error">{error}</span>
-    {/if}
+    {/if} -->
     {#if !balance && !error}
       <LinearProgress indeterminate />
     {:else}
