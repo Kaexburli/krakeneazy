@@ -305,7 +305,7 @@ export const getListExport = async (ctx, _event) => {
         return val
       })
     } else {
-      console.log('[LEDGERS] an unexpected error has occurred!')
+      console.error('[LEDGERS] an unexpected error has occurred!')
     }
   }
 
@@ -362,7 +362,7 @@ export const getListExport = async (ctx, _event) => {
         return val
       })
     } else {
-      console.log('[TRADES] an unexpected error has occurred!')
+      console.error('[TRADES] an unexpected error has occurred!')
     }
   }
 

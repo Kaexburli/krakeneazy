@@ -38,7 +38,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     try {
@@ -61,7 +61,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     try {
@@ -85,7 +85,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params = Object.values(params).join('/')
@@ -111,7 +111,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params = Object.values(params).join('/')
@@ -137,7 +137,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     if (typeof params.pair === 'undefined' && !params.pair) {
@@ -167,7 +167,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     try {
@@ -190,7 +190,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     try {
@@ -213,7 +213,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params =
@@ -240,7 +240,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     try {
@@ -264,7 +264,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params =
@@ -291,7 +291,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params =
@@ -319,7 +319,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params =
@@ -346,7 +346,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params =
@@ -373,7 +373,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params =
@@ -399,7 +399,7 @@ class UserData {
 
     if (!this.token) {
       // eslint-disable-next-line no-undef
-      console.log($_('userData.errorMessage') + ' : ' + this.endpoint)
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
     }
 
     params =

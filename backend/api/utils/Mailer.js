@@ -82,7 +82,7 @@ export const sendRegisterEmail = async (user) => {
       Object.prototype.hasOwnProperty.call(info.envelope, 'to')
     )
   } catch (error) {
-    console.log('[sendRegisterEmail ERROR:]', error)
+    console.error('[sendRegisterEmail ERROR:]', error)
   }
 }
 
@@ -126,7 +126,7 @@ export const sendForgotPasswordEmail = async (user) => {
       Object.prototype.hasOwnProperty.call(info.envelope, 'to')
     )
   } catch (error) {
-    console.log('[sendForgotPasswordEmail ERROR:]', error)
+    console.error('[sendForgotPasswordEmail ERROR:]', error)
   }
 }
 
@@ -168,6 +168,6 @@ export const sendNewPasswordEmail = async (data) => {
       Object.prototype.hasOwnProperty.call(info.envelope, 'to')
     )
   } catch (error) {
-    console.log('[sendNewPasswordEmail ERROR:]', error)
+    console.error('[sendNewPasswordEmail ERROR:]', error)
   }
 }

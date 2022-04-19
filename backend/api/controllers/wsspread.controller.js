@@ -48,7 +48,6 @@ const GetSpread = async (connection, req) => {
     })
   } catch (error) {
     req.log.error({ error }, '[CATCH ERROR GetSpread]')
-    console.log('[CATCH ERROR SPREAD]: ', error)
     return error
   }
 }
