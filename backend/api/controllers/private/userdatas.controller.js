@@ -98,7 +98,6 @@ const logError = (error, func) => {
   )
 }
 const handleError = (error, func, req = false) => {
-  console.log('================================== handleError')
   if (error) {
     if (Object.prototype.hasOwnProperty.call(error, 'body')) {
       logError(error.body.error[0], func)
@@ -121,7 +120,7 @@ const handleError = (error, func, req = false) => {
       }
     }
 
-    if (req) req.log.error(error)
+    if (req) req.log.error({ error }, '[handleError]:' + func)
 
     return error
   }
@@ -680,7 +679,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
   let timer = null
   const interval = 2000
 
-  // Strat interval
+  // Start interval
   const startInterval = () => {
     timer = setInterval(() => {
       getWsSystemStatusData()
@@ -699,28 +698,28 @@ const getWsSystemStatus = async (connection, req, reply) => {
 
   // Verifie la réponse si erreur
   const checkAndSendResult = async (data) => {
-    if (
-      Object.prototype.hasOwnProperty.call(data, 'body') &&
-      Object.prototype.hasOwnProperty.call(data.body, 'error')
-    ) {
-      req.log.error({ data }, '[ERROR getWsSystemStatus]')
-
-      connection.socket.send(
-        JSON.stringify({
-          service: 'WsSystemStatus',
-          data: { error: data.body.error }
-        })
-      )
+    if (Object.keys(data).includes('errno')) {
+      // Stop interval
       stopInterval()
-
+      // Restart interval dans 1M
       setTimeout(() => {
         timer = startInterval()
       }, 60000)
+      // Envoie de l'erreur en front
+      connection.socket.send(
+        JSON.stringify({
+          ok: false,
+          service: 'WsSystemStatus',
+          error: data,
+          data: {}
+        })
+      )
     } else {
       connection.socket.send(
         JSON.stringify({
-          service: 'WsSystemStatus',
+          ok: true,
           error: false,
+          service: 'WsSystemStatus',
           data
         })
       )
@@ -764,7 +763,7 @@ const getWsKrakenStatus = async (connection, req, _reply) => {
   // Verifie la réponse si erreur
   const checkAndSendResult = async (data) => {
     if (!data) {
-      req.log.error({ data }, '[ERROR getWsKrakenStatus]')
+      req.log.error({ data }, '[ERROR getWsKrakenStatus data]')
 
       connection.socket.send(
         JSON.stringify({
