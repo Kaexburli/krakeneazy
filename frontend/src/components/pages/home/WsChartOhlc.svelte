@@ -847,8 +847,10 @@
     if (!chartblock) console.debug("[ERROR] resizeChart");
     else {
       chartWidth = chartblock.clientWidth || chartWidth;
-      chartApi.resize(chartWidth, chartHeight);
-      $setResizeChart = false;
+      if (chartApi) {
+        chartApi.resize(chartWidth, chartHeight);
+        $setResizeChart = false;
+      }
     }
   };
 
@@ -884,12 +886,9 @@
   $: if ($setResizeChart) resizeChart();
   $: if ($interval) intvalSeconde = $interval * 60;
 
-  $: {
-    // Auto resizing chart
-    window.addEventListener("resize", () => {
-      resizeChart();
-    });
-  }
+  window.addEventListener("resize", () => {
+    resizeChart();
+  });
 
   // Set Marker Orders, Position
   $: {
