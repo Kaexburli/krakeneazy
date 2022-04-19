@@ -38,13 +38,17 @@ const GetTicker = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      req.log.error({ message }, '[CLOSE GetTicker]')
       try {
-        await ticker.unsubscribe(pair)
+        const unsubscribe = await ticker.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetTicker]')
       } catch (error) {
         req.log.error({ error }, '[ERROR:TICKER:GetTicker]')
         return error
       }
+    })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR GetTrade]')
     })
   } catch (error) {
     req.log.error({ error }, '[CATCH ERROR GetTicker]')

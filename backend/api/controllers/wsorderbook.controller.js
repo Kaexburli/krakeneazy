@@ -53,13 +53,17 @@ const GetOrderBook = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      req.log.error({ message }, '[CLOSE GetOrderBook]')
       try {
-        await book.unsubscribe(pair)
+        const unsubscribe = await book.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetOrderBook]')
       } catch (error) {
         req.log.error({ error }, '[ERROR:BOOK:GetOrderBook]')
         return error
       }
+    })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR GetOrderBook]')
     })
   } catch (error) {
     req.log.error({ error }, '[CATCH ERROR GetOrderBook]')

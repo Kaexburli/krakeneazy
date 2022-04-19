@@ -38,13 +38,17 @@ const GetOhlc = async (connection, req, _reply) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      req.log.error({ message }, '[CLOSE GetOhlc]')
       try {
-        await ohlc.unsubscribe(pair)
+        const unsubscribe = await ohlc.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetOhlc]')
       } catch (error) {
         req.log.error({ error }, '[ERROR:OHLC:GetOhlc]')
         return error
       }
+    })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR on (error)]')
     })
   } catch (error) {
     req.log.error({ error }, '[CATCH ERROR GetOhlc]')

@@ -38,13 +38,17 @@ const GetSpread = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      req.log.error({ message }, '[CLOSE GetSpread]')
       try {
-        await spread.unsubscribe(pair)
+        const unsubscribe = await spread.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetSpread]')
       } catch (error) {
         req.log.error({ error }, '[ERROR:SPREAD:GetSpread]')
         return error
       }
+    })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR GetSpread]')
     })
   } catch (error) {
     req.log.error({ error }, '[CATCH ERROR GetSpread]')

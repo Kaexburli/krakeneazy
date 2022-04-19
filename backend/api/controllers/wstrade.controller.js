@@ -38,13 +38,17 @@ const GetTrade = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      req.log.error({ message }, '[CLOSE GetTrade]')
       try {
-        await trade.unsubscribe(pair)
+        const unsubscribe = await trade.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetTrade]')
       } catch (error) {
         req.log.error({ error }, '[ERROR:TRADE:GetTrade]')
         return error
       }
+    })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR GetTrade]')
     })
   } catch (error) {
     req.log.error({ error }, '[CATCH ERROR GetTrade]')
