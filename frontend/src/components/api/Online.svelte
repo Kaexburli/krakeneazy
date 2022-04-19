@@ -89,7 +89,6 @@
     wsKrakenStatus.subscribe((tick) => {
       if (
         !tick ||
-        typeof tick === "undefined" ||
         tick.service !== "WsKrakenStatus" ||
         !Object.prototype.hasOwnProperty.call(tick, "data")
       )
@@ -99,51 +98,41 @@
     });
 
     wsSystemStatus.subscribe((tick) => {
-      if (
-        !tick ||
-        typeof tick === "undefined" ||
-        tick.service !== "WsSystemStatus"
-      )
+      if (!tick) {
         return false;
-
-      if (Object.prototype.hasOwnProperty.call(tick.data, "errno")) {
-        count = 1;
-        error =
-          "[" +
-          tick.data.errno +
-          "] " +
-          tick.data.code +
-          " " +
-          tick.data.syscall;
-        status = "offline";
+      } else if (tick && !tick.ok) {
+        // {
+        //     "ok": false,
+        //     "service": "WsSystemStatus",
+        //     "error": {
+        //         "errno": -3008,
+        //         "code": "ENOTFOUND",
+        //         "syscall": "getaddrinfo",
+        //         "hostname": "api.kraken.com"
+        //     },
+        //     "data": {}
+        // }
         online.update((n) => false);
-      } else if (
-        Object.prototype.hasOwnProperty.call(tick.data, "errorMessage")
-      ) {
-        count = 1;
-        error =
-          "[" + tick.data.subscription.name + "] " + tick.data.errorMessage;
         status = "offline";
-        online.update((n) => false);
-      } else if (Object.prototype.hasOwnProperty.call(tick.data, "error")) {
-        count = 1;
-        let message = tick.data.message;
-        error = "[" + tick.data.error + "] " + message;
-        status = "offline";
-      } else if (Object.prototype.hasOwnProperty.call(tick.data, "status")) {
+        error = `[${tick.error.code}]`;
+        count++;
+      } else {
+        // {
+        //     "ok": true,
+        //     "error": false,
+        //     "service": "WsSystemStatus",
+        //     "data": {
+        //         "status": "online",
+        //         "timestamp": "2022-04-19T16:56:06Z"
+        //     }
+        // }
         let timestamp = new Date(tick.data.timestamp).getTime();
         let diff_beetween = interval - timestamp;
         diff_beetween = Math.floor(diff_beetween / 1000 / 60 / 60 / 24);
         online.update((n) => diff_beetween === -1);
         status = tick.data.status;
-        error = false;
-      } else if (
-        !$online &&
-        !Object.prototype.hasOwnProperty.call(tick.data, "status")
-      ) {
-        count = 1;
-        error = "ERROR";
-        return false;
+        error = tick.error;
+        count = 0;
       }
     });
   });
