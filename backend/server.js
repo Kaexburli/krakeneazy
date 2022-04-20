@@ -64,8 +64,22 @@ fastify
   .register(db, { uri })
   .register(FastifyEnv, options)
   .register(FastifyCors)
-  .register(FastifyWs)
   .register(FastifyAuth)
+  .register(FastifyWs, {
+    errorHandler: function (error, conn, req, _reply) {
+      req.log.error({ error }, '[ERROR FastifyWs]')
+      conn.destroy(error)
+    },
+    options: {
+      maxPayload: 1048576,
+      verifyClient: function (info, next) {
+        if (!info.origin.includes(process.env.FRONTEND_URI)) {
+          return next(false)
+        }
+        next(true)
+      }
+    }
+  })
 
 // Page error 4xx et 5xx
 if (environment === 'development') {
