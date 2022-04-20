@@ -14,7 +14,6 @@ import CSVToJSON from 'csvtojson'
 // ---------------------------------------------------------
 const __base = path.resolve('../export/.')
 const now = new Date().toLocaleTimeString()
-const debug = false
 let apiError = false
 
 // ---------------------------------------------------------
@@ -121,7 +120,7 @@ const handleError = (error, func, req = false) => {
       }
     }
 
-    if (req) req.log.error(error)
+    if (req) req.log.error({ error }, '[handleError]:' + func)
 
     return error
   }
@@ -521,24 +520,22 @@ const getWsOpenOrders = async (connection, req, _reply) => {
     const openorders = await apiKraken.ws
       .openOrders({ token: token, ratecounter: true })
       .on('update', (update, sequence) => {
-        if (debug) console.log('[UPDATE OPEN-ORDERS]: ', update, sequence)
+        req.log.info({ update, sequence }, '[UPDATE openorders]')
         connection.socket.send(
           JSON.stringify({ service: 'OpenOrders', data: update, sequence })
         )
       })
       .on('token', (token) => {
-        if (debug) console.log('[STATUS OPEN-ORDERS]: ', token)
+        req.log.info({ token }, '[TOKEN openorders]')
       })
       .on('status', (status) => {
-        if (debug) console.log('[STATUS OPEN-ORDERS]: ', status)
+        req.log.info({ status }, '[STATUS openorders]')
         connection.socket.send(
           JSON.stringify({ service: 'OpenOrders', data: false, status: status })
         )
       })
       .on('error', (error, sequence) => {
-        if (debug) {
-          console.log('[ERROR OPEN-ORDERS]: ', error, sequence, openorders)
-        }
+        req.log.error({ error, sequence, openorders }, '[ERROR openorders]')
         connection.socket.send(JSON.stringify(error))
       })
       .subscribe()
@@ -574,24 +571,22 @@ const getWsOwnTrades = async (connection, req, _reply) => {
     const owntrades = await apiKraken.ws
       .ownTrades({ token: token, ratecounter: true })
       .on('update', (update, sequence) => {
-        if (debug) console.log('[UPDATE OWN-TRADES]: ', update, sequence)
+        req.log.info({ update, sequence }, '[UPDATE owntrades]')
         connection.socket.send(
           JSON.stringify({ service: 'token', data: update, sequence })
         )
       })
       .on('token', (token) => {
-        if (debug) console.log('[TOKEN OWN-TRADES]: ', token)
+        req.log.info({ token }, '[TOKEN owntrades]')
       })
       .on('status', (status) => {
-        if (debug) console.log('[STATUS WN-TRADES]]: ', status)
+        req.log.info({ status }, '[STATUS owntrades]')
         connection.socket.send(
           JSON.stringify({ service: 'OwnTrades', data: false, status: status })
         )
       })
       .on('error', (error, sequence) => {
-        if (debug) {
-          console.log('[ERROR OWN-TRADES]: ', error, sequence, owntrades)
-        }
+        req.log.error({ error, sequence, owntrades }, '[ERROR owntrades]')
         connection.socket.send(JSON.stringify(error))
       })
       .subscribe()
@@ -643,6 +638,8 @@ const getWsTradeBalance = async (connection, req, reply) => {
       Object.prototype.hasOwnProperty.call(data, 'body') &&
       Object.prototype.hasOwnProperty.call(data.body, 'error')
     ) {
+      req.log.error({ data }, '[ERROR getWsTradeBalance]')
+
       connection.socket.send(
         JSON.stringify({
           service: 'WsTradeBalance',
@@ -682,7 +679,7 @@ const getWsSystemStatus = async (connection, req, reply) => {
   let timer = null
   const interval = 2000
 
-  // Strat interval
+  // Start interval
   const startInterval = () => {
     timer = setInterval(() => {
       getWsSystemStatusData()
@@ -701,26 +698,28 @@ const getWsSystemStatus = async (connection, req, reply) => {
 
   // Verifie la réponse si erreur
   const checkAndSendResult = async (data) => {
-    if (
-      Object.prototype.hasOwnProperty.call(data, 'body') &&
-      Object.prototype.hasOwnProperty.call(data.body, 'error')
-    ) {
-      connection.socket.send(
-        JSON.stringify({
-          service: 'WsSystemStatus',
-          data: { error: data.body.error }
-        })
-      )
+    if (Object.keys(data).includes('errno')) {
+      // Stop interval
       stopInterval()
-
+      // Restart interval dans 1M
       setTimeout(() => {
         timer = startInterval()
       }, 60000)
+      // Envoie de l'erreur en front
+      connection.socket.send(
+        JSON.stringify({
+          ok: false,
+          service: 'WsSystemStatus',
+          error: data,
+          data: {}
+        })
+      )
     } else {
       connection.socket.send(
         JSON.stringify({
-          service: 'WsSystemStatus',
+          ok: true,
           error: false,
+          service: 'WsSystemStatus',
           data
         })
       )
@@ -752,13 +751,10 @@ const getWsKrakenStatus = async (connection, req, _reply) => {
   // Envoie la requête api
   const getWsKrakenStatusData = async () => {
     try {
-      try {
-        const statusKraken = await fetch(process.env.KRAKEN_STATUS_API_URL)
-        const body = await statusKraken.json()
-        checkAndSendResult(body)
-      } catch (error) {
-        console.error('[ERROR]:', error)
-      }
+      const statusKraken = await fetch(process.env.KRAKEN_STATUS_API_URL)
+      const body = await statusKraken.json()
+
+      checkAndSendResult(body)
     } catch (error) {
       handleError(error, 'getWsKrakenStatus', req)
     }
@@ -767,6 +763,8 @@ const getWsKrakenStatus = async (connection, req, _reply) => {
   // Verifie la réponse si erreur
   const checkAndSendResult = async (data) => {
     if (!data) {
+      req.log.error({ data }, '[ERROR getWsKrakenStatus data]')
+
       connection.socket.send(
         JSON.stringify({
           service: 'WsKrakenStatus',

@@ -16,6 +16,7 @@ const getSystemStatus = async (req, reply) => {
     !req.headers['x-webapp-header'] ||
     req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
+    req.log.warn('[WARN:getSystemStatus] missing x-webapp-header!')
     return reply.redirect('/')
   }
 
@@ -23,7 +24,7 @@ const getSystemStatus = async (req, reply) => {
     const response = await api.systemStatus()
     reply.send(response)
   } catch (error) {
-    console.log('[ERROR:getSystemStatus]', error)
+    req.log.error({ error }, '[ERROR:getSystemStatus]')
     return error
   }
 }

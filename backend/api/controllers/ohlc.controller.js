@@ -12,6 +12,31 @@ const api = new Kraken()
 // ---------------------------------------------------------
 //  Methods Declarations
 // ---------------------------------------------------------
+const getOhlc = async (req, reply) => {
+  if (
+    !req.headers['x-webapp-header'] ||
+    req.headers['x-webapp-header'] !== process.env.SITE_NAME
+  ) {
+    req.log.warn('[WARN:getOhlc] missing x-webapp-header!')
+    return reply.redirect('/')
+  }
+
+  try {
+    const { pair, interval } = req.params
+    const response = await api.ohlc({
+      pair,
+      interval
+    })
+    const ohlcResponse = await new Promise((resolve) =>
+      ohlcFormat(response, resolve)
+    )
+    return ohlcResponse
+  } catch (error) {
+    req.log.error({ error }, '[ERROR:getOhlc]')
+    return error
+  }
+}
+
 const ohlcFormat = (datas, resolve) => {
   const ohlc = []
   const asset = datas ? Object.keys(datas) : false
@@ -35,30 +60,6 @@ const ohlcFormat = (datas, resolve) => {
         resolve(ohlc)
       }
     })
-  }
-}
-
-const getOhlc = async (req, reply) => {
-  if (
-    !req.headers['x-webapp-header'] ||
-    req.headers['x-webapp-header'] !== process.env.SITE_NAME
-  ) {
-    return reply.redirect('/')
-  }
-
-  try {
-    const { pair, interval } = req.params
-    const response = await api.ohlc({
-      pair,
-      interval
-    })
-    const ohlcResponse = await new Promise((resolve) =>
-      ohlcFormat(response, resolve)
-    )
-    return ohlcResponse
-  } catch (error) {
-    console.log('[ERROR:getOhlc]', error)
-    return error
   }
 }
 

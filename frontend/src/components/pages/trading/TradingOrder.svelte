@@ -146,7 +146,7 @@
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("GetBalance", error);
     }
   };
 
@@ -259,7 +259,7 @@
         if (error) Notification(error, "error");
       }
     } catch (error) {
-      console.log(error);
+      console.error("handleSubmitOrder", error);
       Notification(error, "error");
     }
   };

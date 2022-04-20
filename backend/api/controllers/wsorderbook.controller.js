@@ -8,7 +8,6 @@ import { Kraken } from 'node-kraken-api'
 // ---------------------------------------------------------
 // Instanciation du module kraken API
 const api = new Kraken()
-const debug = false
 
 // ---------------------------------------------------------
 //  Methods Declarations
@@ -18,44 +17,35 @@ const GetOrderBook = async (connection, req) => {
     const { base, quote, depth } = req.params
     const pair = base + '/' + quote
 
-    if (debug) {
-      console.log('GetSpread')
-    }
-
     const book = await api.ws
       .book({ depth: parseInt(depth) })
       .on('snapshot', (snapshot) => {
-        if (debug) console.log('[SNAPSHOT BOOK]: ', snapshot)
         connection.socket.send(
           JSON.stringify({ service: 'OrderBook', data: { snapshot } })
         )
       })
       .on('ask', (ask) => {
-        if (debug) console.log('[ASK BOOK]: ', ask)
         connection.socket.send(
           JSON.stringify({ service: 'OrderBook', data: { ask } })
         )
       })
       .on('bid', (bid) => {
-        if (debug) console.log('[BID BOOK]: ', bid)
         connection.socket.send(
           JSON.stringify({ service: 'OrderBook', data: { bid } })
         )
       })
       .on('mirror', (mirror) => {
-        if (debug) console.log('[MIRROR BOOK]: ', mirror)
         connection.socket.send(
           JSON.stringify({ service: 'OrderBook', data: { mirror } })
         )
       })
       .on('status', (status) => {
-        if (debug) console.log('[STATUS BOOK]: ', status)
         connection.socket.send(
           JSON.stringify({ service: 'OrderBook', data: false, status })
         )
       })
       .on('error', (error, pair) => {
-        if (debug) console.log('[ERROR BOOK]: ', error, pair)
+        req.log.error({ error, pair }, '[ERROR GetOrderBook]')
         connection.socket.send(
           JSON.stringify({ service: 'OrderBook', data: false, error, pair })
         )
@@ -63,18 +53,20 @@ const GetOrderBook = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      if (debug) {
-        console.log('[CLOSE BOOK]: ', message)
-      }
       try {
-        await book.unsubscribe(pair)
+        const unsubscribe = await book.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetOrderBook]')
       } catch (error) {
-        console.log('[ERROR:BOOK:ONCLOSE]', error)
+        req.log.error({ error }, '[ERROR:BOOK:GetOrderBook]')
         return error
       }
     })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR GetOrderBook]')
+    })
   } catch (error) {
-    console.log('[CATCH ERROR BOOK]: ', error)
+    req.log.error({ error }, '[CATCH ERROR GetOrderBook]')
     return error
   }
 }

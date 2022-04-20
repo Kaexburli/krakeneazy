@@ -110,9 +110,9 @@
 <SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block">
   <h3>{$_("account.tradeVolume.title")}</h3>
-  {#if error && typeof error !== "boolean"}
+  <!-- {#if error && typeof error !== "boolean"}
     <span class="error">{error}</span>
-  {/if}
+  {/if} -->
   {#if !tradevolume && !error}
     <LinearProgress indeterminate />
   {:else if tradevolume}

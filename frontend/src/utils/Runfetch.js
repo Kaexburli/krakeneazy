@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-unused-vars
 import { _ } from 'svelte-i18n'
 import { User } from 'store/userStore.js'
 import { fetchTimeout } from 'store/store.js'
-import checkRateCount from 'utils/checkRateCount.js'
+// import checkRateCount from 'utils/checkRateCount.js'
 import Fetch, { hasBackground } from 'svelte-fetch'
 
+// eslint-disable-next-line no-unused-vars
 let background = 0
 let timeout = false
 let response = null
@@ -30,6 +32,25 @@ const callApiFetch = async (params) => {
   const endpoint = params.endpoint || false
   const token = params.token || false
   const body = params.body || false
+  let errorTimeout = false
+  let options = {
+    headers: {
+      'Content-Type': 'application/json',
+      // eslint-disable-next-line no-undef, dot-notation
+      'x-webapp-header': __App['env'].SITE_NAME
+    }
+  }
+
+  if (token) {
+    options = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
+      }
+    }
+  }
 
   try {
     if (timeout.timeout) {
@@ -45,26 +66,6 @@ const callApiFetch = async (params) => {
     // if (!checkratecount) return false;
 
     // console.log('[Fetch Background]:', background, endpoint)
-
-    let errorTimeout = false
-    let options = {
-      headers: {
-        'Content-Type': 'application/json',
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      }
-    }
-
-    if (token) {
-      options = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        }
-      }
-    }
 
     if (method === 'GET') {
       response = await fetchSvelte.background.expect(JSON).get(url, options)
@@ -88,6 +89,7 @@ const callApiFetch = async (params) => {
     if (Object.prototype.hasOwnProperty.call(response, 'error')) {
       errorTimeout = response.timeout
       if (response.error === 'Permission denied') {
+        // eslint-disable-next-line no-undef
         response.error = $_('runfetch.permissionDenied')
       }
       return {

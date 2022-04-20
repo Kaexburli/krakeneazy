@@ -1,5 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
+  import { fade } from "svelte/transition";
+  import { mounted } from "store/mounted.js";
   import { createEventDispatcher } from "svelte";
   import { WSTicker } from "store/wsstore.js";
   import { assetpair, toogleBoxTicker, setResizeChart } from "store/store.js";
@@ -34,230 +36,232 @@
   }
 </script>
 
-<div class="slideBtn" on:click={toogleTicker} on:resizeChart>
-  <i class="fa fa-caret-{slideWay}" />
-</div>
-<div class="tick-block {$toogleBoxTicker}">
-  {#if tickerdata}
-    <div class="tick close-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.currentPrice")}</h3>
-      <div class="content">
-        <span class="label"> {$_("home.ticker.price")} : </span>{Number(
-          tickerdata["c"][0]
-        ).toFixed(decimals)}&nbsp;{quote}
-        <br />
-        <span class="label">
-          {$_("home.ticker.totalVolume")} :
-        </span>{tickerdata["c"][1]} <br />
-        <!-- <span class="label">{$_("home.ticker.spread")} : </span>{spread} -->
+{#if $mounted}
+  <div class="slideBtn" on:click={toogleTicker} on:resizeChart>
+    <i class="fa fa-caret-{slideWay}" />
+  </div>
+  <div class="tick-block {$toogleBoxTicker}" in:fade>
+    {#if tickerdata}
+      <div class="tick close-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.currentPrice")}</h3>
+        <div class="content">
+          <span class="label"> {$_("home.ticker.price")} : </span>{Number(
+            tickerdata["c"][0]
+          ).toFixed(decimals)}&nbsp;{quote}
+          <br />
+          <span class="label">
+            {$_("home.ticker.totalVolume")} :
+          </span>{tickerdata["c"][1]} <br />
+          <!-- <span class="label">{$_("home.ticker.spread")} : </span>{spread} -->
+        </div>
       </div>
-    </div>
-    <div class="tick ask-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.ask")}</h3>
-      <div class="content">
-        <span class="label">{$_("home.ticker.askValue")} : </span>{Number(
-          tickerdata["a"][0]
-        ).toFixed(decimals)}&nbsp;{quote}
-        <br />
-        <!-- <span class="label">
+      <div class="tick ask-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.ask")}</h3>
+        <div class="content">
+          <span class="label">{$_("home.ticker.askValue")} : </span>{Number(
+            tickerdata["a"][0]
+          ).toFixed(decimals)}&nbsp;{quote}
+          <br />
+          <!-- <span class="label">
           {$_("home.ticker.wholeLotVolume")} :
         </span>{tickerdata["a"][1]} <br /> -->
-        <span class="label">
-          {$_("home.ticker.lotVolume")} :
-        </span>{tickerdata["a"][2]}
+          <span class="label">
+            {$_("home.ticker.lotVolume")} :
+          </span>{tickerdata["a"][2]}
+        </div>
       </div>
-    </div>
-    <div class="tick bid-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.bid")}</h3>
-      <div class="content">
-        <span class="label">{$_("home.ticker.bidValue")} : </span>{Number(
-          tickerdata["b"][0]
-        ).toFixed(decimals)}&nbsp;{quote} <br />
-        <!-- <span class="label">
+      <div class="tick bid-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.bid")}</h3>
+        <div class="content">
+          <span class="label">{$_("home.ticker.bidValue")} : </span>{Number(
+            tickerdata["b"][0]
+          ).toFixed(decimals)}&nbsp;{quote} <br />
+          <!-- <span class="label">
           {$_("home.ticker.wholeLotVolume")} :
         </span>{tickerdata["b"][1]} <br /> -->
-        <span class="label">
-          {$_("home.ticker.lotVolume")} :
-        </span>{tickerdata["b"][2]}
-      </div>
-    </div>
-    <div class="tick low-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.lowPrice")}</h3>
-      <div class="content">
-        <div class="titles">
           <span class="label">
-            {$_("home.ticker.today")}
-          </span>
-          <span class="label">
-            {$_("home.ticker.last24h")}
-          </span>
-        </div>
-        <div class="jauge">
-          <span
-            class={Number(tickerdata["l"][0]) < Number(tickerdata["l"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["l"][0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span
-            class={Number(tickerdata["l"][0]) > Number(tickerdata["l"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["l"][1]).toFixed(decimals)}&nbsp;{quote}
-          </span>
+            {$_("home.ticker.lotVolume")} :
+          </span>{tickerdata["b"][2]}
         </div>
       </div>
-    </div>
-    <div class="tick hight-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.highPrice")}</h3>
-      <div class="content">
-        <div class="titles">
-          <span class="label">
-            {$_("home.ticker.today")}
-          </span>
-          <span class="label">
-            {$_("home.ticker.last24h")}
-          </span>
-        </div>
-        <div class="jauge">
-          <span
-            class={Number(tickerdata["h"][0]) > Number(tickerdata["h"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["h"][0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span
-            class={Number(tickerdata["h"][0]) < Number(tickerdata["h"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
-          </span>
+      <div class="tick low-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.lowPrice")}</h3>
+        <div class="content">
+          <div class="titles">
+            <span class="label">
+              {$_("home.ticker.today")}
+            </span>
+            <span class="label">
+              {$_("home.ticker.last24h")}
+            </span>
+          </div>
+          <div class="jauge">
+            <span
+              class={Number(tickerdata["l"][0]) < Number(tickerdata["l"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["l"][0]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+            <span
+              class={Number(tickerdata["l"][0]) > Number(tickerdata["l"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["l"][1]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="tick volume-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.volume")}</h3>
-      <div class="content">
-        <div class="titles">
-          <span class="label">
-            {$_("home.ticker.today")}
-          </span>
-          <span class="label">
-            {$_("home.ticker.last24h")}
-          </span>
+      <div class="tick hight-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.highPrice")}</h3>
+        <div class="content">
+          <div class="titles">
+            <span class="label">
+              {$_("home.ticker.today")}
+            </span>
+            <span class="label">
+              {$_("home.ticker.last24h")}
+            </span>
+          </div>
+          <div class="jauge">
+            <span
+              class={Number(tickerdata["h"][0]) > Number(tickerdata["h"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["h"][0]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+            <span
+              class={Number(tickerdata["h"][0]) < Number(tickerdata["h"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+          </div>
         </div>
-        <div class="jauge">
-          <span
-            class={Number(tickerdata["v"][0]) > Number(tickerdata["v"][1])
-              ? "high"
-              : "low"}
-          >
-            {tickerdata["v"][0]}
-          </span>
+      </div>
+      <div class="tick volume-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.volume")}</h3>
+        <div class="content">
+          <div class="titles">
+            <span class="label">
+              {$_("home.ticker.today")}
+            </span>
+            <span class="label">
+              {$_("home.ticker.last24h")}
+            </span>
+          </div>
+          <div class="jauge">
+            <span
+              class={Number(tickerdata["v"][0]) > Number(tickerdata["v"][1])
+                ? "high"
+                : "low"}
+            >
+              {tickerdata["v"][0]}
+            </span>
 
-          <span
-            class={Number(tickerdata["v"][0]) < Number(tickerdata["v"][1])
-              ? "high"
-              : "low"}
-          >
-            {tickerdata["v"][1]}
-          </span>
+            <span
+              class={Number(tickerdata["v"][0]) < Number(tickerdata["v"][1])
+                ? "high"
+                : "low"}
+            >
+              {tickerdata["v"][1]}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="tick vwap-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.vwap")}</h3>
-      <div class="content">
-        <div class="titles">
-          <span class="label">
-            {$_("home.ticker.today")}
-          </span>
-          <span class="label">
-            {$_("home.ticker.last24h")}
-          </span>
-        </div>
-        <div class="jauge">
-          <span
-            class={Number(tickerdata["p"][0]) > Number(tickerdata["p"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["p"][0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span
-            class={Number(tickerdata["p"][0]) < Number(tickerdata["p"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["p"][1]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-        </div>
-      </div>
-    </div>
-    <div class="tick trade-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.numberOfTrade")}</h3>
-      <div class="content">
-        <div class="titles">
-          <span class="label">
-            {$_("home.ticker.today")}
-          </span>
-          <span class="label">
-            {$_("home.ticker.last24h")}
-          </span>
-        </div>
-        <div class="jauge">
-          <span
-            class={Number(tickerdata["t"][0]) > Number(tickerdata["t"][1])
-              ? "high"
-              : "low"}
-          >
-            {tickerdata["t"][0]}
-          </span>
-          <span
-            class={Number(tickerdata["t"][0]) < Number(tickerdata["t"][1])
-              ? "high"
-              : "low"}
-          >
-            {tickerdata["t"][1]}
-          </span>
+      <div class="tick vwap-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.vwap")}</h3>
+        <div class="content">
+          <div class="titles">
+            <span class="label">
+              {$_("home.ticker.today")}
+            </span>
+            <span class="label">
+              {$_("home.ticker.last24h")}
+            </span>
+          </div>
+          <div class="jauge">
+            <span
+              class={Number(tickerdata["p"][0]) > Number(tickerdata["p"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["p"][0]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+            <span
+              class={Number(tickerdata["p"][0]) < Number(tickerdata["p"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["p"][1]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="tick open-tick">
-      <h3>&#x58D;&nbsp;{$_("home.ticker.openPrice")}</h3>
-      <div class="content">
-        <div class="titles">
-          <span class="label">
-            {$_("home.ticker.today")}
-          </span>
-          <span class="label">
-            {$_("home.ticker.last24h")}
-          </span>
-        </div>
-        <div class="jauge">
-          <span
-            class={Number(tickerdata["o"][0]) > Number(tickerdata["h"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["o"][0]).toFixed(decimals)}&nbsp;{quote}
-          </span>
-          <span
-            class={Number(tickerdata["o"][0]) < Number(tickerdata["h"][1])
-              ? "high"
-              : "low"}
-          >
-            {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
-          </span>
+      <div class="tick trade-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.numberOfTrade")}</h3>
+        <div class="content">
+          <div class="titles">
+            <span class="label">
+              {$_("home.ticker.today")}
+            </span>
+            <span class="label">
+              {$_("home.ticker.last24h")}
+            </span>
+          </div>
+          <div class="jauge">
+            <span
+              class={Number(tickerdata["t"][0]) > Number(tickerdata["t"][1])
+                ? "high"
+                : "low"}
+            >
+              {tickerdata["t"][0]}
+            </span>
+            <span
+              class={Number(tickerdata["t"][0]) < Number(tickerdata["t"][1])
+                ? "high"
+                : "low"}
+            >
+              {tickerdata["t"][1]}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-  {/if}
-</div>
+      <div class="tick open-tick">
+        <h3>&#x58D;&nbsp;{$_("home.ticker.openPrice")}</h3>
+        <div class="content">
+          <div class="titles">
+            <span class="label">
+              {$_("home.ticker.today")}
+            </span>
+            <span class="label">
+              {$_("home.ticker.last24h")}
+            </span>
+          </div>
+          <div class="jauge">
+            <span
+              class={Number(tickerdata["o"][0]) > Number(tickerdata["h"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["o"][0]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+            <span
+              class={Number(tickerdata["o"][0]) < Number(tickerdata["h"][1])
+                ? "high"
+                : "low"}
+            >
+              {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
+            </span>
+          </div>
+        </div>
+      </div>
+    {/if}
+  </div>
+{/if}
 
 <style>
   .slideBtn {

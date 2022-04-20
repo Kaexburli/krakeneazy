@@ -62,7 +62,7 @@
   .snackbar {
     position: fixed;
     top: 100%;
-    left: calc(20% - 4px);
+    left: calc(50% - 4px);
     transform: translateX(-50%) translateY(-120%);
     width: fit-content;
     max-width: 800px;

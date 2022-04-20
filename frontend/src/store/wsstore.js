@@ -15,7 +15,6 @@ import websocketStore from 'svelte-websocket-store'
 // ---------------------------------------------------------
 //  Props
 // ---------------------------------------------------------
-const debug = false
 const server =
   location.protocol === 'http:'
     ? `${['ws:', location.host].join('//')}`
@@ -60,17 +59,13 @@ export const WSTicker = derived(
                 `[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`
               )
             } else {
-              if (debug) {
-                console.debug(
-                  `[${tick.status.channelID}] ${
-                    tick.status.status === 'subscribed'
-                      ? 'Connect'
-                      : 'Disconnect'
-                  } to channel [${tick.status.channelName.toUpperCase()}|${
-                    tick.status.pair
-                  }] ${tick.status.status}!`
-                )
-              }
+              console.debug(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
             }
           } else if (
             Object.prototype.hasOwnProperty.call(tick, 'data') &&
@@ -134,17 +129,15 @@ export const WSTickerAlert = derived(
                   `[${tick.status.pair}] Websocket Ticker ${tick.status.errorMessage}`
                 )
               } else {
-                if (debug) {
-                  console.debug(
-                    `[${tick.status.channelID}] ${
-                      tick.status.status === 'subscribed'
-                        ? 'Connect'
-                        : 'Disconnect'
-                    } to channel [TICKER ALERT|${tick.status.pair}] ${
-                      tick.status.status
-                    }!`
-                  )
-                }
+                console.debug(
+                  `[${tick.status.channelID}] ${
+                    tick.status.status === 'subscribed'
+                      ? 'Connect'
+                      : 'Disconnect'
+                  } to channel [TICKER ALERT|${tick.status.pair}] ${
+                    tick.status.status
+                  }!`
+                )
               }
             } else if (
               Object.prototype.hasOwnProperty.call(tick, 'data') &&
@@ -194,17 +187,13 @@ export const WSBook = derived(
                 `[${tick.status.pair}] Websocket Book ${tick.status.errorMessage}`
               )
             } else {
-              if (debug) {
-                console.debug(
-                  `[${tick.status.channelID}] ${
-                    tick.status.status === 'subscribed'
-                      ? 'Connect'
-                      : 'Disconnect'
-                  } to channel [${tick.status.channelName.toUpperCase()}|${
-                    tick.status.pair
-                  }] ${tick.status.status}!`
-                )
-              }
+              console.debug(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
             }
           } else if (
             Object.prototype.hasOwnProperty.call(tick, 'data') &&
@@ -248,17 +237,13 @@ export const WSOhlc = derived(
                 `[${tick.status.pair}] Websocket Ohlc ${tick.status.errorMessage}`
               )
             } else {
-              if (debug) {
-                console.debug(
-                  `[${tick.status.channelID}] ${
-                    tick.status.status === 'subscribed'
-                      ? 'Connect'
-                      : 'Disconnect'
-                  } to channel [${tick.status.channelName.toUpperCase()}|${
-                    tick.status.pair
-                  }] ${tick.status.status}!`
-                )
-              }
+              console.debug(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
             }
           } else if (
             Object.prototype.hasOwnProperty.call(tick, 'data') &&
@@ -301,17 +286,13 @@ export const WSSpread = derived(
                 `[${tick.status.pair}] Websocket Spread ${tick.status.errorMessage}`
               )
             } else {
-              if (debug) {
-                console.debug(
-                  `[${tick.status.channelID}] ${
-                    tick.status.status === 'subscribed'
-                      ? 'Connect'
-                      : 'Disconnect'
-                  } to channel [${tick.status.channelName.toUpperCase()}|${
-                    tick.status.pair
-                  }] ${tick.status.status}!`
-                )
-              }
+              console.debug(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
             }
           } else if (
             Object.prototype.hasOwnProperty.call(tick, 'data') &&
@@ -354,17 +335,13 @@ export const WSTrade = derived(
                 `[${tick.status.pair}] Websocket Trade ${tick.status.errorMessage}`
               )
             } else {
-              if (debug) {
-                console.debug(
-                  `[${tick.status.channelID}] ${
-                    tick.status.status === 'subscribed'
-                      ? 'Connect'
-                      : 'Disconnect'
-                  } to channel [${tick.status.channelName.toUpperCase()}|${
-                    tick.status.pair
-                  }] ${tick.status.status}!`
-                )
-              }
+              console.debug(
+                `[${tick.status.channelID}] ${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.pair
+                }] ${tick.status.status}!`
+              )
             }
           } else if (
             Object.prototype.hasOwnProperty.call(tick, 'data') &&
@@ -407,17 +384,14 @@ export const WSOpenOrders = derived(
                 `[${tick.status.pair}] Websocket OpenOrders ${tick.status.errorMessage}`
               )
             } else {
-              if (debug) {
-                console.debug(
-                  `${
-                    tick.status.status === 'subscribed'
-                      ? 'Connect'
-                      : 'Disconnect'
-                  } to channel [${tick.status.channelName.toUpperCase()}|${
-                    tick.status.subscription.maxratecount
-                  }] ${tick.status.status}!`
-                )
-              }
+              console.debug(
+                `${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}|${
+                  tick.status.subscription.maxratecount
+                }] ${tick.status.status}!`
+              )
+
               console.debug(
                 'maxratecount a mettre dans la base de données !!!!!!!!!!!!!!'
               )
@@ -463,17 +437,13 @@ export const WSOwnTrades = derived(
                 `[${tick.status.pair}] Websocket OwnTrades ${tick.status.errorMessage}`
               )
             } else {
-              if (debug) {
-                console.debug(
-                  `${
-                    tick.status.status === 'subscribed'
-                      ? 'Connect'
-                      : 'Disconnect'
-                  } to channel [${tick.status.channelName.toUpperCase()}] ${
-                    tick.status.status
-                  }!`
-                )
-              }
+              console.debug(
+                `${
+                  tick.status.status === 'subscribed' ? 'Connect' : 'Disconnect'
+                } to channel [${tick.status.channelName.toUpperCase()}] ${
+                  tick.status.status
+                }!`
+              )
             }
           } else if (
             Object.prototype.hasOwnProperty.call(tick, 'data') &&

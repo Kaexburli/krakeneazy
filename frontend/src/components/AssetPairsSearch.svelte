@@ -56,7 +56,7 @@
         console.error("getAssetPairs", res);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

@@ -17,6 +17,7 @@ const getAssets = async (req, reply) => {
     !req.headers['x-webapp-header'] ||
     req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
+    req.log.warn('[WARN:getAssets] missing x-webapp-header!')
     return reply.redirect('/')
   }
 
@@ -24,6 +25,7 @@ const getAssets = async (req, reply) => {
     const response = await api.assets()
     return response
   } catch (error) {
+    req.log.error({ error }, '[ERROR:getAssets]')
     return error
   }
 }

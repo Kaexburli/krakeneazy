@@ -8,7 +8,6 @@ import { Kraken } from 'node-kraken-api'
 // ---------------------------------------------------------
 // Instanciation du module kraken API
 const api = new Kraken()
-const debug = false
 
 // ---------------------------------------------------------
 //  Methods Declarations
@@ -18,24 +17,20 @@ const GetSpread = async (connection, req) => {
     const { base, quote } = req.params
     const pair = base + '/' + quote
 
-    if (debug) console.log('GetSpread')
-
     const spread = await api.ws
       .spread()
       .on('update', (update, pair) => {
-        if (debug) console.log('[UPDATE SPREAD]: ', pair, update)
         connection.socket.send(
           JSON.stringify({ service: 'Spread', data: update })
         )
       })
       .on('status', (status) => {
-        if (debug) console.log('[STATUS SPREAD]: ', status)
         connection.socket.send(
           JSON.stringify({ service: 'Spread', data: false, status })
         )
       })
       .on('error', (error, pair) => {
-        if (debug) console.log('[ERROR SPREAD]: ', error, pair)
+        req.log.error({ error, pair }, '[ERROR GetSpread]')
         connection.socket.send(
           JSON.stringify({ service: 'Spread', data: false, error, pair })
         )
@@ -43,16 +38,20 @@ const GetSpread = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      if (debug) console.log('[CLOSE SPREAD]: ', message)
       try {
-        await spread.unsubscribe(pair)
+        const unsubscribe = await spread.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetSpread]')
       } catch (error) {
-        console.log('[ERROR:SPREAD:ONCLOSE]', error)
+        req.log.error({ error }, '[ERROR:SPREAD:GetSpread]')
         return error
       }
     })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR GetSpread]')
+    })
   } catch (error) {
-    console.log('[CATCH ERROR SPREAD]: ', error)
+    req.log.error({ error }, '[CATCH ERROR GetSpread]')
     return error
   }
 }

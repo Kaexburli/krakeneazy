@@ -8,7 +8,6 @@ import { Kraken } from 'node-kraken-api'
 // ---------------------------------------------------------
 // Instanciation du module kraken API
 const api = new Kraken()
-const debug = false
 
 // ---------------------------------------------------------
 //  Methods Declarations
@@ -18,24 +17,20 @@ const GetTrade = async (connection, req) => {
     const { base, quote } = req.params
     const pair = base + '/' + quote
 
-    if (debug) console.log('GetTrade')
-
     const trade = await api.ws
       .trade()
       .on('update', (update, pair) => {
-        if (debug) console.log('[UPDATE TRADE]: ', pair, update)
         connection.socket.send(
           JSON.stringify({ service: 'Trade', data: update })
         )
       })
       .on('status', (status) => {
-        if (debug) console.log('[STATUS TRADE]: ', status)
         connection.socket.send(
           JSON.stringify({ service: 'Trade', data: false, status })
         )
       })
       .on('error', (error, pair) => {
-        if (debug) console.log('[ERROR TRADE]: ', error, pair)
+        req.log.error({ error, pair }, '[ERROR GetTrade]')
         connection.socket.send(
           JSON.stringify({ service: 'Trade', data: false, error, pair })
         )
@@ -43,16 +38,20 @@ const GetTrade = async (connection, req) => {
       .subscribe(pair)
 
     connection.socket.on('close', async (message) => {
-      if (debug) console.log('[CLOSE TRADE]: ', message)
       try {
-        await trade.unsubscribe(pair)
+        const unsubscribe = await trade.unsubscribe(pair)
+        req.log.warn({ message, unsubscribe }, '[CLOSE GetTrade]')
       } catch (error) {
-        console.log('[ERROR:TRADE:ONCLOSE]', error)
+        req.log.error({ error }, '[ERROR:TRADE:GetTrade]')
         return error
       }
     })
+
+    connection.socket.on('error', async (evt) => {
+      req.log.error({ evt }, '[ON ERROR GetTrade]')
+    })
   } catch (error) {
-    console.log('[CATCH ERROR TRADE]: ', error)
+    req.log.error({ error }, '[CATCH ERROR GetTrade]')
     return error
   }
 }
