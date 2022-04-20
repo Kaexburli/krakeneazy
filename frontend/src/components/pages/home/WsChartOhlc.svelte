@@ -5,7 +5,7 @@
   import { _ } from "svelte-i18n";
   import { fade } from "svelte/transition";
   import { mounted } from "store/mounted.js";
-  import { onMount, onDestroy, createEventDispatcher } from "svelte";
+  import { onMount, onDestroy, createEventDispatcher, tick } from "svelte";
   import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import RightClickMenu from "components/pages/home/RightClickMenu.svelte";
@@ -217,8 +217,9 @@
   // ---------------------------------------------------------
   //  Methods Declarations
   // ---------------------------------------------------------
-  const bootstrap = (readyState) => {
+  const bootstrap = async (readyState) => {
     if (["interactive", "complete"].includes(readyState)) {
+      await tick();
       chartblock = document.querySelector(".chart-block");
       toolTip = document.querySelector(".floating-tooltip");
       domLoaded = true;
@@ -480,7 +481,8 @@
    * displayToolTipChart
    ************************/
   const displayToolTipChart = (param) => {
-    if (chartblock && toolTip) {
+    if (!chartblock || !toolTip) console.error("ERROR: chartblock || toolTip");
+    else {
       let toolTipWidth = 80,
         toolTipHeight = 80,
         toolTipMargin = 15,
@@ -845,7 +847,8 @@
    ************************/
   const resizeChart = () => {
     if (!isMounted && !domLoaded) return false;
-    if (chartblock) {
+    if (!chartblock) console.error("ERROR: chartblock");
+    else {
       chartWidth = chartblock.clientWidth || chartWidth;
       if (chartApi) {
         chartApi.resize(chartWidth, chartHeight);
