@@ -6,7 +6,7 @@
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
-  import { WSTradeBalance } from "store/wsstore.js";
+  import { WSTradeBalance } from "store/wsStore.js";
 
   import { devise, online, sound, asymbole } from "store/store.js";
   import LinearProgress from "@smui/linear-progress";

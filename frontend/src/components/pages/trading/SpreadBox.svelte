@@ -5,7 +5,7 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import Fetch from "utils/Runfetch.js";
-  import { WSTicker, WSSpread, WSTrade } from "store/wsstore.js";
+  import { WSTicker, WSSpread, WSTrade } from "store/wsStore.js";
   import { assetpair, asymbole, tradedata } from "store/store.js";
 
   // ---------------------------------------------------------

@@ -5,7 +5,7 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { pricealertlist } from "store/store.js";
-  import { WSTickerAlert } from "store/wsstore.js";
+  import { WSTickerAlert } from "store/wsStore.js";
   import { toast } from "@zerodevx/svelte-toast";
 
   import MenuSurface from "@smui/menu-surface";

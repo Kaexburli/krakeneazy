@@ -3,7 +3,7 @@
   import { fade } from "svelte/transition";
   import { mounted } from "store/mounted.js";
   import { createEventDispatcher } from "svelte";
-  import { WSTicker } from "store/wsstore.js";
+  import { WSTicker } from "store/wsStore.js";
   import { assetpair, toogleBoxTicker, setResizeChart } from "store/store.js";
 
   const dispatch = createEventDispatcher();

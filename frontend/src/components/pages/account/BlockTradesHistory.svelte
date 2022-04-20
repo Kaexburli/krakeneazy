@@ -5,7 +5,7 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
-  import { WSOwnTrades } from "store/wsstore.js";
+  import { WSOwnTrades } from "store/wsStore.js";
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
   import { online, tradeshistorydata, assetpairs } from "store/store.js";
