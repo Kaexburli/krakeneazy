@@ -1,4 +1,7 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { onMount, setContext } from "svelte";
   import Sidebar from "components/layout/Sidebar.svelte";
   import Header from "components/layout/Header.svelte";
@@ -23,6 +26,9 @@
     initialLocale: getLocaleFromNavigator(),
   });
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   /** Authentification */
   let userProfile;
   let isLoggedIn;
@@ -39,6 +45,10 @@
       hasApikeysStore.update(() => data);
     },
   };
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   setContext("data", hasApikeys);
 
   /**

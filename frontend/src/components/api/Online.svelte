@@ -1,11 +1,19 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
-  import { onMount, onDestroy, tick } from "svelte";
+  import { fade } from "svelte/transition";
+  import { onMount, onDestroy } from "svelte";
   import { online } from "store/store.js";
+  import { mounted } from "store/mounted.js";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
-  import KrakenStatusAPI from "components/api/KrakenStatusAPI.svelte";
+  import KrakenStatusAPI from "api/KrakenStatusAPI.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   // Appel Websocket
   const server =
     location.protocol === "http:"
@@ -17,7 +25,7 @@
   const wsKrakenStatus = websocketStore(wss_krakenstatus);
   // Appel Websocket
 
-  let count = 0,
+  let countOffline = 0,
     background = "#FF0000",
     color = "#FFFFFF",
     error = false,
@@ -27,10 +35,15 @@
     krakenMaintenances = false,
     krakenStatus = false,
     krakenIncidents = [],
-    components = [];
+    components = [],
+    closeWsKrakenStatus,
+    closeWsSystemStatus;
 
   export let display;
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   /**
    * initKrakenStatusApi
    * @description Initialise les appels du status KRAKEN
@@ -86,7 +99,7 @@
    * @description Svelte function native
    */
   onMount(async () => {
-    wsKrakenStatus.subscribe((tick) => {
+    closeWsKrakenStatus = wsKrakenStatus.subscribe((tick) => {
       if (
         !tick ||
         tick.service !== "WsKrakenStatus" ||
@@ -97,42 +110,25 @@
       initKrakenStatusApi(tick.data);
     });
 
-    wsSystemStatus.subscribe((tick) => {
+    closeWsSystemStatus = wsSystemStatus.subscribe((tick) => {
+      // console.log("wsSystemStatus tick", tick);
       if (!tick) {
         return false;
-      } else if (tick && !tick.ok) {
-        // {
-        //     "ok": false,
-        //     "service": "WsSystemStatus",
-        //     "error": {
-        //         "errno": -3008,
-        //         "code": "ENOTFOUND",
-        //         "syscall": "getaddrinfo",
-        //         "hostname": "api.kraken.com"
-        //     },
-        //     "data": {}
-        // }
+      } else if (!tick.ok) {
+        // { "ok": false, "service": "WsSystemStatus", "error": {"errno": -3008, "code": "ENOTFOUND", "syscall": "getaddrinfo", "hostname": "api.kraken.com" }, "data": {} }
         online.update((n) => false);
         status = "offline";
         error = `[${tick.error.code}]`;
-        count++;
+        countOffline++;
       } else {
-        // {
-        //     "ok": true,
-        //     "error": false,
-        //     "service": "WsSystemStatus",
-        //     "data": {
-        //         "status": "online",
-        //         "timestamp": "2022-04-19T16:56:06Z"
-        //     }
-        // }
+        // { "ok": true, "error": false, "service": "WsSystemStatus", "data": { "status": "online", "timestamp": "2022-04-19T16:56:06Z" } }
         let timestamp = new Date(tick.data.timestamp).getTime();
         let diff_beetween = interval - timestamp;
         diff_beetween = Math.floor(diff_beetween / 1000 / 60 / 60 / 24);
         online.update((n) => diff_beetween === -1);
         status = tick.data.status;
         error = tick.error;
-        count = 0;
+        countOffline = 0;
       }
     });
   });
@@ -142,12 +138,14 @@
    * @description Svelte function native
    */
   onDestroy(() => {
+    closeWsKrakenStatus();
+    closeWsSystemStatus();
     display = false;
   });
 </script>
 
-{#if display === "header"}
-  <Badge {count} {color} {background} href="/favicon.png" />
+{#if display === "header" && $mounted}
+  <Badge count={countOffline} {color} {background} href="/favicon.png" />
   {#if !$online}
     <div id="error-network">
       <div id="offline">
@@ -156,7 +154,7 @@
       </div>
     </div>
   {/if}
-{:else if display === "footer"}
+{:else if display === "footer" && $mounted}
   {#if krakenIncidents.length}
     <KrakenStatusAPI {krakenIncidents} {krakenStatus} {krakenMaintenances} />
   {/if}
@@ -164,19 +162,26 @@
     {#if error}
       <span class="error_status">{error}</span>
     {/if}
-
-    {#if status === undefined}
-      <span class="dot" />
-    {:else if status === "online"}
-      <span class="status-green">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
-      <span class="dot dot-green" />
-    {:else if status === "offline"}
-      <span class="status-red">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
-      <span class="dot dot-red" />
-    {:else}
-      <span class="status-orange">{$_(`online.${status}`)}&nbsp;&nbsp;</span>
-      <span class="dot dot-orange" />
-    {/if}
+    <span class="wrapper" in:fade>
+      {#if status === undefined}
+        <span class="dot" />
+      {:else if status === "online"}
+        <span class="status-green">
+          {$_(`online.${status}`)}&nbsp;&nbsp;
+        </span>
+        <span class="dot dot-green" />
+      {:else if status === "offline"}
+        <span class="status-red">
+          {$_(`online.${status}`)}&nbsp;&nbsp;
+        </span>
+        <span class="dot dot-red" />
+      {:else}
+        <span class="status-orange">
+          {$_(`online.${status}`)}&nbsp;&nbsp;
+        </span>
+        <span class="dot dot-orange" />
+      {/if}
+    </span>
   </div>
 {/if}
 
@@ -184,8 +189,10 @@
   .online-api {
     text-align: right;
     float: right;
-    font-size: 0.8em;
-    margin-top: 3px;
+    vertical-align: middle;
+  }
+  .online-api .wrapper {
+    font-size: 0.9em;
     vertical-align: middle;
   }
   .dot {
