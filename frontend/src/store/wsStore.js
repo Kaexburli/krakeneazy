@@ -48,7 +48,7 @@ export const WSTicker = derived(
       }
 
       const tickerWebsocket = websocketStore(tickerUrl, defaultValues)
-      const ticker = tickerWebsocket.subscribe((tick) => {
+      const unsubscribeTicker = tickerWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -78,7 +78,7 @@ export const WSTicker = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => ticker())
+      onDestroy(() => unsubscribeTicker())
     }
 
     return false
@@ -177,7 +177,7 @@ export const WSBook = derived(
 
     if (bookUrl) {
       const bookWebsocket = websocketStore(bookUrl)
-      const book = bookWebsocket.subscribe((tick) => {
+      const unsubscribeBook = bookWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -207,7 +207,7 @@ export const WSBook = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => book())
+      onDestroy(() => unsubscribeBook())
     }
 
     return false
@@ -228,7 +228,7 @@ export const WSOhlc = derived(
 
     if (ohlcUrl) {
       const ohlcWebsocket = websocketStore(ohlcUrl)
-      const ohlc = ohlcWebsocket.subscribe((tick) => {
+      const unsubscribeOhlc = ohlcWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -258,7 +258,7 @@ export const WSOhlc = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => ohlc())
+      onDestroy(() => unsubscribeOhlc())
     }
 
     return false
@@ -278,7 +278,7 @@ export const WSSpread = derived(
 
     if (spreadUrl) {
       const spreadWebsocket = websocketStore(spreadUrl)
-      const spread = spreadWebsocket.subscribe((tick) => {
+      const unsubscribeSspread = spreadWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -308,7 +308,7 @@ export const WSSpread = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => spread())
+      onDestroy(() => unsubscribeSspread())
     }
 
     return false
@@ -328,7 +328,7 @@ export const WSTrade = derived(
 
     if (tradeUrl) {
       const tradeWebsocket = websocketStore(tradeUrl)
-      const trade = tradeWebsocket.subscribe((tick) => {
+      const unsubscribeTrade = tradeWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -358,7 +358,7 @@ export const WSTrade = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => trade())
+      onDestroy(() => unsubscribeTrade())
     }
 
     return false
@@ -378,7 +378,7 @@ export const WSOpenOrders = derived(
 
     if (openordersUrl) {
       const openordersWebsocket = websocketStore(openordersUrl)
-      const openorders = openordersWebsocket.subscribe((tick) => {
+      const unsubscribeOpenorders = openordersWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -412,7 +412,7 @@ export const WSOpenOrders = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => openorders())
+      onDestroy(() => unsubscribeOpenorders())
     }
 
     return false
@@ -432,7 +432,7 @@ export const WSOwnTrades = derived(
 
     if (owntradesUrl) {
       const owntradesWebsocket = websocketStore(owntradesUrl)
-      const owntrades = owntradesWebsocket.subscribe((tick) => {
+      const unsubscribeOwntrades = owntradesWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -462,7 +462,7 @@ export const WSOwnTrades = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => owntrades())
+      onDestroy(() => unsubscribeOwntrades())
     }
 
     return false
@@ -483,16 +483,21 @@ export const WSTradeBalance = derived(
 
     if (tradebalanceUrl) {
       const tradebalanceWebsocket = websocketStore(tradebalanceUrl)
-      const tradebalance = tradebalanceWebsocket.subscribe((tick) => {
-        if (tick) {
-          if (Object.prototype.hasOwnProperty.call(tick, 'data') && tick.data) {
-            if (tick.service === 'WsTradeBalance') set(tick.data)
+      const unsubscribeTradebalance = tradebalanceWebsocket.subscribe(
+        (tick) => {
+          if (tick) {
+            if (
+              Object.prototype.hasOwnProperty.call(tick, 'data') &&
+              tick.data
+            ) {
+              if (tick.service === 'WsTradeBalance') set(tick.data)
+            }
           }
         }
-      })
+      )
 
       // Cleanup subscription
-      onDestroy(() => tradebalance())
+      onDestroy(() => unsubscribeTradebalance())
     }
 
     return false
