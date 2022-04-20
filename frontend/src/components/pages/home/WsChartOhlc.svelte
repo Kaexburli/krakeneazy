@@ -3,6 +3,8 @@
   //  Imports
   // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
+  import { fade } from "svelte/transition";
+  import { mounted } from "store/mounted.js";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsstore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
@@ -478,8 +480,7 @@
    * displayToolTipChart
    ************************/
   const displayToolTipChart = (param) => {
-    if (!chartblock || !toolTip) console.debug("[ERROR] displayToolTipChart");
-    else {
+    if (chartblock && toolTip) {
       let toolTipWidth = 80,
         toolTipHeight = 80,
         toolTipMargin = 15,
@@ -844,8 +845,7 @@
    ************************/
   const resizeChart = () => {
     if (!isMounted && !domLoaded) return false;
-    if (!chartblock) console.debug("[ERROR] resizeChart");
-    else {
+    if (chartblock) {
       chartWidth = chartblock.clientWidth || chartWidth;
       if (chartApi) {
         chartApi.resize(chartWidth, chartHeight);
@@ -994,252 +994,259 @@
 </script>
 
 <SnackBar showSnackbar={snackBarShow} text={snackBarText} />
-<div class="chartctrl-block clearfix">
-  <!-- Chart Settings -->
-  <Wrapper>
-    <div class="settings-chart-btn">
-      <WrapperTooltip>
-        <IconButton
-          class="material-icons"
-          on:click={() => (displayChartSettingMenu = !displayChartSettingMenu)}
-          size="button"
-        >
-          <Icon component={Svg} viewBox="0 0 24 24">
-            <path fill="currentColor" d={mdiCog} />
-          </Icon>
-        </IconButton>
-        <Tooltip xPos="start" yPos="below">
-          {$_("home.chart.tooltip.settings")}
-        </Tooltip>
-      </WrapperTooltip>
-    </div>
-  </Wrapper>
-
-  <!-- Title -->
-  <div class="chart-title">
-    <span class="chart-exchange">KRAKEN</span>
-    <span class="chart-asset">{$assetpair.wsname}</span>
-  </div>
-
-  <!-- Add Alert -->
-  <Wrapper>
-    <div class="addorder-chart-btn">
-      <WrapperTooltip>
-        <IconButton
-          class="material-icons"
-          on:click={() => (displayAlertMenu = !displayAlertMenu)}
-          size="button"
-        >
-          <Icon component={Svg} viewBox="0 0 24 24">
-            <path fill="currentColor" d={mdiBell} />
-          </Icon>
-        </IconButton>
-        <Tooltip xPos="end">
-          {$_("home.chart.tooltip.addalert")}
-        </Tooltip>
-      </WrapperTooltip>
-    </div>
-  </Wrapper>
-
-  <!-- Add Order -->
-  <Wrapper>
-    <div class="addorder-chart-btn">
-      <WrapperTooltip>
-        <IconButton
-          class="material-icons"
-          on:click={() => callTOC.openOrderDialogParent()}
-          size="button"
-        >
-          <Icon component={Svg} viewBox="0 0 24 24">
-            <path fill="currentColor" d={mdiPlusCircle} />
-          </Icon>
-        </IconButton>
-        <Tooltip xPos="end">
-          {$_("home.chart.tooltip.addorder")}
-        </Tooltip>
-      </WrapperTooltip>
-    </div>
-  </Wrapper>
-  <!-- Display Settings Chart Menu -->
-  {#if displayChartSettingMenu}
-    <div id="displayChartSettingMenu">
-      <MenuSurface static>
-        <Group>
-          <Subheader
-            >{$_("home.chart.tooltip.settings").toUpperCase()}</Subheader
+{#if $mounted}
+  <div class="chartctrl-block clearfix">
+    <!-- Chart Settings -->
+    <Wrapper>
+      <div class="settings-chart-btn">
+        <WrapperTooltip>
+          <IconButton
+            class="material-icons"
+            on:click={() =>
+              (displayChartSettingMenu = !displayChartSettingMenu)}
+            size="button"
           >
-          <Separator />
-          <List class="settings-list">
-            <Item on:SMUI:action={() => (activetooltip = !activetooltip)}>
-              <!-- Tooltip -->
-              <Wrapper>
-                <FormField>
-                  <Switch bind:checked={activetooltip} />
-                  <span slot="label">{$_("home.chart.checkbox.tooltip")}</span>
-                </FormField>
-              </Wrapper>
-            </Item>
-            <Item on:SMUI:action={() => (activePositions = !activePositions)}>
-              <!-- Positions -->
-              <Wrapper>
-                <FormField>
-                  <Switch
-                    bind:checked={activePositions}
-                    disabled={disbledPositions}
-                  />
-                  <span slot="label">{$_("home.chart.checkbox.position")}</span>
-                </FormField>
-              </Wrapper>
-            </Item>
-            <Item on:SMUI:action={() => (activeOrders = !activeOrders)}>
-              <!-- Orders -->
-              <Wrapper>
-                <FormField>
-                  <Switch
-                    bind:checked={activeOrders}
-                    disabled={disbledOrders}
-                  />
-                  <span slot="label">{$_("home.chart.checkbox.orders")}</span>
-                </FormField>
-              </Wrapper>
-            </Item>
-            <Item on:SMUI:action={() => handleCrosshairMode(true)}>
-              <!-- Magnet -->
-              <Wrapper>
-                <FormField>
-                  <Switch
-                    bind:checked={crosshairMode}
-                    on:SMUISwitch:change={handleCrosshairMode}
-                  />
-                  <span slot="label">{$_("home.chart.checkbox.magnet")}</span>
-                </FormField>
-              </Wrapper>
-            </Item>
-            <Item on:SMUI:action={() => handleRightPriceScaleMode(true)}>
-              <!-- Logarythmique -->
-              <Wrapper>
-                <FormField>
-                  <Switch
-                    bind:checked={rightPriceScaleMode}
-                    on:SMUISwitch:change={handleRightPriceScaleMode}
-                  />
-                  <span slot="label">{$_("home.chart.checkbox.loga")}</span>
-                </FormField>
-              </Wrapper>
-            </Item>
-            <Item on:SMUI:action={() => (volumeDisplaying = !volumeDisplaying)}>
-              <!-- Volume -->
-              <Wrapper>
-                <FormField>
-                  <Switch bind:checked={volumeDisplaying} />
-                  <span slot="label">{$_("home.chart.checkbox.volume")}</span>
-                </FormField>
-              </Wrapper>
-            </Item>
-          </List>
-        </Group>
-      </MenuSurface>
-    </div>
-  {/if}
+            <Icon component={Svg} viewBox="0 0 24 24">
+              <path fill="currentColor" d={mdiCog} />
+            </Icon>
+          </IconButton>
+          <Tooltip xPos="start" yPos="below">
+            {$_("home.chart.tooltip.settings")}
+          </Tooltip>
+        </WrapperTooltip>
+      </div>
+    </Wrapper>
 
-  <!-- Display ALert Menu -->
-  {#if displayAlertMenu}
-    <div id="displayAlertMenu">
-      <PriceAlerts />
+    <!-- Title -->
+    <div class="chart-title">
+      <span class="chart-exchange">KRAKEN</span>
+      <span class="chart-asset">{$assetpair.wsname}</span>
     </div>
-  {/if}
 
-  {#if currentPrice}
-    <div class="current-price {currentPriceWay}">
-      <span class="icon">
-        {#if currentPriceWay}
-          <i class="fa-solid fa-arrow-trend-{currentPriceWay}" />
+    <!-- Add Alert -->
+    <Wrapper>
+      <div class="addorder-chart-btn">
+        <WrapperTooltip>
+          <IconButton
+            class="material-icons"
+            on:click={() => (displayAlertMenu = !displayAlertMenu)}
+            size="button"
+          >
+            <Icon component={Svg} viewBox="0 0 24 24">
+              <path fill="currentColor" d={mdiBell} />
+            </Icon>
+          </IconButton>
+          <Tooltip xPos="end">
+            {$_("home.chart.tooltip.addalert")}
+          </Tooltip>
+        </WrapperTooltip>
+      </div>
+    </Wrapper>
+
+    <!-- Add Order -->
+    <Wrapper>
+      <div class="addorder-chart-btn">
+        <WrapperTooltip>
+          <IconButton
+            class="material-icons"
+            on:click={() => callTOC.openOrderDialogParent()}
+            size="button"
+          >
+            <Icon component={Svg} viewBox="0 0 24 24">
+              <path fill="currentColor" d={mdiPlusCircle} />
+            </Icon>
+          </IconButton>
+          <Tooltip xPos="end">
+            {$_("home.chart.tooltip.addorder")}
+          </Tooltip>
+        </WrapperTooltip>
+      </div>
+    </Wrapper>
+    <!-- Display Settings Chart Menu -->
+    {#if displayChartSettingMenu}
+      <div id="displayChartSettingMenu">
+        <MenuSurface static>
+          <Group>
+            <Subheader
+              >{$_("home.chart.tooltip.settings").toUpperCase()}</Subheader
+            >
+            <Separator />
+            <List class="settings-list">
+              <Item on:SMUI:action={() => (activetooltip = !activetooltip)}>
+                <!-- Tooltip -->
+                <Wrapper>
+                  <FormField>
+                    <Switch bind:checked={activetooltip} />
+                    <span slot="label">{$_("home.chart.checkbox.tooltip")}</span
+                    >
+                  </FormField>
+                </Wrapper>
+              </Item>
+              <Item on:SMUI:action={() => (activePositions = !activePositions)}>
+                <!-- Positions -->
+                <Wrapper>
+                  <FormField>
+                    <Switch
+                      bind:checked={activePositions}
+                      disabled={disbledPositions}
+                    />
+                    <span slot="label"
+                      >{$_("home.chart.checkbox.position")}</span
+                    >
+                  </FormField>
+                </Wrapper>
+              </Item>
+              <Item on:SMUI:action={() => (activeOrders = !activeOrders)}>
+                <!-- Orders -->
+                <Wrapper>
+                  <FormField>
+                    <Switch
+                      bind:checked={activeOrders}
+                      disabled={disbledOrders}
+                    />
+                    <span slot="label">{$_("home.chart.checkbox.orders")}</span>
+                  </FormField>
+                </Wrapper>
+              </Item>
+              <Item on:SMUI:action={() => handleCrosshairMode(true)}>
+                <!-- Magnet -->
+                <Wrapper>
+                  <FormField>
+                    <Switch
+                      bind:checked={crosshairMode}
+                      on:SMUISwitch:change={handleCrosshairMode}
+                    />
+                    <span slot="label">{$_("home.chart.checkbox.magnet")}</span>
+                  </FormField>
+                </Wrapper>
+              </Item>
+              <Item on:SMUI:action={() => handleRightPriceScaleMode(true)}>
+                <!-- Logarythmique -->
+                <Wrapper>
+                  <FormField>
+                    <Switch
+                      bind:checked={rightPriceScaleMode}
+                      on:SMUISwitch:change={handleRightPriceScaleMode}
+                    />
+                    <span slot="label">{$_("home.chart.checkbox.loga")}</span>
+                  </FormField>
+                </Wrapper>
+              </Item>
+              <Item
+                on:SMUI:action={() => (volumeDisplaying = !volumeDisplaying)}
+              >
+                <!-- Volume -->
+                <Wrapper>
+                  <FormField>
+                    <Switch bind:checked={volumeDisplaying} />
+                    <span slot="label">{$_("home.chart.checkbox.volume")}</span>
+                  </FormField>
+                </Wrapper>
+              </Item>
+            </List>
+          </Group>
+        </MenuSurface>
+      </div>
+    {/if}
+
+    <!-- Display ALert Menu -->
+    {#if displayAlertMenu}
+      <div id="displayAlertMenu">
+        <PriceAlerts />
+      </div>
+    {/if}
+
+    {#if currentPrice}
+      <div class="current-price {currentPriceWay}">
+        <span class="icon">
+          {#if currentPriceWay}
+            <i class="fa-solid fa-arrow-trend-{currentPriceWay}" />
+          {:else}
+            <i class="fa-solid fa-circle-arrow-right" />
+          {/if}
+        </span>
+        {parseFloat(currentPrice).toFixed($assetpair.pair_decimals)}
+        {quote}
+      </div>
+    {/if}
+  </div>
+  <div class="chart-block" in:fade>
+    <select
+      name="interval"
+      id="interval"
+      class="interval"
+      bind:value={$interval}
+      on:change={changeChartInterval}
+    >
+      <option value="1">1M</option>
+      <option value="5">5M</option>
+      <option value="15">15M</option>
+      <option value="30">30M</option>
+      <option value="60">1H</option>
+      <option value="240">4H</option>
+      <option value="1440">1D</option>
+      <option value="10080">1W</option>
+    </select>
+    {#if $ohlcchart}
+      <Chart
+        {...optionsChart}
+        on:crosshairMove={handleCrosshairMove}
+        ref={(ref) => (chartApi = ref)}
+      >
+        <CandlestickSeries
+          data={$ohlcchart}
+          ref={(ref) => (candleSeries = ref)}
+          {...CandlestickSeriesOpts}
+        />
+        {#if volumeDisplaying}
+          <HistogramSeries
+            data={$volumechart}
+            ref={(ref) => (volumeSeries = ref)}
+            {...HistogramSeriesOpts}
+          />
+        {/if}
+      </Chart>
+      <span class="time">
+        {$_("home.chart.nextCandle")} :
+        {#if timeRemaining}
+          {cmtt(timeRemaining)}
         {:else}
-          <i class="fa-solid fa-circle-arrow-right" />
+          {cmtt($interval * 60 * 1000)}
         {/if}
       </span>
-      {parseFloat(currentPrice).toFixed($assetpair.pair_decimals)}
-      {quote}
-    </div>
-  {/if}
-</div>
-<div class="chart-block">
-  <select
-    name="interval"
-    id="interval"
-    class="interval"
-    bind:value={$interval}
-    on:change={changeChartInterval}
-  >
-    <option value="1">1M</option>
-    <option value="5">5M</option>
-    <option value="15">15M</option>
-    <option value="30">30M</option>
-    <option value="60">1H</option>
-    <option value="240">4H</option>
-    <option value="1440">1D</option>
-    <option value="10080">1W</option>
-  </select>
-  {#if $ohlcchart}
-    <Chart
-      {...optionsChart}
-      on:crosshairMove={handleCrosshairMove}
-      ref={(ref) => (chartApi = ref)}
-    >
-      <CandlestickSeries
-        data={$ohlcchart}
-        ref={(ref) => (candleSeries = ref)}
-        {...CandlestickSeriesOpts}
-      />
-      {#if volumeDisplaying}
-        <HistogramSeries
-          data={$volumechart}
-          ref={(ref) => (volumeSeries = ref)}
-          {...HistogramSeriesOpts}
-        />
-      {/if}
-    </Chart>
-    <span class="time">
-      {$_("home.chart.nextCandle")} :
-      {#if timeRemaining}
-        {cmtt(timeRemaining)}
-      {:else}
-        {cmtt($interval * 60 * 1000)}
-      {/if}
-    </span>
-  {:else}
-    <div
-      style="width:{chartWidth}px;height:{chartHeight}px;position: relative;"
-    >
+    {:else}
       <div
-        style="width:200px;height:300px;margin:auto;left:0;right:0;top:0;bottom:0;position:absolute;"
+        style="width:{chartWidth}px;height:{chartHeight}px;position: relative;"
       >
-        <Jumper size="300" color="#444444" unit="px" duration="0.5s" />
+        <div
+          style="width:200px;height:300px;margin:auto;left:0;right:0;top:0;bottom:0;position:absolute;"
+        >
+          <Jumper size="300" color="#444444" unit="px" duration="0.5s" />
+        </div>
       </div>
+    {/if}
+    <div class="legend">
+      {@html legend}
+      <span class="realtrade">
+        <strong> TRADES: </strong>
+        {nbTrades}{#if $interval <= 1440}/{nbTradesToday}{/if}
+      </span>
     </div>
-  {/if}
-  <div class="legend">
-    {@html legend}
-    <span class="realtrade">
-      <strong> TRADES: </strong>
-      {nbTrades}{#if $interval <= 1440}/{nbTradesToday}{/if}
-    </span>
+    <div id="panel">
+      <IconButton
+        class="material-icons"
+        on:click={() => console.log("click")}
+        size="button"
+      >
+        <Icon component={Svg} viewBox="0 0 24 24">
+          <path fill="currentColor" d={mdiChartTimelineVariant} />
+        </Icon>
+      </IconButton>
+    </div>
+    <div class="floating-tooltip {type || ''}" />
+    <RightClickMenu {User} {currentPrice} bind:this={callRCM} />
   </div>
-  <div id="panel">
-    <IconButton
-      class="material-icons"
-      on:click={() => console.log("click")}
-      size="button"
-    >
-      <Icon component={Svg} viewBox="0 0 24 24">
-        <path fill="currentColor" d={mdiChartTimelineVariant} />
-      </Icon>
-    </IconButton>
-  </div>
-  <div class="floating-tooltip {type || ''}" />
-  <RightClickMenu {User} {currentPrice} bind:this={callRCM} />
-</div>
-
+{/if}
 <TradingOrderChart {candleSeries} bind:this={callTOC} />
 
 <style>

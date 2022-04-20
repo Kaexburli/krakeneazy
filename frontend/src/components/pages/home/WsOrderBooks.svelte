@@ -1,5 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
+  import { fade } from "svelte/transition";
+  import { mounted } from "store/mounted.js";
   import { createEventDispatcher } from "svelte";
   import { assetpair, depth } from "store/store.js";
   import { WSBook, WSTicker } from "store/wsstore.js";
@@ -285,132 +287,140 @@
   }
 </script>
 
-<div class="order-book-block">
-  {#if tickerdata}
-    <div class="tick close-tick clearfix">
-      <div id="current-infos">
-        <span id="current-volume">
-          <span class="label">
-            {$_("home.book.totalVolume")} :
-          </span>{tickerdata["c"][1]}
-        </span>
-        <br />
-        <span id="current-spread">
-          <span class="label">
-            {$_("home.book.spread")} :
-          </span>{spread_calcul}
-        </span>
-        {#if displayDepth}
-          <div id="depth-select">
-            {#if priceGrouping > 0}
-              <span class="grouping">
-                {$_("home.book.group")} :{priceGrouping}
-              </span>
-            {/if}
-            <button
-              class="minusBtn"
-              on:click|preventDefault={() => setDepthBook("minus")}
-            >
-              <i class="fa fa-minus" />
-            </button>
-            <button
-              class="plusBtn"
-              on:click|preventDefault={() => setDepthBook("plus")}
-            >
-              <i class="fa fa-plus" />
-            </button>
+{#if $mounted}
+  <div class="order-book-block" in:fade>
+    {#if tickerdata}
+      <div class="tick close-tick clearfix">
+        <div id="current-infos">
+          <span id="current-volume">
+            <span class="label">
+              {$_("home.book.totalVolume")} :
+            </span>{tickerdata["c"][1]}
+          </span>
+          <br />
+          <span id="current-spread">
+            <span class="label">
+              {$_("home.book.spread")} :
+            </span>{spread_calcul}
+          </span>
+          {#if displayDepth}
+            <div id="depth-select">
+              {#if priceGrouping > 0}
+                <span class="grouping">
+                  {$_("home.book.group")} :{priceGrouping}
+                </span>
+              {/if}
+              <button
+                class="minusBtn"
+                on:click|preventDefault={() => setDepthBook("minus")}
+              >
+                <i class="fa fa-minus" />
+              </button>
+              <button
+                class="plusBtn"
+                on:click|preventDefault={() => setDepthBook("plus")}
+              >
+                <i class="fa fa-plus" />
+              </button>
+            </div>
+          {/if}
+        </div>
+      </div>
+    {/if}
+    <div class="order-book-section clearfix">
+      <div class="order-book-vertical">
+        <div class="block">
+          <ul class="asks-section">
+            {#each asks as a, i}
+              <li class="ask" id="ask-{i}">
+                <div
+                  class="ask-line"
+                  style="width:{(Number(a[3]).toFixed(pad) /
+                    bookTotal.as.total) *
+                    bookMultiplier}%;"
+                />
+                <span class="ask-price">
+                  {#if Number(a[0]) > 0}
+                    {@html Number(a[0]).toFixed(decimals) || errorDisplay}
+                  {:else}
+                    {@html errorDisplay}
+                  {/if}
+                </span>
+                <span class="volume">
+                  {#if Number(a[1]) > 0}
+                    {@html `<span class="loip">${
+                      String(a[1]).split(".")[0]
+                    }</span>.${
+                      String(Number(a[1]).toFixed(pad)).split(".")[1]
+                    }`}
+                  {:else}
+                    {@html errorDisplay}
+                  {/if}
+                </span>
+                <span class="vol-total">
+                  {#if Number(a[3]) > 0}
+                    {@html `${String(a[3]).split(".")[0]}.<span class="loip">${
+                      String(Number(a[3]).toFixed(pad)).split(".")[1]
+                    }</span>`}
+                  {:else}
+                    {@html errorDisplay}
+                  {/if}
+                </span>
+              </li>
+            {/each}
+          </ul>
+        </div>
+        {#if tickerdata}
+          <div id="current-price" class={priceway}>
+            {@html Number(tickerdata["c"][0]).toFixed(decimals) ||
+              errorDisplay}&nbsp;{quote}
           </div>
         {/if}
-      </div>
-    </div>
-  {/if}
-  <div class="order-book-section clearfix">
-    <div class="order-book-vertical">
-      <div class="block">
-        <ul class="asks-section">
-          {#each asks as a, i}
-            <li class="ask" id="ask-{i}">
-              <div
-                class="ask-line"
-                style="width:{(Number(a[3]).toFixed(pad) / bookTotal.as.total) *
-                  bookMultiplier}%;"
-              />
-              <span class="ask-price">
-                {#if Number(a[0]) > 0}
-                  {@html Number(a[0]).toFixed(decimals) || errorDisplay}
-                {:else}
-                  {@html errorDisplay}
-                {/if}
-              </span>
-              <span class="volume">
-                {#if Number(a[1]) > 0}
-                  {@html `<span class="loip">${
-                    String(a[1]).split(".")[0]
-                  }</span>.${String(Number(a[1]).toFixed(pad)).split(".")[1]}`}
-                {:else}
-                  {@html errorDisplay}
-                {/if}
-              </span>
-              <span class="vol-total">
-                {#if Number(a[3]) > 0}
-                  {@html `${String(a[3]).split(".")[0]}.<span class="loip">${
-                    String(Number(a[3]).toFixed(pad)).split(".")[1]
-                  }</span>`}
-                {:else}
-                  {@html errorDisplay}
-                {/if}
-              </span>
-            </li>
-          {/each}
-        </ul>
-      </div>
-      {#if tickerdata}
-        <div id="current-price" class={priceway}>
-          {@html Number(tickerdata["c"][0]).toFixed(decimals) ||
-            errorDisplay}&nbsp;{quote}
+        <div class="block">
+          <ul class="bids-section">
+            {#each bids as b, i}
+              <li class="bid" id="bid-{i}">
+                <div
+                  class="bid-line"
+                  style="width:{(Number(b[3]).toFixed(pad) /
+                    bookTotal.bs.total) *
+                    bookMultiplier}%;"
+                />
+                <span class="bid-price">
+                  {#if Number(b[0]) > 0}
+                    {@html Number(b[0]).toFixed(decimals) || errorDisplay}
+                  {:else}
+                    {@html errorDisplay}
+                  {/if}
+                </span>
+                <span class="volume">
+                  {#if Number(b[1]) > 0}
+                    {@html `<span class="loip">${
+                      String(b[1]).split(".")[0]
+                    }</span>.${
+                      String(Number(b[1]).toFixed(pad)).split(".")[1]
+                    }`}
+                  {:else}
+                    {@html errorDisplay}
+                  {/if}
+                </span>
+                <span class="vol-total">
+                  {#if Number(b[3]) > 0}
+                    {@html `${String(b[3]).split(".")[0]}.<span class="loip">${
+                      String(Number(b[3]).toFixed(pad)).split(".")[1]
+                    }</span>`}
+                  {:else}
+                    {@html errorDisplay}
+                  {/if}
+                </span>
+              </li>
+            {/each}
+          </ul>
         </div>
-      {/if}
-      <div class="block">
-        <ul class="bids-section">
-          {#each bids as b, i}
-            <li class="bid" id="bid-{i}">
-              <div
-                class="bid-line"
-                style="width:{(Number(b[3]).toFixed(pad) / bookTotal.bs.total) *
-                  bookMultiplier}%;"
-              />
-              <span class="bid-price">
-                {#if Number(b[0]) > 0}
-                  {@html Number(b[0]).toFixed(decimals) || errorDisplay}
-                {:else}
-                  {@html errorDisplay}
-                {/if}
-              </span>
-              <span class="volume">
-                {#if Number(b[1]) > 0}
-                  {@html `<span class="loip">${
-                    String(b[1]).split(".")[0]
-                  }</span>.${String(Number(b[1]).toFixed(pad)).split(".")[1]}`}
-                {:else}
-                  {@html errorDisplay}
-                {/if}
-              </span>
-              <span class="vol-total">
-                {#if Number(b[3]) > 0}
-                  {@html `${String(b[3]).split(".")[0]}.<span class="loip">${
-                    String(Number(b[3]).toFixed(pad)).split(".")[1]
-                  }</span>`}
-                {:else}
-                  {@html errorDisplay}
-                {/if}
-              </span>
-            </li>
-          {/each}
-        </ul>
       </div>
     </div>
   </div>
-</div>
+{/if}
 
 <style>
   :global(.loip) {
