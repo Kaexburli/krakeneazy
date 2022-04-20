@@ -1,6 +1,7 @@
 // ---------------------------------------------------------
 //  Imports
 // ---------------------------------------------------------
+import { onDestroy } from 'svelte'
 import { derived } from 'svelte/store'
 import {
   assetpair,
@@ -76,7 +77,8 @@ export const WSTicker = derived(
         }
       })
 
-      return ticker
+      // Cleanup subscription
+      onDestroy(() => ticker())
     }
 
     return false
@@ -204,7 +206,8 @@ export const WSBook = derived(
         }
       })
 
-      return book
+      // Cleanup subscription
+      onDestroy(() => book())
     }
 
     return false
@@ -254,7 +257,8 @@ export const WSOhlc = derived(
         }
       })
 
-      return ohlc
+      // Cleanup subscription
+      onDestroy(() => ohlc())
     }
 
     return false
@@ -303,7 +307,8 @@ export const WSSpread = derived(
         }
       })
 
-      return spread
+      // Cleanup subscription
+      onDestroy(() => spread())
     }
 
     return false
@@ -352,7 +357,8 @@ export const WSTrade = derived(
         }
       })
 
-      return trade
+      // Cleanup subscription
+      onDestroy(() => trade())
     }
 
     return false
@@ -405,7 +411,8 @@ export const WSOpenOrders = derived(
         }
       })
 
-      return openorders
+      // Cleanup subscription
+      onDestroy(() => openorders())
     }
 
     return false
@@ -454,7 +461,8 @@ export const WSOwnTrades = derived(
         }
       })
 
-      return owntrades
+      // Cleanup subscription
+      onDestroy(() => owntrades())
     }
 
     return false
@@ -483,7 +491,8 @@ export const WSTradeBalance = derived(
         }
       })
 
-      return tradebalance
+      // Cleanup subscription
+      onDestroy(() => tradebalance())
     }
 
     return false
