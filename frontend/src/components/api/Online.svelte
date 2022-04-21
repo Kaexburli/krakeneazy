@@ -26,7 +26,7 @@
   // Appel Websocket
 
   let countOffline = 0,
-    background = "#FF0000",
+    background = "#6b0000",
     color = "#FFFFFF",
     error = false,
     status = "online",
@@ -248,7 +248,6 @@
     z-index: 30;
     padding: 10px;
     position: relative;
-    font-weight: bold;
     font-size: 0.8em;
   }
   #error-network {
