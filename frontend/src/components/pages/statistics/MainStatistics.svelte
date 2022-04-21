@@ -1,14 +1,14 @@
 <script>
   import { _ } from "svelte-i18n";
   import { User } from "store/userStore.js";
-  import { slide } from "svelte/transition";
+  import { slide, fade } from "svelte/transition";
   import Statistics from "components/pages/statistics/Statistics.svelte";
 
   const isLogged = User.isLogged();
 </script>
 
 {#if isLogged}
-  <div id="page-statistic" in:slide out:slide>
+  <div id="page-statistic" in:fade out:slide>
     <h1>{$_("statistics.title")}</h1>
     <div class="statistics">
       <Statistics />

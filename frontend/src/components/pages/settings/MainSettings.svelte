@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { User } from "store/userStore.js";
-  import { slide } from "svelte/transition";
+  import { slide, fade } from "svelte/transition";
 
   import DrawerList from "./DrawerList.svelte";
   import Profile from "./profile.svelte";
@@ -33,7 +33,7 @@
 </script>
 
 {#if isLogged}
-  <div id="page-settings" in:slide out:slide>
+  <div id="page-settings" in:fade out:slide>
     <h1>{$_("settings.title")}</h1>
 
     <div class="box">

@@ -5,7 +5,7 @@
   import { _ } from "svelte-i18n";
   import { User } from "store/userStore.js";
   import { sound, pair } from "store/store.js";
-  import { slide } from "svelte/transition";
+  import { slide, fade } from "svelte/transition";
 
   import BlockBalance from "components/pages/account/BlockBalance.svelte";
   import BlockTradeBalance from "components/pages/account/BlockTradeBalance.svelte";
@@ -40,7 +40,7 @@
 </script>
 
 {#if isLogged}
-  <div id="page-account" in:slide out:slide>
+  <div id="page-account" in:fade out:slide>
     <h1>
       {$_("account.title")}
       <i
