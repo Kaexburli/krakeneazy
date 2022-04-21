@@ -779,7 +779,7 @@
    * calculateHighLowPrice
    ************************/
   const calculateHighLowPrice = (newVisibleLogicalRange) => {
-    if (newVisibleLogicalRange === null) return false;
+    if (newVisibleLogicalRange === null || !$ohlcchart) return false;
 
     // handle new logical range
 
