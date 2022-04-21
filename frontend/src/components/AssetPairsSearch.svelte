@@ -66,7 +66,6 @@
       assetpair.update((n) => $assetpairs[choice]);
       assetpairVal.value = "";
       spinner = false;
-      location.reload();
     }
   };
 
