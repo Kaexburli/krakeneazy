@@ -278,7 +278,7 @@ export const WSSpread = derived(
 
     if (spreadUrl) {
       const spreadWebsocket = websocketStore(spreadUrl)
-      const unsubscribeSspread = spreadWebsocket.subscribe((tick) => {
+      const unsubscribeSpread = spreadWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -308,7 +308,7 @@ export const WSSpread = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => unsubscribeSspread())
+      onDestroy(() => unsubscribeSpread())
     }
 
     return false
@@ -378,7 +378,7 @@ export const WSOpenOrders = derived(
 
     if (openordersUrl) {
       const openordersWebsocket = websocketStore(openordersUrl)
-      const unsubscribeOpenorders = openordersWebsocket.subscribe((tick) => {
+      const unsubscribeOpenOrders = openordersWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -412,7 +412,7 @@ export const WSOpenOrders = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => unsubscribeOpenorders())
+      onDestroy(() => unsubscribeOpenOrders())
     }
 
     return false
@@ -432,7 +432,7 @@ export const WSOwnTrades = derived(
 
     if (owntradesUrl) {
       const owntradesWebsocket = websocketStore(owntradesUrl)
-      const unsubscribeOwntrades = owntradesWebsocket.subscribe((tick) => {
+      const unsubscribeOwnTrades = owntradesWebsocket.subscribe((tick) => {
         if (tick) {
           if (
             Object.prototype.hasOwnProperty.call(tick, 'status') &&
@@ -462,7 +462,7 @@ export const WSOwnTrades = derived(
       })
 
       // Cleanup subscription
-      onDestroy(() => unsubscribeOwntrades())
+      onDestroy(() => unsubscribeOwnTrades())
     }
 
     return false
@@ -483,7 +483,7 @@ export const WSTradeBalance = derived(
 
     if (tradebalanceUrl) {
       const tradebalanceWebsocket = websocketStore(tradebalanceUrl)
-      const unsubscribeTradebalance = tradebalanceWebsocket.subscribe(
+      const unsubscribeTradeBalance = tradebalanceWebsocket.subscribe(
         (tick) => {
           if (tick) {
             if (
@@ -497,7 +497,7 @@ export const WSTradeBalance = derived(
       )
 
       // Cleanup subscription
-      onDestroy(() => unsubscribeTradebalance())
+      onDestroy(() => unsubscribeTradeBalance())
     }
 
     return false
