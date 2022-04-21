@@ -6,7 +6,7 @@
   import { onMount } from "svelte";
   import { draggable } from "@neodrag/svelte";
   import { assetpair, online } from "store/store.js";
-  import { WSTicker, WSSpread } from "store/wsstore.js";
+  import { WSTicker, WSSpread } from "store/wsStore.js";
   import { toast } from "@zerodevx/svelte-toast";
   import UserData from "classes/UserData.js";
 

@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import { User } from "store/userStore.js";
-  import { slide } from "svelte/transition";
+  import { slide, fade } from "svelte/transition";
   import { assetpair } from "store/store.js";
   import SpreadBox from "components/pages/trading/SpreadBox.svelte";
   import TradingOrder from "components/pages/trading/TradingOrder.svelte";
@@ -12,7 +12,7 @@
 </script>
 
 {#if isLogged}
-  <div id="page-trading" in:slide out:slide>
+  <div id="page-trading" in:fade out:slide>
     {#if $assetpair !== "false" && $assetpair}
       <h1>{$_("trading.title")} {$assetpair.wsname}</h1>
       <div class="box">

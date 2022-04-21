@@ -19,14 +19,14 @@
     location.protocol === "http:"
       ? `${["ws:", location.host].join("//")}`
       : `${["wss:", location.host].join("//")}`;
-  const wss_systemstatus = server + "/api/ws/systemstatus";
-  const wss_krakenstatus = server + "/api/ws/krakenstatus";
-  const wsSystemStatus = websocketStore(wss_systemstatus);
-  const wsKrakenStatus = websocketStore(wss_krakenstatus);
+  const wsSystemStatusUri = server + "/api/ws/systemstatus";
+  const wsKrakenStatusUri = server + "/api/ws/krakenstatus";
+  const wsSystemStatus = websocketStore(wsSystemStatusUri);
+  const wsKrakenStatus = websocketStore(wsKrakenStatusUri);
   // Appel Websocket
 
   let countOffline = 0,
-    background = "#FF0000",
+    background = "#6b0000",
     color = "#FFFFFF",
     error = false,
     status = "online",
@@ -123,9 +123,9 @@
       } else {
         // { "ok": true, "error": false, "service": "WsSystemStatus", "data": { "status": "online", "timestamp": "2022-04-19T16:56:06Z" } }
         let timestamp = new Date(tick.data.timestamp).getTime();
-        let diff_beetween = interval - timestamp;
-        diff_beetween = Math.floor(diff_beetween / 1000 / 60 / 60 / 24);
-        online.update((n) => diff_beetween === -1);
+        let diffBeetween = interval - timestamp;
+        diffBeetween = Math.floor(diffBeetween / 1000 / 60 / 60 / 24);
+        online.update((n) => diffBeetween === -1);
         status = tick.data.status;
         error = tick.error;
         countOffline = 0;
@@ -248,7 +248,6 @@
     z-index: 30;
     padding: 10px;
     position: relative;
-    font-weight: bold;
     font-size: 0.8em;
   }
   #error-network {

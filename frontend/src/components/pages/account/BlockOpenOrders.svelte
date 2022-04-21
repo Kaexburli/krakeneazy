@@ -4,7 +4,7 @@
   // ---------------------------------------------------------
   import { _ } from "svelte-i18n";
   import { onDestroy, onMount } from "svelte";
-  import { WSOpenOrders } from "store/wsstore.js";
+  import { WSOpenOrders } from "store/wsStore.js";
   import {
     online,
     assetpair,

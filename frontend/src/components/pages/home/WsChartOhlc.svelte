@@ -6,7 +6,7 @@
   import { fade } from "svelte/transition";
   import { mounted } from "store/mounted.js";
   import { onMount, onDestroy, createEventDispatcher, tick } from "svelte";
-  import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsstore.js";
+  import { WSOhlc, WSTicker, WSOpenOrders } from "store/wsStore.js";
   import getLocaleDateString from "utils/getLocaleDateString.js";
   import RightClickMenu from "components/pages/home/RightClickMenu.svelte";
   import TradingOrderChart from "components/pages/trading/TradingOrderChart.svelte";
@@ -779,7 +779,7 @@
    * calculateHighLowPrice
    ************************/
   const calculateHighLowPrice = (newVisibleLogicalRange) => {
-    if (newVisibleLogicalRange === null) return false;
+    if (newVisibleLogicalRange === null || !$ohlcchart) return false;
 
     // handle new logical range
 

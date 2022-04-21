@@ -4,7 +4,7 @@
   import { mounted } from "store/mounted.js";
   import { createEventDispatcher } from "svelte";
   import { assetpair, depth } from "store/store.js";
-  import { WSBook, WSTicker } from "store/wsstore.js";
+  import { WSBook, WSTicker } from "store/wsStore.js";
 
   const dispatch = createEventDispatcher();
 

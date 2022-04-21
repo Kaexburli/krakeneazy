@@ -5,7 +5,7 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { pricealertlist } from "store/store.js";
-  import { WSTickerAlert } from "store/wsstore.js";
+  import { WSTickerAlert } from "store/wsStore.js";
   import { toast } from "@zerodevx/svelte-toast";
 
   import MenuSurface from "@smui/menu-surface";
@@ -35,7 +35,7 @@
 
   const bootstrap = (readyState) => {
     if (["interactive", "complete"].includes(readyState)) {
-      paWrapper = document.querySelector(".pricealert-wrapper").style;
+      paWrapper = document.querySelector(".pricealert-wrapper");
       domLoaded = true;
     }
   };
@@ -72,6 +72,7 @@
   const toogleBoxPriceAlert = () => {
     if (!paWrapper) console.debug("[ERROR] toogleBoxPriceAlert");
     isActive = !isActive;
+    paWrapper = paWrapper.style;
     if (isActive) paWrapper.right = "0px";
     else if (!isActive) paWrapper.right = "-275px";
   };
@@ -311,7 +312,7 @@
       </div>
     </div>
   </div>
-{:else}
+{:else if hasPriceAlert}
   <MenuSurface static>
     <Group>
       <Subheader>{$_("pricealert.title").toUpperCase()}</Subheader>

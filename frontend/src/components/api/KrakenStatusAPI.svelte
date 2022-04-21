@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { slide } from "svelte/transition";
+  import { slide, fade } from "svelte/transition";
   import Tooltip, { Wrapper, Content } from "@smui/tooltip";
 
   export let krakenStatus;
@@ -27,7 +27,7 @@
 </script>
 
 {#if isVisible}
-  <div id="krakenStatusAPI" in:slide out:slide>
+  <div id="krakenStatusAPI" in:fade out:slide>
     <div id="header">
       <h3>
         <i class="fas fa-triangle-exclamation" /> &nbsp;
@@ -43,7 +43,7 @@
     <div class="container">
       {#if isVisible && (hasData || hasDegraded || hasProcess)}
         {#if hasProcess}
-          <div class="krakenMaintenances" in:slide out:slide>
+          <div class="krakenMaintenances" in:fade out:slide>
             <h4>{$_("krakenStatusAPI.titleMaintenance")}</h4>
             {#each krakenMaintenances as item}
               <div class="item">
@@ -82,7 +82,7 @@
           </div>
         {/if}
         {#if hasData}
-          <div class="krakenIncidents" in:slide out:slide>
+          <div class="krakenIncidents" in:fade out:slide>
             {#each krakenIncidents as item}
               <div class="content">
                 <h4 class={item.impact}>

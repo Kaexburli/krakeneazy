@@ -5,7 +5,7 @@
   import { _ } from "svelte-i18n";
   import { onMount, createEventDispatcher } from "svelte";
   import { online, assetpair, asymbole } from "store/store.js";
-  import { WSTicker, WSSpread, WSBook } from "store/wsstore.js";
+  import { WSTicker, WSSpread, WSBook } from "store/wsStore.js";
   import UserData from "classes/UserData.js";
   import { getSummuryInfos } from "components/pages/trading/trade.js";
   import { hasApikeysStore } from "store/userStore.js";

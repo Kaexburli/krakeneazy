@@ -1,9 +1,8 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { pair, assetpair } from "store/store.js";
-  import { slide } from "svelte/transition";
+  import { pair } from "store/store.js";
+  import { slide, fade } from "svelte/transition";
   import { Moon } from "svelte-loading-spinners";
-
   import ChartOhlc from "components/pages/home/WsChartOhlc.svelte";
   import SpreadBox from "components/pages/trading/SpreadBox.svelte";
   import TickerWs from "components/pages/home/WsTicker.svelte";
@@ -20,7 +19,7 @@
   };
 </script>
 
-<div id="page-home" in:slide out:slide>
+<div id="page-home" in:fade out:slide>
   {#if !$hasApikeysStore}
     <Paper color="primary" square>
       <Content>
