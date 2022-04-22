@@ -75,33 +75,24 @@ maxratecount.subscribe((value) => {
 })
 
 // Storage devise (STRING)
-const storedDevise = localStorage.getItem(`${prefixStorage}_devise`) || 'ZUSD'
+const storedDevise = localStorage.getItem(`${sessionId}_devise`) || 'ZUSD'
 export const devise = writable(storedDevise)
 devise.subscribe((value) => {
-  localStorage.setItem(
-    `${prefixStorage}_devise`,
-    value !== false ? value : 'ZUSD'
-  )
+  localStorage.setItem(`${sessionId}_devise`, value !== false ? value : 'ZUSD')
 })
 
 // Storage sound (STRING)
-const storedSound = localStorage.getItem(`${prefixStorage}_sound`) || 'up'
+const storedSound = localStorage.getItem(`${sessionId}_sound`) || 'up'
 export const sound = writable(storedSound)
 sound.subscribe((value) => {
-  localStorage.setItem(
-    `${prefixStorage}_sound`,
-    value !== false ? value : false
-  )
+  localStorage.setItem(`${sessionId}_sound`, value !== false ? value : false)
 })
 
 // Storage online (STRING)
-const storedOnline = localStorage.getItem(`${prefixStorage}_online`) || true
+const storedOnline = localStorage.getItem(`${sessionId}_online`) || true
 export const online = writable(storedOnline)
 online.subscribe((value) => {
-  localStorage.setItem(
-    `${prefixStorage}_online`,
-    value !== 'false' ? value : true
-  )
+  localStorage.setItem(`${sessionId}_online`, value !== 'false' ? value : true)
 })
 
 // Storage page (STRING)
@@ -199,6 +190,7 @@ assetpair.subscribe((value) => {
 })
 
 // Storage asset pair value (OBJECT)
+// A SUPPRIMER APRES VERIFICATION INUTILE
 const storedSeries =
   JSON.parse(localStorage.getItem(`${prefixStorage}_series`)) || false
 export const series = writable(storedSeries)
