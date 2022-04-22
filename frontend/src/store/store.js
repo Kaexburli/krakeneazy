@@ -1,4 +1,27 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import { writable, readable, derived } from 'svelte/store'
+import { BrowserTabTracker } from 'browser-session-tabs'
+
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+BrowserTabTracker.initialize({
+  // eslint-disable-next-line no-undef, dot-notation
+  storageKey: __App['env'].SITE_NAME,
+  sessionIdGenerator: () => {
+    return Math.floor(new Date().getTime() * (Math.random() * 1000000))
+  },
+  sessionStartedCallback: (sessionId, tabId) => {}
+})
+
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
+const sessionId = BrowserTabTracker.sessionId
+const tabId = BrowserTabTracker.tabId
+const prefixStorage = sessionId + '_' + tabId
 
 // Tableau de remplacement des assets
 const assetReplace = {
@@ -52,54 +75,76 @@ maxratecount.subscribe((value) => {
 })
 
 // Storage devise (STRING)
-const storedDevise = localStorage.getItem('devise') || 'ZUSD'
+const storedDevise = localStorage.getItem(`${prefixStorage}_devise`) || 'ZUSD'
 export const devise = writable(storedDevise)
 devise.subscribe((value) => {
-  localStorage.setItem('devise', value !== false ? value : 'ZUSD')
+  localStorage.setItem(
+    `${prefixStorage}_devise`,
+    value !== false ? value : 'ZUSD'
+  )
 })
 
 // Storage sound (STRING)
-const storedSound = localStorage.getItem('sound') || 'up'
+const storedSound = localStorage.getItem(`${prefixStorage}_sound`) || 'up'
 export const sound = writable(storedSound)
 sound.subscribe((value) => {
-  localStorage.setItem('sound', value !== false ? value : false)
+  localStorage.setItem(
+    `${prefixStorage}_sound`,
+    value !== false ? value : false
+  )
 })
 
 // Storage online (STRING)
-const storedOnline = localStorage.getItem('online') || true
+const storedOnline = localStorage.getItem(`${prefixStorage}_online`) || true
 export const online = writable(storedOnline)
 online.subscribe((value) => {
-  localStorage.setItem('online', value !== 'false' ? value : true)
+  localStorage.setItem(
+    `${prefixStorage}_online`,
+    value !== 'false' ? value : true
+  )
 })
 
 // Storage page (STRING)
-const storedPage = localStorage.getItem('page') || 'home'
+const storedPage = localStorage.getItem(`${prefixStorage}_page`) || 'home'
 export const page = writable(storedPage)
 page.subscribe((value) => {
-  localStorage.setItem('page', value !== 'home' ? value : 'home')
+  localStorage.setItem(
+    `${prefixStorage}_page`,
+    value !== 'home' ? value : 'home'
+  )
 })
 
 // Storage interval (STRING)
-const storedInterval = localStorage.getItem('interval') || '60'
+const storedInterval = localStorage.getItem(`${prefixStorage}_interval`) || '60'
 const availableInterval = ['1', '5', '15', '30', '60', '240', '1440', '10080']
 export const interval = writable(storedInterval)
 interval.subscribe((value) => {
   if (!availableInterval.includes(value)) value = '60'
-  localStorage.setItem('interval', value !== '60' ? value : '60')
+  localStorage.setItem(
+    `${prefixStorage}_interval`,
+    value !== '60' ? value : '60'
+  )
 })
 
 // Storage searched pair name (STRING)
-const storedPair = localStorage.getItem('pair') || false
+const storedPair = localStorage.getItem(`${prefixStorage}_pair`) || false
 export const pair = writable(storedPair)
 pair.subscribe((value) => {
-  localStorage.setItem('pair', value !== 'false' ? value : false)
+  localStorage.setItem(
+    `${prefixStorage}_pair`,
+    value !== 'false' ? value : false
+  )
 })
 
 // Storage toogleBoxTicker (STRING)
-const storedToogleBoxTicker = localStorage.getItem('toogleBoxTicker') || 'open'
+const storedToogleBoxTicker =
+  localStorage.getItem(`${prefixStorage}_toogleBoxTicker`) || 'open'
 export const toogleBoxTicker = writable(storedToogleBoxTicker)
 toogleBoxTicker.subscribe((value) => {
-  localStorage.setItem('toogleBoxTicker', value !== false ? value : 'open')
+  localStorage.setItem(
+    `${prefixStorage}_toogleBoxTicker`,
+    value !== false ? value : 'open'
+  )
 })
 
 // Storage devise (OBJECT)
@@ -124,56 +169,67 @@ maxratecountData.subscribe((value) => {
 })
 
 // Storage assetpairs all (OBJECT)
-const storedAssetPairs = JSON.parse(localStorage.getItem('assetpairs')) || false
+const storedAssetPairs =
+  JSON.parse(localStorage.getItem(`${sessionId}_assetpairs`)) || false
 export const assetpairs = writable(storedAssetPairs)
 assetpairs.subscribe((value) => {
   value = typeof value === 'object' ? JSON.stringify(value) : false
-  localStorage.setItem('assetpairs', value !== 'false' ? value : false)
+  localStorage.setItem(
+    `${sessionId}_assetpairs`,
+    value !== 'false' ? value : false
+  )
 })
 
 // Storage assets (OBJECT)
-const storedAssets = JSON.parse(localStorage.getItem('assets')) || false
+const storedAssets =
+  JSON.parse(localStorage.getItem(`${sessionId}_assets`)) || false
 export const assets = writable(storedAssets)
 assets.subscribe((value) => {
   value = typeof value === 'object' ? JSON.stringify(value) : false
-  localStorage.setItem('assets', value !== 'false' ? value : false)
+  localStorage.setItem(`${sessionId}_assets`, value !== 'false' ? value : false)
 })
 
 // Storage asset pair value (OBJECT)
-const storedAssetPair = JSON.parse(localStorage.getItem('assetpair')) || false
+const storedAssetPair =
+  JSON.parse(localStorage.getItem(`${prefixStorage}_assetpair`)) || false
 export const assetpair = writable(storedAssetPair)
 assetpair.subscribe((value) => {
   value = typeof value === 'object' ? JSON.stringify(value) : false
-  localStorage.setItem('assetpair', value || Boolean(false))
+  localStorage.setItem(`${prefixStorage}_assetpair`, value || Boolean(false))
 })
 
 // Storage asset pair value (OBJECT)
-const storedSeries = JSON.parse(localStorage.getItem('series')) || false
+const storedSeries =
+  JSON.parse(localStorage.getItem(`${prefixStorage}_series`)) || false
 export const series = writable(storedSeries)
 series.subscribe((value) => {
   value = typeof value === 'object' ? JSON.stringify(value) : false
-  localStorage.setItem('series', value || Boolean(false))
+  localStorage.setItem(`${prefixStorage}_series`, value || Boolean(false))
 })
 
 // Storage price alert list (OBJECT)
 const storedPriceAlertList =
-  JSON.parse(localStorage.getItem('pricealertlist')) || {}
+  JSON.parse(localStorage.getItem(`${sessionId}_pricealertlist`)) || {}
 export const pricealertlist = writable(storedPriceAlertList)
 pricealertlist.subscribe((value) => {
   value = typeof value === 'object' ? JSON.stringify(value) : {}
-  localStorage.setItem('pricealertlist', value !== 'false' ? value : {})
+  localStorage.setItem(
+    `${sessionId}_pricealertlist`,
+    value !== 'false' ? value : {}
+  )
 })
 
 // Storage exportcsv all (OBJECT)
 const defaultStoredExportCSV = JSON.stringify({ ledgers: false, trades: false })
 const storedExportCSV =
-  JSON.parse(localStorage.getItem('exportcsv')) || defaultStoredExportCSV
+  JSON.parse(localStorage.getItem(`${sessionId}_exportcsv`)) ||
+  defaultStoredExportCSV
 export const exportcsv = writable(storedExportCSV)
 exportcsv.subscribe((value) => {
   value =
     typeof value === 'object' ? JSON.stringify(value) : defaultStoredExportCSV
   localStorage.setItem(
-    'exportcsv',
+    `${sessionId}_exportcsv`,
     value !== 'false' ? value : defaultStoredExportCSV
   )
 })
@@ -184,13 +240,14 @@ const storedFetchTimeoutDataDefault = JSON.stringify({
   started: Date.now()
 })
 const storedFetchTimeout = JSON.parse(
-  localStorage.getItem('fetchTimeout') || storedFetchTimeoutDataDefault
+  localStorage.getItem(`${sessionId}_fetchTimeout`) ||
+    storedFetchTimeoutDataDefault
 )
 export const fetchTimeout = writable(storedFetchTimeout)
 fetchTimeout.subscribe((value) => {
   value = typeof value === 'object' ? JSON.stringify(value) : value
   localStorage.setItem(
-    'fetchTimeout',
+    `${sessionId}_fetchTimeout`,
     value !== false ? value : storedFetchTimeoutDataDefault
   )
 })
