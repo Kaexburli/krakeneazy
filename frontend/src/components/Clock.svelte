@@ -59,17 +59,18 @@
     });
   }
 
-  setInterval(() => {
+  const timer = setInterval(() => {
     const currentTime = new Date().getTime() / 1000;
     diffTime = (exp - currentTime) * 1000;
     diffTime = cmtt(diffTime);
+    clearInterval(timer);
   }, 1000);
 </script>
 
 <div class="clock">
   <strong>{$_("footer.clock.date")}</strong> : {formatter.format($time)}
 
-  <!-- 
+  <!--
   {$_("footer.clock.display_since")}
   {$elapsed} {$_("footer.clock.secondes", { values: { n: $elapsed } })}
  -->
