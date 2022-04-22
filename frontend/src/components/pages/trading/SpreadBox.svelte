@@ -84,7 +84,15 @@
     getAssetTrades();
   });
 
-  $: if ($WSTrade) $tradedata = [...$WSTrade, ...$tradedata];
+  const isIterable = (obj) => {
+    if (obj == null) {
+      return false;
+    }
+    return typeof obj[Symbol.iterator] === "function";
+  };
+
+  $: if ($WSTrade)
+    $tradedata = isIterable($tradedata) ? [...$WSTrade, ...$tradedata] : [];
   $: if ($WSSpread) spreaddata = $WSSpread;
   $: if ($WSTicker) tickerdata = $WSTicker;
 
