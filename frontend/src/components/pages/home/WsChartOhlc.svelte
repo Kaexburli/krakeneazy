@@ -788,57 +788,59 @@
         chartApi.timeScale().getVisibleLogicalRange()
       );
 
-      // Calculate high / low value
-      let high = Math.max.apply(
-        Math,
-        $ohlcchart.map(function (o) {
-          if (o.time >= barsInfo.from && o.time <= barsInfo.to) return o.high;
-          else return 0;
-        })
-      );
+      if (barsInfo) {
+        // Calculate high / low value
+        let high = Math.max.apply(
+          Math,
+          $ohlcchart.map(function (o) {
+            if (o.time >= barsInfo.from && o.time <= barsInfo.to) return o.high;
+            else return 0;
+          })
+        );
 
-      let low = Math.min.apply(
-        Math,
-        $ohlcchart.map(function (o) {
-          if (o.time >= barsInfo.from && o.time <= barsInfo.to) return o.low;
-          else return Infinity;
-        })
-      );
+        let low = Math.min.apply(
+          Math,
+          $ohlcchart.map(function (o) {
+            if (o.time >= barsInfo.from && o.time <= barsInfo.to) return o.low;
+            else return Infinity;
+          })
+        );
 
-      // Filter in datas
-      let highPoint = $ohlcchart.filter(
-        (data) =>
-          data.high == high &&
-          data.time >= barsInfo.from &&
-          data.time <= barsInfo.to
-      );
-      let lowPoint = $ohlcchart.filter(
-        (data) =>
-          data.low == low &&
-          data.time >= barsInfo.from &&
-          data.time <= barsInfo.to
-      );
+        // Filter in datas
+        let highPoint = $ohlcchart.filter(
+          (data) =>
+            data.high == high &&
+            data.time >= barsInfo.from &&
+            data.time <= barsInfo.to
+        );
+        let lowPoint = $ohlcchart.filter(
+          (data) =>
+            data.low == low &&
+            data.time >= barsInfo.from &&
+            data.time <= barsInfo.to
+        );
 
-      // Set in array
-      highLowMarkers = [];
-      highLowMarkers.push({
-        time: highPoint[0].time,
-        position: "aboveBar",
-        color: "#FFFFFF",
-        text: highPoint[0].high,
-        size: 1,
-      });
+        // Set in array
+        highLowMarkers = [];
+        highLowMarkers.push({
+          time: highPoint[0].time,
+          position: "aboveBar",
+          color: "#FFFFFF",
+          text: highPoint[0].high,
+          size: 1,
+        });
 
-      highLowMarkers.push({
-        time: lowPoint[0].time,
-        position: "belowBar",
-        color: "#FFFFFF",
-        text: lowPoint[0].low,
-        size: 1,
-      });
+        highLowMarkers.push({
+          time: lowPoint[0].time,
+          position: "belowBar",
+          color: "#FFFFFF",
+          text: lowPoint[0].low,
+          size: 1,
+        });
 
-      // Set markers
-      candleSeries.setMarkers([...markers, ...highLowMarkers]);
+        // Set markers
+        candleSeries.setMarkers([...markers, ...highLowMarkers]);
+      }
     }
   };
 
