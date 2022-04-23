@@ -21,16 +21,16 @@
     $setResizeChart = true;
   };
 
-  $: if ($WSTicker) {
-    dispatch("loading", { loading: true });
+  // $: if ($WSTicker) {
+  // if (
+  //   typeof $WSTicker !== "undefined" &&
+  //   Object.prototype.hasOwnProperty.call($WSTicker, "a")
+  // ) {
+  //   let spread = ($WSTicker["a"][0] - $WSTicker["b"][0]).toFixed(decimals);
+  // }
+  // }
 
-    // if (
-    //   typeof $WSTicker !== "undefined" &&
-    //   Object.prototype.hasOwnProperty.call($WSTicker, "a")
-    // ) {
-    //   let spread = ($WSTicker["a"][0] - $WSTicker["b"][0]).toFixed(decimals);
-    // }
-  }
+  if ($mounted) dispatch("loading", { loading: true });
 </script>
 
 {#if $mounted}
