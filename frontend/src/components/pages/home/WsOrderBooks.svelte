@@ -23,7 +23,6 @@
     ask = [],
     bid = [],
     bookTotal = { as: { total: 0, count: 0 }, bs: { total: 0, count: 0 } },
-    bookdata = false,
     tickerdata = { c: [0, 0] },
     priceway = null,
     pricetmp = 0,
@@ -280,53 +279,48 @@
     tickerdata = $WSTicker;
     updatePriceClass(tickerdata);
   }
-  $: if ($WSBook) {
-    bookdata = $WSBook;
-    getBook(bookdata);
-    dispatch("loading", { loading: true });
-  }
+  $: if ($WSBook) getBook($WSBook);
+  if ($mounted) dispatch("loading", { loading: true });
 </script>
 
 {#if $mounted}
   <div class="order-book-block" in:fade>
-    {#if tickerdata}
-      <div class="tick close-tick clearfix">
-        <div id="current-infos">
-          <span id="current-volume">
-            <span class="label">
-              {$_("home.book.totalVolume")} :
-            </span>{tickerdata["c"][1]}
-          </span>
-          <br />
-          <span id="current-spread">
-            <span class="label">
-              {$_("home.book.spread")} :
-            </span>{spread_calcul}
-          </span>
-          {#if displayDepth}
-            <div id="depth-select">
-              {#if priceGrouping > 0}
-                <span class="grouping">
-                  {$_("home.book.group")} :{priceGrouping}
-                </span>
-              {/if}
-              <button
-                class="minusBtn"
-                on:click|preventDefault={() => setDepthBook("minus")}
-              >
-                <i class="fa fa-minus" />
-              </button>
-              <button
-                class="plusBtn"
-                on:click|preventDefault={() => setDepthBook("plus")}
-              >
-                <i class="fa fa-plus" />
-              </button>
-            </div>
-          {/if}
-        </div>
+    <div class="tick close-tick clearfix">
+      <div id="current-infos">
+        <span id="current-volume">
+          <span class="label">
+            {$_("home.book.totalVolume")} :
+          </span>{tickerdata["c"][1]}
+        </span>
+        <br />
+        <span id="current-spread">
+          <span class="label">
+            {$_("home.book.spread")} :
+          </span>{spread_calcul}
+        </span>
+        {#if displayDepth}
+          <div id="depth-select">
+            {#if priceGrouping > 0}
+              <span class="grouping">
+                {$_("home.book.group")} :{priceGrouping}
+              </span>
+            {/if}
+            <button
+              class="minusBtn"
+              on:click|preventDefault={() => setDepthBook("minus")}
+            >
+              <i class="fa fa-minus" />
+            </button>
+            <button
+              class="plusBtn"
+              on:click|preventDefault={() => setDepthBook("plus")}
+            >
+              <i class="fa fa-plus" />
+            </button>
+          </div>
+        {/if}
       </div>
-    {/if}
+    </div>
     <div class="order-book-section clearfix">
       <div class="order-book-vertical">
         <div class="block">
@@ -370,12 +364,10 @@
             {/each}
           </ul>
         </div>
-        {#if tickerdata}
-          <div id="current-price" class={priceway}>
-            {@html Number(tickerdata["c"][0]).toFixed(decimals) ||
-              errorDisplay}&nbsp;{quote}
-          </div>
-        {/if}
+        <div id="current-price" class={priceway}>
+          {@html Number(tickerdata["c"][0]).toFixed(decimals) ||
+            errorDisplay}&nbsp;{quote}
+        </div>
         <div class="block">
           <ul class="bids-section">
             {#each bids as b, i}
