@@ -272,6 +272,7 @@
     let v = new Object();
     v = { time: candle.time, value: candle.volume, color };
     $volumechart = [...$volumechart, v];
+    let f = $volumechart.shift();
     if (volumeSeries) volumeSeries.update(v);
   };
 
@@ -294,6 +295,7 @@
       });
 
       if (volume_tmp.length > 1) volumechart.set(volume_tmp);
+      volume_tmp = null;
     }
   };
 
@@ -438,6 +440,7 @@
         candleCount++;
         if (candle.time >= lastCandle.time) {
           $ohlcchart = [...$ohlcchart, candle];
+          let ff = $ohlcchart.shift();
           chartApi.timeScale().scrollToRealTime();
           candleSeries.update(candle);
           formatVolumeSeriesUpdate(candle);
@@ -821,8 +824,8 @@
         );
 
         // Set in array
-        highLowMarkers = [];
-        highLowMarkers.push({
+        let _highLowMarkers = [];
+        _highLowMarkers.push({
           time: highPoint[0].time,
           position: "aboveBar",
           color: "#FFFFFF",
@@ -830,7 +833,7 @@
           size: 1,
         });
 
-        highLowMarkers.push({
+        _highLowMarkers.push({
           time: lowPoint[0].time,
           position: "belowBar",
           color: "#FFFFFF",
@@ -839,7 +842,11 @@
         });
 
         // Set markers
-        candleSeries.setMarkers([...markers, ...highLowMarkers]);
+        let _marker = [...markers, ..._highLowMarkers];
+        candleSeries.setMarkers(_marker);
+        // [A FAIRE] Voir pour sortir highLowMarkers de la fonction
+        highLowMarkers = _highLowMarkers;
+        _highLowMarkers = null;
       }
     }
   };
