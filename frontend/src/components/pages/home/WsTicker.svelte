@@ -8,9 +8,7 @@
 
   const dispatch = createEventDispatcher();
 
-  let tickerdata,
-    spread,
-    quote = $assetpair.wsname.split("/")[1],
+  let quote = $assetpair.wsname.split("/")[1],
     decimals = $assetpair.pair_decimals,
     slideWay = $toogleBoxTicker === "open" ? "right" : "left";
 
@@ -24,15 +22,14 @@
   };
 
   $: if ($WSTicker) {
-    tickerdata = $WSTicker;
     dispatch("loading", { loading: true });
 
-    if (
-      typeof tickerdata !== "undefined" &&
-      Object.prototype.hasOwnProperty.call(tickerdata, "a")
-    ) {
-      spread = (tickerdata["a"][0] - tickerdata["b"][0]).toFixed(decimals);
-    }
+    // if (
+    //   typeof $WSTicker !== "undefined" &&
+    //   Object.prototype.hasOwnProperty.call($WSTicker, "a")
+    // ) {
+    //   let spread = ($WSTicker["a"][0] - $WSTicker["b"][0]).toFixed(decimals);
+    // }
   }
 </script>
 
@@ -41,17 +38,17 @@
     <i class="fa fa-caret-{slideWay}" />
   </div>
   <div class="tick-block {$toogleBoxTicker}" in:fade>
-    {#if tickerdata}
+    {#if $WSTicker}
       <div class="tick close-tick">
         <h3>&#x58D;&nbsp;{$_("home.ticker.currentPrice")}</h3>
         <div class="content">
           <span class="label"> {$_("home.ticker.price")} : </span>{Number(
-            tickerdata["c"][0]
+            $WSTicker["c"][0]
           ).toFixed(decimals)}&nbsp;{quote}
           <br />
           <span class="label">
             {$_("home.ticker.totalVolume")} :
-          </span>{tickerdata["c"][1]} <br />
+          </span>{$WSTicker["c"][1]} <br />
           <!-- <span class="label">{$_("home.ticker.spread")} : </span>{spread} -->
         </div>
       </div>
@@ -59,29 +56,29 @@
         <h3>&#x58D;&nbsp;{$_("home.ticker.ask")}</h3>
         <div class="content">
           <span class="label">{$_("home.ticker.askValue")} : </span>{Number(
-            tickerdata["a"][0]
+            $WSTicker["a"][0]
           ).toFixed(decimals)}&nbsp;{quote}
           <br />
           <!-- <span class="label">
           {$_("home.ticker.wholeLotVolume")} :
-        </span>{tickerdata["a"][1]} <br /> -->
+        </span>{$WSTicker["a"][1]} <br /> -->
           <span class="label">
             {$_("home.ticker.lotVolume")} :
-          </span>{tickerdata["a"][2]}
+          </span>{$WSTicker["a"][2]}
         </div>
       </div>
       <div class="tick bid-tick">
         <h3>&#x58D;&nbsp;{$_("home.ticker.bid")}</h3>
         <div class="content">
           <span class="label">{$_("home.ticker.bidValue")} : </span>{Number(
-            tickerdata["b"][0]
+            $WSTicker["b"][0]
           ).toFixed(decimals)}&nbsp;{quote} <br />
           <!-- <span class="label">
           {$_("home.ticker.wholeLotVolume")} :
-        </span>{tickerdata["b"][1]} <br /> -->
+        </span>{$WSTicker["b"][1]} <br /> -->
           <span class="label">
             {$_("home.ticker.lotVolume")} :
-          </span>{tickerdata["b"][2]}
+          </span>{$WSTicker["b"][2]}
         </div>
       </div>
       <div class="tick low-tick">
@@ -97,18 +94,18 @@
           </div>
           <div class="jauge">
             <span
-              class={Number(tickerdata["l"][0]) < Number(tickerdata["l"][1])
+              class={Number($WSTicker["l"][0]) < Number($WSTicker["l"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["l"][0]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["l"][0]).toFixed(decimals)}&nbsp;{quote}
             </span>
             <span
-              class={Number(tickerdata["l"][0]) > Number(tickerdata["l"][1])
+              class={Number($WSTicker["l"][0]) > Number($WSTicker["l"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["l"][1]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["l"][1]).toFixed(decimals)}&nbsp;{quote}
             </span>
           </div>
         </div>
@@ -126,18 +123,18 @@
           </div>
           <div class="jauge">
             <span
-              class={Number(tickerdata["h"][0]) > Number(tickerdata["h"][1])
+              class={Number($WSTicker["h"][0]) > Number($WSTicker["h"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["h"][0]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["h"][0]).toFixed(decimals)}&nbsp;{quote}
             </span>
             <span
-              class={Number(tickerdata["h"][0]) < Number(tickerdata["h"][1])
+              class={Number($WSTicker["h"][0]) < Number($WSTicker["h"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["h"][1]).toFixed(decimals)}&nbsp;{quote}
             </span>
           </div>
         </div>
@@ -155,19 +152,19 @@
           </div>
           <div class="jauge">
             <span
-              class={Number(tickerdata["v"][0]) > Number(tickerdata["v"][1])
+              class={Number($WSTicker["v"][0]) > Number($WSTicker["v"][1])
                 ? "high"
                 : "low"}
             >
-              {tickerdata["v"][0]}
+              {$WSTicker["v"][0]}
             </span>
 
             <span
-              class={Number(tickerdata["v"][0]) < Number(tickerdata["v"][1])
+              class={Number($WSTicker["v"][0]) < Number($WSTicker["v"][1])
                 ? "high"
                 : "low"}
             >
-              {tickerdata["v"][1]}
+              {$WSTicker["v"][1]}
             </span>
           </div>
         </div>
@@ -185,18 +182,18 @@
           </div>
           <div class="jauge">
             <span
-              class={Number(tickerdata["p"][0]) > Number(tickerdata["p"][1])
+              class={Number($WSTicker["p"][0]) > Number($WSTicker["p"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["p"][0]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["p"][0]).toFixed(decimals)}&nbsp;{quote}
             </span>
             <span
-              class={Number(tickerdata["p"][0]) < Number(tickerdata["p"][1])
+              class={Number($WSTicker["p"][0]) < Number($WSTicker["p"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["p"][1]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["p"][1]).toFixed(decimals)}&nbsp;{quote}
             </span>
           </div>
         </div>
@@ -214,18 +211,18 @@
           </div>
           <div class="jauge">
             <span
-              class={Number(tickerdata["t"][0]) > Number(tickerdata["t"][1])
+              class={Number($WSTicker["t"][0]) > Number($WSTicker["t"][1])
                 ? "high"
                 : "low"}
             >
-              {tickerdata["t"][0]}
+              {$WSTicker["t"][0]}
             </span>
             <span
-              class={Number(tickerdata["t"][0]) < Number(tickerdata["t"][1])
+              class={Number($WSTicker["t"][0]) < Number($WSTicker["t"][1])
                 ? "high"
                 : "low"}
             >
-              {tickerdata["t"][1]}
+              {$WSTicker["t"][1]}
             </span>
           </div>
         </div>
@@ -243,18 +240,18 @@
           </div>
           <div class="jauge">
             <span
-              class={Number(tickerdata["o"][0]) > Number(tickerdata["h"][1])
+              class={Number($WSTicker["o"][0]) > Number($WSTicker["h"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["o"][0]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["o"][0]).toFixed(decimals)}&nbsp;{quote}
             </span>
             <span
-              class={Number(tickerdata["o"][0]) < Number(tickerdata["h"][1])
+              class={Number($WSTicker["o"][0]) < Number($WSTicker["h"][1])
                 ? "high"
                 : "low"}
             >
-              {Number(tickerdata["h"][1]).toFixed(decimals)}&nbsp;{quote}
+              {Number($WSTicker["h"][1]).toFixed(decimals)}&nbsp;{quote}
             </span>
           </div>
         </div>
