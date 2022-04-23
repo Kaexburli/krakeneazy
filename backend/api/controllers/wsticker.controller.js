@@ -21,7 +21,7 @@ const GetTicker = async (connection, req) => {
       .ticker()
       .on('update', (update, pair) => {
         connection.socket.send(
-          JSON.stringify({ service: 'Ticker', data: update })
+          JSON.stringify({ service: 'Ticker', data: update, pair })
         )
       })
       .on('status', (status) => {

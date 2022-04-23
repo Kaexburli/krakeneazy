@@ -21,7 +21,7 @@ const GetTrade = async (connection, req) => {
       .trade()
       .on('update', (update, pair) => {
         connection.socket.send(
-          JSON.stringify({ service: 'Trade', data: update })
+          JSON.stringify({ service: 'Trade', data: update, pair })
         )
       })
       .on('status', (status) => {
