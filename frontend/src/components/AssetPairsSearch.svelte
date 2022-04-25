@@ -8,6 +8,7 @@
   import { User } from "store/userStore.js";
   import { pair, assetpair, assetpairs } from "store/store.js";
   import { DoubleBounce } from "svelte-loading-spinners";
+  import { BrowserTabTracker } from "browser-session-tabs";
 
   // ---------------------------------------------------------
   //  Props
@@ -60,10 +61,23 @@
     }
   };
 
+  const putInSessionStorage = (choice) => {
+    const sessionId = BrowserTabTracker.sessionId;
+
+    if (sessionId) {
+      let newSessionStorage = JSON.stringify({
+        pair: choice,
+        assetpair: $assetpairs[choice],
+      });
+      localStorage.setItem(`${sessionId}_lastSearchPair`, newSessionStorage);
+    }
+  };
+
   const changeAssetPair = (choice) => {
     if ($assetpairs[choice] !== undefined) {
       pair.update((n) => choice);
       assetpair.update((n) => $assetpairs[choice]);
+      putInSessionStorage(choice);
       assetpairVal.value = "";
       spinner = false;
     }

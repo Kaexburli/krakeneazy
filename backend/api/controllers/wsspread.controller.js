@@ -21,7 +21,7 @@ const GetSpread = async (connection, req) => {
       .spread()
       .on('update', (update, pair) => {
         connection.socket.send(
-          JSON.stringify({ service: 'Spread', data: update })
+          JSON.stringify({ service: 'Spread', data: update, pair })
         )
       })
       .on('status', (status) => {

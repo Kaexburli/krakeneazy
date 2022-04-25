@@ -1,19 +1,31 @@
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
 import { userLogout, userRefreshToken, userProfile } from 'utils/userApi.js'
 import { openModal, closeModal } from 'svelte-modals'
 import RefreshTokenModal from 'components/modal/RefreshTokenModal.svelte'
 import jwtDecode from 'jwt-decode'
 import { writable } from 'svelte/store'
+import { BrowserTabTracker } from 'browser-session-tabs'
 
-export const hasApikeysStore = writable(false)
-const storedUser = JSON.parse(localStorage.getItem('user')) || false
-const { subscribe, set, update } = writable(storedUser)
-
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
+const sessionId = BrowserTabTracker.sessionId
 const logoutDelay = 500
 const logoutRefresh = 30000
 let setTimeOutLogout, setTimeOutRefresh, stoRefresh
 const track = '../sound/warning_auto_logout_2.mp3'
-
 let user
+
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+export const hasApikeysStore = writable(false)
+const storedUser =
+  JSON.parse(localStorage.getItem(`${sessionId}_user`)) || false
+const { subscribe, set, update } = writable(storedUser)
+
 subscribe((data) => {
   if (typeof data !== 'object') data = JSON.parse(data)
   user = data
@@ -208,8 +220,8 @@ const refresh = (user) => {
     return false
   } else {
     user = JSON.stringify(user)
-    localStorage.setItem('user', user)
-    return set(JSON.parse(localStorage.getItem('user')))
+    localStorage.setItem(`${sessionId}_user`, user)
+    return set(JSON.parse(localStorage.getItem(`${sessionId}_user`)))
   }
 }
 
@@ -226,8 +238,8 @@ const signin = (user) => {
     return false
   } else {
     user = JSON.stringify(user)
-    localStorage.setItem('user', user)
-    return update((v) => JSON.parse(localStorage.getItem('user')))
+    localStorage.setItem(`${sessionId}_user`, user)
+    return update((v) => JSON.parse(localStorage.getItem(`${sessionId}_user`)))
   }
 }
 
@@ -239,7 +251,7 @@ const signout = () => {
   clearTimeout(setTimeOutLogout)
   clearTimeout(setTimeOutRefresh)
 
-  localStorage.setItem('user', false)
+  localStorage.setItem(`${sessionId}_user`, false)
   return set(false)
 }
 

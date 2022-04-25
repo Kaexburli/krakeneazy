@@ -21,7 +21,7 @@ const GetOhlc = async (connection, req, _reply) => {
       .ohlc({ interval: parseInt(interval) })
       .on('update', (update, pair) => {
         connection.socket.send(
-          JSON.stringify({ service: 'Ohlc', data: update })
+          JSON.stringify({ service: 'Ohlc', data: update, pair })
         )
       })
       .on('status', (status) => {

@@ -13,6 +13,7 @@
   import { toast } from "@zerodevx/svelte-toast";
   import { Moon } from "svelte-loading-spinners";
   import { User } from "store/userStore.js";
+  import tempMailList from "./tempMailList.js";
 
   // ---------------------------------------------------------
   //  Props
@@ -213,6 +214,12 @@
       return false;
     }
 
+    if (isTempMail(data)) {
+      isError = $_("auth.error.emailNotValid");
+      isLoading = false;
+      return false;
+    }
+
     if (isValidPassword(data)) {
       isError = $_("auth.error.passwordNotValid");
       isLoading = false;
@@ -258,6 +265,26 @@
       .map((key) => {
         if (key.endsWith("_email")) {
           let test = regex.test(data[key]);
+          if (!test) setError(key);
+          return test;
+        }
+        return true;
+      })
+      .includes(false);
+  };
+
+  /**
+   * isTempMail
+   * @description Vérifie si l'email indiqué n'est pas un email temporaire
+   * @param { Object } data Object formData
+   * @returns { boolean } Return true en cas d'erreur
+   */
+  const isTempMail = (data) => {
+    return Object.keys(data)
+      .map((key) => {
+        if (key.endsWith("_email")) {
+          let split = data[key].split("@");
+          let test = !tempMailList.includes(split[1]);
           if (!test) setError(key);
           return test;
         }
