@@ -22,8 +22,6 @@
       $assetpair = _sessionStorage.assetpair;
     }
   }
-
-  console.log();
 </script>
 
 <svelte:head>

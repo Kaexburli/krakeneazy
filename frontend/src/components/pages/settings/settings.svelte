@@ -21,11 +21,9 @@
   onMount(async () => {
     userProfile = await getProfile();
   });
-
-  $: console.log(userProfile);
 </script>
 
 Settings
-{#if userProfile}
+<!-- {#if userProfile}
   <pre>{JSON.stringify(userProfile.user.settings, false, 2)}</pre>
-{/if}
+{/if} -->
