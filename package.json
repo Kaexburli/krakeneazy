@@ -18,7 +18,8 @@
     "prettier": "2.6.2"
   },
   "scripts": {
-    "start": "concurrently --names 'SERVER,CLIENT' --prefix-colors 'bgBlue.bold,bgMagenta.bold,bgGreen.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
+    "start": "concurrently --names 'SERVER,CLIENT' --prefix-colors 'bgBlue.bold,bgMagenta.bold,bgGreen.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "production": "pm2 startOrRestart ecosystem.config.js --env production --only 'prod-server,prod-client'"
   },
   "keywords": [],
   "author": "",
