@@ -40,3 +40,5 @@ frontend/yarn-error.log
 .eslintrc.js
 deploy.cmd.js
 deploy.cmd save.js
+__backups
+__backups/**
