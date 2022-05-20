@@ -11,6 +11,9 @@
   // ---------------------------------------------------------
   //  Props
   // ---------------------------------------------------------
+  // eslint-disable-next-line no-undef, dot-notation
+  const backendUri =
+    __App["env"].BACKEND_URI || [location.protocol, location.host].join("//");
   let base = Object.prototype.hasOwnProperty.call($asymbole, $assetpair.base)
     ? $asymbole[$assetpair.base].name
     : $assetpair.wsname.split("/")[0];
@@ -27,7 +30,7 @@
     spread_calcul = "0.00",
     decimals = $assetpair.pair_decimals,
     lot_decimals = $assetpair.lot_decimals,
-    fetchUrl = `/api/trades/${$assetpair.altname}`,
+    fetchUrl = `${backendUri}/api/trades/${$assetpair.altname}`,
     last = null,
     spreadbid = null,
     spreadask = null,

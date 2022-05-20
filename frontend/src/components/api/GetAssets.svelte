@@ -9,7 +9,10 @@
   // ---------------------------------------------------------
   //  Props
   // ---------------------------------------------------------
-  let fetchUrl = "/api/assets";
+  // eslint-disable-next-line no-undef, dot-notation
+  const backendUri =
+    __App["env"].BACKEND_URI || [location.protocol, location.host].join("//");
+  const fetchUrl = backendUri + "/api/assets";
   const token = $User.token || false;
 
   // ---------------------------------------------------------

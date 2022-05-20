@@ -15,10 +15,14 @@
   //  Props
   // ---------------------------------------------------------
   // Appel Websocket
+  /*eslint-disable */
+  const backendUri =
+    __App["env"].BACKEND_URI || [location.protocol, location.host].join("//");
+  /*eslint-disable */
   const server =
     location.protocol === "http:"
-      ? `${["ws:", location.host].join("//")}`
-      : `${["wss:", location.host].join("//")}`;
+      ? `${backendUri.replace("http", "ws")}`
+      : `${backendUri.replace("https", "wss")}`;
   const wsSystemStatusUri = server + "/api/ws/systemstatus";
   const wsKrakenStatusUri = server + "/api/ws/krakenstatus";
   const wsSystemStatus = websocketStore(wsSystemStatusUri);

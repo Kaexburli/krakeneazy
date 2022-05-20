@@ -16,10 +16,14 @@ import websocketStore from 'svelte-websocket-store'
 // ---------------------------------------------------------
 //  Props
 // ---------------------------------------------------------
+/*eslint-disable */
+const backendUri =
+  __App['env'].BACKEND_URI || [location.protocol, location.host].join('//')
+/*eslint-disable */
 const server =
   location.protocol === 'http:'
-    ? `${['ws:', location.host].join('//')}`
-    : `${['wss:', location.host].join('//')}`
+    ? `${backendUri.replace('http', 'ws')}`
+    : `${backendUri.replace('https', 'wss')}`
 
 // ---------------------------------------------------------
 //  Methods Declarations

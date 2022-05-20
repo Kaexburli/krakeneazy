@@ -51,6 +51,10 @@
   // ---------------------------------------------------------
   const dispatch = createEventDispatcher();
 
+  // eslint-disable-next-line no-undef, dot-notation
+  const backendUri =
+    __App["env"].BACKEND_URI || [location.protocol, location.host].join("//");
+
   export let User;
   let callRCM, callTOC;
 
@@ -88,7 +92,7 @@
     close,
     volume,
     legend = `KRAKEN ${$assetpair.wsname} ${$interval}M`,
-    fetchUrl = "/api/ohlc",
+    fetchUrl = backendUri + "/api/ohlc",
     chartHeight = 488,
     chartWidth = 600,
     error = false,
