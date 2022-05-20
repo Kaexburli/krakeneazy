@@ -11,18 +11,23 @@ import { User } from 'store/userStore.js'
 // ---------------------------------------------------------
 let user
 
+/*eslint-disable */
+const backendUri =
+  __App['env'].BACKEND_URI || [location.protocol, location.host].join('//')
+/*eslint-disable */
+
 // ---------------------------------------------------------
 //  Methods Declarations
 // ---------------------------------------------------------
 User.subscribe((v) => (user = v))
 
 class UserData {
-  constructor () {
+  constructor() {
     this.promise = null
     this.endpoint = null
     this.params = null
     this.url = null
-    this.server = '/api/private/'
+    this.server = backendUri + '/api/private/'
     this.token = user.token || false
   }
 
@@ -33,7 +38,7 @@ class UserData {
    */
 
   // Get kraken /private/Balance
-  async getBalance () {
+  async getBalance() {
     this.endpoint = 'balance'
 
     if (!this.token) {
@@ -56,7 +61,7 @@ class UserData {
   }
 
   // Get kraken /private/TradeBalance
-  async getTradeBalance (params) {
+  async getTradeBalance(params) {
     this.endpoint = 'tradebalance'
 
     if (!this.token) {
@@ -80,7 +85,7 @@ class UserData {
   }
 
   // Get kraken /private/OpenOrders
-  async getOpenOrders (params) {
+  async getOpenOrders(params) {
     this.endpoint = 'openorders'
 
     if (!this.token) {
@@ -106,7 +111,7 @@ class UserData {
   }
 
   // Get kraken /private/OpenOrders
-  async getClosedOrders (params) {
+  async getClosedOrders(params) {
     this.endpoint = 'closedorders'
 
     if (!this.token) {
@@ -132,7 +137,7 @@ class UserData {
   }
 
   // Get kraken /private/TradeVolume
-  async getTradeVolume (params) {
+  async getTradeVolume(params) {
     this.endpoint = 'tradevolume'
 
     if (!this.token) {
@@ -162,7 +167,7 @@ class UserData {
   }
 
   // Get kraken /private/Ledgers
-  async getLedgers (params) {
+  async getLedgers(params) {
     this.endpoint = 'ledgers'
 
     if (!this.token) {
@@ -185,7 +190,7 @@ class UserData {
   }
 
   // Get kraken /private/TradeHistory
-  async getTradesHistory (params) {
+  async getTradesHistory(params) {
     this.endpoint = 'tradeshistory'
 
     if (!this.token) {
@@ -208,7 +213,7 @@ class UserData {
   }
 
   // Get kraken /private/openPositions
-  async getOpenPositions (params) {
+  async getOpenPositions(params) {
     this.endpoint = 'openpositions'
 
     if (!this.token) {
@@ -235,7 +240,7 @@ class UserData {
   }
 
   // Get kraken /private/AddOrder
-  async addOrder (params) {
+  async addOrder(params) {
     this.endpoint = 'addorder'
 
     if (!this.token) {
@@ -259,7 +264,7 @@ class UserData {
   }
 
   // Get kraken /private/addExport
-  async addExport (params) {
+  async addExport(params) {
     this.endpoint = 'addexport'
 
     if (!this.token) {
@@ -286,7 +291,7 @@ class UserData {
   }
 
   // Get kraken /private/statusExport
-  async statusExport (params) {
+  async statusExport(params) {
     this.endpoint = 'statusexport'
 
     if (!this.token) {
@@ -314,7 +319,7 @@ class UserData {
   }
 
   // Get kraken /private/retrieveExport
-  async retrieveExport (params) {
+  async retrieveExport(params) {
     this.endpoint = 'retrieveexport'
 
     if (!this.token) {
@@ -341,7 +346,7 @@ class UserData {
   }
 
   // Get kraken /private/removeOldFile
-  async removeOldFile (params) {
+  async removeOldFile(params) {
     this.endpoint = 'removeoldexport'
 
     if (!this.token) {
@@ -368,7 +373,7 @@ class UserData {
   }
 
   // Get kraken /private/readExport
-  async readExport (params) {
+  async readExport(params) {
     this.endpoint = 'readexport'
 
     if (!this.token) {
@@ -394,7 +399,7 @@ class UserData {
   }
 
   // Check if folder exist
-  async checkExportExist (params) {
+  async checkExportExist(params) {
     this.endpoint = 'checkexport'
 
     if (!this.token) {

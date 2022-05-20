@@ -1,11 +1,19 @@
-/**
- * parseJSON
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
+
+/*eslint-disable */
+const backendUri = __App['env'].BACKEND_URI || backendUri
+/*eslint-disable */
+
+// ---------------------------------------------------------
+//  parseJSON
+// ---------------------------------------------------------
 const parseJSON = (resp) => (resp.json ? resp.json() : resp)
 
-/**
- * checkStatus
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  checkStatus
+// ---------------------------------------------------------
 const checkStatus = async (resp) => {
   if (resp.status >= 200 && resp.status < 300) {
     return resp
@@ -15,34 +23,32 @@ const checkStatus = async (resp) => {
   })
 }
 
-/**
- * headers
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  headers
+// ---------------------------------------------------------
 const headers = {
   'Content-Type': 'application/json',
-  // eslint-disable-next-line no-undef, dot-notation
+  /*eslint-disable */
   'x-webapp-header': __App['env'].SITE_NAME
+  /*eslint-disable */
 }
 
-/**
- * userRegister
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  userRegister
+// ---------------------------------------------------------
 export const userRegister = async (data) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/register`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          firstname: data.reg_firstname,
-          lastname: data.reg_lastname,
-          username: data.reg_email,
-          email: data.reg_email,
-          password: data.reg_password
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/register`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        firstname: data.reg_firstname,
+        lastname: data.reg_lastname,
+        username: data.reg_email,
+        email: data.reg_email,
+        password: data.reg_password
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -53,23 +59,20 @@ export const userRegister = async (data) => {
   }
 }
 
-/**
- * userLogin
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  userLogin
+// ---------------------------------------------------------
 export const userLogin = async (data) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/login`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          remember: data.remember_me,
-          email: data.log_email,
-          password: data.log_password
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/login`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        remember: data.remember_me,
+        email: data.log_email,
+        password: data.log_password
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -80,21 +83,18 @@ export const userLogin = async (data) => {
   }
 }
 
-/**
- * userLogout
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  userLogout
+// ---------------------------------------------------------
 export const userLogout = async (id) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/logout`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          id
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/logout`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        id
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -105,27 +105,24 @@ export const userLogout = async (id) => {
   }
 }
 
-/**
- * userRefreshToken
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  userRefreshToken
+// ---------------------------------------------------------
 export const userRefreshToken = async (token, remember) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/refresh-token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        },
-        body: JSON.stringify({
-          token,
-          remember
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/refresh-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
+      },
+      body: JSON.stringify({
+        token,
+        remember
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -136,21 +133,18 @@ export const userRefreshToken = async (token, remember) => {
   }
 }
 
-/**
- * userForgotPassword
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  userForgotPassword
+// ---------------------------------------------------------
 export const userForgotPassword = async (data) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/forgot-password`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          email: data.forgot_email
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/forgot-password`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        email: data.forgot_email
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -161,21 +155,18 @@ export const userForgotPassword = async (data) => {
   }
 }
 
-/**
- * resendConfirmEmail
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  resendConfirmEmail
+// ---------------------------------------------------------
 export const resendConfirmEmail = async (data) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/send-confirm-email`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          email: data.log_email
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/send-confirm-email`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        email: data.log_email
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -186,23 +177,20 @@ export const resendConfirmEmail = async (data) => {
   }
 }
 
-/**
- * userProfile
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  userProfile
+// ---------------------------------------------------------
 export const userProfile = async (token) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/me`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        }
+    return await fetch(`${backendUri}/api/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
       }
-    )
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -213,29 +201,26 @@ export const userProfile = async (token) => {
   }
 }
 
-/**
- * addApiKey
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  addApiKey
+// ---------------------------------------------------------
 export const addApiKey = async (token, data) => {
   const { privateKey, publicKey } = data
 
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/add-apikey`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        },
-        body: JSON.stringify({
-          privateKey,
-          publicKey
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/add-apikey`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
+      },
+      body: JSON.stringify({
+        privateKey,
+        publicKey
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -243,29 +228,26 @@ export const addApiKey = async (token, data) => {
   }
 }
 
-/**
- * removeApiKey
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  removeApiKey
+// ---------------------------------------------------------
 export const removeApiKey = async (token, data) => {
   const { ids, userId } = data
 
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/remove-apikey`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        },
-        body: JSON.stringify({
-          ids,
-          userId
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/remove-apikey`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
+      },
+      body: JSON.stringify({
+        ids,
+        userId
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -276,9 +258,9 @@ export const removeApiKey = async (token, data) => {
   }
 }
 
-/**
- * changeUserData
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  changeUserData
+// ---------------------------------------------------------
 export const changeUserData = async (token, data, field) => {
   const firstname = data.firstname || false
   const lastname = data.lastname || false
@@ -295,22 +277,19 @@ export const changeUserData = async (token, data, field) => {
   }
 
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/change-user-data`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        },
-        body: JSON.stringify({
-          user,
-          field
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/change-user-data`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
+      },
+      body: JSON.stringify({
+        user,
+        field
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -318,26 +297,23 @@ export const changeUserData = async (token, data, field) => {
   }
 }
 
-/**
- * acceptCgv
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  acceptCgv
+// ---------------------------------------------------------
 export const acceptCgv = async (token) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/accept-cgv`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        },
-        body: JSON.stringify({
-          cgvConfirmed: true
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/accept-cgv`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
+      },
+      body: JSON.stringify({
+        cgvConfirmed: true
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
@@ -345,26 +321,23 @@ export const acceptCgv = async (token) => {
   }
 }
 
-/**
- * setPriceAlert
- ************************************************************************************************/
+// ---------------------------------------------------------
+//  setPriceAlert
+// ---------------------------------------------------------
 export const setPriceAlert = async (token, data) => {
   try {
-    return await fetch(
-      `${[location.protocol, location.host].join('//')}/api/price-alerts`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          // eslint-disable-next-line no-undef, dot-notation
-          'x-webapp-header': __App['env'].SITE_NAME
-        },
-        body: JSON.stringify({
-          alerts: data
-        })
-      }
-    )
+    return await fetch(`${backendUri}/api/price-alerts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        // eslint-disable-next-line no-undef, dot-notation
+        'x-webapp-header': __App['env'].SITE_NAME
+      },
+      body: JSON.stringify({
+        alerts: data
+      })
+    })
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
