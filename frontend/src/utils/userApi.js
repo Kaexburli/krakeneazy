@@ -3,7 +3,8 @@
 // ---------------------------------------------------------
 
 /*eslint-disable */
-const backendUri = __App['env'].BACKEND_URI || backendUri
+const backendUri =
+  __App['env'].BACKEND_URI || [location.protocol, location.host].join('//')
 /*eslint-disable */
 
 // ---------------------------------------------------------
