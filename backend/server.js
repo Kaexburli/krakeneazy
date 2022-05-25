@@ -20,10 +20,10 @@ import env from 'dotenv'
 const __dirname = path.resolve(path.dirname(''))
 env.config({ path: __dirname + '/../.env' })
 
-const PORT = process.env.BACK_PORT || '9000'
-const uri = process.env.MONGODB_URI
-
 const environment = process.env.ENVIRONMENT
+const PORT = process.env.BACK_PORT || '9000'
+const FASTIFY_URI = environment === 'development' ? '127.0.0.1' : '0.0.0.0'
+const uri = process.env.MONGODB_URI
 const levels = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
 const fastify = Fastify({
   logger: {
@@ -123,7 +123,7 @@ fastify.register(Autoload, {
 // Run the server!
 const start = async () => {
   try {
-    fastify.listen(PORT, (err) => {
+    fastify.listen(PORT, FASTIFY_URI, (err) => {
       if (err) throw err
       else {
         console.log(
