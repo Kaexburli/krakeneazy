@@ -8,23 +8,6 @@ const backendUri =
 /*eslint-disable */
 
 // ---------------------------------------------------------
-//  parseJSON
-// ---------------------------------------------------------
-const parseJSON = (resp) => (resp.json ? resp.json() : resp)
-
-// ---------------------------------------------------------
-//  checkStatus
-// ---------------------------------------------------------
-const checkStatus = async (resp) => {
-  if (resp.status >= 200 && resp.status < 300) {
-    return resp
-  }
-  return parseJSON(resp).then((resp) => {
-    throw resp
-  })
-}
-
-// ---------------------------------------------------------
 //  headers
 // ---------------------------------------------------------
 const headers = {
@@ -35,171 +18,147 @@ const headers = {
 }
 
 // ---------------------------------------------------------
-//  userRegister
+//  parseJSON
 // ---------------------------------------------------------
-export const userRegister = async (data) => {
-  try {
-    return await fetch(`${backendUri}/api/register`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        firstname: data.reg_firstname,
-        lastname: data.reg_lastname,
-        username: data.reg_email,
-        email: data.reg_email,
-        password: data.reg_password
-      })
+const parseJSON = (resp) => (resp.json ? resp.json() : resp)
+
+// ---------------------------------------------------------
+//  checkStatus
+// ---------------------------------------------------------
+const checkStatus = async (resp) => {
+  if (!resp.ok) {
+    await parseJSON(resp).then((resp) => {
+      console.error(resp.message)
     })
+
+    throw { ok: false, message: `${resp.status} (${resp.statusText})` }
+  } else if (resp.status >= 200 && resp.status < 300) {
+    return resp
+  }
+}
+
+// ---------------------------------------------------------
+//  sendBackendRequest
+// ---------------------------------------------------------
+const sendBackendRequest = async (endpoint, args, meth, heads) => {
+  let req =
+    meth === 'POST'
+      ? {
+          method: 'POST',
+          headers: heads ? heads : headers,
+          body: JSON.stringify(args)
+        }
+      : {
+          method: 'GET',
+          headers: heads ? heads : headers
+        }
+
+  try {
+    return await fetch(`${backendUri}/api/${endpoint}`, req)
       .then(checkStatus)
       .then(parseJSON)
   } catch (error) {
+    if (error.message.includes('Unexpected')) {
+      return {
+        ok: false,
+        error: true,
+        message: 'Unexpected token'
+      }
+    }
+
     return {
+      ok: false,
       error: true,
       message: error.message
     }
   }
+}
+
+// ---------------------------------------------------------
+//  userRegister
+// ---------------------------------------------------------
+export const userRegister = async (data) => {
+  const args = {
+    firstname: data.reg_firstname,
+    lastname: data.reg_lastname,
+    username: data.reg_email,
+    email: data.reg_email,
+    password: data.reg_password
+  }
+  return sendBackendRequest('register', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  userLogin
 // ---------------------------------------------------------
 export const userLogin = async (data) => {
-  try {
-    return await fetch(`${backendUri}/api/login`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        remember: data.remember_me,
-        email: data.log_email,
-        password: data.log_password
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return {
-      error: true,
-      message: error.message
-    }
+  const args = {
+    remember: data.remember_me,
+    email: data.log_email,
+    password: data.log_password
   }
+  return sendBackendRequest('login', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  userLogout
 // ---------------------------------------------------------
 export const userLogout = async (id) => {
-  try {
-    return await fetch(`${backendUri}/api/logout`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        id
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return {
-      error: true,
-      message: error.message
-    }
+  const args = {
+    id
   }
+  return sendBackendRequest('logout', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  userRefreshToken
 // ---------------------------------------------------------
 export const userRefreshToken = async (token, remember) => {
-  try {
-    return await fetch(`${backendUri}/api/refresh-token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      },
-      body: JSON.stringify({
-        token,
-        remember
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return {
-      error: true,
-      message: error.message
-    }
+  const args = {
+    token,
+    remember
   }
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // eslint-disable-next-line no-undef, dot-notation
+    'x-webapp-header': __App['env'].SITE_NAME
+  }
+  return sendBackendRequest('refresh-token', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  userForgotPassword
 // ---------------------------------------------------------
 export const userForgotPassword = async (data) => {
-  try {
-    return await fetch(`${backendUri}/api/forgot-password`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        email: data.forgot_email
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return {
-      error: true,
-      message: error.message
-    }
+  const args = {
+    email: data.forgot_email
   }
+  return sendBackendRequest('forgot-password', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  resendConfirmEmail
 // ---------------------------------------------------------
 export const resendConfirmEmail = async (data) => {
-  try {
-    return await fetch(`${backendUri}/api/send-confirm-email`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        email: data.log_email
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return {
-      error: true,
-      message: error.message
-    }
+  const args = {
+    email: data.log_email
   }
+  return sendBackendRequest('send-confirm-email', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  userProfile
 // ---------------------------------------------------------
 export const userProfile = async (token) => {
-  try {
-    return await fetch(`${backendUri}/api/me`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      }
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return {
-      error: true,
-      message: error.message
-    }
+  const args = {}
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // eslint-disable-next-line no-undef, dot-notation
+    'x-webapp-header': __App['env'].SITE_NAME
   }
+  return sendBackendRequest('me', args, 'GET', headers)
 }
 
 // ---------------------------------------------------------
@@ -208,25 +167,17 @@ export const userProfile = async (token) => {
 export const addApiKey = async (token, data) => {
   const { privateKey, publicKey } = data
 
-  try {
-    return await fetch(`${backendUri}/api/add-apikey`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      },
-      body: JSON.stringify({
-        privateKey,
-        publicKey
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return error
+  const args = {
+    privateKey,
+    publicKey
   }
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // eslint-disable-next-line no-undef, dot-notation
+    'x-webapp-header': __App['env'].SITE_NAME
+  }
+  return sendBackendRequest('add-apikey', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
@@ -235,28 +186,17 @@ export const addApiKey = async (token, data) => {
 export const removeApiKey = async (token, data) => {
   const { ids, userId } = data
 
-  try {
-    return await fetch(`${backendUri}/api/remove-apikey`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      },
-      body: JSON.stringify({
-        ids,
-        userId
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return {
-      error: true,
-      message: error.message
-    }
+  const args = {
+    ids,
+    userId
   }
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // eslint-disable-next-line no-undef, dot-notation
+    'x-webapp-header': __App['env'].SITE_NAME
+  }
+  return sendBackendRequest('remove-apikey', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
@@ -277,71 +217,47 @@ export const changeUserData = async (token, data, field) => {
     password
   }
 
-  try {
-    return await fetch(`${backendUri}/api/change-user-data`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      },
-      body: JSON.stringify({
-        user,
-        field
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return error
+  const args = {
+    user,
+    field
   }
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // eslint-disable-next-line no-undef, dot-notation
+    'x-webapp-header': __App['env'].SITE_NAME
+  }
+  return sendBackendRequest('change-user-data', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  acceptCgv
 // ---------------------------------------------------------
 export const acceptCgv = async (token) => {
-  try {
-    return await fetch(`${backendUri}/api/accept-cgv`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      },
-      body: JSON.stringify({
-        cgvConfirmed: true
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return error
+  const args = {
+    cgvConfirmed: true
   }
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // eslint-disable-next-line no-undef, dot-notation
+    'x-webapp-header': __App['env'].SITE_NAME
+  }
+  return sendBackendRequest('accept-cgv', args, 'POST', headers)
 }
 
 // ---------------------------------------------------------
 //  setPriceAlert
 // ---------------------------------------------------------
 export const setPriceAlert = async (token, data) => {
-  try {
-    return await fetch(`${backendUri}/api/price-alerts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
-        'x-webapp-header': __App['env'].SITE_NAME
-      },
-      body: JSON.stringify({
-        alerts: data
-      })
-    })
-      .then(checkStatus)
-      .then(parseJSON)
-  } catch (error) {
-    return error
+  const args = {
+    alerts: data
   }
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // eslint-disable-next-line no-undef, dot-notation
+    'x-webapp-header': __App['env'].SITE_NAME
+  }
+  return sendBackendRequest('price-alerts', args, 'POST', headers)
 }

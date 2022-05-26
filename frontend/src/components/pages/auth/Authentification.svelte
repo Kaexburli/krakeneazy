@@ -424,7 +424,9 @@
 
     if (!login.ok) {
       isError = $_(
-        `auth.msg.${login.message}`,
+        Object.prototype.hasOwnProperty.call($_(`auth.msg`), login.message)
+          ? `auth.msg.${login.message}`
+          : login.message,
         login.field
           ? {
               values: {
@@ -442,7 +444,12 @@
         if (resend.ok)
           Notification(
             $_(
-              `auth.msg.${resend.message}`,
+              Object.prototype.hasOwnProperty.call(
+                $_(`auth.msg`),
+                resend.message
+              )
+                ? `auth.msg.${resend.message}`
+                : resend.message,
               resend.email
                 ? {
                     values: {
@@ -477,7 +484,9 @@
 
     if (!register.ok) {
       isError = $_(
-        `auth.msg.${register.message}`,
+        Object.prototype.hasOwnProperty.call($_(`auth.msg`), register.message)
+          ? `auth.msg.${register.message}`
+          : register.message,
         register.field
           ? {
               values: {
