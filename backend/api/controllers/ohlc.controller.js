@@ -18,7 +18,7 @@ const getOhlc = async (req, reply) => {
     req.headers['x-webapp-header'] !== process.env.SITE_NAME
   ) {
     req.log.warn('[WARN:getOhlc] missing x-webapp-header!')
-    return reply.redirect('/')
+    return reply.redirect(500, '/')
   }
 
   try {

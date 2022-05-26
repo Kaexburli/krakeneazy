@@ -36,8 +36,9 @@ const callApiFetch = async (params) => {
   let options = {
     headers: {
       'Content-Type': 'application/json',
-      // eslint-disable-next-line no-undef, dot-notation
+      /*eslint-disable */
       'x-webapp-header': __App['env'].SITE_NAME
+      /*eslint-disable */
     }
   }
 
@@ -46,8 +47,9 @@ const callApiFetch = async (params) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
-        // eslint-disable-next-line no-undef, dot-notation
+        /*eslint-disable */
         'x-webapp-header': __App['env'].SITE_NAME
+        /*eslint-disable */
       }
     }
   }

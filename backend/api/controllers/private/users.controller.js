@@ -45,7 +45,7 @@ export const websocketVerifyJWTCtrl = async (req, reply) => {
       !user.token
     ) {
       req.log.error('ERROR: [websocketVerifyJWTCtrl] - Decoded JWT failed!')
-      return reply.redirect('/')
+      return reply.redirect(500, '/')
     }
 
     req.user = user
@@ -63,7 +63,7 @@ export const asyncVerifyJWTCtrl = async (req, reply) => {
     req.log.error(
       'ERROR: [asyncVerifyJWTCtrl] - Missing x-webapp-header parameter!'
     )
-    return reply.redirect('/')
+    return reply.redirect(500, '/')
   }
 
   const { authorization } = req.headers || false
