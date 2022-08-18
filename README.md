@@ -2,7 +2,31 @@
 
 ## Dashboard for kraken.com accounts
 
-Software allowing you to have a complete dashboard to access, view and manage your account via the Kraken.com API
+Software allowing you to have a complete dashboard to access, view and manage your account via the Kraken.com API<br>
+
+- Selection of crypto pairs
+- Real-time display of prices
+- Account Summary
+- Add an order
+- Cancel an order
+- View current orders
+- View closed orders
+- View transactions
+- Viewing the register
+- Export of trade and ledger data (csv)
+- Display of statistics
+- Account setting
+- Add API keys
+- Viewing kraken status (https://status.kraken.com)
+
+- (Only on software not on kraken account)
+- Account creation
+- Login
+- Forgot Email
+- Reset password
+
+TODO
+- ....
 
 ## Preview
 
@@ -31,7 +55,7 @@ npm install
 
 ## License
 
-GNU General Public License (GNU GPL)`.
+GNU General Public License (GNU GPL).
 
 ## Tips
 
