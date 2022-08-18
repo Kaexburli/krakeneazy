@@ -1,0 +1,501 @@
+{
+  "site": {
+    "name": "Krakeneazy",
+    "choosePair": "Veuillez choisir une paire",
+    "addApiKey": "Veuillez ajouter une clé api dans les paramètres de votre compte."
+  },
+  "online": {
+    "errorMessage": "La connectivité internet a été perdue",
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "cancel_only": "Annulation seul",
+    "post_only": "Post seul",
+    "maintenance": "Maintenance"
+  },
+  "krakenStatusAPI": {
+    "title": "Incidents liés à Kraken",
+    "affecté": "Affecté:",
+    "started": "Démarré:",
+    "updated": "Mise à jour:",
+    "résolu": "Résolu:",
+    "titleMaintenance": "Kraken Maintenance Programées",
+    "scheduledFor": "Programmées pour le :",
+    "scheduledUntil": "jusqu'au : "
+  },
+  "pricealert": {
+    "title": "Alertes actives!",
+    "alertUp": "Prix au dessus de:",
+    "alertDown": "Prix en dessous de:",
+    "modal": {
+      "title": "Alerte de prix !",
+      "price": "Prix",
+      "up": "au dessus de :",
+      "down": "en dessous de :"
+    }
+  },
+  "main": {
+    "dialog": {
+      "title": "Termes et conditions",
+      "reject": "Rejeter",
+      "accept": "Accepter"
+    }
+  },
+  "sidebar": {
+    "home": "Accueil",
+    "account": "Compte",
+    "trading": "Trading",
+    "statistics": "Statistiques",
+    "reports": "Rapports",
+    "settings": "Paramètres"
+  },
+  "header": {
+    "assetPairSearch": {
+      "placeholder": "Rechercher une paire..."
+    }
+  },
+  "footer": {
+    "clock": {
+      "display_since": "Affiché depuis:",
+      "secondes": "{n, plural, =0 {seconde} one {# seconde} other {# secondes}}",
+      "date": "Date/Heure",
+      "beginSession": "Debut de session",
+      "endSession": "Fin de session",
+      "in": "dans"
+    }
+  },
+  "modal": {
+    "confirmation": {
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "refreshToken": {
+      "title": "Déconnexion imminente",
+      "btnStay": "Rester connecté!",
+      "btnLogout": "Déconnexion",
+      "message": "Votre session va expirer dans {n, plural, =0 {seconde} one {# seconde} other {# secondes}}"
+    }
+  },
+  "home": {
+    "title": "Accueil",
+    "chart": {
+      "tooltip": {
+        "settings": "Paramètres du graphique",
+        "addorder": "Placer un ordre",
+        "addalert": "Ajouter une alerte"
+      },
+      "alert": {
+        "succcess": "Une alert à été mise en place",
+        "error": "Le prix doit être positif",
+        "menuDel": "Suppression des alertes",
+        "menuConfirmDel": "Veuillez confirmer la supression des alertes pour la paire",
+        "createAlert": "Créer une alerte",
+        "delAlerts": "Supprimer toutes les alertes"
+      },
+      "checkbox": {
+        "tooltip": "Tooltip",
+        "position": "Positions",
+        "orders": "Ordres",
+        "magnet": "Magnet",
+        "loga": "Logarithmique",
+        "volume": "Volume"
+      },
+      "nextCandle": "Next"
+    },
+    "book": {
+      "totalVolume": "Vol",
+      "spread": "Spread",
+      "time": "Temps",
+      "volume": "Volume",
+      "price": "Prix",
+      "group": "Grouper"
+    },
+    "ticker": {
+      "ask": "Vente",
+      "bid": "Achat",
+      "currentPrice": "Prix actuel",
+      "volume": "Volume",
+      "vwap": "VWAP",
+      "numberOfTrade": "Nombre de trades",
+      "lowPrice": "Plus bas prix",
+      "highPrice": "Plus haut prix",
+      "openPrice": "Prix d'ouverture",
+      "closePrice": "Plus de fermeture",
+      "askValue": "Offre de vente",
+      "bidValue": "Offre d'achat",
+      "totalVolume": "Volume total",
+      "wholeLotVolume": "Vol Entier",
+      "lotVolume": "Volume du lot",
+      "price": "Prix",
+      "spread": "Spread",
+      "today": "Aujourd'hui",
+      "last24h": "Dernière 24H"
+    }
+  },
+  "auth": {
+    "title": "Authentification",
+    "login": "Connexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "rememberMe": "Prolonger",
+    "forgotPassword": "Réinitialiser",
+    "register": "Inscription",
+    "lastname": "Nom",
+    "firstname": "Prénom",
+    "passwordConfirm": "Confirmation mot de passe",
+    "emailConfirmSuccess": "Votre email à bien été confirmé!",
+    "emailConfirmError": "Cette email a déja été confirmé!",
+    "resetConfirmSuccess": "Un nouveau mot de passe vous a été envoyé par email!",
+    "resetConfirmError": "Une erreur c'est produite lors de la réinitialisation de votre mot de passe!",
+    "welcome": "Bienvenue",
+    "welcomeMessage": "Votre compte a bien été créé! <br /> Veuillez confirmer votre adresse email",
+    "error": {
+      "fieldsRequire": "Tous les champs sont requis!",
+      "emailNotValid": "L'email indiqué n'est pas valide!",
+      "passwordNotValid": "Votre mot de passe n'est pas valide ! <br />Minimum 8 caractères contenant une majuscule et un caractère spécial",
+      "confirmPasswordNotValid": "Votre mot de passe ne correspond pas à votre confirmation de mot de passe"
+    },
+    "msg": {
+      "authFail": "L'authentification a échoué!",
+      "alreadyConnected": "Vous êtes déjà connecté!",
+      "wrongCredentials": "Impossible de se connecter. Mauvais identifiants!",
+      "notConfirmed": "Votre email n'est pas confirmé ! Veuillez confirmer votre email !",
+      "missingEMail": "E-mail manquant",
+      "usernameAndPasswordRequired": "Le nom d'utilisateur et le mot de passe sont requis!",
+      "errorMailSend": "Mail non envoyé, veuillez nous contacter !",
+      "fieldExist": "Votre {field} existe déjà!",
+      "loggedIn": "Vous êtes connecté!",
+      "loggedOut": "Vous êtes déconnecté!",
+      "loggedOutError": "Une erreur est intervenue!",
+      "refreshToken": "Votre connexion à bien été actualisé!",
+      "cantFindYou": "Aucun email correspondant!",
+      "emailSend": "Un e-mail a été envoyé à {email}",
+      "authenticated": "Authentifié!"
+    }
+  },
+  "account": {
+    "title": "Mon compte kraken",
+    "rowsPerPage": "Lignes par page",
+    "of": "sur",
+    "firstPage": "Première page",
+    "prevPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "lastPage": "Dernière page",
+    "tabs": {
+      "openOrders": "Ordres ouverts",
+      "closedOrders": "Ordres fermés",
+      "transaction": "Transactions",
+      "trades": "Trades",
+      "register": "Registre"
+    },
+    "balance": {
+      "title": "Solde du compte"
+    },
+    "tradeBalance": {
+      "title": "Solde de trading",
+      "title2": "Valorisation de la position",
+      "eb": {
+        "label": "Solde du compte",
+        "info": "Total des devises et crypto combiné"
+      },
+      "tb": {
+        "label": "Solde de transactions",
+        "info": "Soldes total des devises de marge"
+      },
+      "m": {
+        "label": "Marge utilisée",
+        "info": "Montant total de la marge utilisée sur les positions ouvertes"
+      },
+      "n": {
+        "label": "Perte/Profit",
+        "info": "Perte/Profit sur papier de toutes les positions ouvertes"
+      },
+      "c": {
+        "label": "Coût d'ouverture",
+        "info": "Coût initale de toutes les positions ouvertes"
+      },
+      "v": {
+        "label": "Valorisation actuelle",
+        "info": "Valeur théorique de toutes les positions ouverte"
+      },
+      "e": {
+        "label": "Équité",
+        "info": "Soldes de transactions combiné aux pertes/profits non réalisés"
+      },
+      "mf": {
+        "label": "Marge disponible",
+        "info": "Soldes de marge utilisable. Égal à l'équité moins la marge utilisée"
+      },
+      "ml": {
+        "label": "Niveau de marge",
+        "info": "Pourcentage d'équité par rapport à la marge utilisée"
+      }
+    },
+    "closedOrders": {
+      "title": "Ordres fermés",
+      "hideDisplayCanceled": "Cacher/Afficher les ordres annulées",
+      "hideDisplayClosed": "Cacher/Afficher les ordres fermés",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "statut": "Status",
+      "action": "Action",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "dataLabel": "Liste des ordres fermés"
+    },
+    "openOrders": {
+      "title": "Ordres ouverts",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "statut": "Status",
+      "action": "Action",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "dataLabel": "Liste des ordres ouverts",
+      "getOpenOrders": {
+        "error": "Veuillez choisir une paire d'asset"
+      }
+    },
+    "ownTrades": {
+      "title": "Transactions",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "fees": "Frais",
+      "marginFee": "Frais de marge",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "dataLabel": "Liste des transactions"
+    },
+    "ledgers": {
+      "title": "Registre",
+      "typeLabel": {
+        "margin": "Levier",
+        "rollover": "Roulement",
+        "trade": "Trader",
+        "staking": "Financement",
+        "deposit": "Dépôt",
+        "withdrawal": "Retrait"
+      },
+      "reference": "#id",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "amount": "Montant",
+      "fees": "Frais",
+      "solde": "Solde",
+      "dataLabel": "Liste des registres"
+    },
+    "tradesHistory": {
+      "title": "Historique des trades",
+      "type": "Type",
+      "date": "Date",
+      "pair": "Paire",
+      "price": "Prix",
+      "volume": "Volume",
+      "cost": "Coût",
+      "fees": "Frais",
+      "marginFee": "Frais de marge",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "dataLabel": "Liste historique des trades"
+    },
+    "tradeVolume": {
+      "title": "Grille Tarifaire",
+      "volume": "Volume",
+      "volume30days": "Volume sur 30 jours",
+      "fees": "Frais",
+      "current": "Actuel",
+      "next": "Suivant",
+      "getTradeVolume": {
+        "error": "Veuillez choisir une paire d'asset"
+      }
+    }
+  },
+  "reports": {
+    "main": {
+      "title": "Exports de données"
+    },
+    "export": {
+      "error": "[ERREUR]",
+      "type": "Type",
+      "period": "Période",
+      "expiration": "Expiration",
+      "statut": "Status",
+      "id": "ID",
+      "format": "Format",
+      "canceled": "Annuler",
+      "deleted": "Supprimer",
+      "wait": "Veuillez patienter, nous procédons à l'export de vos données...",
+      "initExport": "Initialisation de l'export {type}",
+      "waitExport": "Demande d'export {type} envoyé",
+      "endExport": "Téléchargement terminé!",
+      "extractExport": "Extraction du fichier...",
+      "endExtractExport": "Extraction du fichier {filename} terminé!",
+      "downloadExport": "Génération de l'export {id} en cours",
+      "apiError": "L'API Kraken ne répond pas correctement",
+      "addError": "La demande d'exportation n'a pas été effectuée correctement!"
+    }
+  },
+  "statistics": {
+    "title": "Statistiques",
+    "margin": "Levier",
+    "rollover": "Roulement",
+    "trade": "Trader",
+    "staking": "Financement",
+    "deposit": "Dépôt",
+    "withdrawal": "Retrait",
+    "receive": "Reception",
+    "spend": "Emission",
+    "transfer": "Transfert"
+  },
+  "trading": {
+    "title": "Trading",
+    "subtitle": "Placer un ordre",
+    "spreadBox": {
+      "askTitle": "Offre de vente",
+      "bidTitle": "Offre d'achat",
+      "ask": "Ask",
+      "bid": "Bid",
+      "spread": "Spread",
+      "price": "Prix",
+      "lastTrade": "Dernier(s) trade(s)",
+      "limit": "Limite",
+      "market": "Market",
+      "priceAsk": "de vente",
+      "priceBid": "d'achat",
+      "volume": "Volume",
+      "totalCost": "Coût total"
+    },
+    "order": {
+      "action": "Action",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "type": "Type",
+      "market": "Market",
+      "limit": "Limite",
+      "setPosition": "Régler la position",
+      "stopLoss": "Stop loss",
+      "takeProfit": "Take profit",
+      "stopLossLmt": "Stop loss limite",
+      "takeProfitLmt": "Take profit limite",
+      "margin": "Levier",
+      "funds": "Fonds",
+      "quantity": "Quantité",
+      "price": "Prix",
+      "total": "Total",
+      "postOnly": "Post only",
+      "closeCond": "Ferm cond.",
+      "closeConditionnal": "Fermeture conditionnelle",
+      "fees": "Frais",
+      "reset": "Réinitialiser",
+      "confirm": "Confirmer",
+      "and": "et",
+      "slippage": "Slippage",
+      "favorableSlippage": "Slippage favorable",
+      "unfavorableSlippage": "Slippage défavorable",
+      "percentProfit": "Pourcentage de profit",
+      "percentStoploss": "Pourcentage de perte"
+    },
+    "chartOrder": {
+      "more": "PLUS",
+      "buy": "ACHETER",
+      "sell": "VENDRE",
+      "dialog": {
+        "confirmOrderTitle": "Confirmation d'ordre",
+        "confirmOrder": "Confirmez-vous l'ordre",
+        "buy": "Achat",
+        "sell": "Vente",
+        "canceled": "Annuler",
+        "confirmed": "Confirmer"
+      }
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "drawer": {
+      "labels": {
+        "profile": "Profile utilisateur",
+        "kraken": "Compte Kraken",
+        "settings": "Paramètres du site"
+      },
+      "subtitle": {
+        "profile": "Mon profile utilisateur",
+        "kraken": "Mon compte Kraken",
+        "settings": "Mes paramètres du site"
+      }
+    },
+    "profile": {
+      "error": "Le champ \"{field}\" est incorrect!",
+      "success": "Le champ \"{field}\" a bien été mis à jour!",
+      "firstname": {
+        "label": "Prénom",
+        "helper": "Ce n'est pas un prénom valide."
+      },
+      "lastname": {
+        "label": "Nom",
+        "helper": "Ce n'est pas un nom valide."
+      },
+      "username": {
+        "label": "Pseudo",
+        "helper": "Ce n'est pas un pseudo valide."
+      },
+      "email": {
+        "label": "Email",
+        "helper": "Ce n'est pas une adresse e-mail valide."
+      },
+      "password": {
+        "label": "Mot de passe",
+        "helper": "Votre mot de passe n'est pas valide ! Minimum 8 caractères contenant une majuscule et un caractère spécial"
+      },
+      "passwordConfirm": {
+        "label": "Confirmation mot de passe",
+        "helper": "Votre mot de passe ne correspond pas à votre confirmation de mot de passe"
+      }
+    },
+    "kraken": {
+      "dialog": {
+        "title": "Suppression de clé API",
+        "description": "Etes-vous sur de vouloir supprimer {n, plural, =0 {clé} one {# clé} other {# clés}} API?",
+        "yes": "Oui",
+        "no": "Non"
+      },
+      "addSuccess": "Votre clé a bien été ajouté!",
+      "addError": "Les champs ne peuvent pas être vide",
+      "removeSuccess": "{n, plural, =0 {Votre clé a} one {Votre clé a} other {Vos clés ont}} bien été {n, plural, =0 {supprimée} one {supprimée} other {supprimées}}!",
+      "table": {
+        "title": "Vos clés",
+        "publickey": "Clé publique",
+        "privatekey": "Clé privée",
+        "createdAt": "Ajouté le",
+        "noKeyFound": "Aucune clé trouvé",
+        "removeKeyBtn": "Supprimer la selection"
+      },
+      "form": {
+        "title": "Ajouter une clé",
+        "info": "Veuillez cocher toutes les cases disponible pour la clé API excepté le retrait",
+        "publickey": "Clé publique",
+        "publickeyHelper": "Veuillez ajouter ici la clé publique api généré par kraken",
+        "privatekey": "Clé privée",
+        "privatekeyHelper": "Veuillez ajouter ici la clé privée api généré par kraken",
+        "addKeyBtn": "Ajouter cette clé"
+      }
+    }
+  },
+  "userData": {
+    "errorMessage": "Jeton introuvable pour"
+  },
+  "runfetch": {
+    "permissionDenied": "Veuillez configurer vos clés api pour acceder a cette fonctionnalité dans vos paramètres Kraken"
+  }
+}

@@ -1,23 +1,38 @@
 <script>
-  import { slide } from "svelte/transition";
+  import { _ } from "svelte-i18n";
+  import { User } from "store/userStore.js";
+  import { slide, fade } from "svelte/transition";
   import { assetpair } from "store/store.js";
+  import SpreadBox from "components/pages/trading/SpreadBox.svelte";
   import TradingOrder from "components/pages/trading/TradingOrder.svelte";
+  import BlockOpenOrders from "components/pages/account/BlockOpenOrders.svelte";
+  import Paper, { Content } from "@smui/paper";
+
+  const isLogged = User.isLogged();
 </script>
 
-<div id="page-trading" in:slide out:slide>
-  {#if $assetpair !== "false" && $assetpair}
-    <h1>Trading {$assetpair.wsname}</h1>
-    <div class="trading">
-      <TradingOrder />
-    </div>
-  {:else}
-    <h1>Trading</h1>
-    <div class="main-info">
-      <i class="fas fa-info-circle" />
-      <span>Veuillez choisir une paire</span>
-    </div>
-  {/if}
-</div>
+{#if isLogged}
+  <div id="page-trading" in:fade out:slide>
+    {#if $assetpair !== "false" && $assetpair}
+      <h1>{$_("trading.title")} {$assetpair.wsname}</h1>
+      <div class="box">
+        <BlockOpenOrders />
+      </div>
+      <div class="trading">
+        <TradingOrder candleSeries="false" />
+        <SpreadBox />
+      </div>
+    {:else}
+      <h1>{$_("trading.title")}</h1>
+      <Paper color="secondary" square>
+        <Content>
+          <i class="fas fa-info-circle" />
+          <span>{$_("site.choosePair")}</span>
+        </Content>
+      </Paper>
+    {/if}
+  </div>
+{/if}
 
 <style>
   .trading {
@@ -27,6 +42,9 @@
     background-color: #212121;
     padding: 5px 10px;
     border: 1px solid #2e2e2e;
+  }
+  .box {
+    margin: 10px 0;
   }
   :global(.trading div.block) {
     margin: 5px;

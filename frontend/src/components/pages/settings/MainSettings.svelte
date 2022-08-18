@@ -1,67 +1,43 @@
 <script>
-  import { slide } from "svelte/transition";
+  import { _ } from "svelte-i18n";
+  import { User } from "store/userStore.js";
+  import { slide, fade } from "svelte/transition";
+
+  import DrawerList from "./DrawerList.svelte";
+  import Profile from "./profile.svelte";
+  import Kraken from "./kraken.svelte";
+  import Settings from "./settings.svelte";
+
+  const isLogged = User.isLogged();
+
+  let items = [
+    {
+      label: $_("settings.drawer.labels.profile"),
+      subtitle: $_("settings.drawer.subtitle.profile"),
+      position: 1,
+      component: Profile,
+    },
+    {
+      label: $_("settings.drawer.labels.kraken"),
+      subtitle: $_("settings.drawer.subtitle.kraken"),
+      position: 2,
+      component: Kraken,
+    },
+    {
+      label: $_("settings.drawer.labels.settings"),
+      subtitle: $_("settings.drawer.subtitle.settings"),
+      position: 3,
+      component: Settings,
+    },
+  ];
 </script>
 
-<div id="page-settings" in:slide out:slide>
-  <h1>Settings</h1>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti iste
-    voluptatibus quos? Sed assumenda quaerat vitae consectetur quis culpa magnam
-    nihil reiciendis laborum eligendi cum nam dolorum, autem deserunt ut.
-  </p>
-</div>
+{#if isLogged}
+  <div id="page-settings" in:fade out:slide>
+    <h1>{$_("settings.title")}</h1>
+
+    <div class="box">
+      <DrawerList {items} />
+    </div>
+  </div>
+{/if}

@@ -1,16 +1,31 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
   import Fetch from "utils/Runfetch.js";
-  import { fetchurl, assets } from "store/store.js";
+  import { User } from "store/userStore.js";
+  import { assets } from "store/store.js";
 
-  let fetchUrl = $fetchurl + "/api/assets";
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  // eslint-disable-next-line no-undef, dot-notation
+  const backendUri =
+    __App["env"].BACKEND_URI || [location.protocol, location.host].join("//");
+  const fetchUrl = backendUri + "/api/assets";
+  const token = $User.token || false;
 
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const getAssets = async () => {
-    let res = await Fetch(fetchUrl, "assets");
+    let res = await Fetch({ url: fetchUrl, endpoint: "assets", token });
 
-    if (typeof res !== "undefined" && res.hasOwnProperty("error"))
-      console.error(
-        "[GET ASSETS] ERROR: " + res.statusCode + " " + res.message
-      );
+    if (
+      typeof res !== "undefined" &&
+      Object.prototype.hasOwnProperty.call(res, "error")
+    )
+      console.error("[ERROR] : " + res.statusCode + " " + res.message);
 
     assets.set(res);
   };

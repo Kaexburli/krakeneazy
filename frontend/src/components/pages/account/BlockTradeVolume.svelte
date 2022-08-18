@@ -1,31 +1,43 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
   import { online, assetpair, asymbole } from "store/store.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
   import { tweened } from "svelte/motion";
   import { linear } from "svelte/easing";
+  import SnackBar from "components/SnackBar.svelte";
 
-  let currency;
-  let tradevol;
-  let next_vol;
-  let progress_value;
-  let progress_percent;
-  let actual_fees_taker;
-  let actual_fees_maker;
-  let next_fees_taker;
-  let next_fees_maker;
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  let currency,
+    tradevol,
+    next_vol,
+    progress_value,
+    progress_percent,
+    actual_fees_taker,
+    actual_fees_maker,
+    next_fees_taker,
+    next_fees_maker,
+    error = false,
+    tradevolume = false;
+
+  let snackBarText = "",
+    snackBarShow = false;
 
   const progress = tweened(0, {
     duration: 1000,
     easing: linear,
   });
 
-  let error = false;
-  let tradevolume = false;
-  let limit = 0;
-
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const GetTradeVolume = async () => {
     try {
       if (!$online) {
@@ -34,29 +46,29 @@
       }
 
       if (typeof $assetpair.altname === "undefined") {
-        error = "Veuillez choisir une paire d'asset";
-        return false;
-      }
-
-      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-        error = true;
+        error = $_("account.tradeVolume.getTradeVolume.type");
         return false;
       }
 
       const ud = new UserData();
       const res = await ud.getTradeVolume({ pair: $assetpair.altname });
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
-        if (limit < 5) {
+        setTimeout(() => {
           GetTradeVolume();
-          limit++;
-        }
+        }, res.timeout);
       } else {
         tradevolume = res;
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   };
 
@@ -68,7 +80,7 @@
     tradevolume;
 
     if (typeof tradevolume !== "undefined") {
-      if (tradevolume.hasOwnProperty("currency")) {
+      if (Object.prototype.hasOwnProperty.call(tradevolume, "currency")) {
         tradevol = Number(tradevolume.volume).toFixed(2);
         currency = $asymbole[tradevolume.currency]["symbol"];
         next_vol = Number(
@@ -95,36 +107,37 @@
   }
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block">
-  <h3>Grille Tarifaire</h3>
-  {#if error && typeof error !== "boolean"}
+  <h3>{$_("account.tradeVolume.title")}</h3>
+  <!-- {#if error && typeof error !== "boolean"}
     <span class="error">{error}</span>
-  {/if}
+  {/if} -->
   {#if !tradevolume && !error}
-    <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+    <LinearProgress indeterminate />
   {:else if tradevolume}
     <div class="trade_volume">
-      <h5>Volume</h5>
+      <h5>{$_("account.tradeVolume.volume")}</h5>
       <div>
         <span class="label">{tradevol} {currency}</span> /
         <span class="label">{next_vol} {currency}</span>
       </div>
       <span class="label">
-        Volume sur 30 jours
+        {$_("account.tradeVolume.volume30days")}
         <span class="percent">({progress_percent.toFixed(2)}%)</span>
       </span>
       <progress value={$progress} />
     </div>
     <div class="trade_volume_fees">
-      <h5>Frais</h5>
+      <h5>{$_("account.tradeVolume.fees")}</h5>
       <div>
-        <span class="label"> Actuel </span>
+        <span class="label"> {$_("account.tradeVolume.current")} </span>
         <span class="currency">({$assetpair.wsname})</span>
         <span class="right">{actual_fees_maker}% / {actual_fees_taker}%</span>
       </div>
       <hr />
       <div>
-        <span class="label"> Suivant </span>
+        <span class="label"> {$_("account.tradeVolume.next")} </span>
         <span class="currency">({$assetpair.wsname})</span>
         <span class="right">{next_fees_maker}% / {next_fees_taker}%</span>
       </div>

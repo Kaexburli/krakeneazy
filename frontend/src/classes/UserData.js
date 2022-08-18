@@ -1,16 +1,34 @@
-import Fetch from "utils/Runfetch.js"
-import { fetchurl } from "store/store.js";
+// ---------------------------------------------------------
+//  Imports
+// ---------------------------------------------------------
+// eslint-disable-next-line no-unused-vars
+import { _ } from 'svelte-i18n'
+import Fetch from 'utils/Runfetch.js'
+import { User } from 'store/userStore.js'
 
-let url;
-fetchurl.subscribe((v) => url = v);
+// ---------------------------------------------------------
+//  Props
+// ---------------------------------------------------------
+let user
+
+/*eslint-disable */
+const backendUri =
+  __App['env'].BACKEND_URI || [location.protocol, location.host].join('//')
+/*eslint-disable */
+
+// ---------------------------------------------------------
+//  Methods Declarations
+// ---------------------------------------------------------
+User.subscribe((v) => (user = v))
 
 class UserData {
   constructor() {
-    this.promise = null;
-    this.endpoint = null;
-    this.params = null;
-    this.url = null;
-    this.server = url + "/api/private/";
+    this.promise = null
+    this.endpoint = null
+    this.params = null
+    this.url = null
+    this.server = backendUri + '/api/private/'
+    this.token = user.token || false
   }
 
   /**
@@ -21,15 +39,22 @@ class UserData {
 
   // Get kraken /private/Balance
   async getBalance() {
+    this.endpoint = 'balance'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
     try {
-      this.endpoint = "balance"
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -37,16 +62,23 @@ class UserData {
 
   // Get kraken /private/TradeBalance
   async getTradeBalance(params) {
+    this.endpoint = 'tradebalance'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
     try {
-      this.endpoint = "tradebalance"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -54,19 +86,25 @@ class UserData {
 
   // Get kraken /private/OpenOrders
   async getOpenOrders(params) {
+    this.endpoint = 'openorders'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
 
     params = Object.values(params).join('/')
 
     try {
-      this.endpoint = "openorders"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -74,19 +112,25 @@ class UserData {
 
   // Get kraken /private/OpenOrders
   async getClosedOrders(params) {
+    this.endpoint = 'closedorders'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
 
     params = Object.values(params).join('/')
 
     try {
-      this.endpoint = "closedorders"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -94,21 +138,29 @@ class UserData {
 
   // Get kraken /private/TradeVolume
   async getTradeVolume(params) {
+    this.endpoint = 'tradevolume'
 
-    if (typeof params.pair === undefined && !params.pair) {
-      params.pair = "XBTUSD"
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    if (typeof params.pair === 'undefined' && !params.pair) {
+      return {
+        error: 'ERROR: No pair found!'
+      }
     }
 
     try {
-      this.endpoint = "tradevolume"
       this.params = params.pair
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -116,15 +168,22 @@ class UserData {
 
   // Get kraken /private/Ledgers
   async getLedgers(params) {
+    this.endpoint = 'ledgers'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
     try {
-      this.endpoint = "ledgers"
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -132,15 +191,22 @@ class UserData {
 
   // Get kraken /private/TradeHistory
   async getTradesHistory(params) {
+    this.endpoint = 'tradeshistory'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
     try {
-      this.endpoint = "tradeshistory"
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -148,19 +214,50 @@ class UserData {
 
   // Get kraken /private/openPositions
   async getOpenPositions(params) {
+    this.endpoint = 'openpositions'
 
-    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    params =
+      typeof params !== 'undefined' ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "openpositions"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
+  // Get kraken /private/AddOrder
+  async addOrder(params) {
+    this.endpoint = 'addorder'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    try {
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url = this.server + this.endpoint
+      return await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token,
+        method: 'POST',
+        body: this.params
+      })
     } catch (error) {
       console.error(error)
     }
@@ -168,19 +265,26 @@ class UserData {
 
   // Get kraken /private/addExport
   async addExport(params) {
+    this.endpoint = 'addexport'
 
-    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    params =
+      typeof params !== 'undefined' ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "addexport"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -188,22 +292,27 @@ class UserData {
 
   // Get kraken /private/statusExport
   async statusExport(params) {
+    this.endpoint = 'statusexport'
 
-    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    params =
+      typeof params !== 'undefined' ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "statusexport"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error')) {
-        if (res.hasOwnProperty('statusCode') && res.hasOwnProperty('message'))
-          return { error: "ERROR: " + res.statusCode + " " + res.message }
-      }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
 
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -211,19 +320,26 @@ class UserData {
 
   // Get kraken /private/retrieveExport
   async retrieveExport(params) {
+    this.endpoint = 'retrieveexport'
 
-    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    params =
+      typeof params !== 'undefined' ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "retrieveexport"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -231,15 +347,26 @@ class UserData {
 
   // Get kraken /private/removeOldFile
   async removeOldFile(params) {
+    this.endpoint = 'removeoldexport'
 
-    params = (typeof params !== "undefined") ? params : ''
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    params =
+      typeof params !== 'undefined' ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "removeoldexport"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      const res = await Fetch(this.url, this.endpoint)
-      return res;
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
+      return res
     } catch (error) {
       console.error(error)
     }
@@ -247,18 +374,25 @@ class UserData {
 
   // Get kraken /private/readExport
   async readExport(params) {
+    this.endpoint = 'readexport'
 
-    params = (typeof params !== "undefined") ? Object.values(params).join('/') : params
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    params =
+      typeof params !== 'undefined' ? Object.values(params).join('/') : params
     try {
-      this.endpoint = "readexport"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      let res = await Fetch(this.url, this.endpoint)
-
-      if ((typeof res !== 'undefined') && res.hasOwnProperty('error'))
-        return { error: "ERROR: " + res.statusCode + " " + res.message }
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      const res = await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
       return res
-
     } catch (error) {
       console.error(error)
     }
@@ -266,18 +400,29 @@ class UserData {
 
   // Check if folder exist
   async checkExportExist(params) {
-    params = (typeof params === "object") ? Object.values(params).join('/') : params
+    this.endpoint = 'checkexport'
+
+    if (!this.token) {
+      // eslint-disable-next-line no-undef
+      console.error($_('userData.errorMessage') + ' : ' + this.endpoint)
+    }
+
+    params =
+      typeof params === 'object' ? Object.values(params).join('/') : params
 
     try {
-      this.endpoint = "checkexport"
-      this.params = (typeof params !== "undefined") ? params : "";
-      this.url = this.server + this.endpoint + (this.params ? "/" + this.params : "")
-      return await Fetch(this.url, this.endpoint)
+      this.params = typeof params !== 'undefined' ? params : ''
+      this.url =
+        this.server + this.endpoint + (this.params ? '/' + this.params : '')
+      return await Fetch({
+        url: this.url,
+        endpoint: this.endpoint,
+        token: this.token
+      })
     } catch (error) {
       console.error(error)
     }
   }
-
 } // End class
 
 export default UserData

@@ -1,66 +1,80 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
-  import { tradebalance } from "store/wsstore.js";
+  import { WSTradeBalance } from "store/wsStore.js";
 
   import { devise, online, sound, asymbole } from "store/store.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
   import TooltipIcon from "components/TooltipIcon.svelte";
 
-  let error = false;
-  let tradebalancedata;
-  let limit = 0;
-  let balance_way = "down";
-  let balance_way_tmp;
-  let played = false;
-  let trading_percent;
-  const asset = $devise;
+  import SnackBar from "components/SnackBar.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  let error = false,
+    tradebalancedata,
+    balance_way = "down",
+    balance_way_tmp,
+    played = false,
+    trading_percent,
+    asset = $devise;
+
+  let snackBarText = "",
+    snackBarShow = false;
+
+  let tbLabel = {
+    eb: {
+      label: $_("account.tradeBalance.eb.label"),
+      info: $_("account.tradeBalance.eb.info"),
+    },
+    tb: {
+      label: $_("account.tradeBalance.tb.label"),
+      info: $_("account.tradeBalance.tb.info"),
+    },
+    m: {
+      label: $_("account.tradeBalance.m.label"),
+      info: $_("account.tradeBalance.m.info"),
+    },
+    n: {
+      label: $_("account.tradeBalance.n.label"),
+      info: $_("account.tradeBalance.n.info"),
+    },
+    c: {
+      label: $_("account.tradeBalance.c.label"),
+      info: $_("account.tradeBalance.c.info"),
+    },
+    v: {
+      label: $_("account.tradeBalance.v.label"),
+      info: $_("account.tradeBalance.v.info"),
+    },
+    e: {
+      label: $_("account.tradeBalance.e.label"),
+      info: $_("account.tradeBalance.e.info"),
+    },
+    mf: {
+      label: $_("account.tradeBalance.mf.label"),
+      info: $_("account.tradeBalance.mf.info"),
+    },
+    ml: {
+      label: $_("account.tradeBalance.ml.label"),
+      info: $_("account.tradeBalance.ml.info"),
+    },
+  };
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const playSound = (track) => {
     let audio = new Audio("../sound/" + track + ".wav");
     let playPromise = audio.play();
     playPromise;
     played = false;
-  };
-
-  let tb_label = {
-    eb: {
-      label: "Solde du compte",
-      info: "Total des devises et crypto combiné",
-    },
-    tb: {
-      label: "Solde de transactions",
-      info: "Soldes total des devises de marge",
-    },
-    m: {
-      label: "Marge utilisée",
-      info: "Montant total de la marge utilisée sur les positions ouvertes",
-    },
-    n: {
-      label: "Perte/Profit",
-      info: "Perte/Profit sur papier de toutes les positions ouvertes",
-    },
-    c: {
-      label: "Coût d'ouverture",
-      info: "Coût initale de toutes les positions ouvertes",
-    },
-    v: {
-      label: "Valorisation actuelle",
-      info: "Valeur théorique de toutes les positions ouverte",
-    },
-    e: {
-      label: "Équité",
-      info: "Soldes de transactions combiné aux pertes/profits non réalisés",
-    },
-    mf: {
-      label: "Marge disponible",
-      info: "Soldes de marge utilisable. Égal à l'équité moins la marge utilisée",
-    },
-    ml: {
-      label: "Niveau de marge",
-      info: "Pourcentage d'équité par rapport à la marge utilisée",
-    },
   };
 
   const GetTradeBalance = async () => {
@@ -73,41 +87,36 @@
       const ud = new UserData();
       const res = await ud.getTradeBalance(asset);
 
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
-        if (limit < 2) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
+        error = res.error;
+        setTimeout(() => {
           GetTradeBalance();
-          limit++;
-        }
+        }, res.timeout);
       } else {
         tradebalancedata = res;
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
+      error = false;
     }
   };
 
   onMount(() => {
-    setTimeout(() => {
-      GetTradeBalance();
-    }, 500);
-
-    tradebalance.subscribe((tick) => {
-      if (typeof tick !== "undefined" && Object.keys(tick).length > 1) {
-        if (!$online) {
-          error = true;
-          return false;
-        } else if (tick.hasOwnProperty("error") && tick.error) {
-          error = tick.error;
-          console.error("ERROR", error);
-        } else if (Object.keys(tick).length >= 1) {
-          if (tick.service === "WsTradeBalance") {
-            tradebalancedata = tick.data;
-          }
-        }
-      }
-    });
+    GetTradeBalance();
   });
+
+  $: if ($WSTradeBalance) {
+    if (Object.prototype.hasOwnProperty.call($WSTradeBalance, "eb")) {
+      tradebalancedata = $WSTradeBalance;
+    }
+  }
 
   $: if (tradebalancedata) {
     // Calcul du pourcentage de perte et profit
@@ -118,7 +127,7 @@
     trading_percent = 100 - trading_percent; // 100 -
 
     if (!isNaN(trading_percent)) {
-      // Joue un sont en cas de cahngement de perte et profit
+      // Joue un sont en cas de changement de perte et profit
       balance_way_tmp = balance_way;
       balance_way = trading_percent >= 0 ? "up" : "down";
       if (balance_way != balance_way_tmp) {
@@ -129,27 +138,28 @@
   }
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block">
-  <h3>Solde de trading</h3>
+  <h3>{$_("account.tradeBalance.title")}</h3>
   <ul class="trade-balance">
-    {#if error && limit <= 2 && typeof error !== "boolean"}
+    <!-- {#if error && typeof error !== "boolean"}
       <span class="error">{error}</span>
-    {/if}
+    {/if} -->
     {#if !tradebalancedata && !error}
-      <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-    {:else}
+      <LinearProgress indeterminate />
+    {:else if tradebalancedata}
       {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["eb", "tb", "m", "e", "mf"].includes(index)}
           <li>
             <TooltipIcon
-              tooltip={tb_label[index].info}
-              text={tb_label[index].label}
+              tooltip={tbLabel[index].info}
+              text={tbLabel[index].label}
             />
             <span class="solde">
               {#if index == "eb"}
                 <span class="solde-account">
                   {parseFloat(bal).toFixed(2)}
-                  {#if $asymbole.hasOwnProperty(asset)}
+                  {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                     <span class="symbol">{$asymbole[asset].symbol}</span>
                   {/if}
                 </span>
@@ -161,13 +171,13 @@
                     : "realynotgood"}
                 >
                   {parseFloat(bal).toFixed(2)}
-                  {#if $asymbole.hasOwnProperty(asset)}
+                  {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                     <span class="symbol">{$asymbole[asset].symbol}</span>
                   {/if}
                 </span>
               {:else}
                 {parseFloat(bal).toFixed(2)}
-                {#if $asymbole.hasOwnProperty(asset)}
+                {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                   <span class="symbol">{$asymbole[asset].symbol}</span>
                 {/if}
               {/if}
@@ -180,20 +190,20 @@
 </div>
 
 <div class="block">
-  <h3>Valorisation de la position</h3>
+  <h3>{$_("account.tradeBalance.title2")}</h3>
   <ul class="trade-balance">
-    {#if error && limit <= 5 && typeof error !== "boolean"}
+    {#if error && typeof error !== "boolean"}
       <span class="error">{error}</span>
     {/if}
     {#if !tradebalancedata && !error}
-      <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-    {:else}
+      <LinearProgress indeterminate />
+    {:else if tradebalancedata}
       {#each Object.entries(tradebalancedata) as [index, bal]}
         {#if ["n", "c", "v", "ml"].includes(index)}
           <li>
             <TooltipIcon
-              tooltip={tb_label[index].info}
-              text={tb_label[index].label}
+              tooltip={tbLabel[index].info}
+              text={tbLabel[index].label}
             />
             <span class="solde">
               {#if index == "n"}
@@ -209,7 +219,7 @@
                     </span>
                   {/if}
                   {parseFloat(bal).toFixed(2)}
-                  {#if $asymbole.hasOwnProperty(asset)}
+                  {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                     <span class="symbol">{$asymbole[asset].symbol}</span>
                   {/if}
                 </span>
@@ -226,7 +236,7 @@
                 <span class="symbol">%</span>
               {:else}
                 {parseFloat(bal).toFixed(2)}
-                {#if $asymbole.hasOwnProperty(asset)}
+                {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                   <span class="symbol">{$asymbole[asset].symbol}</span>
                 {/if}
               {/if}

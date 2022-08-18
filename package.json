@@ -1,15 +1,24 @@
 {
-  "name": "walltrade",
+  "name": "krakeneazy",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "concurrently": "^6.4.0",
+    "dotenv": "^16.0.1",
     "uuid": "^8.3.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "concurrently": "^6.5.1",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-svelte3": "^3.4.1",
+    "prettier": "2.6.2"
+  },
   "scripts": {
-    "start": "concurrently --names 'SERVER,CLIENT' --prefix-colors 'bgBlue.bold,bgMagenta.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
+    "start": "concurrently --names 'SERVER,CLIENT' --prefix-colors 'bgBlue.bold,bgMagenta.bold,bgGreen.bold' --kill-others \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
   },
   "keywords": [],
   "author": "",

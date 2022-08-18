@@ -13,6 +13,7 @@
 
 body {
   background-color: #1e1e1e;
+  overflow: hidden;
 }
 
 /* body.active .layout .header, 
@@ -26,8 +27,11 @@ body.active .layout .footer {
 body.active .layout .main
 {
   margin-left: 70px;
-  margin-right: 100px;
-  width: 94%;
+  margin-right: 10px;
+  padding-bottom: 50px;
+  overflow: auto;
+  height: 750px;
+  width: auto;
 }
 body.active .layout .header .top_navbar {
 	padding:15px;
@@ -56,17 +60,23 @@ pre, code {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #292929; 
+  background: #222222;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #222222; 
+  background: #1a1a1a;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #131313; 
+  background: #414141;
 }
 
 /* Felx Table */ 
@@ -133,6 +143,15 @@ pre, code {
   font-size: 0.8em;
   display: block;
   background-color: #4a1f1f;
+  padding: 5px;
+  border: 1px solid #1e1e1e;
+}
+
+.success {
+  color: #abf1af;
+  font-size: 0.8em;
+  display: block;
+  background-color: #1f4a22;
   padding: 5px;
   border: 1px solid #1e1e1e;
 }

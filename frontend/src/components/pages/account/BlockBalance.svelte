@@ -1,16 +1,30 @@
 <script>
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
+  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
 
   import UserData from "classes/UserData.js";
   import { online, asymbole } from "store/store.js";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import LinearProgress from "@smui/linear-progress";
+  import { hasApikeysStore } from "store/userStore.js";
+  import SnackBar from "components/SnackBar.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   const ud = new UserData();
 
-  let error = false;
-  let balance = false;
-  let limit = 0;
+  let error = false,
+    balance = false;
 
+  let snackBarText = "",
+    snackBarShow = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   const GetBalance = async () => {
     try {
       if (!$online) {
@@ -18,46 +32,47 @@
         return false;
       }
 
-      if (error === 'ERROR: 500 ["EAPI:Rate limit exceeded"]') {
-        return false;
-      }
-
       const res = await ud.getBalance();
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
-        if (limit < 5) {
+        setTimeout(() => {
           GetBalance();
-          limit++;
-        }
+        }, res.timeout);
       } else {
         balance = res;
         error = false;
       }
     } catch (error) {
-      console.log(error);
+      console.error("[ERROR]:", error);
     }
   };
 
   onMount(() => {
-    setTimeout(() => {
-      GetBalance();
-    }, 500);
+    if ($hasApikeysStore) GetBalance();
   });
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block">
-  <h3>Solde du compte</h3>
+  <h3>{$_("account.balance.title")}</h3>
   <ul class="balance">
-    {#if error && limit <= 5 && typeof error !== "boolean"}
+    <!-- {#if error && typeof error !== "boolean"}
       <span class="error">{error}</span>
-    {/if}
+    {/if} -->
     {#if !balance && !error}
-      <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
+      <LinearProgress indeterminate />
     {:else}
       {#each Object.entries(balance) as [asset, bal]}
         {#if bal > 0}
           <li>
-            {#if $asymbole.hasOwnProperty(asset)}
+            {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
               <span class="label">
                 <img
                   src="img/icons/white/{$asymbole[asset].icon}.png"
@@ -70,7 +85,7 @@
               <span class="label">{asset}</span>
             {/if}
             <span class="solde">
-              {#if $asymbole.hasOwnProperty(asset)}
+              {#if Object.prototype.hasOwnProperty.call($asymbole, asset)}
                 <span class="symbol">({$asymbole[asset].symbol})</span>
               {/if}
               {bal}

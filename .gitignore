@@ -31,3 +31,14 @@ _output
 TODO
 backend/kraken.env.js
 /export/**
+frontend/yarn-error.log
+/smtp.env.mjs
+/conf/
+/logs/
+/temp/
+.editorconfig
+.eslintrc.js
+deploy.cmd.js
+deploy.cmd save.js
+__backups
+__backups/**

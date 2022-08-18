@@ -1,6 +1,10 @@
 <script>
-  import { onMount } from "svelte";
-  import { openorders } from "store/wsstore.js";
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
+  import { _ } from "svelte-i18n";
+  import { onDestroy, onMount } from "svelte";
+  import { WSOpenOrders } from "store/wsStore.js";
   import {
     online,
     assetpair,
@@ -9,12 +13,24 @@
   } from "store/store.js";
   import UserData from "classes/UserData.js";
   import formatDate from "utils/formatDate.js";
-  import { fade } from "svelte/transition";
-  import { SyncLoader } from "svelte-loading-spinners";
+  import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
+  import LinearProgress from "@smui/linear-progress";
+  import Paper, { Title, Content } from "@smui/paper";
+  import SnackBar from "components/SnackBar.svelte";
 
-  let limit = 0;
-  let error = false;
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
+  let error = false,
+    isLoading = true,
+    unsubscribe;
 
+  let snackBarText = "",
+    snackBarShow = false;
+
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
   /**
    * checkStatusDatas
    *********************/
@@ -33,7 +49,12 @@
       let status = datas[index][order_id]["status"];
       switch (status) {
         case "open":
-          if (datas[index][order_id].hasOwnProperty("opentm")) {
+          if (
+            Object.prototype.hasOwnProperty.call(
+              datas[index][order_id],
+              "opentm"
+            )
+          ) {
             // Vérifie si le status de l'élément est 'open' et si il existe une propriété 'opentm'
             // Si les 2 conditions sont remplis on push l'élément dans la variable openorders_tmp
             // console.log("# Nouvelle ouverture d'ordre ou ordre existant");
@@ -90,7 +111,12 @@
           break;
 
         default:
-          if (!datas[index][order_id].hasOwnProperty("status")) {
+          if (
+            !Object.prototype.hasOwnProperty.call(
+              datas[index][order_id],
+              "status"
+            )
+          ) {
             // Cas d'ordre exécuté
             // La valeur vol_exec est mis a jour sur l'id d'ordre
             // console.log("# Mise a jour du volume exécuté");
@@ -111,31 +137,7 @@
           break;
       }
     });
-
-    // console.log("openorders_tmp", openorders_tmp);
-    // openordersdata.update((n) => openorders_tmp);
   };
-
-  /**
-   * onMount
-   *********************/
-  onMount(() => {
-    openorders.subscribe((tick) => {
-      if (!$online) {
-        error = true;
-        return false;
-      } else if (
-        typeof tick !== "undefined" &&
-        tick.hasOwnProperty("errorMessage")
-      ) {
-        error = "[" + tick.subscription.name + "] " + tick.errorMessage;
-      } else if (typeof tick !== "undefined" && Object.keys(tick).length >= 1) {
-        if (tick.service === "OpenOrders" && tick.data) {
-          checkStatusDatas(tick.data);
-        }
-      }
-    });
-  });
 
   /**
    * GetOpenOrders
@@ -144,24 +146,35 @@
     try {
       if (!$online) {
         error = true;
+        isLoading = false;
         return false;
       }
 
       if (typeof $assetpair.altname === "undefined") {
-        error = "Veuillez choisir une paire d'asset";
+        error = $_("account.openOrders.getOpenOrders.error");
+        isLoading = false;
         return false;
       }
 
       const ud = new UserData();
       const res = await ud.getOpenOrders({ trade: true });
-      if (typeof res !== "undefined" && res.hasOwnProperty("error")) {
+      if (
+        typeof res !== "undefined" &&
+        Object.prototype.hasOwnProperty.call(res, "error")
+      ) {
+        snackBarShow = true;
+        snackBarText = `<strong>[KRAKEN API]</strong> ${res.endpoint}: ${res.message}`;
+
         error = res.error;
-        if (limit < 5) {
+        setTimeout(() => {
           GetOpenOrders();
-          limit++;
-        }
+        }, res.timeout);
+        isLoading = false;
       } else {
-        if (typeof res !== "undefined" && res.hasOwnProperty("open")) {
+        if (
+          typeof res !== "undefined" &&
+          Object.prototype.hasOwnProperty.call(res, "open")
+        ) {
           let openorders_tmp = [];
           Object.keys(res.open).map((key) => {
             // Création d'un objet temporaire
@@ -188,76 +201,99 @@
           openordersdata.set(openorders_tmp);
         }
         error = false;
+        isLoading = false;
       }
     } catch (error) {
-      console.error(error);
+      console.error("[ERROR]:", error);
     }
   };
 
+  /**
+   * onDestroy
+   *********************/
+  onMount(() => {
+    GetOpenOrders();
+  });
+
+  /**
+   * onDestroy
+   *********************/
+  onMount(() => {
+    unsubscribe;
+  });
+
+  /**
+   * WSOpenOrders
+   *********************/
+  $: if ($WSOpenOrders) checkStatusDatas($WSOpenOrders);
+
   // Si aucune données n'existe on appel
   // l'api REST pour récupérer les datas
-  $: if (!$openordersdata) {
-    GetOpenOrders();
-  }
-
-  // $: if ($openordersdata) {
-  //   console.log("openordersdata", $openordersdata);
-  // }
+  $: isLoading = !!$openordersdata;
 </script>
 
+<SnackBar showSnackbar={snackBarShow} text={snackBarText} />
 <div class="block open-orders">
-  <h4>Ouverts</h4>
-  <table class="flex-table flex-fixhead-table">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Date</th>
-        <th>Paire</th>
-        <th>Prix</th>
-        <th>Volume</th>
-        <th>Coût</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#if error && typeof error !== "boolean"}
-        <span class="error">{error}</span>
-      {/if}
-      {#if $openordersdata.length === 0 && !error}
-        <SyncLoader size="30" color="#e8e8e8" unit="px" duration="1s" />
-      {:else if typeof $openordersdata !== "undefined" && $openordersdata.length > 0 && $openordersdata}
+  <!-- {#if error && typeof error !== "boolean"}
+    <Paper color="primary" variant="outlined" class="mdc-theme--primary" square>
+      <Content>
+        {error}
+      </Content>
+    </Paper>
+  {/if} -->
+  <DataTable
+    table$aria-label={$_("account.openOrders.dataLabel")}
+    style="width: 100%;"
+    class="open-orders"
+  >
+    <LinearProgress indeterminate bind:closed={isLoading} slot="progress" />
+    <Head>
+      <Row>
+        <Cell>{$_("account.openOrders.type")}</Cell>
+        <Cell>{$_("account.openOrders.date")}</Cell>
+        <Cell>{$_("account.openOrders.pair")}</Cell>
+        <Cell>{$_("account.openOrders.price")}</Cell>
+        <Cell>{$_("account.openOrders.volume")}</Cell>
+        <Cell>{$_("account.openOrders.cost")}</Cell>
+        <Cell>{$_("account.openOrders.statut")}</Cell>
+      </Row>
+    </Head>
+    <Body>
+      {#if $openordersdata && $openordersdata.length > 0}
         {#each $openordersdata as el, i}
-          <tr id={Object.keys(el)} transition:fade>
-            <td data-label="Type" class={el[Object.keys(el)]["descr"]["type"]}>
-              {#if el[Object.keys(el)]["descr"]["type"] === "buy"}
-                <span class="buy">Acheter</span>
-              {:else}
-                <span class="sell">Vendre</span>
-              {/if}
-            </td>
-            <td data-label="open-time">
-              <div class="Date">
-                <div>{formatDate(el[Object.keys(el)]["opentm"], "D")}</div>
-                <span class="hour">
-                  ({formatDate(el[Object.keys(el)]["opentm"], "H")})
-                </span>
+          <Row id={Object.keys(el)}>
+            <Cell
+              style="padding:0;width:13%;"
+              data-label={$_("account.openOrders.type")}
+            >
+              <div class={el[Object.keys(el)]["descr"]["type"]}>
+                {#if el[Object.keys(el)]["descr"]["type"] === "buy"}
+                  {$_("account.openOrders.buy")}
+                {:else}
+                  {$_("account.openOrders.sell")}
+                {/if}
               </div>
-            </td>
-            <td data-label="Asset">
-              <span class="currency"
-                >{el[Object.keys(el)]["descr"]["pair"]}</span
-              >
-            </td>
-            <td data-label="Prix">
+            </Cell>
+            <Cell style="width:10%" data-label={$_("account.openOrders.date")}>
+              <div>{formatDate(el[Object.keys(el)]["opentm"], "D")}</div>
+              <span class="hour">
+                ({formatDate(el[Object.keys(el)]["opentm"], "H")})
+              </span>
+            </Cell>
+            <Cell data-label={$_("account.openOrders.pair")}>
+              <span class="currency">
+                {el[Object.keys(el)]["descr"]["pair"]}
+              </span>
+            </Cell>
+            <Cell data-label={$_("account.openOrders.price")}>
               <span>
                 {el[Object.keys(el)]["descr"]["price"]}
-                <span class="currency"
-                  >{el[Object.keys(el)]["descr"]["pair"].split("/")[1]}</span
-                >
+                <span class="currency">
+                  {el[Object.keys(el)]["descr"]["pair"].split("/")[1]}
+                </span>
               </span>
-            </td>
-            <td data-label="Volume">
+            </Cell>
+            <Cell data-label={$_("account.openOrders.volume")}>
               <div class="volume">
                 <div>
                   <span class="price-little">
@@ -282,51 +318,43 @@
                   </span>
                 </div>
               </div>
-            </td>
-            <td data-label="Coût">
+            </Cell>
+            <Cell data-label={$_("account.openOrders.cost")}>
               {el[Object.keys(el)]["cost"]}
-            </td>
-            <td data-label="Status">
+            </Cell>
+            <Cell
+              style="width:5%;padding-right: 0;"
+              data-label={$_("account.openOrders.statut")}
+            >
               <span class="badge">
                 {el[Object.keys(el)]["status"]}
               </span>
-            </td>
-            <td data-label="Actions">
-              <span class="icon actions"><i class="fas fa-cog" /></span>
-            </td>
-          </tr>
+            </Cell>
+          </Row>
         {/each}
       {/if}
-    </tbody>
-  </table>
+    </Body>
+  </DataTable>
 </div>
 
 <style>
-  .open-orders h4 {
-    background-color: #3a3a3a;
-    padding: 5px;
-    border: 1px solid #222222;
-    color: #c7c7c7;
-    font-size: 0.9em;
-    font-weight: inherit;
-  }
   .open-orders .hour {
     font-size: 0.8em;
     color: #858585;
   }
-  .open-orders td.buy {
+  .open-orders .buy {
     border-left: 3px solid rgb(83 104 50);
     border-right: 1px solid #1c1c1c;
     border-bottom: 1px solid rgb(37 46 24);
     background: #242424;
-    padding: 15px 0 15px 10px;
+    padding: 15px;
   }
-  .open-orders td.sell {
+  .open-orders .sell {
     border-left: 3px solid #8d2525;
     border-right: 1px solid #1c1c1c;
     border-bottom: 1px solid #3e2626;
     background: #242424;
-    padding: 15px 0 15px 10px;
+    padding: 15px;
   }
   .open-orders .buy {
     color: rgb(83 104 50);
@@ -337,14 +365,18 @@
     text-transform: uppercase;
   }
   .open-orders .badge {
-    padding: 7px 15px 0 15px;
+    padding: 15px;
     color: rgb(141, 199, 54);
     background-color: #283826;
     border: 1px dotted #1e1e1e;
     text-transform: capitalize;
+    display: block;
+    min-width: 100px;
+    text-align: center;
   }
   .open-orders .actions {
     cursor: pointer;
+    text-align: center;
   }
   .open-orders .price-little {
     font-size: 0.8em;

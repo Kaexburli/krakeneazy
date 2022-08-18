@@ -1,94 +1,191 @@
 <script>
-  import { onMount } from "svelte";
-  import { wssurl, online } from "store/store.js";
+  // ---------------------------------------------------------
+  //  Imports
+  // ---------------------------------------------------------
+  import { _ } from "svelte-i18n";
+  import { fade } from "svelte/transition";
+  import { onMount, onDestroy } from "svelte";
+  import { online } from "store/store.js";
+  import { mounted } from "store/mounted.js";
   import websocketStore from "svelte-websocket-store";
   import Badge from "svelte-favicon-badge";
+  import KrakenStatusAPI from "api/KrakenStatusAPI.svelte";
 
+  // ---------------------------------------------------------
+  //  Props
+  // ---------------------------------------------------------
   // Appel Websocket
-  let wss_systemstatus;
-  wssurl.subscribe((server) => (wss_systemstatus = server + "/systemstatus"));
-  const wsSystemStatus = websocketStore(wss_systemstatus);
+  /*eslint-disable */
+  const backendUri =
+    __App["env"].BACKEND_URI || [location.protocol, location.host].join("//");
+  /*eslint-disable */
+  const server =
+    location.protocol === "http:"
+      ? `${backendUri.replace("http", "ws")}`
+      : `${backendUri.replace("https", "wss")}`;
+  const wsSystemStatusUri = server + "/api/ws/systemstatus";
+  const wsKrakenStatusUri = server + "/api/ws/krakenstatus";
+  const wsSystemStatus = websocketStore(wsSystemStatusUri);
+  const wsKrakenStatus = websocketStore(wsKrakenStatusUri);
   // Appel Websocket
 
-  let count = 0;
-  let background = "#FF0000";
-  let color = "#FFFFFF";
-
-  let error = false;
-  let status = "online";
-  let interval = Date.now();
+  let countOffline = 0,
+    background = "#6b0000",
+    color = "#FFFFFF",
+    error = false,
+    status = "online",
+    interval = Date.now(),
+    krakenIncidentsDatas = false,
+    krakenMaintenances = false,
+    krakenStatus = false,
+    krakenIncidents = [],
+    components = [],
+    closeWsKrakenStatus,
+    closeWsSystemStatus;
 
   export let display;
 
-  onMount(() => {
-    wsSystemStatus.subscribe((tick) => {
-      if (typeof tick === "undefined") return false;
-      if (tick.service !== "WsSystemStatus") return false;
+  // ---------------------------------------------------------
+  //  Methods Declarations
+  // ---------------------------------------------------------
+  /**
+   * initKrakenStatusApi
+   * @description Initialise les appels du status KRAKEN
+   */
+  const initKrakenStatusApi = async (datas) => {
+    // Vérification des maintenances programmées
+    krakenMaintenances = datas.scheduled_maintenances;
+    if (datas && datas.status.indicator !== "none") {
+      krakenStatus = datas.status.description;
+    }
 
-      if (tick.data.hasOwnProperty("errno")) {
-        count = 1;
-        error =
-          "[" +
-          tick.data.errno +
-          "] " +
-          tick.data.code +
-          " " +
-          tick.data.syscall;
-        status = "offline";
-        online.update((n) => false);
-      } else if (tick.data.hasOwnProperty("errorMessage")) {
-        count = 1;
-        error =
-          "[" + tick.data.subscription.name + "] " + tick.data.errorMessage;
-        status = "offline";
-        online.update((n) => false);
-      } else if (tick.data.hasOwnProperty("error")) {
-        count = 1;
-        let message = tick.data.message;
-        error = "[" + tick.data.error + "] " + message;
-        status = "offline";
-      } else if (tick.data.hasOwnProperty("status")) {
-        let timestamp = new Date(tick.data.timestamp).getTime();
-        let diff_beetween = interval - timestamp;
-        diff_beetween = Math.floor(diff_beetween / 1000 / 60 / 60 / 24);
-        online.update((n) => diff_beetween === -1);
-        status = tick.data.status;
-        error = false;
-      } else if (!$online && !tick.data.hasOwnProperty("status")) {
-        count = 1;
-        error = "ERROR";
+    // Vérification des components
+    const krakenComponents = datas.components;
+    if ((krakenComponents || []).length) {
+      components = [];
+      for (const KKComponent of krakenComponents) {
+        if (KKComponent.status !== "operational") {
+          const status = KKComponent.status;
+          const name = KKComponent.name;
+          const description =
+            KKComponent.description !== null ? KKComponent.description : "";
+          const errMsg = `[${status}] ${name} ${description}`;
+          components.push(errMsg);
+        }
+      }
+      krakenStatus += components.map((v) => `\n ${v}`);
+    }
+
+    // Vérification des incidents
+    krakenIncidentsDatas = datas.incidents;
+    if ((krakenIncidentsDatas || []).length) {
+      krakenIncidents = [];
+      for (const incident of krakenIncidentsDatas) {
+        const updates = incident.incident_updates;
+        for (const update of updates) {
+          krakenIncidents.push({
+            name: incident.name,
+            resolved_at: incident.resolved_at,
+            started_at: incident.started_at,
+            updated_at: incident.updated_at,
+            impact: incident.impact,
+            status: incident.status,
+            affected: update.affected_components,
+            body: update.body,
+          });
+        }
+      }
+    }
+  };
+
+  /**
+   * onMount
+   * @description Svelte function native
+   */
+  onMount(async () => {
+    closeWsKrakenStatus = wsKrakenStatus.subscribe((tick) => {
+      if (
+        !tick ||
+        tick.service !== "WsKrakenStatus" ||
+        !Object.prototype.hasOwnProperty.call(tick, "data")
+      )
         return false;
+
+      initKrakenStatusApi(tick.data);
+    });
+
+    closeWsSystemStatus = wsSystemStatus.subscribe((tick) => {
+      // console.log("wsSystemStatus tick", tick);
+      if (!tick) {
+        return false;
+      } else if (!tick.ok) {
+        // { "ok": false, "service": "WsSystemStatus", "error": {"errno": -3008, "code": "ENOTFOUND", "syscall": "getaddrinfo", "hostname": "api.kraken.com" }, "data": {} }
+        online.update((n) => false);
+        status = "offline";
+        error = `[${tick.error.code}]`;
+        countOffline++;
+      } else {
+        // { "ok": true, "error": false, "service": "WsSystemStatus", "data": { "status": "online", "timestamp": "2022-04-19T16:56:06Z" } }
+        let timestamp = new Date(tick.data.timestamp).getTime();
+        let diffBeetween = interval - timestamp;
+        diffBeetween = Math.floor(diffBeetween / 1000 / 60 / 60 / 24);
+        online.update((n) => diffBeetween === -1);
+        status = tick.data.status;
+        error = tick.error;
+        countOffline = 0;
       }
     });
   });
+
+  /**
+   * onDestroy
+   * @description Svelte function native
+   */
+  onDestroy(() => {
+    closeWsKrakenStatus();
+    closeWsSystemStatus();
+    display = false;
+  });
 </script>
 
-{#if display === "header"}
-  <Badge {count} {color} {background} href="/favicon.png" />
+{#if display === "header" && $mounted}
+  <Badge count={countOffline} {color} {background} href="/favicon.png" />
   {#if !$online}
     <div id="error-network">
       <div id="offline">
         <i class="fa fa-exclamation-triangle" />
-        <span class="errno">[{error}]</span>&nbsp; Problème réseaux, veuillez
-        vérifier votre connection internet.
+        {$_("online.errorMessage")}&nbsp;
       </div>
     </div>
   {/if}
-{:else if display === "footer"}
+{:else if display === "footer" && $mounted}
+  {#if krakenIncidents.length}
+    <KrakenStatusAPI {krakenIncidents} {krakenStatus} {krakenMaintenances} />
+  {/if}
   <div class="online-api">
     {#if error}
       <span class="error_status">{error}</span>
     {/if}
-
-    {#if status === undefined}
-      <span class="dot" />
-    {:else if status === "online"}
-      {status}&nbsp;<span class="dot dot-green" />
-    {:else if status === "offline"}
-      {status}&nbsp;<span class="dot dot-red" />
-    {:else}
-      <span class="dot" />
-    {/if}
+    <span class="wrapper" in:fade>
+      {#if status === undefined}
+        <span class="dot" />
+      {:else if status === "online"}
+        <span class="status-green">
+          {$_(`online.${status}`)}&nbsp;&nbsp;
+        </span>
+        <span class="dot dot-green" />
+      {:else if status === "offline"}
+        <span class="status-red">
+          {$_(`online.${status}`)}&nbsp;&nbsp;
+        </span>
+        <span class="dot dot-red" />
+      {:else}
+        <span class="status-orange">
+          {$_(`online.${status}`)}&nbsp;&nbsp;
+        </span>
+        <span class="dot dot-orange" />
+      {/if}
+    </span>
   </div>
 {/if}
 
@@ -96,8 +193,10 @@
   .online-api {
     text-align: right;
     float: right;
-    font-size: 0.8em;
-    margin-top: 3px;
+    vertical-align: middle;
+  }
+  .online-api .wrapper {
+    font-size: 0.9em;
     vertical-align: middle;
   }
   .dot {
@@ -116,22 +215,43 @@
     background-color: red;
     vertical-align: inherit;
   }
+  .dot-orange {
+    background-color: orange;
+    vertical-align: inherit;
+  }
+  .status-green {
+    color: chartreuse;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
+  .status-red {
+    color: red;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
+  .status-orange {
+    color: orange;
+    vertical-align: inherit;
+    text-transform: uppercase;
+    font-size: 0.7em;
+  }
   .error_status {
     color: red;
     font-size: 0.8em;
   }
-  .errno {
+  /* .errno {
     color: #f15353;
-  }
+  } */
   #offline {
-    background-color: #5a2828;
+    background-color: #b30000;
     color: #e9e9e9;
     border: 1px solid #262626;
     display: block;
     z-index: 30;
     padding: 10px;
     position: relative;
-    font-weight: bold;
     font-size: 0.8em;
   }
   #error-network {

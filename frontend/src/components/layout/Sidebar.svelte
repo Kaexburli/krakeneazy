@@ -1,36 +1,81 @@
 <script>
+  import { _ } from "svelte-i18n";
   import { page } from "store/store.js";
+  import { hasApikeysStore } from "store/userStore.js";
+
+  // User
+  export let isLoggedIn;
+  if (!isLoggedIn) page.update((n) => "home");
 
   const handleClickMenu = (slug) => {
-    page.update((n) => slug);
+    if (slug && typeof slug !== ("undefined" || null)) page.update((n) => slug);
   };
 
+  // Pages
   const pages = [
-    { name: "Accueil", slug: "home", icon: "fa-home" },
-    { name: "Compte", slug: "account", icon: "fa-user-shield" },
-    { name: "Trading", slug: "trading", icon: "fa-desktop" },
-    { name: "Statistiques", slug: "statistic", icon: "fa-tachometer-alt" },
-    { name: "Rapports", slug: "reports", icon: "fa-chart-line" },
-    { name: "Paramètres", slug: "settings", icon: "fa-cog" },
+    {
+      name: $_("sidebar.home"),
+      slug: "home",
+      icon: "fa-home",
+      authenticated: false,
+      apikeys: false,
+    },
+    {
+      name: $_("sidebar.account"),
+      slug: "account",
+      icon: "fa-user-shield",
+      authenticated: true,
+      apikeys: true,
+    },
+    {
+      name: $_("sidebar.trading"),
+      slug: "trading",
+      icon: "fa-desktop",
+      authenticated: true,
+      apikeys: true,
+    },
+    {
+      name: $_("sidebar.statistics"),
+      slug: "statistic",
+      icon: "fa-tachometer-alt",
+      authenticated: true,
+      apikeys: true,
+    },
+    {
+      name: $_("sidebar.reports"),
+      slug: "reports",
+      icon: "fa-chart-line",
+      authenticated: true,
+      apikeys: true,
+    },
+    {
+      name: $_("sidebar.settings"),
+      slug: "settings",
+      icon: "fa-cog",
+      authenticated: true,
+      apikeys: false,
+    },
   ];
 </script>
 
 <div id="sidebar">
   <div class="logo">
-    <h3>AlgoTrade</h3>
+    <h3>{$_("site.name")}</h3>
   </div>
   <ul>
-    {#each pages as { name, slug, icon }, i}
-      <li>
-        <a
-          href="/{slug}"
-          class:active={$page === slug}
-          on:click|preventDefault={() => handleClickMenu(slug)}
-        >
-          <span class="icon"><i class="fas {icon}" /></span>
-          <span class="item">{name}</span>
-        </a>
-      </li>
+    {#each pages as { name, slug, icon, authenticated, apikeys }, i}
+      {#if !authenticated || (authenticated && isLoggedIn && !apikeys) || (apikeys && $hasApikeysStore)}
+        <li>
+          <a
+            href="/{slug}"
+            class:active={$page === slug}
+            on:click|preventDefault={() => handleClickMenu(slug)}
+          >
+            <span class="icon"><i class="fas {icon}" /></span>
+            <span class="item">{name}</span>
+          </a>
+        </li>
+      {/if}
     {/each}
   </ul>
 </div>

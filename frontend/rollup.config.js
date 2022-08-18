@@ -1,50 +1,59 @@
-import svelte from 'rollup-plugin-svelte';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
-import css from 'rollup-plugin-css-only';
-import alias from '@rollup/plugin-alias';
-import replace from '@rollup/plugin-replace';
+import path from 'path'
+import { config } from 'dotenv'
+import svelte from 'rollup-plugin-svelte'
+import commonjs from '@rollup/plugin-commonjs'
+import resolve from '@rollup/plugin-node-resolve'
+import livereload from 'rollup-plugin-livereload'
+import { terser } from 'rollup-plugin-terser'
+import css from 'rollup-plugin-css-only'
+import alias from '@rollup/plugin-alias'
+import replace from '@rollup/plugin-replace'
+import json from '@rollup/plugin-json'
 
-const production = !process.env.ROLLUP_WATCH;
+const production = !process.env.ROLLUP_WATCH
 
 const aliases = alias({
-  resolve: ['.svelte', '.js'], //optional, by default this will just look for .js files or folders
+  resolve: ['.svelte', '.js', '.cjs', '.mjs'], // optional, by default this will just look for .js files or folders
   entries: [
     { find: 'components', replacement: 'src/components' },
     { find: 'classes', replacement: 'src/classes' },
+    { find: 'api', replacement: 'src/components/api' },
     { find: 'store', replacement: 'src/store' },
     { find: 'utils', replacement: 'src/utils' },
     { find: 'machin', replacement: 'src/xstate' },
+    { find: 'lang', replacement: 'public/lang' }
   ]
-});
+})
 
-function serve() {
-  let server;
+function serve () {
+  let server
 
-  function toExit() {
-    if (server) server.kill(0);
+  function toExit () {
+    if (server) server.kill(0)
   }
 
   return {
-    writeBundle() {
-      if (server) return;
-      server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-        stdio: ['ignore', 'inherit', 'inherit'],
-        shell: true
-      });
+    writeBundle () {
+      if (server) return
+      server = require('child_process').spawn(
+        'npm',
+        ['run', 'start', '--', '--dev'],
+        {
+          stdio: ['ignore', 'inherit', 'inherit'],
+          shell: true
+        }
+      )
 
-      process.on('SIGTERM', toExit);
-      process.on('exit', toExit);
+      process.on('SIGTERM', toExit)
+      process.on('exit', toExit)
     }
-  };
+  }
 }
 
 export default {
   input: 'src/main.js',
   output: {
-    sourcemap: true,
+    sourcemap: !production,
     format: 'iife',
     name: 'app',
     file: 'public/build/bundle.js'
@@ -71,9 +80,14 @@ export default {
     }),
     commonjs(),
 
+    json(),
+
     replace({
       preventAssignment: true,
-      'process.env.NODE_ENV': process.env.NODE_ENV
+      'process.env.NODE_ENV': process.env.NODE_ENV,
+      __App: JSON.stringify({
+        env: { ...config({ path: path.join(__dirname, '/../.env') }).parsed }
+      })
     }),
 
     // In dev mode, call `npm run start` once
@@ -88,10 +102,10 @@ export default {
     // instead of npm run dev), minify
     production && terser(),
 
-    // Alias plugin 
+    // Alias plugin
     aliases
   ],
   watch: {
     clearScreen: false
   }
-};
+}
