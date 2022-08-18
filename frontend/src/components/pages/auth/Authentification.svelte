@@ -43,6 +43,10 @@
   // ---------------------------------------------------------
   //  Methods Declarations
   // ---------------------------------------------------------
+  const checkIfTranslationExists = (key) => {
+    return $_(key, { disableWarnings: true }) !== key;
+  };
+
   const bootstrap = (readyState) => {
     if (["interactive", "complete"].includes(readyState)) {
       authForm = document.getElementById("authForm");
@@ -424,7 +428,7 @@
 
     if (!login.ok) {
       isError = $_(
-        Object.prototype.hasOwnProperty.call($_(`auth.msg`), login.message)
+        checkIfTranslationExists(`auth.msg.${login.message}`)
           ? `auth.msg.${login.message}`
           : login.message,
         login.field
@@ -444,10 +448,7 @@
         if (resend.ok)
           Notification(
             $_(
-              Object.prototype.hasOwnProperty.call(
-                $_(`auth.msg`),
-                resend.message
-              )
+              checkIfTranslationExists(`auth.msg.${resend.message}`)
                 ? `auth.msg.${resend.message}`
                 : resend.message,
               resend.email
@@ -484,7 +485,7 @@
 
     if (!register.ok) {
       isError = $_(
-        Object.prototype.hasOwnProperty.call($_(`auth.msg`), register.message)
+        checkIfTranslationExists(`auth.msg.${register.message}`)
           ? `auth.msg.${register.message}`
           : register.message,
         register.field
